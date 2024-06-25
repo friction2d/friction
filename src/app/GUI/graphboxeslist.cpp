@@ -472,7 +472,9 @@ void KeysView::graphSetOnlySelectedVisible(const bool selectedOnly) {
 }
 
 bool KeysView::graphValidateVisible(GraphAnimator* const animator) {
-    if(graph_mOnlySelectedVisible){
+    // https://github.com/friction2d/friction/issues/176
+    if (!animator->prp_isParentBoxGraphSelected()) { return false; }
+    if (graph_mOnlySelectedVisible) {
         return animator->prp_isParentBoxSelected();
     }
     return true;

@@ -111,9 +111,11 @@ public:
     bool isFrameFVisibleAndInDurationRect(const qreal relFrame) const;
 
     void setSelected(const bool select);
+    void setGraphSelected(const bool select);
     void select();
     void deselect();
     bool isSelected() const { return mSelected; }
+    bool isGraphSelected() const { return mGraphSelected; }
     void selectionChangeTriggered(const bool shiftPressed);
 
     void hide();
@@ -146,6 +148,7 @@ signals:
     void lockedChanged(bool);
 private:
     bool mSelected = false;
+    bool mGraphSelected = false;
     bool mVisible = true;
     bool mLocked = false;
     int mZListIndex = 0;

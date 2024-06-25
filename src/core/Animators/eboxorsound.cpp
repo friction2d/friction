@@ -381,6 +381,12 @@ void eBoxOrSound::setSelected(const bool select) {
     emit selectionChanged(select);
 }
 
+void eBoxOrSound::setGraphSelected(const bool select)
+{
+    if (mGraphSelected == select) { return; }
+    mGraphSelected = select;
+}
+
 void eBoxOrSound::select() {
     setSelected(true);
 }

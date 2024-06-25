@@ -362,6 +362,13 @@ bool Property::prp_isParentBoxSelected() const {
     return false;
 }
 
+bool Property::prp_isParentBoxGraphSelected() const
+{
+    const auto pBox = getFirstAncestor<eBoxOrSound>();
+    if (pBox) { return pBox->isGraphSelected(); }
+    return false;
+}
+
 #include "canvas.h"
 void Property::prp_selectionChangeTriggered(const bool shiftPressed) {
     if(!mParentScene) return;
