@@ -471,6 +471,7 @@ void Canvas::addBoxToSelection(BoundingBox * const box)
     });
 
     box->setSelected(true);
+    box->setGraphSelected(true);
     schedulePivotUpdate();
 
     sortSelectedBoxesDesc();
@@ -487,9 +488,10 @@ void Canvas::addBoxToSelection(BoundingBox * const box)
 }
 
 void Canvas::removeBoxFromSelection(BoundingBox * const box) {
-    if(!box->isSelected()) return;
+    if (!box->isSelected()) { return; }
     mSelectedBoxes.removeObj(box);
     box->setSelected(false);
+    box->setGraphSelected(false);
     schedulePivotUpdate();
     //if(mCurrentMode == CanvasMode::paint) updatePaintBox();
     if (mSelectedBoxes.isEmpty()) { setCurrentBox(nullptr); }
