@@ -41,6 +41,7 @@ qreal ClampedValue::getRawSavedValue() const {
 }
 
 qreal ClampedValue::getRawValue() const {
+    if (mValue != mValue) { return 0.; }
     return mValue;
 }
 
