@@ -36,6 +36,11 @@ UniformSpecifier ShaderValueHandler::create(const GLint loc,
 {
     Q_ASSERT(loc >= 0);
     switch(mType) {
+    case GLValueType::Boolean:
+        return [loc, &engine, index](QGL33 * const gl) {
+            const auto val = engine.getGlValueDouble(index);
+            gl->glUniform1i(loc, static_cast<GLint>(qRound(val)));
+        };
     case GLValueType::Float:
         return [loc, &engine, index](QGL33 * const gl) {
             const auto val = engine.getGlValueDouble(index);

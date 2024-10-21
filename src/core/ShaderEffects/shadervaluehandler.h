@@ -36,6 +36,7 @@ typedef std::function<void(QGL33 * const)> UniformSpecifier;
 enum class GLValueType {
     Float, Vec2, Vec3, Vec4,
     Int, iVec2, iVec3, iVec4,
+    Boolean,
     none
 };
 
