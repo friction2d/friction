@@ -56,6 +56,7 @@ set(
     gradientwidgets/displayedgradientswidget.cpp
     gradientwidgets/gradientslistwidget.cpp
     gradientwidgets/gradientwidget.cpp
+    misc/infinitemousemovement.cpp
     misc/noshortcutaction.cpp
     misc/keyfocustarget.cpp
     optimalscrollarena/minimalscrollwidget.cpp
@@ -128,6 +129,7 @@ set(
     gradientwidgets/displayedgradientswidget.h
     gradientwidgets/gradientslistwidget.h
     gradientwidgets/gradientwidget.h
+    misc/infinitemousemovement.h
     misc/noshortcutaction.h
     misc/keyfocustarget.h
     optimalscrollarena/minimalscrollwidget.h
