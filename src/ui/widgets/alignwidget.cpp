@@ -42,26 +42,58 @@ AlignWidget::AlignWidget(QWidget* const parent)
     mainLayout->setContentsMargins(5, 5, 5, 5);
     setLayout(mainLayout);
 
+    const auto labelsLay = new QHBoxLayout;
+    mainLayout->insertLayout(0, labelsLay);
+
+    const auto labelAlignPivot = new QLabel(tr("Align:"), this);
+    labelAlignPivot->setAlignment(Qt::AlignLeft);
+    labelsLay->addWidget(labelAlignPivot, 1);
+
+    const auto labelRelativeTo = new QLabel(tr("Relative to:"), this);
+    labelRelativeTo->setAlignment(Qt::AlignLeft);
+    labelsLay->addWidget(labelRelativeTo, 1);
+
+    labelsLay->addStretch();
+
     const auto combosLay = new QHBoxLayout;
     mainLayout->addLayout(combosLay);
 
-    //combosLay->addWidget(new QLabel(tr("Align")));
     mAlignPivot = new QComboBox(this);
     mAlignPivot->setMinimumWidth(20);
     mAlignPivot->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     mAlignPivot->setFocusPolicy(Qt::NoFocus);
-    mAlignPivot->addItem(tr("Align Geometry"));
-    mAlignPivot->addItem(tr("Align Pivot"));
+    mAlignPivot->addItem(tr("Geometry"));
+    mAlignPivot->addItem(tr("Geometry by Pivot"));
+    mAlignPivot->addItem(tr("Pivot"));
     combosLay->addWidget(mAlignPivot);
 
-    //combosLay->addWidget(new QLabel(tr("Relative to")));
     mRelativeTo = new QComboBox(this);
     mRelativeTo->setMinimumWidth(20);
     mRelativeTo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     mRelativeTo->setFocusPolicy(Qt::NoFocus);
-    mRelativeTo->addItem(tr("Relative to Scene"));
-    mRelativeTo->addItem(tr("Relative to Last Selected"));
+    mRelativeTo->addItem(tr("Scene"));
+    mRelativeTo->addItem(tr("Last Selected"));
     combosLay->addWidget(mRelativeTo);
+
+    connect(mAlignPivot, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int index) {
+        static bool isItem2Removed = true;
+
+        if (index == 2) {
+            if (isItem2Removed) {
+                mRelativeTo->insertItem(2, tr("Last Selected Pivot"));
+                mRelativeTo->insertItem(3, tr("Bounding Box"));
+                isItem2Removed = false;
+            }
+            mRelativeTo->setCurrentIndex(3);
+        } else {
+            if (!isItem2Removed) {
+                mRelativeTo->removeItem(2);
+                mRelativeTo->removeItem(2);
+                isItem2Removed = true;
+                mRelativeTo->setCurrentIndex(0);
+            }
+        }
+    });
 
     const auto buttonsLay = new QHBoxLayout;
     mainLayout->addLayout(buttonsLay);
@@ -120,6 +152,29 @@ AlignWidget::AlignWidget(QWidget* const parent)
         triggerAlign(Qt::AlignBottom);
     });
     buttonsLay->addWidget(bottomButton);
+
+    connect(mRelativeTo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this, leftButton, rightButton, topButton, bottomButton]() {
+        if (mRelativeTo->currentIndex() == 2) {
+            leftButton->setEnabled(false);
+            leftButton->setIcon(QIcon());
+            rightButton->setEnabled(false);
+            rightButton->setIcon(QIcon());
+            topButton->setEnabled(false);
+            topButton->setIcon(QIcon());
+            bottomButton->setEnabled(false);
+            bottomButton->setIcon(QIcon());
+        } else {
+            leftButton->setEnabled(true);
+            leftButton->setIcon(QIcon::fromTheme("pivot-align-left"));
+            rightButton->setEnabled(true);
+            rightButton->setIcon(QIcon::fromTheme("pivot-align-right"));
+            topButton->setEnabled(true);
+            topButton->setIcon(QIcon::fromTheme("pivot-align-top"));
+            bottomButton->setEnabled(true);
+            bottomButton->setIcon(QIcon::fromTheme("pivot-align-bottom"));
+        }
+    });
+
 
     eSizesUI::widget.add(leftButton, [leftButton,
                                       hCenterButton,

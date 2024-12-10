@@ -161,7 +161,7 @@ void MainWindow::setupMenuExtras()
     }
     // align
     {
-        const int alignTotal = 28;
+        const int alignTotal = 40;
 
         const QString alignTextDefault = tr("Align %1 %2 Relative to %3");
         const QString alignGeometry = tr("Geometry");
@@ -480,6 +480,126 @@ void MainWindow::setupMenuExtras()
                 iconString = alignVCenterIcon;
                 alignBoth = false;
                 align = Qt::AlignVCenter;
+                break;
+            case 28:  // Pivot alignment to Bounding Box - VCenter -----------------------------------------------------------------------------------
+                alignString = alignVCenter;
+                pivotString = alignPivot;
+                relString = alignLast;
+                pivot = AlignPivot::pivotItself;
+                rel = AlignRelativeTo::boundingBox;
+                iconString = alignVCenterIcon;
+                alignBoth = false;
+                align = Qt::AlignVCenter;
+                break;
+            case 29:  // Pivot alignment to Bounding Box - HCenter
+                alignString = alignVCenter;
+                pivotString = alignPivot;
+                relString = alignLast;
+                pivot = AlignPivot::pivotItself;
+                rel = AlignRelativeTo::boundingBox;
+                iconString = alignVCenterIcon;
+                alignBoth = false;
+                align = Qt::AlignHCenter;
+                break;
+            case 30:  // Pivot alignment to Bounding Box - Left
+                alignString = alignVCenter;
+                pivotString = alignPivot;
+                relString = alignLast;
+                pivot = AlignPivot::pivotItself;
+                rel = AlignRelativeTo::boundingBox;
+                iconString = alignVCenterIcon;
+                alignBoth = false;
+                align = Qt::AlignLeft;
+                break;
+            case 31:  // Pivot alignment to Bounding Box - Right
+                alignString = alignVCenter;
+                pivotString = alignPivot;
+                relString = alignLast;
+                pivot = AlignPivot::pivotItself;
+                rel = AlignRelativeTo::boundingBox;
+                iconString = alignVCenterIcon;
+                alignBoth = false;
+                align = Qt::AlignRight;
+                break;
+            case 32:  // Pivot alignment to Bounding Box - Top
+                alignString = alignVCenter;
+                pivotString = alignPivot;
+                relString = alignLast;
+                pivot = AlignPivot::pivotItself;
+                rel = AlignRelativeTo::boundingBox;
+                iconString = alignVCenterIcon;
+                alignBoth = false;
+                align = Qt::AlignTop;
+                break;
+            case 33:  // Pivot alignment to Bounding Box - Bottom
+                alignString = alignVCenter;
+                pivotString = alignPivot;
+                relString = alignLast;
+                pivot = AlignPivot::pivotItself;
+                rel = AlignRelativeTo::boundingBox;
+                iconString = alignVCenterIcon;
+                alignBoth = false;
+                align = Qt::AlignBottom;
+                break;
+            case 34:  // Pivot alignment to Scene - VCenter -----------------------------------------------------------------------------------
+                alignString = alignVCenter;
+                pivotString = alignPivot;
+                relString = alignLast;
+                pivot = AlignPivot::pivotItself;
+                rel = AlignRelativeTo::scene;
+                iconString = alignVCenterIcon;
+                alignBoth = false;
+                align = Qt::AlignVCenter;
+                break;
+            case 35:  // Pivot alignment to Scene - HCenter
+                alignString = alignVCenter;
+                pivotString = alignPivot;
+                relString = alignLast;
+                pivot = AlignPivot::pivotItself;
+                rel = AlignRelativeTo::scene;
+                iconString = alignVCenterIcon;
+                alignBoth = false;
+                align = Qt::AlignHCenter;
+                break;
+            case 36:  // Pivot alignment to Scene - Left
+                alignString = alignVCenter;
+                pivotString = alignPivot;
+                relString = alignLast;
+                pivot = AlignPivot::pivotItself;
+                rel = AlignRelativeTo::scene;
+                iconString = alignVCenterIcon;
+                alignBoth = false;
+                align = Qt::AlignLeft;
+                break;
+            case 37:  // Pivot alignment to Scene - Right
+                alignString = alignVCenter;
+                pivotString = alignPivot;
+                relString = alignLast;
+                pivot = AlignPivot::pivotItself;
+                rel = AlignRelativeTo::scene;
+                iconString = alignVCenterIcon;
+                alignBoth = false;
+                align = Qt::AlignRight;
+                break;
+            case 38:  // Pivot alignment to Scene - Top
+                alignString = alignVCenter;
+                pivotString = alignPivot;
+                relString = alignLast;
+                pivot = AlignPivot::pivotItself;
+                rel = AlignRelativeTo::scene;
+                iconString = alignVCenterIcon;
+                alignBoth = false;
+                align = Qt::AlignTop;
+                break;
+            case 39:  // Pivot alignment to Scene - Bottom
+                alignString = alignVCenter;
+                pivotString = alignPivot;
+                relString = alignLast;
+                pivot = AlignPivot::pivotItself;
+                rel = AlignRelativeTo::scene;
+                iconString = alignVCenterIcon;
+                alignBoth = false;
+                align = Qt::AlignBottom;
                 break;
             default:
                 return;
