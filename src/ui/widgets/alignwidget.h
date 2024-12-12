@@ -50,6 +50,7 @@ private:
 
     QComboBox *mAlignPivot;
     QComboBox *mRelativeTo;
+    QComboBox *mRelativeToPivot;
 };
 
 #endif // ALIGNWIDGET_H
