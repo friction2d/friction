@@ -81,6 +81,10 @@ QSpinBox#SpinBoxNoButtons::down-button {
     width: 0;
     height: 0;
 }
+QSpinBox#SpinBoxNoButtons:hover {
+    background-color: %3;
+    border-color: %3;
+}
 
 QTabWidget#TabWidgetCenter::tab-bar {
     alignment: center;
@@ -447,8 +451,8 @@ QToolBar#animationDockWidget QPushButton {
     border-color: %2;
 }
 
-QToolBar#animationDockWidget QToolButton::hover,
-QToolBar#animationDockWidget QPushButton::hover {
+QToolBar#animationDockWidget QToolButton:hover,
+QToolBar#animationDockWidget QPushButton:hover {
     border-color: %4;
 }
 
@@ -629,4 +633,16 @@ Friction--Ui--ToolBar::separator:vertical {
 
 Friction--Ui--ToolBar::separator:horizontal {
     width: 1px;
+}
+
+QToolButton#PrevKeyframeButton {
+    margin-right: %10;
+}
+
+QToolButton#NextKeyframeButton {
+    margin-left: %10;
+}
+
+QToolButton#LoopButton {
+    margin-left: %7;
 }

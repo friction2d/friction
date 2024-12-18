@@ -82,7 +82,8 @@ TimelineDockWidget::TimelineDockWidget(Document& document,
     mMainLayout->setSpacing(0);
     mMainLayout->setMargin(0);
 
-    mFrameRewindAct = new QAction(QIcon::fromTheme("rewind"),
+    // mFrameRewindAct = new QAction(QIcon::fromTheme("rewind"),
+    mFrameRewindAct = new QAction(QIcon("/Users/pablo/GitHub/friction-icon-theme_pablo/hicolor/scalable/friction/preview_rewind.png"),
                                   tr("Rewind"),
                                   this);
     mFrameRewindAct->setShortcut(QKeySequence(AppSupport::getSettings("shortcuts",
@@ -97,7 +98,8 @@ TimelineDockWidget::TimelineDockWidget(Document& document,
         mDocument.actionFinished();
     });
 
-    mFrameFastForwardAct = new QAction(QIcon::fromTheme("fastforward"),
+    // mFrameFastForwardAct = new QAction(QIcon::fromTheme("fastforward"),
+    mFrameFastForwardAct = new QAction(QIcon("/Users/pablo/GitHub/friction-icon-theme_pablo/hicolor/scalable/friction/preview_fastforward.png"),
                                        tr("Fast Forward"),
                                        this);
     mFrameFastForwardAct->setShortcut(QKeySequence(AppSupport::getSettings("shortcuts",
@@ -112,7 +114,8 @@ TimelineDockWidget::TimelineDockWidget(Document& document,
         mDocument.actionFinished();
     });
 
-    mPlayFromBeginningButton = new QAction(QIcon::fromTheme("preview"),
+    // mPlayFromBeginningButton = new QAction(QIcon::fromTheme("preview"),
+    mPlayFromBeginningButton = new QAction(QIcon("/Users/pablo/GitHub/friction-icon-theme_pablo/hicolor/scalable/friction/preview_play-from-start.png"),
                                            tr("Play Preview From Start"),
                                            this);
     connect(mPlayFromBeginningButton, &QAction::triggered,
@@ -125,18 +128,21 @@ TimelineDockWidget::TimelineDockWidget(Document& document,
         setPreviewFromStart(state);
     });
 
-    mPlayButton = new QAction(QIcon::fromTheme("play"),
+    // mPlayButton = new QAction(QIcon::fromTheme("play"),
+    mPlayButton = new QAction(QIcon("/Users/pablo/GitHub/friction-icon-theme_pablo/hicolor/scalable/friction/preview_play.png"),
                               tr("Play Preview"),
                               this);
 
-    mStopButton = new QAction(QIcon::fromTheme("stop"),
+    // mStopButton = new QAction(QIcon::fromTheme("stop"),
+    mStopButton = new QAction(QIcon("/Users/pablo/GitHub/friction-icon-theme_pablo/hicolor/scalable/friction/preview_stop.png"),
                               tr("Stop Preview"),
                               this);
 
     connect(mStopButton, &QAction::triggered,
             this, &TimelineDockWidget::interruptPreview);
 
-    mLoopButton = new QAction(QIcon::fromTheme("loop3"),
+    // mLoopButton = new QAction(QIcon::fromTheme("loop3"),
+    mLoopButton = new QAction(QIcon("/Users/pablo/GitHub/friction-icon-theme_pablo/hicolor/scalable/friction/preview_loop3.png"),
                               tr("Loop Preview"),
                               this);
     mLoopButton->setCheckable(true);
@@ -197,7 +203,8 @@ TimelineDockWidget::TimelineDockWidget(Document& document,
     mCurrentFrameSpin->setRange(-INT_MAX, INT_MAX);
     mCurrentFrameSpin->setReadOnly(true);
 
-    const auto mPrevKeyframeAct = new QAction(QIcon::fromTheme("prev_keyframe"),
+    // const auto mPrevKeyframeAct = new QAction(QIcon::fromTheme("prev_keyframe"),
+    const auto mPrevKeyframeAct = new QAction(QIcon("/Users/pablo/GitHub/friction-icon-theme_pablo/hicolor/scalable/friction/preview_prev-keyframe.png"),
                                               QString(),
                                               this);
     mPrevKeyframeAct->setToolTip(tr("Previous Keyframe"));
@@ -209,7 +216,8 @@ TimelineDockWidget::TimelineDockWidget(Document& document,
         }
     });
 
-    const auto mNextKeyframeAct = new QAction(QIcon::fromTheme("next_keyframe"),
+    // const auto mNextKeyframeAct = new QAction(QIcon::fromTheme("next_keyframe"),
+    const auto mNextKeyframeAct = new QAction(QIcon("/Users/pablo/GitHub/friction-icon-theme_pablo/hicolor/scalable/friction/preview_next-keyframe.png"),
                                               QString(),
                                               this);
     mNextKeyframeAct->setToolTip(tr("Next Keyframe"));
@@ -230,8 +238,6 @@ TimelineDockWidget::TimelineDockWidget(Document& document,
     mRenderProgress->setFixedWidth(mCurrentFrameSpin->width());
     mRenderProgress->setFormat(tr("Cache %p%"));
 
-    mToolBar->addWidget(mFrameStartSpin);
-
     eSizesUI::widget.add(mToolBar, [this](const int size) {
         //mRenderProgress->setFixedHeight(eSizesUI::button);
         mToolBar->setIconSize(QSize(size, size));
@@ -244,13 +250,11 @@ TimelineDockWidget::TimelineDockWidget(Document& document,
 
     mToolBar->addAction(mFrameRewindAct);
     mToolBar->addAction(mPrevKeyframeAct);
-    mToolBar->addAction(mNextKeyframeAct);
-    mToolBar->addAction(mFrameFastForwardAct);
-    mRenderProgressAct = mToolBar->addWidget(mRenderProgress);
-    mCurrentFrameSpinAct = mToolBar->addWidget(mCurrentFrameSpin);
     mToolBar->addAction(mPlayFromBeginningButton);
     mToolBar->addAction(mPlayButton);
     mToolBar->addAction(mStopButton);
+    mToolBar->addAction(mNextKeyframeAct);
+    mToolBar->addAction(mFrameFastForwardAct);
     mToolBar->addAction(mLoopButton);
 
     mMainWindow->cmdAddAction(mFrameRewindAct);
@@ -262,14 +266,31 @@ TimelineDockWidget::TimelineDockWidget(Document& document,
     mMainWindow->cmdAddAction(mStopButton);
     mMainWindow->cmdAddAction(mLoopButton);
 
-    mRenderProgressAct->setVisible(false);
+    QToolButton* nextKeyframeButton = qobject_cast<QToolButton*>(mToolBar->widgetForAction(mNextKeyframeAct));
+    if (nextKeyframeButton) {
+        nextKeyframeButton->setObjectName("NextKeyframeButton");
+    }
+    QToolButton* prevKeyframeButton = qobject_cast<QToolButton*>(mToolBar->widgetForAction(mPrevKeyframeAct));
+    if (prevKeyframeButton) {
+        prevKeyframeButton->setObjectName("PrevKeyframeButton");
+    }
+    QToolButton* LoopButton = qobject_cast<QToolButton*>(mToolBar->widgetForAction(mLoopButton));
+    if (LoopButton) {
+        LoopButton->setObjectName("LoopButton");
+    }
 
     QWidget *spacerWidget2 = new QWidget(this);
     spacerWidget2->setSizePolicy(QSizePolicy::Expanding,
                                  QSizePolicy::Minimum);
     mToolBar->addWidget(spacerWidget2);
 
+    mToolBar->addWidget(mFrameStartSpin);
+    mToolBar->addWidget(mCurrentFrameSpin);
+    mRenderProgressAct = mToolBar->addWidget(mRenderProgress);
+    mCurrentFrameSpinAct = mToolBar->addWidget(mCurrentFrameSpin);
     mToolBar->addWidget(mFrameEndSpin);
+
+    mRenderProgressAct->setVisible(false);
 
     mMainLayout->addWidget(mToolBar);
     mMainLayout->addSpacing(2);
@@ -396,7 +417,8 @@ void TimelineDockWidget::previewFinished()
     showRenderStatus(false);
     mPlayFromBeginningButton->setDisabled(false);
     mStopButton->setDisabled(true);
-    mPlayButton->setIcon(QIcon::fromTheme("play"));
+    // mPlayButton->setIcon(QIcon::fromTheme("play"));
+    mPlayButton->setIcon(QIcon("/Users/pablo/GitHub/friction-icon-theme_pablo/hicolor/scalable/friction/preview_play.png"));
     mPlayButton->setText(tr("Play Preview"));
     disconnect(mPlayButton, nullptr, this, nullptr);
     connect(mPlayButton, &QAction::triggered,
@@ -411,7 +433,8 @@ void TimelineDockWidget::previewBeingPlayed()
     showRenderStatus(false);
     mPlayFromBeginningButton->setDisabled(true);
     mStopButton->setDisabled(false);
-    mPlayButton->setIcon(QIcon::fromTheme("pause"));
+    // mPlayButton->setIcon(QIcon::fromTheme("pause"));
+    mPlayButton->setIcon(QIcon("/Users/pablo/GitHub/friction-icon-theme_pablo/hicolor/scalable/friction/preview_pause.png"));
     mPlayButton->setText(tr("Pause Preview"));
     disconnect(mPlayButton, nullptr, this, nullptr);
     connect(mPlayButton, &QAction::triggered,
@@ -426,7 +449,8 @@ void TimelineDockWidget::previewBeingRendered()
     showRenderStatus(true);
     mPlayFromBeginningButton->setDisabled(true);
     mStopButton->setDisabled(false);
-    mPlayButton->setIcon(QIcon::fromTheme("play"));
+    // mPlayButton->setIcon(QIcon::fromTheme("play"));
+    mPlayButton->setIcon(QIcon("/Users/pablo/GitHub/friction-icon-theme_pablo/hicolor/scalable/friction/preview_play.png"));
     mPlayButton->setText(tr("Play Preview"));
     disconnect(mPlayButton, nullptr, this, nullptr);
     connect(mPlayButton, &QAction::triggered,
@@ -441,7 +465,8 @@ void TimelineDockWidget::previewPaused()
     showRenderStatus(false);
     mPlayFromBeginningButton->setDisabled(true);
     mStopButton->setDisabled(false);
-    mPlayButton->setIcon(QIcon::fromTheme("play"));
+    // mPlayButton->setIcon(QIcon::fromTheme("play"));
+    mPlayButton->setIcon(QIcon("/Users/pablo/GitHub/friction-icon-theme_pablo/hicolor/scalable/friction/preview_play.png"));
     mPlayButton->setText(tr("Resume Preview"));
     disconnect(mPlayButton, nullptr, this, nullptr);
     connect(mPlayButton, &QAction::triggered,
