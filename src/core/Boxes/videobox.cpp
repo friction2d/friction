@@ -66,6 +66,7 @@ VideoBox::VideoBox() : AnimationBox("Video", eBoxType::video),
 
     connect(this, &eBoxOrSound::parentChanged,
             mSound.get(), &eBoxOrSound::setParentGroup);
+    connect(this, &eBoxOrSound::parentChanged, this, &VideoBox::setCorrectFps);
 }
 
 void VideoBox::fileHandlerConnector(ConnContext &conn, VideoFileHandler *obj) {
