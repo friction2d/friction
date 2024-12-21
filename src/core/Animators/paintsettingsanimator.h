@@ -130,7 +130,7 @@ struct CORE_EXPORT UpdatePaintSettings {
 
     virtual ~UpdatePaintSettings();
 
-    void applyPainterSettingsSk(SkPaint& paint, const float opactiy = 1.f);
+    void applyPainterSettingsSk(SkPaint& paint, const float opacity = 1.f);
 
     void updateGradient(const QGradientStops &stops,
                         const QPointF &start,

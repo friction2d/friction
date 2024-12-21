@@ -286,7 +286,7 @@ void OutputSettingsDialog::addVideoCodec(const AVCodec* const codec,
     if(codec->type != AVMEDIA_TYPE_VIDEO) return;
     if(codec->capabilities & AV_CODEC_CAP_EXPERIMENTAL) return;
     if(codec->pix_fmts == nullptr) return;
-    if(avformat_query_codec(outputFormat, codec->id, COMPLIENCE) == 0) return;
+    if(avformat_query_codec(outputFormat, codec->id, COMPLIANCE) == 0) return;
     mVideoCodecsList << codec;
     const QString codecName(codec->long_name);
     mVideoCodecsComboBox->addItem(codecName);
@@ -303,7 +303,7 @@ void OutputSettingsDialog::addAudioCodec(const AVCodecID &codecId,
     if(currentCodec->type != AVMEDIA_TYPE_AUDIO) return;
     if(currentCodec->capabilities & AV_CODEC_CAP_EXPERIMENTAL) return;
     if(currentCodec->sample_fmts == nullptr) return;
-    if(avformat_query_codec(outputFormat, codecId, COMPLIENCE) == 0) return;
+    if(avformat_query_codec(outputFormat, codecId, COMPLIANCE) == 0) return;
     mAudioCodecsList << currentCodec;
     const QString codecName(currentCodec->long_name);
     mAudioCodecsComboBox->addItem(codecName);
@@ -568,12 +568,12 @@ void OutputSettingsDialog::updateAvailableOutputFormats() {
             //if(!currentFormat->codec_tag || !currentFormat->codec_tag[0]) continue;
 //            int supportedCodecs = 0;
 //            for(const AVCodecID &codecId : VIDEO_CODECS) {
-//                if(avformat_query_codec(currentFormat, codecId, COMPLIENCE) == 0) continue;
+//                if(avformat_query_codec(currentFormat, codecId, COMPLIANCE) == 0) continue;
 //                supportedCodecs++;
 //                break;
 //            }
 //            for(const AVCodecID &codecId : AUDIO_CODECS) {
-//                if(avformat_query_codec(currentFormat, codecId, COMPLIENCE) == 0) continue;
+//                if(avformat_query_codec(currentFormat, codecId, COMPLIANCE) == 0) continue;
 //                supportedCodecs++;
 //                break;
 //            }
@@ -593,12 +593,12 @@ void OutputSettingsDialog::updateAvailableOutputFormats() {
             //if(!currentFormat->codec_tag || !currentFormat->codec_tag[0]) continue;
 //            int supportedCodecs = 0;
 //            for(const AVCodecID &codecId : currentFormat->video_codec) {
-//                if(avformat_query_codec(currentFormat, codecId, COMPLIENCE) == 0) continue;
+//                if(avformat_query_codec(currentFormat, codecId, COMPLIANCE) == 0) continue;
 //                supportedCodecs++;
 //                break;
 //            }
 //            for(const AVCodecID &codecId : currentFormat->audio_codec) {
-//                if(avformat_query_codec(currentFormat, codecId, COMPLIENCE) == 0) continue;
+//                if(avformat_query_codec(currentFormat, codecId, COMPLIANCE) == 0) continue;
 //                supportedCodecs++;
 //                break;
 //            }
@@ -931,12 +931,12 @@ OutputSettingsDialog::FormatCodecs::FormatCodecs(
 //    bool defVidAdded = false;
 //    bool defAudAdded = false;
     for(const AVCodecID &vidCodec : vidCodecs) {
-        if(avformat_query_codec(mFormat, vidCodec, COMPLIENCE) == 0) continue;
+        if(avformat_query_codec(mFormat, vidCodec, COMPLIANCE) == 0) continue;
         mVidCodecs << vidCodec;
 //        if(vidCodec == mFormat->video_codec) defVidAdded = true;
     }
     for(const AVCodecID &audCodec : audioCodec) {
-        if(avformat_query_codec(mFormat, audCodec, COMPLIENCE) == 0) continue;
+        if(avformat_query_codec(mFormat, audCodec, COMPLIANCE) == 0) continue;
         mAudioCodecs << audCodec;
 //        if(audCodec == mFormat->audio_codec) defAudAdded = true;
     }
@@ -955,7 +955,7 @@ OutputSettingsDialog::FormatCodecs::FormatCodecs(
 //        const AVCodecTag *tags2 = mFormat->codec_tag[i];
 //        for(int j = 0; tags2[j].id != AV_CODEC_ID_NONE; j++) {
 //            AVCodecID codecId = tags2[j].id;
-//            if(avformat_query_codec(mFormat, codecId, COMPLIENCE) == 0) continue;
+//            if(avformat_query_codec(mFormat, codecId, COMPLIANCE) == 0) continue;
 //            AVCodec *codecT = avcodec_find_encoder(codecId);
 //            if(!codecT) continue;
 //            if(codecT->type == AVMEDIA_TYPE_VIDEO) {
