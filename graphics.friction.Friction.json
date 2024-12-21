@@ -1,0 +1,45 @@
+{
+    "id" : "graphics.friction.Friction",
+    "runtime" : "org.kde.Platform",
+    "runtime-version" : "6.8",
+    "sdk" : "org.kde.Sdk",
+    "command" : "/app/bin/friction",
+    "finish-args" : [
+        "--socket=x11",
+        "--socket=pulseaudio",
+        "--filesystem=home",
+        "--share=ipc",
+        "--device=dri",
+        "--device=shm"
+    ],
+    "modules" : [
+        {
+      	  "name" : "friction",
+      	  "buildsystem": "simple",
+      	  "build-commands": [
+      	    "sed -i 's/DEST=.*$/DEST=\"\\/app\\/share\"/' desktop_integration.sh",
+      	    "sed -i 's/Exec=.*$/Exec=\\/app\\/bin\\/friction %f/' share/applications/graphics.friction.Friction.desktop",
+      	    "sed -i 's/application-x-graphics.friction.Friction/graphics.friction.Friction.projectfile/g' desktop_integration.sh",
+      	    "sed -i 's/<glob pattern=\"\\*\\.friction\"\\/>/<glob pattern=\"\\*\\.friction\"\\/>\\n    <icon name=\"graphics\\.friction\\.Friction\\.projectfile\"\\/>/' share/mime/packages/graphics.friction.Friction.xml",
+      	    "for iconpath in share/icons/hicolor/{128x128,16x16,192x192,22x22,256x256,32x32,48x48,64x64,96x96}/mimetypes/; do mv $iconpath/application-x-graphics.friction.Friction.png $iconpath/graphics.friction.Friction.projectfile.png; done",
+      	    "mv share/icons/hicolor/scalable/mimetypes/application-x-graphics.friction.Friction.svg share/icons/hicolor/scalable/mimetypes/graphics.friction.Friction.projectfile.svg",
+      	    "sh desktop_integration.sh",
+      	    "rm lib/libaom.so.3 lib/libvorbisenc.so.2 lib/libxcb-randr.so.0 lib/libxcb-util.so.1 lib/libbz2.so.1.0 lib/libvorbis.so.0 lib/libxcb-render.so.0 lib/libxcb-xfixes.so.0 lib/libmp3lame.so.0 lib/libvpx.so.6 lib/libxcb-render-util.so.0 lib/libxcb-xinerama.so.0 lib/libogg.so.0 lib/libxcb-glx.so.0 lib/libxcb-shape.so.0 lib/libxcb-xkb.so.1 lib/libtheoradec.so.1 lib/libxcb-icccm.so.4 lib/libxcb-shm.so.0 lib/libxkbcommon.so.0 lib/libtheoraenc.so.1 lib/libxcb-image.so.0 lib/libxcb.so.1 lib/libxkbcommon-x11.so.0 lib/libunwind.so.8 lib/libxcb-keysyms.so.1 lib/libxcb-sync.so.1 lib/libz.so.1",
+      	    "cp -r lib /app/lib",
+      	    "ln -s /usr/lib/x86_64-linux-gnu/libbz2.so.1.0.8 /app/lib/libbz2.so.1.0",
+      	    "ln -s /usr/lib/x86_64-linux-gnu/libvpx.so.9 /app/lib/libvpx.so.6",
+      	    "cp -r plugins /app/plugins",
+      	    "cp -r plugins /app/plugins",
+      	    "cp -r bin /app/bin",
+      	    "chmod 755 /app/bin/friction"
+                ],
+      	  "sources": [
+      	    {
+      	      "type" : "archive",
+      	      "url" : "https://github.com/friction2d/friction/releases/download/v0.9.6.1/friction-0.9.6.1-linux-x86_64.tar.xz",
+      	      "sha256" : "7d009b2f256eb13865c8edf1d00272a63f3de5930e851cb7eab27c462c2949c1"
+      	    }
+      	  ]
+      	}
+    ]
+}
