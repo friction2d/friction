@@ -66,7 +66,7 @@ public:
                   const float value,
                   const float opacity) const {
         setColor(hue, saturation, value);
-        setOpactiy(opacity);
+        setOpacity(opacity);
     }
 
     void setColor(const QColor& color) const {
@@ -74,7 +74,7 @@ public:
                  float(color.valueF()), float(color.alphaF()));
     }
 
-    void setOpactiy(const float opacity) const {
+    void setOpacity(const float opacity) const {
         Q_UNUSED(opacity)
         //setBaseValue(MYPAINT_BRUSH_SETTING_OPAQUE, clamp(opacity, 0, 1));
     }
@@ -82,7 +82,7 @@ public:
     void incOpacity(const qreal inc) {
         Q_UNUSED(inc)
         //const float opacity = getBaseValue(MYPAINT_BRUSH_SETTING_OPAQUE);
-        //setOpactiy(opacity + float(inc));
+        //setOpacity(opacity + float(inc));
     }
 
     void decOpacity(const qreal dec) {

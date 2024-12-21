@@ -40,7 +40,7 @@
 #include "renderinstancesettings.h"
 #include "widgets/twocolumnlayout.h"
 
-#define COMPLIENCE FF_COMPLIANCE_NORMAL
+#define COMPLIANCE FF_COMPLIANCE_NORMAL
 
 class OutputSettingsDialog : public QDialog {
     Q_OBJECT

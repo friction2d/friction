@@ -55,15 +55,15 @@ void QrealAnimator::prp_setupTreeViewMenu(PropertyMenu * const menu) {
 
     const PropertyMenu::PlainSelectedOp<QrealAnimator> sOp =
     [](QrealAnimator * aTarget) {
-        const auto& intrface = DialogsInterface::instance();
-        intrface.showExpressionDialog(aTarget);
+        const auto& interface = DialogsInterface::instance();
+        interface.showExpressionDialog(aTarget);
     };
     menu->addPlainAction(QIcon::fromTheme("preferences"), tr("Set Expression"), sOp);
 
     const PropertyMenu::PlainSelectedOp<QrealAnimator> aOp =
     [](QrealAnimator * aTarget) {
-        const auto& intrface = DialogsInterface::instance();
-        intrface.showApplyExpressionDialog(aTarget);
+        const auto& interface = DialogsInterface::instance();
+        interface.showApplyExpressionDialog(aTarget);
     };
     menu->addPlainAction(QIcon::fromTheme("dialog-ok"), tr("Apply Expression"), aOp)->setEnabled(hasExpression());
 

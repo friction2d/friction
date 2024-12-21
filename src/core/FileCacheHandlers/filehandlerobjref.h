@@ -30,8 +30,8 @@
 class CORE_EXPORT FileHandlerObjRefBase : public QObject {
 protected:
     FileHandlerObjRefBase() {}
-    void increment(FileCacheHandler* const hadler) const;
-    void decrement(FileCacheHandler* const hadler) const;
+    void increment(FileCacheHandler* const handler) const;
+    void decrement(FileCacheHandler* const handler) const;
 };
 
 template <class T>
