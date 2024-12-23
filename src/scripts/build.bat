@@ -35,7 +35,7 @@ for /f %%I in ('git rev-parse --abbrev-ref HEAD 2^> NUL') do set BRANCH=%%I
 set COMMIT=
 for /f %%i in ('git rev-parse --short^=8 HEAD') do set COMMIT=%%i
 
-if not exist "sdk\" ( 
+if not exist "sdk\" (
     curl -OL "https://github.com/friction2d/friction-sdk/releases/download/%SDK_VERSION%/friction-msvc-2017-sdk-%SDK_VERSION%.7z"
     7z x friction-msvc-2017-sdk-%SDK_VERSION%.7z
 )
@@ -69,19 +69,19 @@ copy "%CWD%\build\src\app\%BDIR%\friction.exe" "%OUTPUT_DIR%\"
 
 copy "%SDK_DIR%\bin\skia.dll" "%OUTPUT_DIR%\"
 
-copy "%SDK_DIR%\bin\Qt5Core.dll" "%OUTPUT_DIR%\"
-copy "%SDK_DIR%\bin\Qt5Gui.dll" "%OUTPUT_DIR%\"
-copy "%SDK_DIR%\bin\Qt5Multimedia.dll" "%OUTPUT_DIR%\"
-copy "%SDK_DIR%\bin\Qt5Network.dll" "%OUTPUT_DIR%\"
-copy "%SDK_DIR%\bin\Qt5OpenGL.dll" "%OUTPUT_DIR%\"
-copy "%SDK_DIR%\bin\Qt5Qml.dll" "%OUTPUT_DIR%\"
-copy "%SDK_DIR%\bin\Qt5Widgets.dll" "%OUTPUT_DIR%\"
-copy "%SDK_DIR%\bin\Qt5Xml.dll" "%OUTPUT_DIR%\"
+copy "%SDK_DIR%\bin\Qt6Core.dll" "%OUTPUT_DIR%\"
+copy "%SDK_DIR%\bin\Qt6Gui.dll" "%OUTPUT_DIR%\"
+copy "%SDK_DIR%\bin\Qt6Multimedia.dll" "%OUTPUT_DIR%\"
+copy "%SDK_DIR%\bin\Qt6Network.dll" "%OUTPUT_DIR%\"
+copy "%SDK_DIR%\bin\Qt6OpenGL.dll" "%OUTPUT_DIR%\"
+copy "%SDK_DIR%\bin\Qt6Qml.dll" "%OUTPUT_DIR%\"
+copy "%SDK_DIR%\bin\Qt6Widgets.dll" "%OUTPUT_DIR%\"
+copy "%SDK_DIR%\bin\Qt6Xml.dll" "%OUTPUT_DIR%\"
 
 copy "%SDK_DIR%\plugins\audio\qtaudio_wasapi.dll" "%OUTPUT_DIR%\audio\"
 copy "%SDK_DIR%\plugins\platforms\qwindows.dll" "%OUTPUT_DIR%\platforms\"
 
-copy "%SDK_DIR%\bin\qscintilla2_qt5.dll" "%OUTPUT_DIR%\"
+copy "%SDK_DIR%\bin\qscintilla2_qt6.dll" "%OUTPUT_DIR%\"
 
 copy "%SDK_DIR%\bin\avcodec-58.dll" "%OUTPUT_DIR%\"
 copy "%SDK_DIR%\bin\avdevice-58.dll" "%OUTPUT_DIR%\"
@@ -95,7 +95,7 @@ echo "Delete this file if you want to disable portable mode" > "%OUTPUT_DIR%\por
 cd "%BUILD_OUTPUT%"
 
 copy "%SDK_DIR%\bin\svgo-win.exe" "%BUILD_OUTPUT%\"
-if not exist "svgo-license.txt" ( 
+if not exist "svgo-license.txt" (
     curl -OL "https://raw.githubusercontent.com/friction2d/friction-svgo/main/svgo-license.txt"
 )
 

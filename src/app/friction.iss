@@ -51,15 +51,15 @@ Source: "avutil-56.dll"; DestDir: "{app}"; Components: ffmpeg ; Flags: ignorever
 Source: "swresample-3.dll"; DestDir: "{app}"; Components: ffmpeg ; Flags: ignoreversion
 Source: "swscale-5.dll"; DestDir: "{app}"; Components: ffmpeg ; Flags: ignoreversion
 
-Source: "qscintilla2_qt5.dll"; DestDir: "{app}"; Components: qt ; Flags: ignoreversion
-Source: "Qt5Core.dll"; DestDir: "{app}"; Components: qt ; Flags: ignoreversion
-Source: "Qt5Gui.dll"; DestDir: "{app}"; Components: qt ; Flags: ignoreversion
-Source: "Qt5Multimedia.dll"; DestDir: "{app}"; Components: qt ; Flags: ignoreversion
-Source: "Qt5Network.dll"; DestDir: "{app}"; Components: qt ; Flags: ignoreversion
-Source: "Qt5OpenGL.dll"; DestDir: "{app}"; Components: qt ; Flags: ignoreversion
-Source: "Qt5Qml.dll"; DestDir: "{app}"; Components: qt ; Flags: ignoreversion
-Source: "Qt5Widgets.dll"; DestDir: "{app}"; Components: qt ; Flags: ignoreversion
-Source: "Qt5Xml.dll"; DestDir: "{app}"; Components: qt ; Flags: ignoreversion
+Source: "qscintilla2_qt6.dll"; DestDir: "{app}"; Components: qt ; Flags: ignoreversion
+Source: "Qt6Core.dll"; DestDir: "{app}"; Components: qt ; Flags: ignoreversion
+Source: "Qt6Gui.dll"; DestDir: "{app}"; Components: qt ; Flags: ignoreversion
+Source: "Qt6Multimedia.dll"; DestDir: "{app}"; Components: qt ; Flags: ignoreversion
+Source: "Qt6Network.dll"; DestDir: "{app}"; Components: qt ; Flags: ignoreversion
+Source: "Qt6OpenGL.dll"; DestDir: "{app}"; Components: qt ; Flags: ignoreversion
+Source: "Qt6Qml.dll"; DestDir: "{app}"; Components: qt ; Flags: ignoreversion
+Source: "Qt6Widgets.dll"; DestDir: "{app}"; Components: qt ; Flags: ignoreversion
+Source: "Qt6Xml.dll"; DestDir: "{app}"; Components: qt ; Flags: ignoreversion
 Source: "audio\*"; DestDir: "{app}\audio"; Components: qt ; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "platforms\*"; DestDir: "{app}\platforms"; Components: qt ; Flags: ignoreversion recursesubdirs createallsubdirs
 
@@ -92,18 +92,18 @@ Type: files; Name: {app}\avcodec-58.dll
 Type: files; Name: {app}\avdevice-58.dll
 Type: files; Name: {app}\avformat-58.dll
 Type: files; Name: {app}\avutil-56.dll
-Type: files; Name: {app}\qscintilla2_qt5.dll
-Type: files; Name: {app}\Qt5Concurrent.dll
-Type: files; Name: {app}\Qt5Core.dll
-Type: files; Name: {app}\Qt5Gui.dll
-Type: files; Name: {app}\Qt5Multimedia.dll
-Type: files; Name: {app}\Qt5Network.dll
-Type: files; Name: {app}\Qt5OpenGL.dll
-Type: files; Name: {app}\Qt5PrintSupport.dll
-Type: files; Name: {app}\Qt5Qml.dll
-Type: files; Name: {app}\Qt5Svg.dll
-Type: files; Name: {app}\Qt5Widgets.dll
-Type: files; Name: {app}\Qt5Xml.dll
+Type: files; Name: {app}\qscintilla2_qt6.dll
+Type: files; Name: {app}\Qt6Concurrent.dll
+Type: files; Name: {app}\Qt6Core.dll
+Type: files; Name: {app}\Qt6Gui.dll
+Type: files; Name: {app}\Qt6Multimedia.dll
+Type: files; Name: {app}\Qt6Network.dll
+Type: files; Name: {app}\Qt6OpenGL.dll
+Type: files; Name: {app}\Qt6PrintSupport.dll
+Type: files; Name: {app}\Qt6Qml.dll
+Type: files; Name: {app}\Qt6Svg.dll
+Type: files; Name: {app}\Qt6Widgets.dll
+Type: files; Name: {app}\Qt6Xml.dll
 Type: files; Name: {app}\swresample-3.dll
 Type: files; Name: {app}\swscale-5.dll
 Type: files; Name: {app}\audio\qtaudio_wasapi.dll

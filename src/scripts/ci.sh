@@ -41,9 +41,9 @@ libfreetype-dev \
 libavcodec-dev \
 libavformat-dev \
 libavutil-dev \
-libqscintilla2-qt5-dev \
-libqt5opengl5-dev \
-libqt5svg5-dev \
+libqscintilla2-qt6-dev \
+libqt6opengl5-dev \
+libqt6svg5-dev \
 libswresample-dev \
 libswscale-dev \
 libunwind-dev \

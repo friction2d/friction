@@ -67,7 +67,7 @@ cmake --build .
 mv src/app/friction.app src/app/Friction.app
 macdeployqt src/app/Friction.app
 
-rm -f src/app/Friction.app/Contents/Frameworks/{libQt5MultimediaWidgets.5.dylib,libQt5Svg.5.dylib}
+rm -f src/app/Friction.app/Contents/Frameworks/{libQt6MultimediaWidgets.5.dylib,libQt6Svg.5.dylib}
 rm -rf src/app/Friction.app/Contents/PlugIns/{bearer,iconengines,imageformats,mediaservice,printsupport,styles}
 
 mkdir dmg && mv src/app/Friction.app dmg/

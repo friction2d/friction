@@ -28,7 +28,7 @@ NASM_V=2.14.02
 YASM_V=1.3.0
 PKGCONF_V=1.1.0
 
-QT_V=5.15.15
+QT_V=6.8.1
 QSCINTILLA_V=2.14.1
 
 LAME_V=3.100
@@ -136,7 +136,7 @@ if [ ! -f "${SDK}/bin/yasm" ]; then
     make install
 fi # yasm
 
-# qt5
+# qt6
 if [ ! -f "${QMAKE_BIN}" ]; then
     cd ${SRC}
     QT_SRC="qt-everywhere-src-${QT_V}"
@@ -223,10 +223,10 @@ if [ ! -f "${QMAKE_BIN}" ]; then
     -skip qtxmlpatterns
     make -j${MKJOBS}
     make install
-fi # qt5
+fi # qt6
 
 # qscintilla
-if [ ! -f "${SDK}/lib/libqscintilla2_qt5.dylib" ]; then
+if [ ! -f "${SDK}/lib/libqscintilla2_qt6.dylib" ]; then
     cd ${SRC}
     QSC_SRC="QScintilla_src-${QSCINTILLA_V}"
     rm -rf ${QSC_SRC}
@@ -237,7 +237,7 @@ if [ ! -f "${SDK}/lib/libqscintilla2_qt5.dylib" ]; then
     sed -i '' 's#!ios:SOURCES += qsciprinter.cpp##' qscintilla.pro
     ${SDK}/bin/qmake CONFIG+=release
     make -j${MKJOBS}
-    cp -a libqscintilla2_qt5* ${SDK}/lib/
+    cp -a libqscintilla2_qt6* ${SDK}/lib/
     cp -a Qsci ${SDK}/include/
 fi # qscintilla
 

@@ -326,7 +326,7 @@ if [ ! -f "${QMAKE_BIN}" ]; then
 fi # qt
 
 # qscintilla
-if [ ! -f "${SDK}/lib/libqscintilla2_friction_qt5.so" ]; then
+if [ ! -f "${SDK}/lib/libqscintilla2_friction_qt6.so" ]; then
     cd ${SRC}
     QSC_SRC="QScintilla_src-${QSCINTILLA_V}"
     rm -rf ${QSC_SRC}
@@ -338,7 +338,7 @@ if [ ! -f "${SDK}/lib/libqscintilla2_friction_qt5.so" ]; then
     sed -i 's#!ios:SOURCES += qsciprinter.cpp##' qscintilla.pro
     ${SDK}/bin/qmake CONFIG+=release
     make -j${MKJOBS}
-    cp -a libqscintilla2_friction_qt5* ${SDK}/lib/
+    cp -a libqscintilla2_friction_qt6* ${SDK}/lib/
     cp -a Qsci ${SDK}/include/
 fi # qscintilla
 

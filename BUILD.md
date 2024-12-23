@@ -9,14 +9,14 @@ Generic instructions for building Friction on supported systems.
 * python3
 * cmake *(3.12+)*
 * clang *(7+)*
-* Qt *(5.15.x)*
+* Qt *(6.8.x)*
     * Gui
     * Widgets
     * OpenGL
     * Multimedia
     * Qml
     * Xml
-* qscintilla
+* qscintilla-qt6
 * ffmpeg *(4.2.x)*
     * libavformat
     * libavcodec
@@ -41,8 +41,8 @@ Generic instructions for building Friction on supported systems.
 * `cmake` must be available in `PATH`
 * `python3` must be available in `PATH`
 * [LLVM](https://github.com/llvm/llvm-project/releases/download/llvmorg-15.0.7/LLVM-15.0.7-win64.exe) installed to default location
-* Qt 5.15 libraries and headers in `friction\sdk`
-  * See [configure_qt5.bat](src/scripts/configure_qt5.bat) and [build_qt5.bat](src/scripts/build_qt5.bat)
+* Qt 6.8 libraries and headers in `friction\sdk`
+  * See [configure_qt6.bat](src/scripts/configure_qt6.bat) and [build_qt6.bat](src/scripts/build_qt6.bat)
 * QScintilla libraries and headers in `friction\sdk`
   * See [build_qscintilla.bat](src/scripts/build_qscintilla.bat)
 * FFmpeg 4.2 libraries and headers in `friction\sdk`
@@ -58,7 +58,7 @@ Binary SDK available [here](https://github.com/friction2d/friction-sdk/releases)
 Install required packages from macports:
 
 ```
-sudo port install qt5-qtbase qt5-qttools qt5-qtmultimedia qt5-qtdeclarative qscintilla-qt5 ffmpeg pkgconfig ninja
+sudo port install qt6-qtbase qt6-qttools qt6-qtmultimedia qt6-qtdeclarative qscintilla-qt6 ffmpeg pkgconfig ninja
 ```
 ### Notes
 
