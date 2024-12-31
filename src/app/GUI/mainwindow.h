@@ -57,6 +57,10 @@
 #include "widgets/uilayout.h"
 #include "widgets/toolbar.h"
 
+#ifdef PROJECT_OFFICIAL
+#include "updater/updatechecker.h"
+#endif
+
 class VideoEncoder;
 class RenderWidget;
 class ActionButton;
@@ -402,6 +406,10 @@ private:
 
     QAction *mToolBarMainAct;
     QAction *mToolBarColorAct;
+
+#ifdef PROJECT_OFFICIAL
+    Friction::Ui::UpdateChecker *mUpdate;
+#endif
 
 protected:
     void keyPressEvent(QKeyEvent *event);

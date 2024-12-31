@@ -64,6 +64,7 @@ set(
     optimalscrollarena/scrollwidget.cpp
     optimalscrollarena/scrollwidgetvisiblepart.cpp
     optimalscrollarena/singlewidget.cpp
+    updater/updatechecker.cpp
     widgets/aboutwidget.cpp
     widgets/actionbutton.cpp
     widgets/alignwidget.cpp
@@ -136,6 +137,7 @@ set(
     optimalscrollarena/scrollwidget.h
     optimalscrollarena/scrollwidgetvisiblepart.h
     optimalscrollarena/singlewidget.h
+    updater/updatechecker.h
     widgets/aboutwidget.h
     widgets/actionbutton.h
     widgets/alignwidget.h
