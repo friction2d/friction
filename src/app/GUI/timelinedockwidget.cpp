@@ -196,6 +196,7 @@ TimelineDockWidget::TimelineDockWidget(Document& document,
     mCurrentFrameSpin->setToolTip(tr("Current frame"));
     mCurrentFrameSpin->setRange(-INT_MAX, INT_MAX);
     mCurrentFrameSpin->setReadOnly(true);
+    mCurrentFrameSpin->setEnabled(false);
 
     const auto mPrevKeyframeAct = new QAction(QIcon::fromTheme("prev_keyframe"),
                                               QString(),

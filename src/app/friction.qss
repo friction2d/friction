@@ -35,6 +35,7 @@ Colors and icon size from 'src/core/themesupport.cpp'.
 %11 = icon pixel ratio
 %12 = half icon pixel ratio
 %13 = getThemeColorTextDisabled
+#%14 = getThemeColorText
 
 */
 
@@ -80,6 +81,15 @@ QSpinBox#SpinBoxNoButtons::up-button,
 QSpinBox#SpinBoxNoButtons::down-button {
     width: 0;
     height: 0;
+}
+
+QSpinBox#SpinBoxNoButtons:hover {
+    background-color: %3;
+    border-color: %3;
+}
+
+QSpinBox#SpinBoxNoButtons:disabled {
+    color: %14;
 }
 
 QTabWidget#TabWidgetCenter::tab-bar {
@@ -447,8 +457,8 @@ QToolBar#animationDockWidget QPushButton {
     border-color: %2;
 }
 
-QToolBar#animationDockWidget QToolButton::hover,
-QToolBar#animationDockWidget QPushButton::hover {
+QToolBar#animationDockWidget QToolButton:hover,
+QToolBar#animationDockWidget QPushButton:hover {
     border-color: %4;
 }
 
@@ -480,7 +490,7 @@ QMenu::separator {
 }
 
 QMenu::item:disabled,
-AlignWidget QPushButton::disabled {
+AlignWidget QPushButton:disabled {
     background: transparent;
 }
 
@@ -595,7 +605,7 @@ QProgressBar::chunk {
     width: 5px;
 }
 
-QCheckBox::disabled {
+QCheckBox:disabled {
     color: %13;
 }
 
