@@ -2,7 +2,26 @@
 
 Generic instructions for building Friction on supported systems.
 
+
+Friction uses Qt as its GUI toolkit. **Qt forces you to register a Qt Account to download Qt binaries** from Qt 5.15.10 onwards. If you don't want to lose your time, [register an account](https://login.qt.io/login) and [download the Qt installer](https://www.qt.io/download-dev). **If you care about your consumer rights, [compile Qt yourself](https://wiki.qt.io/Building_Qt_5_from_Git)**. Good luck!
+
 ## Requirements on Linux
+
+## Debian and Ubuntu
+
+In apt, libraries always begin with `lib`. When they are to be used to compile something else they also end with `-dev`. Except for `libjpeg-turbo8`, `zlib1g`, and `libqscintilla2-qt5-dev`, which use more complex names.
+
+```
+sudo apt install pkg-config ninja-build python3 cmake clang \
+libunwind-dev libexpat1-dev libharfbuzz-dev libfreetype-dev libfontconfig-dev libpng-dev libwebp-dev libicu-dev \
+libavformat-dev libavcodec-dev libavutil-dev libswscale-dev libswresample-dev \
+qtbase5-dev qtdeclarative5-dev qml-module-qtquick-controls qtmultimedia5-dev \
+libjpeg-turbo8 zlib1g libqscintilla2-qt5-dev
+```
+
+## Other distributions
+
+If you have another distribution you need to get the following packages:
 
 * pkg-config
 * ninja
@@ -102,6 +121,12 @@ Now build:
 cmake --build . --config Release
 ```
 
+And finally run (from build directory):
+
+```
+./src/app/friction
+```
+
 ## Build on Windows
 
 All requirements must be installed in the correct folders, this is an example and should be adjusted to fit your environment.
@@ -118,4 +143,10 @@ cd build
 cmake -G "Visual Studio 15 2017" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=%SDK_DIR% ..
 
 cmake --build . --config Release
+```
+
+And finally run (from build directory):
+
+```
+.\src\app\friction.exe
 ```
