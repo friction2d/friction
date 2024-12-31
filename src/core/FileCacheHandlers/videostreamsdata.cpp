@@ -105,8 +105,9 @@ void VideoStreamsData::open(const char * const path)
             vidCodecPars = iCodecPars;
             vidCodec = avcodec_find_decoder(vidCodecPars->codec_id);
             fVideoStream = fFormatContext->streams[fVideoStreamIndex];
-            fTimeBaseDen = fVideoStream->r_frame_rate.den; //avg_frame_rate ??
-            fTimeBaseNum = fVideoStream->r_frame_rate.num; //avg_frame_rate ??
+            fTimeBaseDen = fVideoStream->avg_frame_rate.den;
+            fTimeBaseNum = fVideoStream->avg_frame_rate.num;
+
             if (fTimeBaseDen == 0) {
                 RuntimeThrow(QObject::tr("Invalid video frame rate denominator (0)"));
             }
