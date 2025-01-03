@@ -32,7 +32,7 @@ CUSTOM=${CUSTOM:-""}
 MKJOBS=${MKJOBS:-32}
 SDK_VERSION=${SDK_VERSION:-""}
 ONLY_SDK=${ONLY_SDK:-0}
-SDK_TAR="${DISTFILES}/sdk/friction-sdk-${SDK_VERSION}-linux-x86_64.tar"
+SDK_TAR="${DISTFILES}/sdk/friction-sdk-${SDK_VERSION}r5-linux-x86_64.tar"
 TAR_VERSION=${TAR_VERSION:-""}
 
 # Build SDK

@@ -37,6 +37,7 @@
 #include "appsupport.h"
 
 #include <QDesktopServices>
+#include <QMessageBox>
 
 RenderInstanceWidget::RenderInstanceWidget(
         Canvas *canvas, QWidget *parent) :
@@ -401,6 +402,27 @@ void RenderInstanceWidget::openOutputDestinationDialog() {
     QString saveAs = eDialogs::saveFile("Output Destination",
                                         iniText, supportedExts);
     if(saveAs.isEmpty()) return;
+
+#ifdef Q_OS_LINUX
+    if (AppSupport::isFlatpak()) {
+        const bool isImgSeq = (format) ? !std::strcmp(format->name, "image2") : false;
+        if (isImgSeq) {
+            const QString pixPath = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
+            const QString docPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+            if (!saveAs.startsWith(pixPath) &&
+                !saveAs.startsWith(docPath)) {
+                QMessageBox box(this);
+                box.setWindowTitle(tr("Permission issue"));
+                box.setText(tr("Due to limitations in Flatpak "
+                               "you can only save image sequences to %1 or %2.").arg(pixPath,
+                                                                                     docPath));
+                box.exec();
+                return;
+            }
+        }
+    }
+#endif
+
     mSettings.setOutputDestination(saveAs);
     mOutputDestinationLineEdit->setText(saveAs);
     updateOutputDestinationFromCurrentFormat();

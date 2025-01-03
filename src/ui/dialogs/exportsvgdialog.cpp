@@ -297,7 +297,7 @@ ExportSvgDialog::ExportSvgDialog(QWidget* const parent,
 void ExportSvgDialog::showPreview(const bool &closeWhenDone)
 {
     if (!mPreviewFile) {
-        const QString templ = QString::fromUtf8("%1/%2_svg_preview_XXXXXX.html").arg(QDir::tempPath(),
+        const QString templ = QString::fromUtf8("%1/%2_svg_preview_XXXXXX.html").arg(AppSupport::getAppTempPath(),
                                                                                      AppSupport::getAppName());
         mPreviewFile = qsptr<QTemporaryFile>::create(templ);
         mPreviewFile->setAutoRemove(false);

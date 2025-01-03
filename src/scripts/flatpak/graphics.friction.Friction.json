@@ -1,0 +1,37 @@
+{
+    "app-id": "graphics.friction.Friction",
+    "runtime": "org.freedesktop.Platform",
+    "runtime-version": "23.08",
+    "sdk": "org.freedesktop.Sdk",
+    "command": "friction",
+    "finish-args": [
+            "--share=ipc",
+            "--socket=fallback-x11",
+            "--socket=wayland",
+            "--socket=pulseaudio",
+            "--device=dri",
+            "--filesystem=xdg-documents",
+            "--filesystem=xdg-pictures"
+    ],
+    "modules": [
+        {
+            "name": "friction",
+            "buildsystem": "simple",
+            "build-commands": [
+                "mv Friction/* /app/",
+                "rm -f /app/friction",
+                "rm -f /app/bin/portable.txt",
+                "rm -f /app/share/icons/hicolor/*/mimetypes/application-x-graphics.friction.Friction.png",
+                "rm -f /app/share/icons/hicolor/scalable/mimetypes/application-x-graphics.friction.Friction.svg"
+            ],
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://sourceforge.net/projects/friction/files/snapshots/1.0.0-8299d776/friction-1.0.0-8299d776-linux-x86_64.tar.xz",
+                    "sha256": "71c8fbd92d45ad3e3ddf1ad4f82b382d000c9581568cf1931046e67804bd39e3",
+                    "dest": "./Friction"
+                }
+            ]
+        }
+    ]
+}

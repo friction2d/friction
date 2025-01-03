@@ -29,7 +29,6 @@ FRICTION_PKG=friction-${VERSION}
 
 APPIMAGETOOL=bfe6e0c
 APPIMAGERUNTIME=1bb1157
-SKIA_LIB=${DISTFILES}/skia/libskia.friction.so
 
 if [ "${VERSION}" = "" ]; then
     echo "Missing version"
@@ -69,12 +68,19 @@ for so in ${LIB_DIR}/*.so*; do
     done
 done
 
-cp ${SDK}/plugins/audio/libqtmedia_pulse.so ${PLUG_DIR}/audio/
-cp ${SDK}/plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.so ${PLUG_DIR}/platforminputcontexts/
-cp ${SDK}/plugins/platforms/libqminimal.so ${PLUG_DIR}/platforms/
-cp ${SDK}/plugins/platforms/libqoffscreen.so ${PLUG_DIR}/platforms/
-cp ${SDK}/plugins/platforms/libqxcb.so ${PLUG_DIR}/platforms/
-cp ${SDK}/plugins/xcbglintegrations/libqxcb-glx-integration.so ${PLUG_DIR}/xcbglintegrations/
+mkdir -p ${PLUG_DIR}/platforms
+cp -a ${SDK}/plugins/platforms/libqxcb.so ${PLUG_DIR}/platforms/
+cp -a ${SDK}/plugins/platforms/libqwayland-generic.so ${PLUG_DIR}/platforms/
+cp -a ${SDK}/plugins/platforms/libqwayland-egl.so ${PLUG_DIR}/platforms/
+
+mkdir -p ${PLUG_DIR}/platformthemes
+cp -a ${SDK}/plugins/platformthemes/libqxdgdesktopportal.so ${PLUG_DIR}/platformthemes/
+
+cp -a ${SDK}/plugins/audio ${PLUG_DIR}/
+cp -a ${SDK}/plugins/xcbglintegrations ${PLUG_DIR}/
+cp -a ${SDK}/plugins/wayland-graphics-integration-client ${PLUG_DIR}/
+cp -a ${SDK}/plugins/wayland-shell-integration ${PLUG_DIR}/
+cp -a ${SDK}/plugins/wayland-decoration-client ${PLUG_DIR}/
 
 for so in ${PLUG_DIR}/*/*.so; do
     DEPENDS=`ldd ${so} | awk '{print $3}'`
@@ -136,25 +142,39 @@ echo "[Paths]" > ${BUILD}/${FRICTION_PKG}/opt/friction/bin/qt.conf
 echo "Prefix = .." >> ${BUILD}/${FRICTION_PKG}/opt/friction/bin/qt.conf
 echo "Plugins = plugins" >> ${BUILD}/${FRICTION_PKG}/opt/friction/bin/qt.conf
 
-#(cd ${BUILD}/${FRICTION_PKG}/opt/friction/bin ; patchelf --set-rpath '$ORIGIN/../lib' friction)
-
 (cd ${BUILD}/${FRICTION_PKG}/opt/friction/lib ;
 for so in *.so*; do
     patchelf --set-rpath '$ORIGIN' ${so}
 done
 )
 
+SKIA_DIST_LIB=${DISTFILES}/skia/libskia.friction.so
+PKG_SKIA_LIB64=${BUILD}/${FRICTION_PKG}/opt/friction/lib64/libskia.friction.so
 PKG_SKIA_LIB=${BUILD}/${FRICTION_PKG}/opt/friction/lib/libskia.friction.so
-if [ -f "${SKIA_LIB}" ] && [ ! -f "${PKG_SKIA_LIB}" ]; then
-    cp -a ${SKIA_LIB} ${BUILD}/${FRICTION_PKG}/opt/friction/lib/
+
+if [ -f "${PKG_SKIA_LIB64}" ]; then
+    mv ${PKG_SKIA_LIB64} ${PKG_SKIA_LIB}
     strip -s ${PKG_SKIA_LIB}
+    rm -rf ${BUILD}/${FRICTION_PKG}/opt/friction/lib64
+else
+    if [ -f "${SKIA_DIST_LIB}" ] && [ ! -f "${PKG_SKIA_LIB}" ]; then
+        cp -a ${SKIA_DIST_LIB} ${PKG_SKIA_LIB}
+        strip -s ${PKG_SKIA_LIB}
+    fi
+fi
+
+if [ ! -f "${PKG_SKIA_LIB}" ]; then
+    echo "Missing libskia.friction.so"
+    exit 1
 fi
 
 PLUGS="
-audio
-platforminputcontexts
 platforms
+audio
 xcbglintegrations
+wayland-graphics-integration-client
+wayland-shell-integration
+wayland-decoration-client
 "
 for pdir in ${PLUGS}; do
     for so in ${BUILD}/${FRICTION_PKG}/opt/friction/plugins/${pdir}/*.so; do

@@ -29,8 +29,9 @@ DIST=${DIST:-"/mnt"}
 MKJOBS=${MKJOBS:-32}
 SRC_SUFFIX=tar.xz
 
-QT_V=5.15.16
+QT_V=5.15.16_20241121_32be1543
 QSCINTILLA_V=2.14.1
+
 PELF_V=0.17.0
 CMAKE_V=3.26.3
 
@@ -229,10 +230,10 @@ fi # cmake
 if [ ! -f "${QMAKE_BIN}" ]; then
     cd ${SRC}
     QT_SRC="qt-everywhere-src-${QT_V}"
-    QT_TAR_SRC="qt-everywhere-opensource-src-${QT_V}"
     rm -rf ${QT_SRC} || true
-    tar xf ${DIST}/qt/${QT_TAR_SRC}.${SRC_SUFFIX}
+    tar xf ${DIST}/qt/${QT_SRC}.${SRC_SUFFIX}
     cd ${QT_SRC}
+    (cd qtbase ; xzcat ${DIST}/qt/qtbase-use-wayland-on-gnome.patch.xz | patch -p1)
     ./configure \
     -prefix ${SDK} \
     -c++std c++14 \
@@ -259,7 +260,7 @@ if [ ! -f "${QMAKE_BIN}" ]; then
     -no-syslog \
     -no-pch \
     -no-glib \
-    -no-dbus \
+    -dbus \
     -no-avx2 \
     -no-avx512 \
     -no-gif \
@@ -283,8 +284,6 @@ if [ ! -f "${QMAKE_BIN}" ]; then
     -no-sql-sqlite \
     -no-sql-tds \
     -no-gtk \
-    -no-eglfs \
-    -no-kms \
     -no-linuxfb \
     -nomake examples \
     -nomake tests \

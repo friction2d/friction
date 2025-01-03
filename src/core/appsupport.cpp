@@ -255,6 +255,24 @@ const QString AppSupport::getAppPath()
     return QApplication::applicationDirPath();
 }
 
+const QString AppSupport::getAppTempPath()
+{
+#ifdef Q_OS_LINUX
+    if (isFlatpak()) {
+        QString path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+        if (!path.isEmpty()) {
+            path.append("/friction-temp");
+            if (!QFile::exists(path)) {
+                QDir dir(path);
+                dir.mkpath(path);
+            }
+            if (QFile::exists(path)) { return path; }
+        }
+    }
+#endif
+    return QDir::tempPath();
+}
+
 const QString AppSupport::getAppOutputProfilesPath()
 {
     QString path = QString::fromUtf8("%1/OutputProfiles").arg(getAppConfigPath());
@@ -694,6 +712,11 @@ bool AppSupport::isAppImage()
 bool AppSupport::isWayland()
 {
     return QGuiApplication::platformName().startsWith("wayland");
+}
+
+bool AppSupport::isFlatpak()
+{
+    return !QString(qgetenv("container")).isEmpty();
 }
 
 const QString AppSupport::getAppImagePath()

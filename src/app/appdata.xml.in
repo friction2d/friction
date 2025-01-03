@@ -4,10 +4,12 @@
   <id>@PROJECT_FREEDESKTOP@</id>
   <launchable type="desktop-id">@PROJECT_FREEDESKTOP@.desktop</launchable>
   <name>@FRICTION_DISPLAY_NAME@</name>
-  <developer_name>@FRICTION_DISPLAY_NAME@</developer_name>
+  <developer id="@PROJECT_IDENTIFIER@">
+    <name>@FRICTION_DISPLAY_NAME@</name>
+  </developer>
   <summary>@PROJECT_SUMMARY@</summary>
   <metadata_license>CC0-1.0</metadata_license>
-  <project_license>GPL-3.0-or-later</project_license>
+  <project_license>GPL-3.0-only</project_license>
   <description>
     <p>@PROJECT_DESCRIPTION@</p>
   </description>
@@ -16,43 +18,43 @@
       <description>
         <p>This release includes several fixes, some new features and several UI/UX changes.</p>
       </description>
-      <url>https://friction.graphics/releases/friction-100-beta2.html</url>
+      <url type="details">https://friction.graphics/releases/friction-100-beta2.html</url>
     </release>
     <release date="2024-10-16" version="1.0.0-beta.1">
       <description>
         <p>This release includes several new features and many UI/UX improvements.</p>
       </description>
-      <url>https://friction.graphics/releases/friction-100-beta1.html</url>
+      <url type="details">https://friction.graphics/releases/friction-100-beta1.html</url>
     </release>
     <release date="2024-08-22" version="0.9.6.1">
       <description>
         <p>The first maintenance release for Friction 0.9.6 is now available.</p>
       </description>
-      <url>https://friction.graphics/releases/friction-0961.html</url>
+      <url type="details">https://friction.graphics/releases/friction-0961.html</url>
     </release>
     <release date="2024-06-24" version="0.9.6">
       <description>
         <p>This release includes new features, critical fixes and generic UI/UX improvements.</p>
       </description>
-      <url>https://friction.graphics/releases/friction-096.html</url>
+      <url type="details">https://friction.graphics/releases/friction-096.html</url>
     </release>
     <release date="2023-12-24" version="0.9.5">
       <description>
         <p>This release includes new features, fixes and generic improvements.</p>
       </description>
-      <url>https://friction.graphics/releases/friction-095.html</url>
+      <url type="details">https://friction.graphics/releases/friction-095.html</url>
     </release>
     <release date="2023-09-04" version="0.9.4">
       <description>
         <p>This release includes several fixes and improvements to the user experience.</p>
       </description>
-      <url>https://friction.graphics/releases/friction-094.html</url>
+      <url type="details">https://friction.graphics/releases/friction-094.html</url>
     </release>
     <release date="2023-08-05" version="0.9.3">
       <description>
         <p>This release includes several fixes and improvements to the user experience.</p>
       </description>
-      <url>https://friction.graphics/releases/friction-093.html</url>
+      <url type="details">https://friction.graphics/releases/friction-093.html</url>
     </release>
     <release date="2023-07-23" version="0.9.2">
       <description>
@@ -64,28 +66,44 @@
       <description>
         <p>First public release.</p>
       </description>
-      <url>https://friction.graphics/releases/friction-091.html</url>
+      <url type="details">https://friction.graphics/releases/friction-091.html</url>
     </release>
   </releases>
   <screenshots>
     <screenshot type="default">
-      <image>https://friction.graphics/assets/screenshots/096/friction-096-screenshot.jpg</image>
-      <caption>Friction user interface</caption>
+      <image>https://friction.graphics/assets/screenshots/100/friction-100b2-screenshot.png</image>
+      <caption>Default user interface</caption>
     </screenshot>
   </screenshots>
   <url type="homepage">@PROJECT_HOMEPAGE_URL@</url>
   <url type="bugtracker">@PROJECT_BUGTRACKER_URL@</url>
   <url type="help">@PROJECT_HELP_URL@</url>
+  <url type="faq">@PROJECT_FAQ_URL@</url>
+  <url type="donation">@PROJECT_DONATE_URL@</url>
+  <url type="contribute">@PROJECT_CONTRIBUTE_URL@</url>
+  <url type="vcs-browser">@PROJECT_REPO_URL@</url>
   <update_contact>@PROJECT_CONTACT@</update_contact>
   <content_rating type="oars-1.1"/>
+  <supports>
+    <control>keyboard</control>
+    <control>pointing</control>
+  </supports>
+  <categories>
+    <category>AudioVideo</category>
+    <category>Graphics</category>
+  </categories>
   <keywords>
     <keyword>2d</keyword>
     <keyword>graphics</keyword>
-    <keyword>motiongraphics</keyword>
+    <keyword>motion graphics</keyword>
+    <keyword>mograph</keyword>
     <keyword>animation</keyword>
+    <keyword>web animation</keyword>
     <keyword>video</keyword>
     <keyword>svg</keyword>
     <keyword>vector</keyword>
     <keyword>raster</keyword>
+    <keyword>vfx</keyword>
+    <keyword>editing</keyword>
   </keywords>
 </component>

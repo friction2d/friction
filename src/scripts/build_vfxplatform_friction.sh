@@ -84,12 +84,13 @@ CMAKE_EXTRA=""
 GIT_COMMIT=`git rev-parse --short=8 HEAD`
 GIT_BRANCH=`git rev-parse --abbrev-ref HEAD`
 
-cmake -GNinja \
+cmake -G Ninja \
 -DCMAKE_INSTALL_PREFIX=${SDK} \
 -DCMAKE_PREFIX_PATH=${SDK} \
 -DCMAKE_BUILD_TYPE=Release \
 -DLINUX_DEPLOY=ON \
 -DUSE_SKIA_SYSTEM_LIBS=OFF \
+-DUSE_EGL=ON \
 -DFRICTION_OFFICIAL_RELEASE=${REL_STATUS} \
 -DQSCINTILLA_INCLUDE_DIRS=${SDK}/include \
 -DQSCINTILLA_LIBRARIES_DIRS=${SDK}/lib \
@@ -111,7 +112,7 @@ cmake --build .
 
 if [ "${BUILD_ENGINE}" = "ON" ]; then
     (cd src/engine ;
-        tar cf skia-friction-${VERSION}-linux-x86_64.tar skia
+        tar cf skia-friction-${VERSION}-linux-x86_64.tar skia/libskia.friction.so
         mkdir -p /mnt/builds/${VERSION} || true
         mv skia-friction-${VERSION}-linux-x86_64.tar /mnt/builds/${VERSION}/
     )
@@ -119,5 +120,4 @@ fi
 
 FRICTION_INSTALL_DIR=friction-${VERSION}
 mkdir -p ${BUILD}/${FRICTION_INSTALL_DIR}/opt/friction/{bin,lib,share} || true
-mkdir -p ${BUILD}/${FRICTION_INSTALL_DIR}/opt/friction/plugins/{audio,generic,platforminputcontexts,platforms,xcbglintegrations} || true
 DESTDIR=${BUILD}/${FRICTION_INSTALL_DIR} cmake --build . --target install

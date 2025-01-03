@@ -79,6 +79,7 @@ public:
     static const QString getAppBranchUrl();
     static const QString getAppConfigPath();
     static const QString getAppPath();
+    static const QString getAppTempPath();
     static const QString getAppOutputProfilesPath();
     static const QString getAppPathEffectsPath();
     static const QString getAppRasterEffectsPath();
@@ -120,6 +121,7 @@ public:
     static bool isAppPortable();
     static bool isAppImage();
     static bool isWayland();
+    static bool isFlatpak();
     static const QString getAppImagePath();
     static bool hasXDGDesktopIntegration();
     static bool setupXDGDesktopIntegration();
