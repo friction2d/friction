@@ -29,25 +29,30 @@
 
 using namespace Friction::Core;
 
-XevReadBoxesHandler::~XevReadBoxesHandler() {
-    for(const auto& task : mDoneTasks) task(*this);
+XMLReadBoxesHandler::~XMLReadBoxesHandler()
+{
+    for (const auto& task : mDoneTasks) { task(*this); }
 }
 
-void XevReadBoxesHandler::addReadBox(const int readId, BoundingBox* const box) {
+void XMLReadBoxesHandler::addReadBox(const int readId,
+                                     BoundingBox* const box)
+{
     mReadBoxes[readId] = box;
 }
 
-BoundingBox *XevReadBoxesHandler::getBoxByReadId(const int readId) const {
+BoundingBox *XMLReadBoxesHandler::getBoxByReadId(const int readId) const
+{
     const auto it = mReadBoxes.find(readId);
-    if(it == mReadBoxes.end()) return nullptr;
-    else return it->second;
+    if (it == mReadBoxes.end()) { return nullptr; }
+    else { return it->second; }
 }
 
-void XevReadBoxesHandler::addXevImporterDoneTask(const XevImporterDoneTask& task) {
+void XMLReadBoxesHandler::addXevImporterDoneTask(const XevImporterDoneTask& task)
+{
     mDoneTasks << task;
 }
 
-XevImporter::XevImporter(XevReadBoxesHandler& xevReadBoxesHandler,
+XevImporter::XevImporter(XMLReadBoxesHandler& xevReadBoxesHandler,
                          ZipFileLoader& fileLoader,
                          const RuntimeIdToWriteId& objListIdConv,
                          const QString& path,

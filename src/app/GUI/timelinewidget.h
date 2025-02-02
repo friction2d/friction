@@ -39,6 +39,7 @@
 
 #include "ReadWrite/ereadstream.h"
 #include "ReadWrite/ewritestream.h"
+#include "XML/xevimporter.h"
 
 class SWT_Abstraction;
 class FrameScrollBar;
@@ -53,7 +54,6 @@ class Canvas;
 class SceneChooser;
 class StackWrapperCornerMenu;
 class BoxScroller;
-class XevReadBoxesHandler;
 
 enum class SWT_Type : short;
 enum class SWT_BoxRule : short;
@@ -78,7 +78,7 @@ public:
     void writeState(eWriteStream& dst) const;
     void readState(eReadStream& src);
 
-    void readStateXEV(XevReadBoxesHandler& boxReadHandler,
+    void readStateXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
                       const QDomElement& ele,
                       RuntimeIdToWriteId& objListIdConv);
     void writeStateXEV(QDomElement& ele, QDomDocument& doc,

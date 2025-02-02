@@ -165,7 +165,7 @@ public:
 
     void readDocumentXEV(Friction::Core::ZipFileLoader& fileLoader,
                          QList<Canvas*>& scenes);
-    void readScenesXEV(XevReadBoxesHandler& boxReadHandler,
+    void readScenesXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
                        Friction::Core::ZipFileLoader& fileLoader,
                        const QList<Canvas*>& scenes,
                        const RuntimeIdToWriteId& objListIdConv);

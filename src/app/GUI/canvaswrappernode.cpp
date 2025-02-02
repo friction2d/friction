@@ -73,7 +73,7 @@ void CanvasWrapperNode::writeData(eWriteStream &dst) {
     mCanvasWindow->writeState(dst);
 }
 
-void CanvasWrapperNode::readDataXEV(XevReadBoxesHandler& boxReadHandler,
+void CanvasWrapperNode::readDataXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
                                     const QDomElement& ele,
                                     RuntimeIdToWriteId& objListIdConv) {
     Q_UNUSED(objListIdConv)

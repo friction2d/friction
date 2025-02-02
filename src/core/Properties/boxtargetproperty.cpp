@@ -142,7 +142,7 @@ void BoxTargetProperty::prp_readPropertyXEV_impl(
     const int targetId = XmlExportHelpers::stringToInt(ele.attribute("targetId"));
     if(targetId == -1) return;
     auto& handler = imp.getXevReadBoxesHandler();
-    handler.addXevImporterDoneTask([this, targetId](const XevReadBoxesHandler& imp) {
+    handler.addXevImporterDoneTask([this, targetId](const Friction::Core::XMLReadBoxesHandler& imp) {
         const auto targetObj = imp.getBoxByReadId(targetId);
         if(targetObj) setTarget(targetObj);
     });

@@ -64,7 +64,7 @@ public:
     virtual void writeBoxOrSoundXEV(const std::shared_ptr<Friction::Core::XfZipFileSaver>& xevFileSaver,
                                     const RuntimeIdToWriteId& objListIdConv,
                                     const QString& path) const;
-    virtual void readBoxOrSoundXEV(XevReadBoxesHandler& boxReadHandler,
+    virtual void readBoxOrSoundXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
                                    Friction::Core::ZipFileLoader& fileLoader, const QString& path,
                                    const RuntimeIdToWriteId& objListIdConv);
 

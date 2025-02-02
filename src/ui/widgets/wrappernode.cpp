@@ -53,7 +53,7 @@ WrapperNode* WrapperNode::sRead(eReadStream &src,
     return wid;
 }
 
-WrapperNode* WrapperNode::sReadXEV(XevReadBoxesHandler& boxReadHandler,
+WrapperNode* WrapperNode::sReadXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
                                    const QDomElement& ele,
                                    const WidgetCreator& creator,
                                    RuntimeIdToWriteId& objListIdConv) {

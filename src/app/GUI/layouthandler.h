@@ -73,7 +73,7 @@ struct LayoutData {
         ele.appendChild(timelineLayout);
     }
 
-    void readXEV(XevReadBoxesHandler& boxReadHandler,
+    void readXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
                  const QDomElement& ele,
                  RuntimeIdToWriteId& objListIdConv) {
         fName = ele.attribute("name");
@@ -157,7 +157,7 @@ public:
         ele.setAttribute("currentId", mCurrentId);
     }
 
-    void readXEV(XevReadBoxesHandler& boxReadHandler,
+    void readXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
                  const QDomElement& ele,
                  RuntimeIdToWriteId& objListIdConv) {
         setCurrent(-1);

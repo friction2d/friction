@@ -401,14 +401,14 @@ void CanvasWindow::readState(eReadStream &src)
     mFitToSizeBlocked = true;
 }
 
-void CanvasWindow::readStateXEV(XevReadBoxesHandler& boxReadHandler,
+void CanvasWindow::readStateXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
                                 const QDomElement& ele)
 {
     const auto sceneIdStr = ele.attribute("sceneId");
     const int sceneId = XmlExportHelpers::stringToInt(sceneIdStr);
 
     boxReadHandler.addXevImporterDoneTask(
-                [this, sceneId](const XevReadBoxesHandler& imp) {
+                [this, sceneId](const Friction::Core::XMLReadBoxesHandler& imp) {
         const auto sceneBox = imp.getBoxByReadId(sceneId);
         const auto scene = enve_cast<Canvas*>(sceneBox);
         setCurrentCanvas(scene);

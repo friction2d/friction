@@ -165,7 +165,7 @@ void eBoxOrSound::writeBoxOrSoundXEV(const std::shared_ptr<Friction::Core::XfZip
     });
 }
 
-void eBoxOrSound::readBoxOrSoundXEV(XevReadBoxesHandler& boxReadHandler,
+void eBoxOrSound::readBoxOrSoundXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
                                     Friction::Core::ZipFileLoader& fileLoader,
                                     const QString& path,
                                     const RuntimeIdToWriteId& objListIdConv) {

@@ -36,7 +36,7 @@ protected:
     void readData(eReadStream& src);
     void writeData(eWriteStream& dst);
 
-    void readDataXEV(XevReadBoxesHandler& boxReadHandler,
+    void readDataXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
                      const QDomElement& ele,
                      RuntimeIdToWriteId& objListIdConv);
     void writeDataXEV(QDomElement& ele, QDomDocument& doc,

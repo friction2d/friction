@@ -219,7 +219,7 @@ void MainWindow::loadXevFile(const QString &path) {
         QList<Canvas*> scenes;
         mDocument.readDocumentXEV(fileLoader, scenes);
 
-        XevReadBoxesHandler boxReadHandler;
+        Friction::Core::XMLReadBoxesHandler boxReadHandler;
         RuntimeIdToWriteId objListIdConv;
         objListIdConv.assign(mObjectSettingsWidget->getId());
         fileLoader.process("UI/layouts.xml", [&](QIODevice* const src) {

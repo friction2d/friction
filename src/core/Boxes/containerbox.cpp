@@ -1565,7 +1565,7 @@ qsptr<BoundingBox> createBoxOfNonCustomType(const eBoxType type) {
 }
 
 void ContainerBox::readAllContainedXEV(
-        XevReadBoxesHandler& boxReadHandler,
+        Friction::Core::XMLReadBoxesHandler& boxReadHandler,
         ZipFileLoader& fileLoader, const QString& path,
         const RuntimeIdToWriteId& objListIdConv) {
     fileLoader.process(path + "stack.xml", [&](QIODevice* const src) {
@@ -1632,7 +1632,7 @@ void ContainerBox::readAllContainedXEV(
 }
 
 void ContainerBox::readBoxOrSoundXEV(
-        XevReadBoxesHandler& boxReadHandler,
+        Friction::Core::XMLReadBoxesHandler& boxReadHandler,
         ZipFileLoader& fileLoader, const QString& path,
         const RuntimeIdToWriteId& objListIdConv) {
     BoundingBox::readBoxOrSoundXEV(boxReadHandler, fileLoader, path, objListIdConv);

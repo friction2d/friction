@@ -37,6 +37,7 @@
 
 #include "ReadWrite/ereadstream.h"
 #include "ReadWrite/ewritestream.h"
+#include "XML/xevimporter.h"
 
 enum class UI_EXPORT WrapperNodeType {
     base,
@@ -49,7 +50,6 @@ class SplitWrapperNode;
 class ParentWrapperNode;
 class WidgetWrapperNode;
 class Canvas;
-class XevReadBoxesHandler;
 
 class UI_EXPORT WrapperNode {
 public:
@@ -74,7 +74,7 @@ public:
 
     static WrapperNode *sRead(eReadStream& src,
                               const WidgetCreator& creator);
-    static WrapperNode *sReadXEV(XevReadBoxesHandler& boxReadHandler,
+    static WrapperNode *sReadXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
                                  const QDomElement& ele,
                                  const WidgetCreator& creator,
                                  RuntimeIdToWriteId& objListIdConv);
@@ -83,7 +83,7 @@ protected:
     virtual void writeData(eWriteStream& dst) = 0;
     virtual void writeDataXEV(QDomElement& ele, QDomDocument& doc,
                               RuntimeIdToWriteId& objListIdConv) = 0;
-    virtual void readDataXEV(XevReadBoxesHandler& boxReadHandler,
+    virtual void readDataXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
                              const QDomElement& ele,
                              RuntimeIdToWriteId& objListIdConv) = 0;
     virtual QString tagNameXEV() const = 0;
@@ -145,7 +145,7 @@ public:
         ele.appendChild(child);
     }
 
-    void readDataXEV(XevReadBoxesHandler& boxReadHandler,
+    void readDataXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
                      const QDomElement& ele,
                      RuntimeIdToWriteId& objListIdConv) {
         const auto child = ele.firstChildElement();
@@ -216,7 +216,7 @@ protected:
         ele.appendChild(child2);
     }
 
-    void readDataXEV(XevReadBoxesHandler& boxReadHandler,
+    void readDataXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
                      const QDomElement& ele,
                      RuntimeIdToWriteId& objListIdConv) {
         const auto child1 = ele.firstChildElement();
@@ -265,7 +265,7 @@ protected:
         ele.setAttribute("proportions", percentAt(1));
     }
 
-    void readDataXEV(XevReadBoxesHandler& boxReadHandler,
+    void readDataXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
                      const QDomElement& ele,
                      RuntimeIdToWriteId& objListIdConv) {
         SplitWrapperNode::readDataXEV(boxReadHandler, ele, objListIdConv);
@@ -313,7 +313,7 @@ protected:
         ele.setAttribute("proportions", percentAt(1));
     }
 
-    void readDataXEV(XevReadBoxesHandler& boxReadHandler,
+    void readDataXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
                      const QDomElement& ele,
                      RuntimeIdToWriteId& objListIdConv) {
         SplitWrapperNode::readDataXEV(boxReadHandler, ele, objListIdConv);

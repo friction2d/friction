@@ -33,29 +33,35 @@
 
 class BoundingBox;
 
-class CORE_EXPORT XevReadBoxesHandler {
-public:
-    ~XevReadBoxesHandler();
-
-    void addReadBox(const int readId, BoundingBox * const box);
-    BoundingBox *getBoxByReadId(const int readId) const;
-    using XevImporterDoneTask = std::function<void(const XevReadBoxesHandler&)>;
-    void addXevImporterDoneTask(const XevImporterDoneTask& task);
-private:
-    std::map<int, BoundingBox*> mReadBoxes;
-    QList<XevImporterDoneTask> mDoneTasks;
-
-};
+namespace Friction
+{
+    namespace Core
+    {
+        class CORE_EXPORT XMLReadBoxesHandler
+        {
+        public:
+            ~XMLReadBoxesHandler();
+            void addReadBox(const int readId,
+                            BoundingBox * const box);
+            BoundingBox *getBoxByReadId(const int readId) const;
+            using XevImporterDoneTask = std::function<void(const XMLReadBoxesHandler&)>;
+            void addXevImporterDoneTask(const XevImporterDoneTask& task);
+        private:
+            std::map<int, BoundingBox*> mReadBoxes;
+            QList<XevImporterDoneTask> mDoneTasks;
+        };
+    }
+}
 
 class XevImporter {
 public:
-    XevImporter(XevReadBoxesHandler& xevReadBoxesHandler,
+    XevImporter(Friction::Core::XMLReadBoxesHandler& xevReadBoxesHandler,
                 Friction::Core::ZipFileLoader& fileLoader,
                 const RuntimeIdToWriteId& objListIdConv,
                 const QString& path,
                 const QString& assetsPath = "");
 
-    XevReadBoxesHandler& getXevReadBoxesHandler() const {
+    Friction::Core::XMLReadBoxesHandler& getXevReadBoxesHandler() const {
         return mXevReadBoxesHandler;
     }
 
@@ -68,7 +74,7 @@ public:
 
     QString relPathToAbsPath(const QString& relPath) const;
 private:
-    XevReadBoxesHandler& mXevReadBoxesHandler;
+    Friction::Core::XMLReadBoxesHandler& mXevReadBoxesHandler;
     Friction::Core::ZipFileLoader& mFileLoader;
     const RuntimeIdToWriteId& mObjectListIdConv;
     const QString mPath;

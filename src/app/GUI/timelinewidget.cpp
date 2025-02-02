@@ -436,7 +436,7 @@ void TimelineWidget::readState(eReadStream &src) {
     setViewedFrameRange({minViewedFrame, maxViewedFrame});
 }
 
-void TimelineWidget::readStateXEV(XevReadBoxesHandler& boxReadHandler,
+void TimelineWidget::readStateXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
                                   const QDomElement& ele,
                                   RuntimeIdToWriteId& objListIdConv) {
     objListIdConv.assign(mBoxesListWidget->getId());
@@ -462,7 +462,7 @@ void TimelineWidget::readStateXEV(XevReadBoxesHandler& boxReadHandler,
     const int sceneId = XmlExportHelpers::stringToInt(sceneIdStr);
 
     boxReadHandler.addXevImporterDoneTask(
-                [this, sceneId](const XevReadBoxesHandler& imp) {
+                [this, sceneId](const Friction::Core::XMLReadBoxesHandler& imp) {
         const auto sceneBox = imp.getBoxByReadId(sceneId);
         const auto scene = enve_cast<Canvas*>(sceneBox);
         setCurrentScene(scene);

@@ -240,7 +240,7 @@ void Document::readDocumentXEV(const QDomDocument& doc,
     }
 }
 
-void Document::readScenesXEV(XevReadBoxesHandler& boxReadHandler,
+void Document::readScenesXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
                              Friction::Core::ZipFileLoader& fileLoader,
                              const QList<Canvas*>& scenes,
                              const RuntimeIdToWriteId& objListIdConv) {

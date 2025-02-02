@@ -591,7 +591,7 @@ public:
     void writeBoxOrSoundXEV(const stdsptr<Friction::Core::XfZipFileSaver> &xevFileSaver,
                             const RuntimeIdToWriteId &objListIdConv,
                             const QString &path) const;
-    void readBoxOrSoundXEV(XevReadBoxesHandler &boxReadHandler,
+    void readBoxOrSoundXEV(Friction::Core::XMLReadBoxesHandler &boxReadHandler,
                            Friction::Core::ZipFileLoader &fileLoader,
                            const QString &path,
                            const RuntimeIdToWriteId &objListIdConv);

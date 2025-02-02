@@ -1404,7 +1404,7 @@ void Canvas::writeBoxOrSoundXEV(const stdsptr<XfZipFileSaver>& xevFileSaver,
     });
 }
 
-void Canvas::readBoxOrSoundXEV(XevReadBoxesHandler& boxReadHandler,
+void Canvas::readBoxOrSoundXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
                                ZipFileLoader &fileLoader,
                                const QString &path,
                                const RuntimeIdToWriteId& objListIdConv)
