@@ -77,7 +77,7 @@ QDomElement BoolPropertyContainer::prp_writePropertyXEV_impl(
 }
 
 void BoolPropertyContainer::prp_readPropertyXEV_impl(
-        const QDomElement& ele, const Friction::Core::XevImporter& imp) {
+        const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
     StaticComplexAnimator::prp_readPropertyXEV_impl(ele, imp);
     setValue(ele.attribute("checked") == "true");
 }

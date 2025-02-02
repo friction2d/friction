@@ -48,7 +48,7 @@ public:
 
     void setPath(const QString& path);
 
-    RuntimeIdToWriteId& objListIdConv() { return mObjectListIdConv; }
+    Friction::Core::RuntimeIdToWriteId& objListIdConv() { return mObjectListIdConv; }
 
     void readFutureTable();
 
@@ -95,7 +95,7 @@ private:
     QIODevice* const mSrc;
     QDir mDir;
     eReadFutureTable mFutureTable;
-    RuntimeIdToWriteId mObjectListIdConv;
+    Friction::Core::RuntimeIdToWriteId mObjectListIdConv;
 };
 
 #endif // EREADSTREAM_H

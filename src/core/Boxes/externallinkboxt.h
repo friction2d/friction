@@ -48,7 +48,7 @@ protected:
     }
 
     void prp_readPropertyXEV_impl(const QDomElement& ele,
-                             const Friction::Core::XevImporter& imp) override {
+                             const Friction::Core::XmlImporter& imp) override {
         T::prp_readPropertyXEV_impl(ele, imp);
         const QString absSrc = Friction::Core::XevExportHelpers::getAbsAndRelFileSrc(ele, imp);
         setFilePath(absSrc);

@@ -177,7 +177,7 @@ void XevExportHelpers::setAbsAndRelFileSrc(const QString& absSrc,
 }
 
 QString XevExportHelpers::getAbsAndRelFileSrc(const QDomElement& ele,
-                                              const XevImporter& imp)
+                                              const XmlImporter& imp)
 {
     const auto relSrc = ele.attribute("relSrc");
     const auto absRelSrc = imp.relPathToAbsPath(relSrc);
@@ -202,7 +202,7 @@ bool XevExportHelpers::writeProperty(QDomElement& ele,
 }
 
 bool XevExportHelpers::readProperty(const QDomElement& ele,
-                                    const XevImporter& imp,
+                                    const XmlImporter& imp,
                                     const QString& name,
                                     Property* const prop)
 {

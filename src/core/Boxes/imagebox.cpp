@@ -86,7 +86,7 @@ QDomElement ImageBox::prp_writePropertyXEV_impl(const Friction::Core::XevExporte
     return result;
 }
 
-void ImageBox::prp_readPropertyXEV_impl(const QDomElement& ele, const Friction::Core::XevImporter& imp) {
+void ImageBox::prp_readPropertyXEV_impl(const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
     BoundingBox::prp_readPropertyXEV_impl(ele, imp);
     const QString absSrc = Friction::Core::XevExportHelpers::getAbsAndRelFileSrc(ele, imp);
     setFilePathNoRename(absSrc);

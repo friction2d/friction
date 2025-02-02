@@ -53,7 +53,7 @@ void BrushSettingsAnimator::prp_readProperty_impl(eReadStream& src) {
     mBrush = BrushCollectionData::sGetBrush(brushCollection, brushName);
 }
 
-void BrushSettingsAnimator::prp_readPropertyXEV_impl(const QDomElement& ele, const Friction::Core::XevImporter& imp) {
+void BrushSettingsAnimator::prp_readPropertyXEV_impl(const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
     StaticComplexAnimator::prp_readPropertyXEV_impl(ele, imp);
     const auto brush = ele.firstChildElement("Brush");
     mBrush = Friction::Core::XevExportHelpers::brushFromElement(brush);

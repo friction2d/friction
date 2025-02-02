@@ -83,7 +83,7 @@ protected:
 
     virtual void prp_updateCanvasProps();
     virtual QDomElement prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const = 0;
-    virtual void prp_readPropertyXEV_impl(const QDomElement& ele, const Friction::Core::XevImporter& imp) = 0;
+    virtual void prp_readPropertyXEV_impl(const QDomElement& ele, const Friction::Core::XmlImporter& imp) = 0;
     virtual void prp_readProperty_impl(eReadStream& src) { Q_UNUSED(src) }
     virtual void prp_writeProperty_impl(eWriteStream& dst) const { Q_UNUSED(dst) }
 public:
@@ -166,7 +166,7 @@ public:
     QString prp_tagNameXEV() const;
 
     QDomElement prp_writePropertyXEV(const Friction::Core::XevExporter& exp) const;
-    void prp_readPropertyXEV(const QDomElement& ele, const Friction::Core::XevImporter& imp);
+    void prp_readPropertyXEV(const QDomElement& ele, const Friction::Core::XmlImporter& imp);
     QDomElement prp_writeNamedPropertyXEV(const QString& name,
                                           const Friction::Core::XevExporter& exp) const;
 

@@ -62,11 +62,11 @@ public:
     void prp_readProperty_impl(eReadStream& src);
 
     virtual void writeBoxOrSoundXEV(const std::shared_ptr<Friction::Core::XfZipFileSaver>& xevFileSaver,
-                                    const RuntimeIdToWriteId& objListIdConv,
+                                    const Friction::Core::RuntimeIdToWriteId& objListIdConv,
                                     const QString& path) const;
-    virtual void readBoxOrSoundXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
+    virtual void readBoxOrSoundXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                                    Friction::Core::ZipFileLoader& fileLoader, const QString& path,
-                                   const RuntimeIdToWriteId& objListIdConv);
+                                   const Friction::Core::RuntimeIdToWriteId& objListIdConv);
 
     TimelineMovable *anim_getTimelineMovable(
             const int relX, const int minViewedFrame,

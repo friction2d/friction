@@ -158,17 +158,17 @@ public:
     void readScenes(eReadStream &src);
 
     void writeXEV(const std::shared_ptr<Friction::Core::XfZipFileSaver>& xevFileSaver,
-                  const RuntimeIdToWriteId& objListIdConv) const;
+                  const Friction::Core::RuntimeIdToWriteId& objListIdConv) const;
     void writeDoxumentXEV(QDomDocument& doc) const;
     void writeScenesXEV(const std::shared_ptr<Friction::Core::XfZipFileSaver>& xevFileSaver,
-                        const RuntimeIdToWriteId& objListIdConv) const;
+                        const Friction::Core::RuntimeIdToWriteId& objListIdConv) const;
 
     void readDocumentXEV(Friction::Core::ZipFileLoader& fileLoader,
                          QList<Canvas*>& scenes);
-    void readScenesXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
+    void readScenesXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                        Friction::Core::ZipFileLoader& fileLoader,
                        const QList<Canvas*>& scenes,
-                       const RuntimeIdToWriteId& objListIdConv);
+                       const Friction::Core::RuntimeIdToWriteId& objListIdConv);
 
     void SWT_setupAbstraction(SWT_Abstraction * const abstraction,
                               const UpdateFuncs &updateFuncs,

@@ -149,7 +149,7 @@ void eBoxOrSound::prp_readProperty_impl(eReadStream& src) {
 }
 
 void eBoxOrSound::writeBoxOrSoundXEV(const std::shared_ptr<Friction::Core::XfZipFileSaver>& xevFileSaver,
-                                     const RuntimeIdToWriteId& objListIdConv,
+                                     const Friction::Core::RuntimeIdToWriteId& objListIdConv,
                                      const QString& path) const {
     QDomDocument doc;
     const auto exp = enve::make_shared<Friction::Core::XevExporter>(
@@ -165,10 +165,10 @@ void eBoxOrSound::writeBoxOrSoundXEV(const std::shared_ptr<Friction::Core::XfZip
     });
 }
 
-void eBoxOrSound::readBoxOrSoundXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
+void eBoxOrSound::readBoxOrSoundXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                                     Friction::Core::ZipFileLoader& fileLoader,
                                     const QString& path,
-                                    const RuntimeIdToWriteId& objListIdConv) {
+                                    const Friction::Core::RuntimeIdToWriteId& objListIdConv) {
     QDomDocument doc;
     fileLoader.process(path + "properties.xml",
                        [&](QIODevice* const src) {
@@ -180,7 +180,7 @@ void eBoxOrSound::readBoxOrSoundXEV(Friction::Core::XMLReadBoxesHandler& boxRead
         if(!mDurationRectangle) createDurationRectangle();
         mDurationRectangle->readDurationRectangleXEV(obj);
     }
-    const Friction::Core::XevImporter imp(boxReadHandler, fileLoader, objListIdConv, path);
+    const Friction::Core::XmlImporter imp(boxReadHandler, fileLoader, objListIdConv, path);
     prp_readPropertyXEV(obj, imp);
 }
 

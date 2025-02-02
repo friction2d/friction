@@ -170,7 +170,7 @@ QDomElement eIndependentSound::prp_writePropertyXEV_impl(const Friction::Core::X
 }
 
 void eIndependentSound::prp_readPropertyXEV_impl(const QDomElement& ele,
-                                                 const Friction::Core::XevImporter& imp)
+                                                 const Friction::Core::XmlImporter& imp)
 {
     eBoxOrSound::prp_readPropertyXEV_impl(ele, imp);
     const QString absSrc = Friction::Core::XevExportHelpers::getAbsAndRelFileSrc(ele, imp);

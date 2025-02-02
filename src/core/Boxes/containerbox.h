@@ -135,25 +135,25 @@ public:
     void saveSVG(SvgExporter& exp, DomEleTask* const eleTask) const;
 
     void writeBoxOrSoundXEV(const stdsptr<Friction::Core::XfZipFileSaver>& xevFileSaver,
-                            const RuntimeIdToWriteId& objListIdConv,
+                            const Friction::Core::RuntimeIdToWriteId& objListIdConv,
                             const QString& path) const;
-    void readBoxOrSoundXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
+    void readBoxOrSoundXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                            Friction::Core::ZipFileLoader& fileLoader, const QString& path,
-                           const RuntimeIdToWriteId& objListIdConv);
+                           const Friction::Core::RuntimeIdToWriteId& objListIdConv);
 
     virtual bool isFlipBook() const;
     virtual iValueRange getContainedMinMax() const;
 
-    void readAllContainedXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
+    void readAllContainedXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                              Friction::Core::ZipFileLoader& fileLoader, const QString& path,
-                             const RuntimeIdToWriteId& objListIdConv);
+                             const Friction::Core::RuntimeIdToWriteId& objListIdConv);
 
     void queChildrenTasks();
     void queTasks();
 
     void writeAllContained(eWriteStream &dst) const;
     void writeAllContainedXEV(const stdsptr<Friction::Core::XfZipFileSaver>& fileSaver,
-                              const RuntimeIdToWriteId& objListIdConv,
+                              const Friction::Core::RuntimeIdToWriteId& objListIdConv,
                               const QString& path) const;
 
     void writeBoundingBox(eWriteStream& dst) const;

@@ -430,7 +430,7 @@ QDomElement TextBox::prp_writePropertyXEV_impl(const Friction::Core::XevExporter
     return result;
 }
 
-void TextBox::prp_readPropertyXEV_impl(const QDomElement& ele, const Friction::Core::XevImporter& imp) {
+void TextBox::prp_readPropertyXEV_impl(const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
     PathBox::prp_readPropertyXEV_impl(ele, imp);
     const auto hAlign = ele.attribute("hAlign");
     const auto vAlign = ele.attribute("vAlign");

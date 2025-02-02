@@ -73,16 +73,16 @@ void CanvasWrapperNode::writeData(eWriteStream &dst) {
     mCanvasWindow->writeState(dst);
 }
 
-void CanvasWrapperNode::readDataXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
+void CanvasWrapperNode::readDataXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                                     const QDomElement& ele,
-                                    RuntimeIdToWriteId& objListIdConv) {
+                                    Friction::Core::RuntimeIdToWriteId& objListIdConv) {
     Q_UNUSED(objListIdConv)
     mCanvasWindow->readStateXEV(boxReadHandler, ele);
     mMenu->setCurrentScene(mCanvasWindow->getCurrentCanvas());
 }
 
 void CanvasWrapperNode::writeDataXEV(QDomElement& ele, QDomDocument& doc,
-                                     RuntimeIdToWriteId& objListIdConv) {
+                                     Friction::Core::RuntimeIdToWriteId& objListIdConv) {
     Q_UNUSED(objListIdConv)
     mCanvasWindow->writeStateXEV(ele, doc);
 }

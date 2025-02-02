@@ -119,7 +119,7 @@ void SmartPathAnimator::prp_writeProperty_impl(eWriteStream &dst) const {
 }
 
 void SmartPathAnimator::prp_readPropertyXEV_impl(
-        const QDomElement& ele, const Friction::Core::XevImporter& imp) {
+        const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
     Q_UNUSED(imp)
     const bool closed = ele.attribute("closed", "true") == "true";
     prp_setName(ele.attribute("name", "path"));

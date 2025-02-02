@@ -23,13 +23,15 @@
 
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
-#ifndef XEVIMPORTER_H
-#define XEVIMPORTER_H
+#ifndef XML_IMPORTER_H
+#define XML_IMPORTER_H
 
-#include "xmlexporthelpers.h"
+#include "core_global.h"
 
-#include "runtimewriteid.h"
-#include "zipfileloader.h"
+#include <functional>
+#include <QList>
+#include <QString>
+#include <QIODevice>
 
 class BoundingBox;
 
@@ -37,41 +39,44 @@ namespace Friction
 {
     namespace Core
     {
-        class CORE_EXPORT XMLReadBoxesHandler
+        class RuntimeIdToWriteId;
+        class ZipFileLoader;
+
+        class CORE_EXPORT XmlReadBoxesHandler
         {
         public:
-            ~XMLReadBoxesHandler();
+            ~XmlReadBoxesHandler();
             void addReadBox(const int readId,
                             BoundingBox * const box);
             BoundingBox *getBoxByReadId(const int readId) const;
-            using XevImporterDoneTask = std::function<void(const XMLReadBoxesHandler&)>;
-            void addXevImporterDoneTask(const XevImporterDoneTask& task);
+            using XmlImporterDoneTask = std::function<void(const XmlReadBoxesHandler&)>;
+            void addXevImporterDoneTask(const XmlImporterDoneTask& task);
         private:
             std::map<int, BoundingBox*> mReadBoxes;
-            QList<XevImporterDoneTask> mDoneTasks;
+            QList<XmlImporterDoneTask> mDoneTasks;
         };
 
-        class CORE_EXPORT XevImporter
+        class CORE_EXPORT XmlImporter
         {
         public:
-            XevImporter(XMLReadBoxesHandler& xevReadBoxesHandler,
+            XmlImporter(XmlReadBoxesHandler& xevReadBoxesHandler,
                         ZipFileLoader& fileLoader,
                         const RuntimeIdToWriteId& objListIdConv,
                         const QString& path,
                         const QString& assetsPath = "");
 
-            XMLReadBoxesHandler& getXevReadBoxesHandler() const {
+            XmlReadBoxesHandler& getXevReadBoxesHandler() const {
                 return mXevReadBoxesHandler;
             }
 
             const RuntimeIdToWriteId& objListIdConv() const { return mObjectListIdConv; }
-            XevImporter withAssetsPath(const QString& path) const;
+            XmlImporter withAssetsPath(const QString& path) const;
             using Processor = std::function<void(QIODevice* const dst)>;
             void processAsset(const QString& file, const Processor& func) const;
             QString relPathToAbsPath(const QString& relPath) const;
 
         private:
-            XMLReadBoxesHandler& mXevReadBoxesHandler;
+            XmlReadBoxesHandler& mXevReadBoxesHandler;
             ZipFileLoader& mFileLoader;
             const RuntimeIdToWriteId& mObjectListIdConv;
             const QString mPath;
@@ -80,4 +85,4 @@ namespace Friction
     }
 }
 
-#endif // XEVIMPORTER_H
+#endif // XML_IMPORTER_H

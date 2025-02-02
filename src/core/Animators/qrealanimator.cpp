@@ -932,7 +932,7 @@ QDomElement QrealAnimator::prp_writePropertyXEV_impl(const Friction::Core::XevEx
 }
 
 void QrealAnimator::prp_readPropertyXEV_impl(
-        const QDomElement& ele, const Friction::Core::XevImporter& imp) {
+        const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
     Q_UNUSED(imp)
     const auto values = ele.attribute("values");
     if(!values.isEmpty()) {

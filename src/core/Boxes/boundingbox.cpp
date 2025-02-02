@@ -133,7 +133,7 @@ qreal BoundingBox::getOpacity(const qreal relFrame) const {
 }
 
 void BoundingBox::prp_readPropertyXEV_impl(const QDomElement& ele,
-                                           const Friction::Core::XevImporter& imp) {
+                                           const Friction::Core::XmlImporter& imp) {
     const auto readIdStr = ele.attribute("id");
     const int readId = Friction::Core::XmlExportHelpers::stringToInt(readIdStr);
     auto& handler = imp.getXevReadBoxesHandler();

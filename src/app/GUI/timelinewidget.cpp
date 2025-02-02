@@ -436,9 +436,9 @@ void TimelineWidget::readState(eReadStream &src) {
     setViewedFrameRange({minViewedFrame, maxViewedFrame});
 }
 
-void TimelineWidget::readStateXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
+void TimelineWidget::readStateXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                                   const QDomElement& ele,
-                                  RuntimeIdToWriteId& objListIdConv) {
+                                  Friction::Core::RuntimeIdToWriteId& objListIdConv) {
     objListIdConv.assign(mBoxesListWidget->getId());
 
     const auto frameRangeStr = ele.attribute("frameRange");
@@ -462,7 +462,7 @@ void TimelineWidget::readStateXEV(Friction::Core::XMLReadBoxesHandler& boxReadHa
     const int sceneId = Friction::Core::XmlExportHelpers::stringToInt(sceneIdStr);
 
     boxReadHandler.addXevImporterDoneTask(
-                [this, sceneId](const Friction::Core::XMLReadBoxesHandler& imp) {
+                [this, sceneId](const Friction::Core::XmlReadBoxesHandler& imp) {
         const auto sceneBox = imp.getBoxByReadId(sceneId);
         const auto scene = enve_cast<Canvas*>(sceneBox);
         setCurrentScene(scene);
@@ -487,7 +487,7 @@ void TimelineWidget::readStateXEV(Friction::Core::XMLReadBoxesHandler& boxReadHa
 }
 
 void TimelineWidget::writeStateXEV(QDomElement& ele, QDomDocument& doc,
-                                   RuntimeIdToWriteId& objListIdConv) const {
+                                   Friction::Core::RuntimeIdToWriteId& objListIdConv) const {
     Q_UNUSED(doc)
 
     objListIdConv.assign(mBoxesListWidget->getId());

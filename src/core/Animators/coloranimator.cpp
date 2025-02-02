@@ -318,7 +318,7 @@ QDomElement ColorAnimator::prp_writePropertyXEV_impl(
 }
 
 void ColorAnimator::prp_readPropertyXEV_impl(
-        const QDomElement& ele, const Friction::Core::XevImporter& imp) {
+        const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
     const auto modeStr = ele.attribute("mode", "0");
     const int modeInt = Friction::Core::XmlExportHelpers::stringToInt(modeStr);
     setColorMode(static_cast<ColorMode>(modeInt));

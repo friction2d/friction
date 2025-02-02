@@ -43,7 +43,7 @@ QDomElement BoolProperty::prp_writePropertyXEV_impl(const Friction::Core::XevExp
 }
 
 void BoolProperty::prp_readPropertyXEV_impl(
-        const QDomElement& ele, const Friction::Core::XevImporter& imp) {
+        const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
     Q_UNUSED(imp)
     const auto valueStr = ele.attribute("value");
     mValue = valueStr == "true";

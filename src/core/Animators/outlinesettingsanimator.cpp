@@ -79,7 +79,7 @@ QDomElement OutlineSettingsAnimator::prp_writePropertyXEV_impl(const Friction::C
 }
 
 void OutlineSettingsAnimator::prp_readPropertyXEV_impl(const QDomElement& ele,
-                                                  const Friction::Core::XevImporter& imp) {
+                                                  const Friction::Core::XmlImporter& imp) {
     PaintSettingsAnimator::prp_readPropertyXEV_impl(ele, imp);
 
     const auto lineWidth = ele.firstChildElement("Width");
@@ -239,7 +239,7 @@ QDomElement OutlineSettingsAnimator::writeBrushPaint(const Friction::Core::XevEx
 }
 
 void OutlineSettingsAnimator::readBrushPaint(const QDomElement& ele,
-                                             const Friction::Core::XevImporter& imp) {
+                                             const Friction::Core::XmlImporter& imp) {
     const auto brushSettings = ele.firstChildElement("BrushSettings");
     mBrushSettings->prp_readPropertyXEV(brushSettings, imp);
 }

@@ -51,7 +51,7 @@ void StaticComplexAnimator::prp_readProperty_impl(eReadStream &src)
 }
 
 void StaticComplexAnimator::prp_readPropertyXEV_impl(
-        const QDomElement& ele, const Friction::Core::XevImporter& imp) {
+        const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
     const auto& children = ca_getChildren();
     for(const auto& c : children) {
         const QString tagName = c->prp_tagNameXEV();

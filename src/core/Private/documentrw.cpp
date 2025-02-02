@@ -148,7 +148,7 @@ void Document::writeDoxumentXEV(QDomDocument& doc) const {
 }
 
 void Document::writeScenesXEV(const std::shared_ptr<Friction::Core::XfZipFileSaver>& xevFileSaver,
-                              const RuntimeIdToWriteId& objListIdConv) const {
+                              const Friction::Core::RuntimeIdToWriteId& objListIdConv) const {
     int id = 0;
     for(const auto &s : fScenes) {
         const QString path = "scenes/" + QString::number(id++) + "/";
@@ -157,7 +157,7 @@ void Document::writeScenesXEV(const std::shared_ptr<Friction::Core::XfZipFileSav
 }
 
 void Document::writeXEV(const std::shared_ptr<Friction::Core::XfZipFileSaver>& xevFileSaver,
-                        const RuntimeIdToWriteId& objListIdConv) const {
+                        const Friction::Core::RuntimeIdToWriteId& objListIdConv) const {
     auto& fileSaver = xevFileSaver->fileSaver();
     fileSaver.processText("document.xml", [&](QTextStream& stream) {
         QDomDocument document;
@@ -240,10 +240,10 @@ void Document::readDocumentXEV(const QDomDocument& doc,
     }
 }
 
-void Document::readScenesXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
+void Document::readScenesXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                              Friction::Core::ZipFileLoader& fileLoader,
                              const QList<Canvas*>& scenes,
-                             const RuntimeIdToWriteId& objListIdConv) {
+                             const Friction::Core::RuntimeIdToWriteId& objListIdConv) {
     int id = 0;
     for(const auto& scene : scenes) {
         const auto block = scene->blockUndoRedo();

@@ -333,7 +333,7 @@ protected:
         return result;
     }
 
-    void prp_readPropertyXEV_impl(const QDomElement& ele, const Friction::Core::XevImporter& imp) override {
+    void prp_readPropertyXEV_impl(const QDomElement& ele, const Friction::Core::XmlImporter& imp) override {
         const auto childNodes = ele.childNodes();
         const int count = childNodes.count();
         for(int i = 0; i < count; i++) {

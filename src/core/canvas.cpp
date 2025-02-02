@@ -1381,7 +1381,7 @@ void Canvas::readMarkers(eReadStream &src)
 }
 
 void Canvas::writeBoxOrSoundXEV(const stdsptr<XfZipFileSaver>& xevFileSaver,
-                                const RuntimeIdToWriteId& objListIdConv,
+                                const Friction::Core::RuntimeIdToWriteId& objListIdConv,
                                 const QString& path) const
 {
     ContainerBox::writeBoxOrSoundXEV(xevFileSaver, objListIdConv, path);
@@ -1404,10 +1404,10 @@ void Canvas::writeBoxOrSoundXEV(const stdsptr<XfZipFileSaver>& xevFileSaver,
     });
 }
 
-void Canvas::readBoxOrSoundXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
+void Canvas::readBoxOrSoundXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                                ZipFileLoader &fileLoader,
                                const QString &path,
-                               const RuntimeIdToWriteId& objListIdConv)
+                               const Friction::Core::RuntimeIdToWriteId& objListIdConv)
 {
     ContainerBox::readBoxOrSoundXEV(boxReadHandler, fileLoader, path, objListIdConv);
     fileLoader.process(path + "gradients.xml",
@@ -1419,7 +1419,7 @@ void Canvas::readBoxOrSoundXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandl
         for (int i = 0; i < gradients.count(); i++) {
             const auto node = gradients.at(i);
             const auto ele = node.toElement();
-            const Friction::Core::XevImporter imp(boxReadHandler, fileLoader, objListIdConv, path);
+            const Friction::Core::XmlImporter imp(boxReadHandler, fileLoader, objListIdConv, path);
             createNewGradient()->prp_readPropertyXEV(ele, imp);
         }
     });

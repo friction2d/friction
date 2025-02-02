@@ -48,7 +48,7 @@ public:
 
     void setPath(const QString& path);
 
-    RuntimeIdToWriteId& objListIdConv() { return mObjectListIdConv; }
+    Friction::Core::RuntimeIdToWriteId& objListIdConv() { return mObjectListIdConv; }
 
     void writeFutureTable();
 
@@ -93,7 +93,7 @@ private:
     QIODevice* const mDst;
     QDir mDir;
     eWriteFutureTable mFutureTable;
-    RuntimeIdToWriteId mObjectListIdConv;
+    Friction::Core::RuntimeIdToWriteId mObjectListIdConv;
 };
 
 #endif // EWRITESTREAM_H

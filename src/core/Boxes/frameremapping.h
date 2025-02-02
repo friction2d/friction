@@ -34,7 +34,7 @@ protected:
 
     QDomElement prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const override;
     void prp_readPropertyXEV_impl(const QDomElement& ele,
-                                  const Friction::Core::XevImporter& imp) override;
+                                  const Friction::Core::XmlImporter& imp) override;
 public:    
     bool enabled() const { return mEnabled; }
 

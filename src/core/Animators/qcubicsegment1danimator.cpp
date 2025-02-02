@@ -30,7 +30,7 @@ qCubicSegment1DAnimator::qCubicSegment1DAnimator(const QString &name) :
     InterpolationAnimatorT<qCubicSegment1D>(name) {}
 
 void qCubicSegment1DAnimator::prp_readPropertyXEV_impl(
-        const QDomElement& ele, const Friction::Core::XevImporter& imp) {
+        const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
     Q_UNUSED(imp)
     readValuesXEV(ele, [](qCubicSegment1D& seg, const QStringRef& str) {
         const auto valueStrs = str.split(' ', Qt::SkipEmptyParts);

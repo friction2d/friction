@@ -589,12 +589,12 @@ public:
     void readMarkers(eReadStream &src);
 
     void writeBoxOrSoundXEV(const stdsptr<Friction::Core::XfZipFileSaver> &xevFileSaver,
-                            const RuntimeIdToWriteId &objListIdConv,
+                            const Friction::Core::RuntimeIdToWriteId &objListIdConv,
                             const QString &path) const;
-    void readBoxOrSoundXEV(Friction::Core::XMLReadBoxesHandler &boxReadHandler,
+    void readBoxOrSoundXEV(Friction::Core::XmlReadBoxesHandler &boxReadHandler,
                            Friction::Core::ZipFileLoader &fileLoader,
                            const QString &path,
-                           const RuntimeIdToWriteId &objListIdConv);
+                           const Friction::Core::RuntimeIdToWriteId &objListIdConv);
 
     bool anim_prevRelFrameWithKey(const int relFrame,
                                   int &prevRelFrame);

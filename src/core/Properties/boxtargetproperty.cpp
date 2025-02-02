@@ -138,11 +138,11 @@ QDomElement BoxTargetProperty::prp_writePropertyXEV_impl(const Friction::Core::X
 }
 
 void BoxTargetProperty::prp_readPropertyXEV_impl(
-        const QDomElement& ele, const Friction::Core::XevImporter& imp) {
+        const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
     const int targetId = Friction::Core::XmlExportHelpers::stringToInt(ele.attribute("targetId"));
     if(targetId == -1) return;
     auto& handler = imp.getXevReadBoxesHandler();
-    handler.addXevImporterDoneTask([this, targetId](const Friction::Core::XMLReadBoxesHandler& imp) {
+    handler.addXevImporterDoneTask([this, targetId](const Friction::Core::XmlReadBoxesHandler& imp) {
         const auto targetObj = imp.getBoxByReadId(targetId);
         if(targetObj) setTarget(targetObj);
     });

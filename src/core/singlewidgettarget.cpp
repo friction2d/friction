@@ -168,7 +168,7 @@ void SingleWidgetTarget::SWT_writeAbstractionXEV(QDomElement& ele,
 }
 
 void SingleWidgetTarget::SWT_readAbstractionXEV(
-        const QDomElement& ele, const Friction::Core::XevImporter& imp) const {
+        const QDomElement& ele, const Friction::Core::XmlImporter& imp) const {
     const QString absOpenStr = ele.attribute("open");
     if(absOpenStr.isEmpty()) return;
     const auto absOpenStrs = absOpenStr.splitRef(' ');

@@ -24,35 +24,34 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "xevimporter.h"
-
-#include "../zipfileloader.h"
+#include "zipfileloader.h"
 
 using namespace Friction::Core;
 
-XMLReadBoxesHandler::~XMLReadBoxesHandler()
+XmlReadBoxesHandler::~XmlReadBoxesHandler()
 {
     for (const auto& task : mDoneTasks) { task(*this); }
 }
 
-void XMLReadBoxesHandler::addReadBox(const int readId,
+void XmlReadBoxesHandler::addReadBox(const int readId,
                                      BoundingBox* const box)
 {
     mReadBoxes[readId] = box;
 }
 
-BoundingBox *XMLReadBoxesHandler::getBoxByReadId(const int readId) const
+BoundingBox *XmlReadBoxesHandler::getBoxByReadId(const int readId) const
 {
     const auto it = mReadBoxes.find(readId);
     if (it == mReadBoxes.end()) { return nullptr; }
     else { return it->second; }
 }
 
-void XMLReadBoxesHandler::addXevImporterDoneTask(const XevImporterDoneTask& task)
+void XmlReadBoxesHandler::addXevImporterDoneTask(const XmlImporterDoneTask& task)
 {
     mDoneTasks << task;
 }
 
-XevImporter::XevImporter(XMLReadBoxesHandler& xevReadBoxesHandler,
+XmlImporter::XmlImporter(XmlReadBoxesHandler& xevReadBoxesHandler,
                          ZipFileLoader& fileLoader,
                          const RuntimeIdToWriteId& objListIdConv,
                          const QString& path,
@@ -62,16 +61,16 @@ XevImporter::XevImporter(XMLReadBoxesHandler& xevReadBoxesHandler,
     mObjectListIdConv(objListIdConv),
     mPath(path), mAssetsPath(assetsPath) {}
 
-XevImporter XevImporter::withAssetsPath(const QString& path) const {
-    return XevImporter(mXevReadBoxesHandler,
+XmlImporter XmlImporter::withAssetsPath(const QString& path) const {
+    return XmlImporter(mXevReadBoxesHandler,
                        mFileLoader, mObjectListIdConv,
                        mPath, mAssetsPath + path);
 }
 
-void XevImporter::processAsset(const QString& file, const Processor& func) const {
+void XmlImporter::processAsset(const QString& file, const Processor& func) const {
     mFileLoader.process(mPath + "assets/" + mAssetsPath + file, func);
 }
 
-QString XevImporter::relPathToAbsPath(const QString& relPath) const {
+QString XmlImporter::relPathToAbsPath(const QString& relPath) const {
     return mFileLoader.relPathToAbsPath(relPath);
 }

@@ -126,7 +126,7 @@ QDomElement VideoBox::prp_writePropertyXEV_impl(const Friction::Core::XevExporte
 }
 
 void VideoBox::prp_readPropertyXEV_impl(const QDomElement& ele,
-                                        const Friction::Core::XevImporter& imp) {
+                                        const Friction::Core::XmlImporter& imp) {
     AnimationBox::prp_readPropertyXEV_impl(ele, imp);
     const QString absSrc = Friction::Core::XevExportHelpers::getAbsAndRelFileSrc(ele, imp);
     setFilePathNoRename(absSrc);

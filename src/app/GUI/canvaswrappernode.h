@@ -38,11 +38,11 @@ protected:
     void readData(eReadStream& src);
     void writeData(eWriteStream& dst);
 
-    void readDataXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
+    void readDataXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                      const QDomElement& ele,
-                     RuntimeIdToWriteId& objListIdConv);
+                     Friction::Core::RuntimeIdToWriteId& objListIdConv);
     void writeDataXEV(QDomElement& ele, QDomDocument& doc,
-                      RuntimeIdToWriteId& objListIdConv);
+                      Friction::Core::RuntimeIdToWriteId& objListIdConv);
 
     QString tagNameXEV() const { return "Canvas"; }
 private:

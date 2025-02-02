@@ -30,17 +30,27 @@
 
 #include "../core_global.h"
 
-class CORE_EXPORT RuntimeIdToWriteId {
-public:
-    void assign(const int runtimeId) {
-        mRuntimeIds << runtimeId;
-    }
+namespace Friction
+{
+    namespace Core
+    {
+        class CORE_EXPORT RuntimeIdToWriteId
+        {
+        public:
+            void assign(const int runtimeId)
+            {
+                mRuntimeIds << runtimeId;
+            }
 
-    int runtimeIdToWriteId(const int runtimeId) const {
-        return mRuntimeIds.indexOf(runtimeId);
+            int runtimeIdToWriteId(const int runtimeId) const
+            {
+                return mRuntimeIds.indexOf(runtimeId);
+            }
+
+        private:
+            QList<int> mRuntimeIds;
+        };
     }
-private:
-    QList<int> mRuntimeIds;
-};
+}
 
 #endif // RUNTIMEWRITEID_H

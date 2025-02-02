@@ -118,7 +118,7 @@ QDomElement Property::prp_writePropertyXEV(const Friction::Core::XevExporter &ex
     return result;
 }
 
-void Property::prp_readPropertyXEV(const QDomElement& ele, const Friction::Core::XevImporter& imp) {
+void Property::prp_readPropertyXEV(const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
     prp_readPropertyXEV_impl(ele, imp);
     SWT_readAbstractionXEV(ele, imp);
 }

@@ -54,7 +54,7 @@ QDomElement FrameRemappingBase::prp_writePropertyXEV_impl(const Friction::Core::
     return result;
 }
 
-void FrameRemappingBase::prp_readPropertyXEV_impl(const QDomElement& ele, const Friction::Core::XevImporter& imp) {
+void FrameRemappingBase::prp_readPropertyXEV_impl(const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
     QrealAnimator::prp_readPropertyXEV_impl(ele, imp);
     const auto enabled = ele.attribute("enabled");
     setEnabled(enabled == "true");

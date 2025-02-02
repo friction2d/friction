@@ -61,7 +61,7 @@ public:
     }
 
     void prp_readPropertyXEV_impl(const QDomElement &ele,
-                                  const Friction::Core::XevImporter& imp) override {
+                                  const Friction::Core::XmlImporter& imp) override {
         BoolPropertyContainer::prp_readPropertyXEV_impl(ele, imp);
         SWT_setVisible(getValue());
     }
@@ -1464,7 +1464,7 @@ void ContainerBox::writeAllContained(eWriteStream& dst) const {
 
 void ContainerBox::writeAllContainedXEV(
         const stdsptr<XfZipFileSaver>& fileSaver,
-        const RuntimeIdToWriteId& objListIdConv,
+        const Friction::Core::RuntimeIdToWriteId& objListIdConv,
         const QString& path) const {
     const QString childPath = path + "objects/%1/";
     int id = 0;
@@ -1474,7 +1474,7 @@ void ContainerBox::writeAllContainedXEV(
 }
 
 void ContainerBox::writeBoxOrSoundXEV(const stdsptr<XfZipFileSaver>& xevFileSaver,
-                                      const RuntimeIdToWriteId& objListIdConv,
+                                      const Friction::Core::RuntimeIdToWriteId& objListIdConv,
                                       const QString& path) const {
     BoundingBox::writeBoxOrSoundXEV(xevFileSaver, objListIdConv, path);
     auto& fileSaver = xevFileSaver->fileSaver();
@@ -1565,9 +1565,9 @@ qsptr<BoundingBox> createBoxOfNonCustomType(const eBoxType type) {
 }
 
 void ContainerBox::readAllContainedXEV(
-        Friction::Core::XMLReadBoxesHandler& boxReadHandler,
+        Friction::Core::XmlReadBoxesHandler& boxReadHandler,
         ZipFileLoader& fileLoader, const QString& path,
-        const RuntimeIdToWriteId& objListIdConv) {
+        const Friction::Core::RuntimeIdToWriteId& objListIdConv) {
     fileLoader.process(path + "stack.xml", [&](QIODevice* const src) {
         QDomDocument doc;
         doc.setContent(src);
@@ -1632,9 +1632,9 @@ void ContainerBox::readAllContainedXEV(
 }
 
 void ContainerBox::readBoxOrSoundXEV(
-        Friction::Core::XMLReadBoxesHandler& boxReadHandler,
+        Friction::Core::XmlReadBoxesHandler& boxReadHandler,
         ZipFileLoader& fileLoader, const QString& path,
-        const RuntimeIdToWriteId& objListIdConv) {
+        const Friction::Core::RuntimeIdToWriteId& objListIdConv) {
     BoundingBox::readBoxOrSoundXEV(boxReadHandler, fileLoader, path, objListIdConv);
     readAllContainedXEV(boxReadHandler, fileLoader, path, objListIdConv);
 }

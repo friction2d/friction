@@ -192,7 +192,7 @@ void MainWindow::saveToFileXEV(const QString &path) {
             stream << "application/friction";
         }, false);
 
-        RuntimeIdToWriteId objListIdConv;
+        Friction::Core::RuntimeIdToWriteId objListIdConv;
         objListIdConv.assign(mObjectSettingsWidget->getId());
         fileSaver.processText("UI/layouts.xml", [&](QTextStream& stream) {
             QDomDocument doc;
@@ -219,8 +219,8 @@ void MainWindow::loadXevFile(const QString &path) {
         QList<Canvas*> scenes;
         mDocument.readDocumentXEV(fileLoader, scenes);
 
-        Friction::Core::XMLReadBoxesHandler boxReadHandler;
-        RuntimeIdToWriteId objListIdConv;
+        Friction::Core::XmlReadBoxesHandler boxReadHandler;
+        Friction::Core::RuntimeIdToWriteId objListIdConv;
         objListIdConv.assign(mObjectSettingsWidget->getId());
         fileLoader.process("UI/layouts.xml", [&](QIODevice* const src) {
             QDomDocument doc;

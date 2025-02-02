@@ -91,7 +91,7 @@ QDomElement ImageSequenceBox::prp_writePropertyXEV_impl(
 }
 
 void ImageSequenceBox::prp_readPropertyXEV_impl(
-        const QDomElement& ele, const Friction::Core::XevImporter& imp) {
+        const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
     AnimationBox::prp_readPropertyXEV_impl(ele, imp);
     const QString absSrc = Friction::Core::XevExportHelpers::getAbsAndRelFileSrc(ele, imp);
     setFolderPath(absSrc);

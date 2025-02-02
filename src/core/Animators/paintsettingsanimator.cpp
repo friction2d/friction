@@ -130,7 +130,7 @@ QDomElement PaintSettingsAnimator::prp_writePropertyXEV_impl(const Friction::Cor
 
 
 void PaintSettingsAnimator::prp_readPropertyXEV_impl(const QDomElement& ele,
-                                                const Friction::Core::XevImporter& imp) {
+                                                const Friction::Core::XmlImporter& imp) {
     const auto typeStr = ele.attribute("type");
     const int typeInt = Friction::Core::XmlExportHelpers::stringToInt(typeStr);
     const auto type = static_cast<PaintType>(typeInt);

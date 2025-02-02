@@ -38,7 +38,7 @@ WrapperNode* createForType(const WrapperNodeType type,
 }
 
 QDomElement WrapperNode::writeXEV(QDomDocument& doc,
-                                  RuntimeIdToWriteId& objListIdConv) {
+                                  Friction::Core::RuntimeIdToWriteId& objListIdConv) {
     auto result = doc.createElement(tagNameXEV());
     writeDataXEV(result, doc, objListIdConv);
     return result;
@@ -53,10 +53,10 @@ WrapperNode* WrapperNode::sRead(eReadStream &src,
     return wid;
 }
 
-WrapperNode* WrapperNode::sReadXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
+WrapperNode* WrapperNode::sReadXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                                    const QDomElement& ele,
                                    const WidgetCreator& creator,
-                                   RuntimeIdToWriteId& objListIdConv) {
+                                   Friction::Core::RuntimeIdToWriteId& objListIdConv) {
     WrapperNodeType type;
     const auto tag = ele.tagName();
     if(tag == "HSplit") type = WrapperNodeType::splitH;

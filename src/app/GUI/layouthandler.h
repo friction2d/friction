@@ -65,7 +65,7 @@ struct LayoutData {
     }
 
     void writeXEV(QDomElement& ele, QDomDocument& doc,
-                  RuntimeIdToWriteId& objListIdConv) const {
+                  Friction::Core::RuntimeIdToWriteId& objListIdConv) const {
         ele.setAttribute("name", fName);
         const auto canvasLayout = fSceneLayout->writeXEV(doc, objListIdConv);
         const auto timelineLayout = fTimelineLayout->writeXEV(doc, objListIdConv);
@@ -73,9 +73,9 @@ struct LayoutData {
         ele.appendChild(timelineLayout);
     }
 
-    void readXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
+    void readXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                  const QDomElement& ele,
-                 RuntimeIdToWriteId& objListIdConv) {
+                 Friction::Core::RuntimeIdToWriteId& objListIdConv) {
         fName = ele.attribute("name");
         const auto canvasLayout = ele.firstChildElement("CanvasLayout");
         const auto timelineLayout = ele.firstChildElement("TimelineLayout");
@@ -141,7 +141,7 @@ public:
     }
 
     void writeXEV(QDomElement& ele, QDomDocument& doc,
-                  RuntimeIdToWriteId& objListIdConv) const {
+                  Friction::Core::RuntimeIdToWriteId& objListIdConv) const {
         for(int i = mNumberLayouts - 1; i >= 0; i--) {
             auto layEle = doc.createElement("CustomLayout");
             mLayouts.at(uint(i))->writeXEV(layEle, doc, objListIdConv);
@@ -157,9 +157,9 @@ public:
         ele.setAttribute("currentId", mCurrentId);
     }
 
-    void readXEV(Friction::Core::XMLReadBoxesHandler& boxReadHandler,
+    void readXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                  const QDomElement& ele,
-                 RuntimeIdToWriteId& objListIdConv) {
+                 Friction::Core::RuntimeIdToWriteId& objListIdConv) {
         setCurrent(-1);
 
         const auto cLays = ele.elementsByTagName("CustomLayout");

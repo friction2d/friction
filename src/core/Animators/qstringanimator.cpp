@@ -76,7 +76,7 @@ void QStringAnimator::saveSVG(SvgExporter& exp, QDomElement& parent,
 }
 
 void QStringAnimator::prp_readPropertyXEV_impl(
-        const QDomElement& ele, const Friction::Core::XevImporter& imp) {
+        const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
     if(ele.hasAttribute("frames")) {
         const auto framesStr = ele.attribute("frames");
         const auto frameStrs = framesStr.splitRef(' ', Qt::SkipEmptyParts);

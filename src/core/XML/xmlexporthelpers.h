@@ -40,7 +40,7 @@ namespace Friction
 {
     namespace Core
     {
-        class XevImporter;
+        class XmlImporter;
         class XevExporter;
 
         namespace XmlExportHelpers
@@ -98,12 +98,12 @@ namespace Friction
                                      const XevExporter& exp);
             CORE_EXPORT
             QString getAbsAndRelFileSrc(const QDomElement& ele,
-                                        const XevImporter& imp);
+                                        const XmlImporter& imp);
             CORE_EXPORT
             bool writeProperty(QDomElement& ele, const XevExporter& exp,
                                const QString& name, Property* const prop);
             CORE_EXPORT
-            bool readProperty(const QDomElement& ele, const XevImporter& imp,
+            bool readProperty(const QDomElement& ele, const XmlImporter& imp,
                               const QString& name, Property* const prop);
         };
     }
