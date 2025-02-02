@@ -588,10 +588,10 @@ public:
     void writeMarkers(eWriteStream &dst) const;
     void readMarkers(eReadStream &src);
 
-    void writeBoxOrSoundXEV(const stdsptr<Friction::Core::XmlZipFileSaver> &xevFileSaver,
+    void writeBoxOrSoundXML(const stdsptr<Friction::Core::XmlZipFileSaver> &xevFileSaver,
                             const Friction::Core::RuntimeIdToWriteId &objListIdConv,
                             const QString &path) const;
-    void readBoxOrSoundXEV(Friction::Core::XmlReadBoxesHandler &boxReadHandler,
+    void readBoxOrSoundXML(Friction::Core::XmlReadBoxesHandler &boxReadHandler,
                            Friction::Core::ZipFileLoader &fileLoader,
                            const QString &path,
                            const Friction::Core::RuntimeIdToWriteId &objListIdConv);

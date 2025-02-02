@@ -152,7 +152,7 @@ void Document::writeScenesXEV(const std::shared_ptr<Friction::Core::XmlZipFileSa
     int id = 0;
     for(const auto &s : fScenes) {
         const QString path = "scenes/" + QString::number(id++) + "/";
-        s->writeBoxOrSoundXEV(xevFileSaver, objListIdConv, path);
+        s->writeBoxOrSoundXML(xevFileSaver, objListIdConv, path);
     }
 }
 
@@ -248,7 +248,7 @@ void Document::readScenesXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler
     for(const auto& scene : scenes) {
         const auto block = scene->blockUndoRedo();
         const QString path = "scenes/" + QString::number(id++) + "/";
-        scene->readBoxOrSoundXEV(boxReadHandler, fileLoader,
+        scene->readBoxOrSoundXML(boxReadHandler, fileLoader,
                                  path, objListIdConv);
     }
 }

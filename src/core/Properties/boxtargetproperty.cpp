@@ -127,7 +127,7 @@ void BoxTargetProperty::prp_readProperty_impl(eReadStream& src) {
     });
 }
 
-QDomElement BoxTargetProperty::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const {
+QDomElement BoxTargetProperty::prp_writePropertyXML_impl(const Friction::Core::XmlExporter& exp) const {
     auto result = exp.createElement("ObjectLink");
 
     int targetWriteId = -1;
@@ -137,7 +137,7 @@ QDomElement BoxTargetProperty::prp_writePropertyXEV_impl(const Friction::Core::X
     return result;
 }
 
-void BoxTargetProperty::prp_readPropertyXEV_impl(
+void BoxTargetProperty::prp_readPropertyXML_impl(
         const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
     const int targetId = Friction::Core::XmlExportHelpers::stringToInt(ele.attribute("targetId"));
     if(targetId == -1) return;

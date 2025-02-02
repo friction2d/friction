@@ -61,10 +61,10 @@ public:
     void prp_writeProperty_impl(eWriteStream& dst) const;
     void prp_readProperty_impl(eReadStream& src);
 
-    virtual void writeBoxOrSoundXEV(const std::shared_ptr<Friction::Core::XmlZipFileSaver>& xevFileSaver,
+    virtual void writeBoxOrSoundXML(const std::shared_ptr<Friction::Core::XmlZipFileSaver>& xevFileSaver,
                                     const Friction::Core::RuntimeIdToWriteId& objListIdConv,
                                     const QString& path) const;
-    virtual void readBoxOrSoundXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
+    virtual void readBoxOrSoundXML(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                                    Friction::Core::ZipFileLoader& fileLoader, const QString& path,
                                    const Friction::Core::RuntimeIdToWriteId& objListIdConv);
 

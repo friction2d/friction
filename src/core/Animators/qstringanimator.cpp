@@ -76,7 +76,7 @@ void QStringAnimator::saveSVG(SvgExporter& exp, QDomElement& parent,
     }
 }
 
-void QStringAnimator::prp_readPropertyXEV_impl(
+void QStringAnimator::prp_readPropertyXML_impl(
         const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
     if(ele.hasAttribute("frames")) {
         const auto framesStr = ele.attribute("frames");
@@ -110,7 +110,7 @@ void saveTextXEV(const QString& path, const Friction::Core::XmlExporter& exp,
     }, false);
 }
 
-QDomElement QStringAnimator::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const {
+QDomElement QStringAnimator::prp_writePropertyXML_impl(const Friction::Core::XmlExporter& exp) const {
     auto result = exp.createElement("Text");
     if(anim_hasKeys()) {
         QString frames;

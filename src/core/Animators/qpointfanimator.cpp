@@ -311,7 +311,7 @@ void QPointFAnimator::saveQPointFSVGY(SvgExporter& exp,
                              motionPath);
 }
 
-QDomElement QPointFAnimator::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const {
+QDomElement QPointFAnimator::prp_writePropertyXML_impl(const Friction::Core::XmlExporter& exp) const {
     auto result = exp.createElement("Vec2");
 
     auto x = mXAnimator->prp_writeNamedPropertyXEV("X", exp);

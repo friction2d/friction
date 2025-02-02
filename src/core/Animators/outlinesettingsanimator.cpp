@@ -51,8 +51,8 @@ void OutlineSettingsAnimator::prp_readProperty_impl(eReadStream& src) {
     src.read(&mOutlineCompositionMode, sizeof(QPainter::CompositionMode));
 }
 
-QDomElement OutlineSettingsAnimator::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const {
-    auto props = PaintSettingsAnimator::prp_writePropertyXEV_impl(exp);
+QDomElement OutlineSettingsAnimator::prp_writePropertyXML_impl(const Friction::Core::XmlExporter& exp) const {
+    auto props = PaintSettingsAnimator::prp_writePropertyXML_impl(exp);
 
     const auto lineWidth = mLineWidth->prp_writeNamedPropertyXEV("Width", exp);
     props.appendChild(lineWidth);
@@ -78,9 +78,9 @@ QDomElement OutlineSettingsAnimator::prp_writePropertyXEV_impl(const Friction::C
     return props;
 }
 
-void OutlineSettingsAnimator::prp_readPropertyXEV_impl(const QDomElement& ele,
+void OutlineSettingsAnimator::prp_readPropertyXML_impl(const QDomElement& ele,
                                                   const Friction::Core::XmlImporter& imp) {
-    PaintSettingsAnimator::prp_readPropertyXEV_impl(ele, imp);
+    PaintSettingsAnimator::prp_readPropertyXML_impl(ele, imp);
 
     const auto lineWidth = ele.firstChildElement("Width");
     mLineWidth->prp_readPropertyXEV(lineWidth, imp);

@@ -48,14 +48,14 @@ void FrameRemappingBase::prp_writeProperty_impl(eWriteStream &dst) const {
     QrealAnimator::prp_writeProperty_impl(dst);
 }
 
-QDomElement FrameRemappingBase::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const {
-    auto result = QrealAnimator::prp_writePropertyXEV_impl(exp);
+QDomElement FrameRemappingBase::prp_writePropertyXML_impl(const Friction::Core::XmlExporter& exp) const {
+    auto result = QrealAnimator::prp_writePropertyXML_impl(exp);
     result.setAttribute("enabled", mEnabled ? "true" : "false");
     return result;
 }
 
-void FrameRemappingBase::prp_readPropertyXEV_impl(const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
-    QrealAnimator::prp_readPropertyXEV_impl(ele, imp);
+void FrameRemappingBase::prp_readPropertyXML_impl(const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
+    QrealAnimator::prp_readPropertyXML_impl(ele, imp);
     const auto enabled = ele.attribute("enabled");
     setEnabled(enabled == "true");
 }

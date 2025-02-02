@@ -69,15 +69,15 @@ void BoolPropertyContainer::prp_readProperty_impl(eReadStream& src) {
     StaticComplexAnimator::prp_readProperty_impl(src);
 }
 
-QDomElement BoolPropertyContainer::prp_writePropertyXEV_impl(
+QDomElement BoolPropertyContainer::prp_writePropertyXML_impl(
         const Friction::Core::XmlExporter& exp) const {
-    auto result = StaticComplexAnimator::prp_writePropertyXEV_impl(exp);
+    auto result = StaticComplexAnimator::prp_writePropertyXML_impl(exp);
     result.setAttribute("checked", mValue ? "true" : "false");
     return result;
 }
 
-void BoolPropertyContainer::prp_readPropertyXEV_impl(
+void BoolPropertyContainer::prp_readPropertyXML_impl(
         const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
-    StaticComplexAnimator::prp_readPropertyXEV_impl(ele, imp);
+    StaticComplexAnimator::prp_readPropertyXML_impl(ele, imp);
     setValue(ele.attribute("checked") == "true");
 }

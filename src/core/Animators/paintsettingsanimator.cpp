@@ -94,7 +94,7 @@ void PaintSettingsAnimator::prp_readProperty_impl(eReadStream& src)
     setPaintType(paintType);
 }
 
-QDomElement PaintSettingsAnimator::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const {
+QDomElement PaintSettingsAnimator::prp_writePropertyXML_impl(const Friction::Core::XmlExporter& exp) const {
     auto result = exp.createElement(prp_tagNameXEV());
 
     result.setAttribute("type", static_cast<int>(mPaintType));
@@ -129,7 +129,7 @@ QDomElement PaintSettingsAnimator::prp_writePropertyXEV_impl(const Friction::Cor
 }
 
 
-void PaintSettingsAnimator::prp_readPropertyXEV_impl(const QDomElement& ele,
+void PaintSettingsAnimator::prp_readPropertyXML_impl(const QDomElement& ele,
                                                 const Friction::Core::XmlImporter& imp) {
     const auto typeStr = ele.attribute("type");
     const int typeInt = Friction::Core::XmlExportHelpers::stringToInt(typeStr);

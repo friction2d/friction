@@ -1380,11 +1380,11 @@ void Canvas::readMarkers(eReadStream &src)
     }
 }
 
-void Canvas::writeBoxOrSoundXEV(const stdsptr<XmlZipFileSaver>& xevFileSaver,
+void Canvas::writeBoxOrSoundXML(const stdsptr<XmlZipFileSaver>& xevFileSaver,
                                 const Friction::Core::RuntimeIdToWriteId& objListIdConv,
                                 const QString& path) const
 {
-    ContainerBox::writeBoxOrSoundXEV(xevFileSaver, objListIdConv, path);
+    ContainerBox::writeBoxOrSoundXML(xevFileSaver, objListIdConv, path);
     auto& fileSaver = xevFileSaver->fileSaver();
     fileSaver.processText(path + "gradients.xml",
                           [&](QTextStream& stream) {
@@ -1404,12 +1404,12 @@ void Canvas::writeBoxOrSoundXEV(const stdsptr<XmlZipFileSaver>& xevFileSaver,
     });
 }
 
-void Canvas::readBoxOrSoundXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
+void Canvas::readBoxOrSoundXML(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                                ZipFileLoader &fileLoader,
                                const QString &path,
                                const Friction::Core::RuntimeIdToWriteId& objListIdConv)
 {
-    ContainerBox::readBoxOrSoundXEV(boxReadHandler, fileLoader, path, objListIdConv);
+    ContainerBox::readBoxOrSoundXML(boxReadHandler, fileLoader, path, objListIdConv);
     fileLoader.process(path + "gradients.xml",
                        [&](QIODevice* const src) {
         QDomDocument doc;

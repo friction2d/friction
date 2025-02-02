@@ -46,8 +46,8 @@ public:
     void prp_writeProperty_impl(eWriteStream& dst) const;
     void prp_readProperty_impl(eReadStream& src);
 protected:
-    void prp_readPropertyXEV_impl(const QDomElement& ele, const Friction::Core::XmlImporter& imp);
-    QDomElement prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const;
+    void prp_readPropertyXML_impl(const QDomElement& ele, const Friction::Core::XmlImporter& imp);
+    QDomElement prp_writePropertyXML_impl(const Friction::Core::XmlExporter& exp) const;
 
     void updateDurationRectLength();
 public:

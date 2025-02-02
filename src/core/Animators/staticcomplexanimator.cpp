@@ -51,7 +51,7 @@ void StaticComplexAnimator::prp_readProperty_impl(eReadStream &src)
     }
 }
 
-void StaticComplexAnimator::prp_readPropertyXEV_impl(
+void StaticComplexAnimator::prp_readPropertyXML_impl(
         const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
     const auto& children = ca_getChildren();
     for(const auto& c : children) {
@@ -73,7 +73,7 @@ void StaticComplexAnimator::writeChildPropertiesXEV(
     }
 }
 
-QDomElement StaticComplexAnimator::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const {
+QDomElement StaticComplexAnimator::prp_writePropertyXML_impl(const Friction::Core::XmlExporter& exp) const {
     auto result = exp.createElement(prp_tagNameXEV());
     writeChildPropertiesXEV(result, exp);
     return result;

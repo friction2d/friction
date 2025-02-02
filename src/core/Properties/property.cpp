@@ -113,13 +113,13 @@ QString Property::prp_tagNameXEV() const {
 
 QDomElement Property::prp_writePropertyXEV(const Friction::Core::XmlExporter &exp) const
 {
-    auto result = prp_writePropertyXEV_impl(exp);
+    auto result = prp_writePropertyXML_impl(exp);
     SWT_writeAbstractionXEV(result, exp);
     return result;
 }
 
 void Property::prp_readPropertyXEV(const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
-    prp_readPropertyXEV_impl(ele, imp);
+    prp_readPropertyXML_impl(ele, imp);
     SWT_readAbstractionXEV(ele, imp);
 }
 

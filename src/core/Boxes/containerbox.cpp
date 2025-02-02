@@ -60,9 +60,9 @@ public:
         SWT_setVisible(getValue());
     }
 
-    void prp_readPropertyXEV_impl(const QDomElement &ele,
+    void prp_readPropertyXML_impl(const QDomElement &ele,
                                   const Friction::Core::XmlImporter& imp) override {
-        BoolPropertyContainer::prp_readPropertyXEV_impl(ele, imp);
+        BoolPropertyContainer::prp_readPropertyXML_impl(ele, imp);
         SWT_setVisible(getValue());
     }
 
@@ -1469,14 +1469,14 @@ void ContainerBox::writeAllContainedXEV(
     const QString childPath = path + "objects/%1/";
     int id = 0;
     for(const auto& cont : mContained) {
-        cont->writeBoxOrSoundXEV(fileSaver, objListIdConv, childPath.arg(id++));
+        cont->writeBoxOrSoundXML(fileSaver, objListIdConv, childPath.arg(id++));
     }
 }
 
-void ContainerBox::writeBoxOrSoundXEV(const stdsptr<XmlZipFileSaver>& xevFileSaver,
+void ContainerBox::writeBoxOrSoundXML(const stdsptr<XmlZipFileSaver>& xevFileSaver,
                                       const Friction::Core::RuntimeIdToWriteId& objListIdConv,
                                       const QString& path) const {
-    BoundingBox::writeBoxOrSoundXEV(xevFileSaver, objListIdConv, path);
+    BoundingBox::writeBoxOrSoundXML(xevFileSaver, objListIdConv, path);
     auto& fileSaver = xevFileSaver->fileSaver();
     fileSaver.processText(path + "stack.xml", [this](QTextStream& stream) {
         QDomDocument doc;
@@ -1626,16 +1626,16 @@ void ContainerBox::readAllContainedXEV(
     const QString childPath = path + "objects/%1/";
     int id = 0;
     for(const auto& cont : mContained) {
-        cont->readBoxOrSoundXEV(boxReadHandler, fileLoader,
+        cont->readBoxOrSoundXML(boxReadHandler, fileLoader,
                                 childPath.arg(id++), objListIdConv);
     }
 }
 
-void ContainerBox::readBoxOrSoundXEV(
+void ContainerBox::readBoxOrSoundXML(
         Friction::Core::XmlReadBoxesHandler& boxReadHandler,
         ZipFileLoader& fileLoader, const QString& path,
         const Friction::Core::RuntimeIdToWriteId& objListIdConv) {
-    BoundingBox::readBoxOrSoundXEV(boxReadHandler, fileLoader, path, objListIdConv);
+    BoundingBox::readBoxOrSoundXML(boxReadHandler, fileLoader, path, objListIdConv);
     readAllContainedXEV(boxReadHandler, fileLoader, path, objListIdConv);
 }
 

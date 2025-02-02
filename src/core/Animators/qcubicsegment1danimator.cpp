@@ -29,7 +29,7 @@
 qCubicSegment1DAnimator::qCubicSegment1DAnimator(const QString &name) :
     InterpolationAnimatorT<qCubicSegment1D>(name) {}
 
-void qCubicSegment1DAnimator::prp_readPropertyXEV_impl(
+void qCubicSegment1DAnimator::prp_readPropertyXML_impl(
         const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
     Q_UNUSED(imp)
     readValuesXEV(ele, [](qCubicSegment1D& seg, const QStringRef& str) {
@@ -44,7 +44,7 @@ void qCubicSegment1DAnimator::prp_readPropertyXEV_impl(
     });
 }
 
-QDomElement qCubicSegment1DAnimator::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const {
+QDomElement qCubicSegment1DAnimator::prp_writePropertyXML_impl(const Friction::Core::XmlExporter& exp) const {
     auto result = exp.createElement("CubicSegment1D");
 
     writeValuesXEV(result, [](const qCubicSegment1D& seg) {

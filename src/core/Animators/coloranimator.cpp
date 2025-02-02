@@ -307,7 +307,7 @@ void ColorAnimator::prp_setupTreeViewMenu(PropertyMenu * const menu) {
     colorModeMenu->addCheckableAction("HSL", mColorMode == ColorMode::hsl, hslOp);
 }
 
-QDomElement ColorAnimator::prp_writePropertyXEV_impl(
+QDomElement ColorAnimator::prp_writePropertyXML_impl(
         const Friction::Core::XmlExporter& exp) const {
     auto result = exp.createElement("Color");
     result.setAttribute("mode", static_cast<int>(mColorMode));
@@ -317,10 +317,10 @@ QDomElement ColorAnimator::prp_writePropertyXEV_impl(
     return result;
 }
 
-void ColorAnimator::prp_readPropertyXEV_impl(
+void ColorAnimator::prp_readPropertyXML_impl(
         const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
     const auto modeStr = ele.attribute("mode", "0");
     const int modeInt = Friction::Core::XmlExportHelpers::stringToInt(modeStr);
     setColorMode(static_cast<ColorMode>(modeInt));
-    StaticComplexAnimator::prp_readPropertyXEV_impl(ele, imp);
+    StaticComplexAnimator::prp_readPropertyXML_impl(ele, imp);
 }

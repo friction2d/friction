@@ -862,7 +862,7 @@ void QrealAnimator::saveQrealSVG(SvgExporter& exp,
     }
 }
 
-QDomElement QrealAnimator::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const {
+QDomElement QrealAnimator::prp_writePropertyXML_impl(const Friction::Core::XmlExporter& exp) const {
     auto result = exp.createElement("Float");
 
     if(anim_hasKeys()) {
@@ -931,7 +931,7 @@ QDomElement QrealAnimator::prp_writePropertyXEV_impl(const Friction::Core::XmlEx
     return result;
 }
 
-void QrealAnimator::prp_readPropertyXEV_impl(
+void QrealAnimator::prp_readPropertyXML_impl(
         const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
     Q_UNUSED(imp)
     const auto values = ele.attribute("values");

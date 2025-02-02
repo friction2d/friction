@@ -118,16 +118,16 @@ void VideoBox::readBoundingBox(eReadStream& src) {
     }
 }
 
-QDomElement VideoBox::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const {
-    auto result = AnimationBox::prp_writePropertyXEV_impl(exp);
+QDomElement VideoBox::prp_writePropertyXML_impl(const Friction::Core::XmlExporter& exp) const {
+    auto result = AnimationBox::prp_writePropertyXML_impl(exp);
     const QString& absSrc = mFileHandler.path();
     Friction::Core::XevExportHelpers::setAbsAndRelFileSrc(absSrc, result, exp);
     return result;
 }
 
-void VideoBox::prp_readPropertyXEV_impl(const QDomElement& ele,
+void VideoBox::prp_readPropertyXML_impl(const QDomElement& ele,
                                         const Friction::Core::XmlImporter& imp) {
-    AnimationBox::prp_readPropertyXEV_impl(ele, imp);
+    AnimationBox::prp_readPropertyXML_impl(ele, imp);
     const QString absSrc = Friction::Core::XevExportHelpers::getAbsAndRelFileSrc(ele, imp);
     setFilePathNoRename(absSrc);
 }

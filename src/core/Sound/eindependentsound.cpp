@@ -161,18 +161,18 @@ void eIndependentSound::prp_readProperty_impl(eReadStream& src)
     }
 }
 
-QDomElement eIndependentSound::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const
+QDomElement eIndependentSound::prp_writePropertyXML_impl(const Friction::Core::XmlExporter& exp) const
 {
-    auto result = eBoxOrSound::prp_writePropertyXEV_impl(exp);
+    auto result = eBoxOrSound::prp_writePropertyXML_impl(exp);
     const QString& absSrc = mFileHandler.path();
     Friction::Core::XevExportHelpers::setAbsAndRelFileSrc(absSrc, result, exp);
     return result;
 }
 
-void eIndependentSound::prp_readPropertyXEV_impl(const QDomElement& ele,
+void eIndependentSound::prp_readPropertyXML_impl(const QDomElement& ele,
                                                  const Friction::Core::XmlImporter& imp)
 {
-    eBoxOrSound::prp_readPropertyXEV_impl(ele, imp);
+    eBoxOrSound::prp_readPropertyXML_impl(ele, imp);
     const QString absSrc = Friction::Core::XevExportHelpers::getAbsAndRelFileSrc(ele, imp);
     if (!absSrc.isEmpty()) { setFilePathNoRename(absSrc); }
 }

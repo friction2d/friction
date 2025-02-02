@@ -418,8 +418,8 @@ void TextBox::readBoundingBox(eReadStream& src) {
     setFontFamilyAndStyle(fontFamily, style);
 }
 
-QDomElement TextBox::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const {
-    auto result = PathBox::prp_writePropertyXEV_impl(exp);
+QDomElement TextBox::prp_writePropertyXML_impl(const Friction::Core::XmlExporter& exp) const {
+    auto result = PathBox::prp_writePropertyXML_impl(exp);
     result.setAttribute("hAlign", static_cast<int>(mHAlignment));
     result.setAttribute("vAlign", static_cast<int>(mVAlignment));
     result.setAttribute("fontSize", mFont.getSize());
@@ -430,8 +430,8 @@ QDomElement TextBox::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter
     return result;
 }
 
-void TextBox::prp_readPropertyXEV_impl(const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
-    PathBox::prp_readPropertyXEV_impl(ele, imp);
+void TextBox::prp_readPropertyXML_impl(const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
+    PathBox::prp_readPropertyXML_impl(ele, imp);
     const auto hAlign = ele.attribute("hAlign");
     const auto vAlign = ele.attribute("vAlign");
     const auto fontSizeStr = ele.attribute("fontSize");

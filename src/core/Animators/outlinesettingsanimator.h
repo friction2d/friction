@@ -34,8 +34,8 @@ class CORE_EXPORT OutlineSettingsAnimator : public PaintSettingsAnimator {
 protected:
     OutlineSettingsAnimator(BoundingBox * const parent);
 
-    QDomElement prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const;
-    void prp_readPropertyXEV_impl(const QDomElement& ele, const Friction::Core::XmlImporter& imp);
+    QDomElement prp_writePropertyXML_impl(const Friction::Core::XmlExporter& exp) const;
+    void prp_readPropertyXML_impl(const QDomElement& ele, const Friction::Core::XmlImporter& imp);
 public:
     void showHideChildrenBeforeChangingPaintType(const PaintType newPaintType);
 

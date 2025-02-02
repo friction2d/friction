@@ -148,7 +148,7 @@ void eBoxOrSound::prp_readProperty_impl(eReadStream& src) {
     }
 }
 
-void eBoxOrSound::writeBoxOrSoundXEV(const std::shared_ptr<Friction::Core::XmlZipFileSaver>& xevFileSaver,
+void eBoxOrSound::writeBoxOrSoundXML(const std::shared_ptr<Friction::Core::XmlZipFileSaver>& xevFileSaver,
                                      const Friction::Core::RuntimeIdToWriteId& objListIdConv,
                                      const QString& path) const {
     QDomDocument doc;
@@ -165,7 +165,7 @@ void eBoxOrSound::writeBoxOrSoundXEV(const std::shared_ptr<Friction::Core::XmlZi
     });
 }
 
-void eBoxOrSound::readBoxOrSoundXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
+void eBoxOrSound::readBoxOrSoundXML(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                                     Friction::Core::ZipFileLoader& fileLoader,
                                     const QString& path,
                                     const Friction::Core::RuntimeIdToWriteId& objListIdConv) {

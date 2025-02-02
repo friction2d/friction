@@ -79,15 +79,15 @@ void ImageBox::readBoundingBox(eReadStream& src) {
     setFilePathNoRename(path);
 }
 
-QDomElement ImageBox::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const {
-    auto result = BoundingBox::prp_writePropertyXEV_impl(exp);
+QDomElement ImageBox::prp_writePropertyXML_impl(const Friction::Core::XmlExporter& exp) const {
+    auto result = BoundingBox::prp_writePropertyXML_impl(exp);
     const QString& absSrc = mFileHandler.path();
     Friction::Core::XevExportHelpers::setAbsAndRelFileSrc(absSrc, result, exp);
     return result;
 }
 
-void ImageBox::prp_readPropertyXEV_impl(const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
-    BoundingBox::prp_readPropertyXEV_impl(ele, imp);
+void ImageBox::prp_readPropertyXML_impl(const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
+    BoundingBox::prp_readPropertyXML_impl(ele, imp);
     const QString absSrc = Friction::Core::XevExportHelpers::getAbsAndRelFileSrc(ele, imp);
     setFilePathNoRename(absSrc);
 }
