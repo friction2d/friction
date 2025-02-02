@@ -41,6 +41,8 @@
 #include <QtMath>
 #include <QRegularExpression>
 #include <QMessageBox>
+#include <QMimeDatabase>
+#include <QMimeType>
 
 #include <iostream>
 #include <ostream>
@@ -1183,5 +1185,14 @@ const QStringList AppSupport::scanForExpressions(const QString &path)
         result << file;
     }
     return result;
+}
+
+const QString AppSupport::getMimeType(const QString &path)
+{
+    if (QFile::exists(path)) {
+        QMimeDatabase db;
+        return db.mimeTypeForFile(path).name();
+    }
+    return QString();
 }
 
