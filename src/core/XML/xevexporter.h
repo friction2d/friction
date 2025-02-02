@@ -30,13 +30,12 @@
 
 #include "xmlexporthelpers.h"
 #include "runtimewriteid.h"
-
-class XevZipFileSaver;
+#include "xevzipfilesaver.h"
 
 class XevExporter : public StdSelfRef {
 public:
     XevExporter(QDomDocument& doc,
-                const std::shared_ptr<XevZipFileSaver>& xevFileSaver,
+                const std::shared_ptr<Friction::Core::XfZipFileSaver>& xevFileSaver,
                 const RuntimeIdToWriteId& objListIdConv,
                 const QString& path,
                 const QString& assetsPath = "");
@@ -57,7 +56,7 @@ public:
     QString absPathToRelPath(const QString& absPath) const;
 private:
     QDomDocument& mDoc;
-    const stdsptr<XevZipFileSaver> mFileSaver;
+    const stdsptr<Friction::Core::XfZipFileSaver> mFileSaver;
     const RuntimeIdToWriteId& mObjectListIdConv;
     const QString mPath;
     const QString mAssetsPath;

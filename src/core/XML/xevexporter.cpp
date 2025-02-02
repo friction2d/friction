@@ -30,7 +30,7 @@
 #include "smartPointers/ememory.h"
 
 XevExporter::XevExporter(QDomDocument& doc,
-                         const std::shared_ptr<XevZipFileSaver>& xevFileSaver,
+                         const std::shared_ptr<Friction::Core::XfZipFileSaver>& xevFileSaver,
                          const RuntimeIdToWriteId& objListIdConv,
                          const QString& path,
                          const QString& assetsPath) :

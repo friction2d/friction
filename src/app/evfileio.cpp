@@ -184,24 +184,13 @@ void MainWindow::saveToFile(const QString &path,
 
 void MainWindow::saveToFileXEV(const QString &path) {
     try {
-        const auto xevfileSaver = std::make_shared<XevZipFileSaver>();
+        const auto xevfileSaver = std::make_shared<Friction::Core::XfZipFileSaver>();
         xevfileSaver->setPath(path);
         auto& fileSaver = xevfileSaver->fileSaver();
 
         fileSaver.processText("mimetype", [](QTextStream& stream) {
             stream << "application/friction";
         }, false);
-
-        /*fileSaver.process("Thumbnails/thumbnail.png", [this](QIODevice* const dst) {
-            const qreal scale = 256./width();
-            QImage img(qRound(width()*scale),
-                       qRound(height()*scale),
-                       QImage::Format_RGB888);
-            QPainter p(&img);
-            p.scale(scale, scale);
-            render(&p);
-            img.save(dst, "PNG");
-        }, false);*/
 
         RuntimeIdToWriteId objListIdConv;
         objListIdConv.assign(mObjectSettingsWidget->getId());

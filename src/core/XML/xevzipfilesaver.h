@@ -30,19 +30,24 @@
 
 #include "zipfilesaver.h"
 
-class CORE_EXPORT XevZipFileSaver {
-public:
-    XevZipFileSaver();
+namespace Friction
+{
+    namespace Core
+    {
+        class CORE_EXPORT XfZipFileSaver
+        {
+        public:
+            XfZipFileSaver();
+            ZipFileSaver& fileSaver() { return mFileSaver; }
+            void setPath(const QString& path);
+            QString absPathToRelPath(const QString& absPath) const;
 
-    Friction::Core::ZipFileSaver& fileSaver() { return mFileSaver; }
-
-    void setPath(const QString& path);
-
-    QString absPathToRelPath(const QString& absPath) const;
-private:
-    QDir mDir;
-    QFile mFile;
-    Friction::Core::ZipFileSaver mFileSaver;
-};
+        private:
+            QDir mDir;
+            QFile mFile;
+            ZipFileSaver mFileSaver;
+        };
+    }
+}
 
 #endif // XEVZIPFILESAVER_H

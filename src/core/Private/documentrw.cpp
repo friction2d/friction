@@ -34,8 +34,6 @@
 #include "canvas.h"
 #include "appsupport.h"
 
-using namespace Friction::Core;
-
 void Document::writeBookmarked(eWriteStream &dst) const {
     dst << fColors.count();
     for(const auto &col : fColors) {
@@ -149,7 +147,7 @@ void Document::writeDoxumentXEV(QDomDocument& doc) const {
     doc.appendChild(document);
 }
 
-void Document::writeScenesXEV(const std::shared_ptr<XevZipFileSaver>& xevFileSaver,
+void Document::writeScenesXEV(const std::shared_ptr<Friction::Core::XfZipFileSaver>& xevFileSaver,
                               const RuntimeIdToWriteId& objListIdConv) const {
     int id = 0;
     for(const auto &s : fScenes) {
@@ -158,7 +156,7 @@ void Document::writeScenesXEV(const std::shared_ptr<XevZipFileSaver>& xevFileSav
     }
 }
 
-void Document::writeXEV(const std::shared_ptr<XevZipFileSaver>& xevFileSaver,
+void Document::writeXEV(const std::shared_ptr<Friction::Core::XfZipFileSaver>& xevFileSaver,
                         const RuntimeIdToWriteId& objListIdConv) const {
     auto& fileSaver = xevFileSaver->fileSaver();
     fileSaver.processText("document.xml", [&](QTextStream& stream) {
@@ -169,7 +167,7 @@ void Document::writeXEV(const std::shared_ptr<XevZipFileSaver>& xevFileSaver,
     writeScenesXEV(xevFileSaver, objListIdConv);
 }
 
-void Document::readDocumentXEV(ZipFileLoader& fileLoader,
+void Document::readDocumentXEV(Friction::Core::ZipFileLoader& fileLoader,
                                QList<Canvas*>& scenes) {
     fileLoader.process("document.xml", [&](QIODevice* const src) {
         QDomDocument document;
@@ -243,7 +241,7 @@ void Document::readDocumentXEV(const QDomDocument& doc,
 }
 
 void Document::readScenesXEV(XevReadBoxesHandler& boxReadHandler,
-                             ZipFileLoader& fileLoader,
+                             Friction::Core::ZipFileLoader& fileLoader,
                              const QList<Canvas*>& scenes,
                              const RuntimeIdToWriteId& objListIdConv) {
     int id = 0;

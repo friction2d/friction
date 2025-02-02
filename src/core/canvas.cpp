@@ -1380,7 +1380,7 @@ void Canvas::readMarkers(eReadStream &src)
     }
 }
 
-void Canvas::writeBoxOrSoundXEV(const stdsptr<XevZipFileSaver>& xevFileSaver,
+void Canvas::writeBoxOrSoundXEV(const stdsptr<XfZipFileSaver>& xevFileSaver,
                                 const RuntimeIdToWriteId& objListIdConv,
                                 const QString& path) const
 {

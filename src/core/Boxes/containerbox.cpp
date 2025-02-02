@@ -1463,7 +1463,7 @@ void ContainerBox::writeAllContained(eWriteStream& dst) const {
 }
 
 void ContainerBox::writeAllContainedXEV(
-        const stdsptr<XevZipFileSaver>& fileSaver,
+        const stdsptr<XfZipFileSaver>& fileSaver,
         const RuntimeIdToWriteId& objListIdConv,
         const QString& path) const {
     const QString childPath = path + "objects/%1/";
@@ -1473,7 +1473,7 @@ void ContainerBox::writeAllContainedXEV(
     }
 }
 
-void ContainerBox::writeBoxOrSoundXEV(const stdsptr<XevZipFileSaver>& xevFileSaver,
+void ContainerBox::writeBoxOrSoundXEV(const stdsptr<XfZipFileSaver>& xevFileSaver,
                                       const RuntimeIdToWriteId& objListIdConv,
                                       const QString& path) const {
     BoundingBox::writeBoxOrSoundXEV(xevFileSaver, objListIdConv, path);

@@ -30,8 +30,6 @@
 #include "Properties/emimedata.h"
 #include "Sound/esound.h"
 
-using namespace Friction::Core;
-
 eBoxOrSound::eBoxOrSound(const QString &name) :
     StaticComplexAnimator(name) {
     ca_setDisabledWhenEmpty(false);
@@ -150,7 +148,7 @@ void eBoxOrSound::prp_readProperty_impl(eReadStream& src) {
     }
 }
 
-void eBoxOrSound::writeBoxOrSoundXEV(const std::shared_ptr<XevZipFileSaver>& xevFileSaver,
+void eBoxOrSound::writeBoxOrSoundXEV(const std::shared_ptr<Friction::Core::XfZipFileSaver>& xevFileSaver,
                                      const RuntimeIdToWriteId& objListIdConv,
                                      const QString& path) const {
     QDomDocument doc;
@@ -168,7 +166,8 @@ void eBoxOrSound::writeBoxOrSoundXEV(const std::shared_ptr<XevZipFileSaver>& xev
 }
 
 void eBoxOrSound::readBoxOrSoundXEV(XevReadBoxesHandler& boxReadHandler,
-                                    ZipFileLoader& fileLoader, const QString& path,
+                                    Friction::Core::ZipFileLoader& fileLoader,
+                                    const QString& path,
                                     const RuntimeIdToWriteId& objListIdConv) {
     QDomDocument doc;
     fileLoader.process(path + "properties.xml",
