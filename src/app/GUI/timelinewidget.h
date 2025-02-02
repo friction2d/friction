@@ -39,7 +39,7 @@
 
 #include "ReadWrite/ereadstream.h"
 #include "ReadWrite/ewritestream.h"
-#include "XML/xevimporter.h"
+#include "XML/xmlimporter.h"
 
 class SWT_Abstraction;
 class FrameScrollBar;

@@ -243,9 +243,9 @@ set(
     TransformEffects/transformeffect.cpp
     TransformEffects/transformeffectcollection.cpp
     TransformEffects/transformeffectmenucreator.cpp
-    XML/xevexporter.cpp
-    XML/xevimporter.cpp
-    XML/xevzipfilesaver.cpp
+    XML/xmlexporter.cpp
+    XML/xmlimporter.cpp
+    XML/xmlzipfilesaver.cpp
     XML/xmlexporthelpers.cpp
     action.cpp
     actions.cpp
@@ -567,9 +567,9 @@ set(
     TransformEffects/transformeffectcollection.h
     TransformEffects/transformeffectmenucreator.h
     XML/runtimewriteid.h
-    XML/xevexporter.h
-    XML/xevimporter.h
-    XML/xevzipfilesaver.h
+    XML/xmlexporter.h
+    XML/xmlimporter.h
+    XML/xmlzipfilesaver.h
     XML/xmlexporthelpers.h
     action.h
     actions.h

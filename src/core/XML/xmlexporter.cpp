@@ -23,8 +23,8 @@
 
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
-#include "xevexporter.h"
-#include "XML/xevzipfilesaver.h"
+#include "xmlexporter.h"
+#include "XML/xmlzipfilesaver.h"
 #include "smartPointers/ememory.h"
 
 using namespace Friction::Core;

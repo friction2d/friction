@@ -32,8 +32,8 @@
 
 #include "swt_abstraction.h"
 #include "swt_rulescollection.h"
-#include "XML/xevexporter.h"
-#include "XML/xevimporter.h"
+#include "XML/xmlexporter.h"
+#include "XML/xmlimporter.h"
 
 #include "ReadWrite/ereadstream.h"
 #include "ReadWrite/ewritestream.h"

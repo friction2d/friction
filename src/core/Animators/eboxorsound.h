@@ -28,9 +28,9 @@
 
 #include "staticcomplexanimator.h"
 
-#include "../zipfilesaver.h"
-#include "../zipfileloader.h"
-#include "../XML/xevzipfilesaver.h"
+#include "zipfilesaver.h"
+#include "zipfileloader.h"
+#include "XML/xmlzipfilesaver.h"
 
 class ContainerBox;
 class Canvas;

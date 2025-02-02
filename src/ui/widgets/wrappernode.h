@@ -37,7 +37,7 @@
 
 #include "ReadWrite/ereadstream.h"
 #include "ReadWrite/ewritestream.h"
-#include "XML/xevimporter.h"
+#include "XML/xmlimporter.h"
 
 enum class UI_EXPORT WrapperNodeType {
     base,
