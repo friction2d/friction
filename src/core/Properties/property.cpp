@@ -111,7 +111,7 @@ QString Property::prp_tagNameXEV() const {
     return result;
 }
 
-QDomElement Property::prp_writePropertyXEV(const Friction::Core::XmlExporter &exp) const
+QDomElement Property::prp_writePropertyXML(const Friction::Core::XmlExporter &exp) const
 {
     auto result = prp_writePropertyXML_impl(exp);
     SWT_writeAbstractionXEV(result, exp);
@@ -126,7 +126,7 @@ void Property::prp_readPropertyXML(const QDomElement& ele, const Friction::Core:
 QDomElement Property::prp_writeNamedPropertyXML(const QString& name,
                                                 const Friction::Core::XmlExporter &exp) const
 {
-    auto prop = prp_writePropertyXEV(exp);
+    auto prop = prp_writePropertyXML(exp);
     prop.setTagName(name);
     return prop;
 }

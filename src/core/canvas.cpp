@@ -1394,7 +1394,7 @@ void Canvas::writeBoxOrSoundXML(const stdsptr<XmlZipFileSaver>& xevFileSaver,
         const auto exp = enve::make_shared<Friction::Core::XmlExporter>(
                     doc, xevFileSaver, objListIdConv, path);
         for (const auto &grad : mGradients) {
-            auto gradient = grad->prp_writePropertyXEV(*exp);
+            auto gradient = grad->prp_writePropertyXML(*exp);
             gradient.setAttribute("id", id++);
             gradients.appendChild(gradient);
         }

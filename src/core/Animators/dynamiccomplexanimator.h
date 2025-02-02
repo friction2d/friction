@@ -326,7 +326,7 @@ protected:
             const auto TProp = static_cast<T*>(c.get());
             const auto path = QString::number(id++) + "/";
             const auto expc = exp.withAssetsPath(path);
-            auto child = c->prp_writePropertyXEV(*expc);
+            auto child = c->prp_writePropertyXML(*expc);
             TWriteTypeXEV(TProp, child);
             result.appendChild(child);
         }

@@ -235,7 +235,7 @@ void OutlineSettingsAnimator::saveCapsSVG(QDomElement &parent) const
 }
 
 QDomElement OutlineSettingsAnimator::writeBrushPaint(const Friction::Core::XmlExporter& exp) const {
-    return mBrushSettings->prp_writePropertyXEV(exp);
+    return mBrushSettings->prp_writePropertyXML(exp);
 }
 
 void OutlineSettingsAnimator::readBrushPaint(const QDomElement& ele,

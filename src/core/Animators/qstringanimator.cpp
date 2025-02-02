@@ -102,7 +102,7 @@ void QStringAnimator::prp_readPropertyXML_impl(
     }
 }
 
-void saveTextXEV(const QString& path, const Friction::Core::XmlExporter& exp,
+void saveTextXML(const QString& path, const Friction::Core::XmlExporter& exp,
                  const QString& txt) {
     exp.processAsset(path, [&](QIODevice* const dst) {
         QTextStream stream(dst);
@@ -119,11 +119,11 @@ QDomElement QStringAnimator::prp_writePropertyXML_impl(const Friction::Core::Xml
             const auto frameStr = QString::number(key->getRelFrame());
             if(!frames.isEmpty()) frames += ' ';
             frames += frameStr;
-            saveTextXEV(frameStr + ".txt", exp, txtKey->getValue());
+            saveTextXML(frameStr + ".txt", exp, txtKey->getValue());
         }
         result.setAttribute("frames", frames);
     } else {
-        saveTextXEV("value.txt", exp, getCurrentValue());
+        saveTextXML("value.txt", exp, getCurrentValue());
     }
 
     return result;

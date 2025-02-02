@@ -28,7 +28,7 @@ void BlendEffect::writeIdentifier(eWriteStream& dst) const {
     dst.write(&mType, sizeof(BlendEffectType));
 }
 
-void BlendEffect::writeIdentifierXEV(QDomElement& ele) const {
+void BlendEffect::writeIdentifierXML(QDomElement& ele) const {
     ele.setAttribute("type", static_cast<int>(mType));
 }
 

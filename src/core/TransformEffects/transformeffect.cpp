@@ -37,7 +37,7 @@ void TransformEffect::writeIdentifier(eWriteStream& dst) const {
     dst.write(&mType, sizeof(TransformEffectType));
 }
 
-void TransformEffect::writeIdentifierXEV(QDomElement& ele) const {
+void TransformEffect::writeIdentifierXML(QDomElement& ele) const {
     ele.setAttribute("type", static_cast<int>(mType));
 }
 

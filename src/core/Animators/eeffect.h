@@ -35,7 +35,7 @@ public:
     void prp_setupTreeViewMenu(PropertyMenu * const menu);
 
     virtual void writeIdentifier(eWriteStream& dst) const = 0;
-    virtual void writeIdentifierXEV(QDomElement& ele) const = 0;
+    virtual void writeIdentifierXML(QDomElement& ele) const = 0;
 
     virtual bool skipZeroInfluence(const qreal relFrame) const {
         Q_UNUSED(relFrame)

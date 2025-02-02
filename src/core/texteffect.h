@@ -58,7 +58,7 @@ public:
     void writeIdentifier(eWriteStream& dst) const
     { Q_UNUSED(dst) }
 
-    void writeIdentifierXEV(QDomElement& ele) const
+    void writeIdentifierXML(QDomElement& ele) const
     { Q_UNUSED(ele) }
 
     void apply(TextBoxRenderData * const textData) const;

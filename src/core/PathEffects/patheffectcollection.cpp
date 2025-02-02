@@ -129,5 +129,5 @@ qsptr<PathEffect> readIdCreatePathEffectXEV(const QDomElement& ele) {
 }
 
 void writePathEffectTypeXEV(PathEffect* const obj, QDomElement& ele) {
-    obj->writeIdentifierXEV(ele);
+    obj->writeIdentifierXML(ele);
 }

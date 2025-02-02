@@ -39,7 +39,7 @@ class CORE_EXPORT ShaderEffect : public RasterEffect {
                  const QList<stdsptr<ShaderPropertyCreator>>& props);
 public:
     void writeIdentifier(eWriteStream &dst) const;
-    void writeIdentifierXEV(QDomElement& ele) const;
+    void writeIdentifierXML(QDomElement& ele) const;
 
     stdsptr<RasterEffectCaller> getEffectCaller(
             const qreal relFrame, const qreal resolution,

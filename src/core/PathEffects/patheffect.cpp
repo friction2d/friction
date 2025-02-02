@@ -40,7 +40,7 @@ void PathEffect::writeIdentifier(eWriteStream& dst) const {
     dst.write(&mType, sizeof(PathEffectType));
 }
 
-void PathEffect::writeIdentifierXEV(QDomElement& ele) const {
+void PathEffect::writeIdentifierXML(QDomElement& ele) const {
     ele.setAttribute("type", static_cast<int>(mType));
 }
 

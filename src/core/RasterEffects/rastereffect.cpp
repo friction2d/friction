@@ -49,7 +49,7 @@ void RasterEffect::writeIdentifier(eWriteStream &dst) const {
     dst.write(&mType, sizeof(RasterEffectType));
 }
 
-void RasterEffect::writeIdentifierXEV(QDomElement& ele) const {
+void RasterEffect::writeIdentifierXML(QDomElement& ele) const {
     ele.setAttribute("type", static_cast<int>(mType));
 }
 

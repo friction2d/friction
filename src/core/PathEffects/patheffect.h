@@ -61,7 +61,7 @@ public:
     QMimeData *SWT_createMimeData() final;
 
     void writeIdentifier(eWriteStream &dst) const;
-    void writeIdentifierXEV(QDomElement& ele) const;
+    void writeIdentifierXML(QDomElement& ele) const;
 
     void prp_setupTreeViewMenu(PropertyMenu * const menu);
 

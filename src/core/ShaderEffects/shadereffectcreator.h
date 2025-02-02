@@ -63,7 +63,7 @@ public:
     qsptr<ShaderEffect> create() const;
 
     void writeIdentifier(eWriteStream& dst) const;
-    void writeIdentifierXEV(QDomElement& ele) const;
+    void writeIdentifierXML(QDomElement& ele) const;
 
     static Identifier sReadIdentifier(eReadStream& src);
     static Identifier sReadIdentifierXEV(const QDomElement& ele);

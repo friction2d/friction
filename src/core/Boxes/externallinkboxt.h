@@ -42,7 +42,7 @@ protected:
     }
 
     QDomElement prp_writePropertyXML_impl(const Friction::Core::XmlExporter& exp) const override {
-        auto result = T::prp_writePropertyXEV(exp);
+        auto result = T::prp_writePropertyXML(exp);
         Friction::Core::XevExportHelpers::setAbsAndRelFileSrc(getFilePath(), result, exp);
         return result;
     }

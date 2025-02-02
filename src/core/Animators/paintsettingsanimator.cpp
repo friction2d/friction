@@ -101,7 +101,7 @@ QDomElement PaintSettingsAnimator::prp_writePropertyXML_impl(const Friction::Cor
 
     switch(mPaintType) {
     case PaintType::FLATPAINT: {
-        const auto color = mColor->prp_writePropertyXEV(exp);
+        const auto color = mColor->prp_writePropertyXML(exp);
         result.appendChild(color);
     } break;
     case PaintType::BRUSHPAINT: {
@@ -115,7 +115,7 @@ QDomElement PaintSettingsAnimator::prp_writePropertyXML_impl(const Friction::Cor
         gradient.setAttribute("id", gradRWId);
         result.appendChild(gradient);
 
-        const auto transform = mGradientTransform->prp_writePropertyXEV(exp);
+        const auto transform = mGradientTransform->prp_writePropertyXML(exp);
         result.appendChild(transform);
 
         const auto gradPoints = mGradientPoints->prp_writeNamedPropertyXML(

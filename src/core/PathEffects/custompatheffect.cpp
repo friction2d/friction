@@ -33,7 +33,7 @@ void CustomPathEffect::writeIdentifier(eWriteStream &dst) const {
     getIdentifier().write(dst);
 }
 
-void CustomPathEffect::writeIdentifierXEV(QDomElement& ele) const {
-    PathEffect::writeIdentifierXEV(ele);
+void CustomPathEffect::writeIdentifierXML(QDomElement& ele) const {
+    PathEffect::writeIdentifierXML(ele);
     getIdentifier().writeXML(ele);
 }

@@ -47,7 +47,7 @@ public:
     void prp_readProperty_impl(eReadStream& src);
 
     void writeIdentifier(eWriteStream &dst) const;
-    void writeIdentifierXEV(QDomElement& ele) const;
+    void writeIdentifierXML(QDomElement& ele) const;
 
     bool isPathValid() const;
     SkPath clipPath(const qreal relFrame) const;

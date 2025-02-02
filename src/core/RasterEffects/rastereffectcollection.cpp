@@ -209,5 +209,5 @@ qsptr<RasterEffect> readIdCreateRasterEffectXEV(const QDomElement& ele) {
 }
 
 void writeRasterEffectTypeXEV(RasterEffect* const obj, QDomElement& ele) {
-    obj->writeIdentifierXEV(ele);
+    obj->writeIdentifierXML(ele);
 }

@@ -118,5 +118,5 @@ qsptr<BlendEffect> readIdCreateBlendEffectXEV(const QDomElement& ele) {
 }
 
 void writeBlendEffectTypeXEV(BlendEffect* const obj, QDomElement& ele) {
-    obj->writeIdentifierXEV(ele);
+    obj->writeIdentifierXML(ele);
 }

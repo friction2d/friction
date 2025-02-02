@@ -180,5 +180,5 @@ qsptr<TransformEffect> readIdCreateTransformEffectXEV(const QDomElement& ele) {
 }
 
 void writeTransformEffectTypeXEV(TransformEffect* const obj, QDomElement& ele) {
-    obj->writeIdentifierXEV(ele);
+    obj->writeIdentifierXML(ele);
 }

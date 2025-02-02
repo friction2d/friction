@@ -99,7 +99,7 @@ void ShaderEffectCreator::writeIdentifier(eWriteStream &dst) const {
     }
 }
 
-void ShaderEffectCreator::writeIdentifierXEV(QDomElement& ele) const {
+void ShaderEffectCreator::writeIdentifierXML(QDomElement& ele) const {
     ele.setAttribute("name", fName);
     ele.setAttribute("grePath", fGrePath);
     QString props;
