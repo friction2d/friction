@@ -70,7 +70,7 @@ public:
         writeData(dst);
     }
 
-    QDomElement writeXEV(QDomDocument& doc, Friction::Core::RuntimeIdToWriteId& objListIdConv);
+    QDomElement writeXML(QDomDocument& doc, Friction::Core::RuntimeIdToWriteId& objListIdConv);
 
     static WrapperNode *sRead(eReadStream& src,
                               const WidgetCreator& creator);
@@ -81,12 +81,12 @@ public:
 protected:
     virtual void readData(eReadStream& src) = 0;
     virtual void writeData(eWriteStream& dst) = 0;
-    virtual void writeDataXEV(QDomElement& ele, QDomDocument& doc,
+    virtual void writeDataXML(QDomElement& ele, QDomDocument& doc,
                               Friction::Core::RuntimeIdToWriteId& objListIdConv) = 0;
-    virtual void readDataXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
+    virtual void readDataXML(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                              const QDomElement& ele,
                              Friction::Core::RuntimeIdToWriteId& objListIdConv) = 0;
-    virtual QString tagNameXEV() const = 0;
+    virtual QString tagNameXML() const = 0;
 };
 
 class UI_EXPORT ParentWrapperNode : public WrapperNode {
@@ -139,13 +139,13 @@ public:
         fChild->write(dst);
     }
 
-    void writeDataXEV(QDomElement& ele, QDomDocument& doc,
+    void writeDataXML(QDomElement& ele, QDomDocument& doc,
                       Friction::Core::RuntimeIdToWriteId& objListIdConv) {
-        const auto child = fChild->writeXEV(doc, objListIdConv);
+        const auto child = fChild->writeXML(doc, objListIdConv);
         ele.appendChild(child);
     }
 
-    void readDataXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
+    void readDataXML(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                      const QDomElement& ele,
                      Friction::Core::RuntimeIdToWriteId& objListIdConv) {
         const auto child = ele.firstChildElement();
@@ -154,7 +154,7 @@ public:
         replaceAndDeleteChild(newChild);
     }
 
-    QString tagNameXEV() const { return mTagName; }
+    QString tagNameXML() const { return mTagName; }
 private:
     using WrapperNode::write;
     const QString mTagName;
@@ -207,16 +207,16 @@ protected:
         fChild2->write(dst);
     }
 
-    void writeDataXEV(QDomElement& ele, QDomDocument& doc,
+    void writeDataXML(QDomElement& ele, QDomDocument& doc,
                       Friction::Core::RuntimeIdToWriteId& objListIdConv) {
-        const auto child1 = fChild1->writeXEV(doc, objListIdConv);
-        const auto child2 = fChild2->writeXEV(doc, objListIdConv);
+        const auto child1 = fChild1->writeXML(doc, objListIdConv);
+        const auto child2 = fChild2->writeXML(doc, objListIdConv);
 
         ele.appendChild(child1);
         ele.appendChild(child2);
     }
 
-    void readDataXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
+    void readDataXML(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                      const QDomElement& ele,
                      Friction::Core::RuntimeIdToWriteId& objListIdConv) {
         const auto child1 = ele.firstChildElement();
@@ -259,23 +259,23 @@ protected:
         dst << percentAt(1);
     }
 
-    void writeDataXEV(QDomElement& ele, QDomDocument& doc,
+    void writeDataXML(QDomElement& ele, QDomDocument& doc,
                       Friction::Core::RuntimeIdToWriteId& objListIdConv) {
-        SplitWrapperNode::writeDataXEV(ele, doc, objListIdConv);
+        SplitWrapperNode::writeDataXML(ele, doc, objListIdConv);
         ele.setAttribute("proportions", percentAt(1));
     }
 
-    void readDataXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
+    void readDataXML(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                      const QDomElement& ele,
                      Friction::Core::RuntimeIdToWriteId& objListIdConv) {
-        SplitWrapperNode::readDataXEV(boxReadHandler, ele, objListIdConv);
+        SplitWrapperNode::readDataXML(boxReadHandler, ele, objListIdConv);
         const QString child2fracStr = ele.attribute("proportions");
         const qreal child2frac = Friction::Core::XmlExportHelpers::stringToDouble(child2fracStr);
         appendWidget(fChild1->widget());
         appendWidget(fChild2->widget(), child2frac);
     }
 
-    QString tagNameXEV() const { return "VSplit"; };
+    QString tagNameXML() const { return "VSplit"; };
 };
 
 class UI_EXPORT HWidgetStackNode : public HWidgetStack, public SplitWrapperNode {
@@ -307,23 +307,23 @@ protected:
         dst << percentAt(1);
     }
 
-    void writeDataXEV(QDomElement& ele, QDomDocument& doc,
+    void writeDataXML(QDomElement& ele, QDomDocument& doc,
                       Friction::Core::RuntimeIdToWriteId& objListIdConv) {
-        SplitWrapperNode::writeDataXEV(ele, doc, objListIdConv);
+        SplitWrapperNode::writeDataXML(ele, doc, objListIdConv);
         ele.setAttribute("proportions", percentAt(1));
     }
 
-    void readDataXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
+    void readDataXML(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                      const QDomElement& ele,
                      Friction::Core::RuntimeIdToWriteId& objListIdConv) {
-        SplitWrapperNode::readDataXEV(boxReadHandler, ele, objListIdConv);
+        SplitWrapperNode::readDataXML(boxReadHandler, ele, objListIdConv);
         const QString child2fracStr = ele.attribute("proportions");
         const qreal child2frac = Friction::Core::XmlExportHelpers::stringToDouble(child2fracStr);
         appendWidget(fChild1->widget());
         appendWidget(fChild2->widget(), child2frac);
     }
 
-    QString tagNameXEV() const { return "HSplit"; };
+    QString tagNameXML() const { return "HSplit"; };
 };
 
 #endif // WRAPPERNODE_H

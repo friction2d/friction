@@ -56,9 +56,9 @@ protected:
                           const K * const nextKey) const override;
 
     using StringToValue = std::function<void(T&, QStringRef)>;
-    void readValuesXEV(const QDomElement& ele, const StringToValue& strToVal);
+    void readValuesXML(const QDomElement& ele, const StringToValue& strToVal);
     using ValueToString = std::function<QString(const T&)>;
-    void writeValuesXEV(QDomElement& ele, const ValueToString& valToStr) const;
+    void writeValuesXML(QDomElement& ele, const ValueToString& valToStr) const;
 };
 
 template<typename T, typename K>
@@ -84,7 +84,7 @@ T InterpolationAnimatorT<T, K>::getValueAtRelFrameK(
 }
 
 template<typename T, typename K>
-void InterpolationAnimatorT<T, K>::readValuesXEV(
+void InterpolationAnimatorT<T, K>::readValuesXML(
         const QDomElement& ele, const StringToValue& strToVal) {
     const bool hasValues = ele.hasAttribute("values");
     const bool hasFrames = ele.hasAttribute("frames");
@@ -156,7 +156,7 @@ void InterpolationAnimatorT<T, K>::readValuesXEV(
 }
 
 template<typename T, typename K>
-void InterpolationAnimatorT<T, K>::writeValuesXEV(
+void InterpolationAnimatorT<T, K>::writeValuesXML(
         QDomElement& ele, const ValueToString& valToStr) const {
     if(this->anim_hasKeys()) {
         QString values;

@@ -154,7 +154,7 @@ void eBoxOrSound::writeBoxOrSoundXML(const std::shared_ptr<Friction::Core::XmlZi
     QDomDocument doc;
     const auto exp = enve::make_shared<Friction::Core::XmlExporter>(
                          doc, xevFileSaver, objListIdConv, path);
-    auto obj = prp_writeNamedPropertyXEV("Object", *exp);
+    auto obj = prp_writeNamedPropertyXML("Object", *exp);
     if(mDurationRectangle) mDurationRectangle->writeDurationRectangleXEV(obj);
 
     doc.appendChild(obj);
@@ -181,7 +181,7 @@ void eBoxOrSound::readBoxOrSoundXML(Friction::Core::XmlReadBoxesHandler& boxRead
         mDurationRectangle->readDurationRectangleXEV(obj);
     }
     const Friction::Core::XmlImporter imp(boxReadHandler, fileLoader, objListIdConv, path);
-    prp_readPropertyXEV(obj, imp);
+    prp_readPropertyXML(obj, imp);
 }
 
 TimelineMovable *eBoxOrSound::anim_getTimelineMovable(

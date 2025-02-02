@@ -118,7 +118,7 @@ QDomElement PaintSettingsAnimator::prp_writePropertyXML_impl(const Friction::Cor
         const auto transform = mGradientTransform->prp_writePropertyXEV(exp);
         result.appendChild(transform);
 
-        const auto gradPoints = mGradientPoints->prp_writeNamedPropertyXEV(
+        const auto gradPoints = mGradientPoints->prp_writeNamedPropertyXML(
                                     "GradientPoints", exp);
         result.appendChild(gradPoints);
     } break;
@@ -137,7 +137,7 @@ void PaintSettingsAnimator::prp_readPropertyXML_impl(const QDomElement& ele,
     switch(type) {
     case PaintType::FLATPAINT: {
         const auto color = ele.firstChildElement("Color");
-        mColor->prp_readPropertyXEV(color, imp);
+        mColor->prp_readPropertyXML(color, imp);
     } break;
     case PaintType::BRUSHPAINT: {
         readBrushPaint(ele, imp);
@@ -161,10 +161,10 @@ void PaintSettingsAnimator::prp_readPropertyXML_impl(const QDomElement& ele,
         });
 
         const auto transform = ele.firstChildElement("Transform");
-        mGradientTransform->prp_readPropertyXEV(transform, imp);
+        mGradientTransform->prp_readPropertyXML(transform, imp);
 
         const auto gradPoints = ele.firstChildElement("GradientPoints");
-        mGradientPoints->prp_readPropertyXEV(gradPoints, imp);
+        mGradientPoints->prp_readPropertyXML(gradPoints, imp);
     } break;
     default: break;
     }

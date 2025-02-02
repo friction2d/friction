@@ -38,13 +38,13 @@ protected:
     void readData(eReadStream& src);
     void writeData(eWriteStream& dst);
 
-    void readDataXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
+    void readDataXML(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                      const QDomElement& ele,
                      Friction::Core::RuntimeIdToWriteId& objListIdConv);
-    void writeDataXEV(QDomElement& ele, QDomDocument& doc,
+    void writeDataXML(QDomElement& ele, QDomDocument& doc,
                       Friction::Core::RuntimeIdToWriteId& objListIdConv);
 
-    QString tagNameXEV() const { return "Canvas"; }
+    QString tagNameXML() const { return "Canvas"; }
 private:
     CanvasWrapperMenuBar* mMenu;
     CanvasWindow* mCanvasWindow;

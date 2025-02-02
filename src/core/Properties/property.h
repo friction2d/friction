@@ -166,8 +166,8 @@ public:
     QString prp_tagNameXEV() const;
 
     QDomElement prp_writePropertyXEV(const Friction::Core::XmlExporter& exp) const;
-    void prp_readPropertyXEV(const QDomElement& ele, const Friction::Core::XmlImporter& imp);
-    QDomElement prp_writeNamedPropertyXEV(const QString& name,
+    void prp_readPropertyXML(const QDomElement& ele, const Friction::Core::XmlImporter& imp);
+    QDomElement prp_writeNamedPropertyXML(const QString& name,
                                           const Friction::Core::XmlExporter& exp) const;
 
     QMatrix getTransform() const;

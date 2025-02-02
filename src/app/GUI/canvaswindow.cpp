@@ -401,7 +401,7 @@ void CanvasWindow::readState(eReadStream &src)
     mFitToSizeBlocked = true;
 }
 
-void CanvasWindow::readStateXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
+void CanvasWindow::readStateXML(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                                 const QDomElement& ele)
 {
     const auto sceneIdStr = ele.attribute("sceneId");
@@ -420,7 +420,7 @@ void CanvasWindow::readStateXEV(Friction::Core::XmlReadBoxesHandler& boxReadHand
     mFitToSizeBlocked = true;
 }
 
-void CanvasWindow::writeStateXEV(QDomElement& ele,
+void CanvasWindow::writeStateXML(QDomElement& ele,
                                  QDomDocument& doc) const
 {
     Q_UNUSED(doc)

@@ -156,7 +156,7 @@ void Document::writeScenesXEV(const std::shared_ptr<Friction::Core::XmlZipFileSa
     }
 }
 
-void Document::writeXEV(const std::shared_ptr<Friction::Core::XmlZipFileSaver>& xevFileSaver,
+void Document::writeXML(const std::shared_ptr<Friction::Core::XmlZipFileSaver>& xevFileSaver,
                         const Friction::Core::RuntimeIdToWriteId& objListIdConv) const {
     auto& fileSaver = xevFileSaver->fileSaver();
     fileSaver.processText("document.xml", [&](QTextStream& stream) {

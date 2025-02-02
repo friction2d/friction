@@ -127,7 +127,7 @@ void SmartPathAnimator::prp_readPropertyXML_impl(
     const int modeInt = Friction::Core::XmlExportHelpers::stringToInt(modeStr);
     mMode = static_cast<Mode>(modeInt);
 
-    readValuesXEV(ele, [closed](SmartPath& path, const QStringRef& str) {
+    readValuesXML(ele, [closed](SmartPath& path, const QStringRef& str) {
         path.loadXEV(str);
         path.setClosed(closed);
     });
@@ -139,7 +139,7 @@ QDomElement SmartPathAnimator::prp_writePropertyXML_impl(const Friction::Core::X
     result.setAttribute("name", prp_getName());
     result.setAttribute("mode", int(mMode));
 
-    writeValuesXEV(result, [](const SmartPath& path) {
+    writeValuesXML(result, [](const SmartPath& path) {
         return path.toXEV();
     });
 

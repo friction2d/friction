@@ -54,7 +54,7 @@ void OutlineSettingsAnimator::prp_readProperty_impl(eReadStream& src) {
 QDomElement OutlineSettingsAnimator::prp_writePropertyXML_impl(const Friction::Core::XmlExporter& exp) const {
     auto props = PaintSettingsAnimator::prp_writePropertyXML_impl(exp);
 
-    const auto lineWidth = mLineWidth->prp_writeNamedPropertyXEV("Width", exp);
+    const auto lineWidth = mLineWidth->prp_writeNamedPropertyXML("Width", exp);
     props.appendChild(lineWidth);
 
     switch(mCapStyle) {
@@ -83,7 +83,7 @@ void OutlineSettingsAnimator::prp_readPropertyXML_impl(const QDomElement& ele,
     PaintSettingsAnimator::prp_readPropertyXML_impl(ele, imp);
 
     const auto lineWidth = ele.firstChildElement("Width");
-    mLineWidth->prp_readPropertyXEV(lineWidth, imp);
+    mLineWidth->prp_readPropertyXML(lineWidth, imp);
 
     const auto capStyle = ele.attribute("stroke-linecap");
     if(capStyle == "butt") mCapStyle = SkPaint::kButt_Cap;
@@ -241,7 +241,7 @@ QDomElement OutlineSettingsAnimator::writeBrushPaint(const Friction::Core::XmlEx
 void OutlineSettingsAnimator::readBrushPaint(const QDomElement& ele,
                                              const Friction::Core::XmlImporter& imp) {
     const auto brushSettings = ele.firstChildElement("BrushSettings");
-    mBrushSettings->prp_readPropertyXEV(brushSettings, imp);
+    mBrushSettings->prp_readPropertyXML(brushSettings, imp);
 }
 
 void OutlineSettingsAnimator::setupStrokeSettings(const qreal relFrame,

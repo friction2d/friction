@@ -1420,7 +1420,7 @@ void Canvas::readBoxOrSoundXML(Friction::Core::XmlReadBoxesHandler& boxReadHandl
             const auto node = gradients.at(i);
             const auto ele = node.toElement();
             const Friction::Core::XmlImporter imp(boxReadHandler, fileLoader, objListIdConv, path);
-            createNewGradient()->prp_readPropertyXEV(ele, imp);
+            createNewGradient()->prp_readPropertyXML(ele, imp);
         }
     });
 }

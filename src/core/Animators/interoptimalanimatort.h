@@ -76,9 +76,9 @@ protected:
     void setResultUpToDate(const bool upToDate) { mResultUpToDate = upToDate; }
 
     using StringToValue = std::function<void(T&, QStringRef)>;
-    void readValuesXEV(const QDomElement& ele, const StringToValue& strToVal);
+    void readValuesXML(const QDomElement& ele, const StringToValue& strToVal);
     using ValueToString = std::function<QString(const T&)>;
-    void writeValuesXEV(QDomElement& ele, const ValueToString& valToStr) const;
+    void writeValuesXML(QDomElement& ele, const ValueToString& valToStr) const;
 private:
     void updateBaseValue();
     void deepCopyValue(const qreal relFrame,
@@ -214,7 +214,7 @@ void InterOptimalAnimatorT<T, K>::prp_readProperty_impl(eReadStream& src) {
 }
 
 template<typename T, typename K>
-void InterOptimalAnimatorT<T, K>::readValuesXEV(
+void InterOptimalAnimatorT<T, K>::readValuesXML(
         const QDomElement& ele, const StringToValue& strToVal) {
     const bool hasValues = ele.hasAttribute("values");
     const bool hasFrames = ele.hasAttribute("frames");
@@ -288,7 +288,7 @@ void InterOptimalAnimatorT<T, K>::readValuesXEV(
 }
 
 template<typename T, typename K>
-void InterOptimalAnimatorT<T, K>::writeValuesXEV(
+void InterOptimalAnimatorT<T, K>::writeValuesXML(
         QDomElement& ele, const ValueToString& valToStr) const {
     if(anim_hasKeys()) {
         QString values;

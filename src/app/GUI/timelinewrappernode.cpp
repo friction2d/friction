@@ -44,13 +44,13 @@ void TimelineWrapperNode::writeData(eWriteStream &dst) {
     mTimelineWidget->writeState(dst);
 }
 
-void TimelineWrapperNode::readDataXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
+void TimelineWrapperNode::readDataXML(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                                       const QDomElement& ele,
                                       Friction::Core::RuntimeIdToWriteId& objListIdConv) {
-    mTimelineWidget->readStateXEV(boxReadHandler, ele, objListIdConv);
+    mTimelineWidget->readStateXML(boxReadHandler, ele, objListIdConv);
 }
 
-void TimelineWrapperNode::writeDataXEV(QDomElement& ele, QDomDocument& doc,
+void TimelineWrapperNode::writeDataXML(QDomElement& ele, QDomDocument& doc,
                                        Friction::Core::RuntimeIdToWriteId& objListIdConv) {
-    mTimelineWidget->writeStateXEV(ele, doc, objListIdConv);
+    mTimelineWidget->writeStateXML(ele, doc, objListIdConv);
 }

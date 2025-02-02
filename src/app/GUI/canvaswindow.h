@@ -94,9 +94,9 @@ public:
     void writeState(eWriteStream& dst) const;
     void readState(eReadStream& src);
 
-    void readStateXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
+    void readStateXML(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                       const QDomElement& ele);
-    void writeStateXEV(QDomElement& ele,
+    void writeStateXML(QDomElement& ele,
                        QDomDocument& doc) const;
 
 protected:

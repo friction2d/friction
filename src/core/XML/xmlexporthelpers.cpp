@@ -195,7 +195,7 @@ bool XevExportHelpers::writeProperty(QDomElement& ele,
                                      const QString& name,
                                      Property* const prop)
 {
-    const auto childEle = prop->prp_writeNamedPropertyXEV(name, exp);
+    const auto childEle = prop->prp_writeNamedPropertyXML(name, exp);
     if (childEle.isNull()) { return false; }
     ele.appendChild(childEle);
     return true;
@@ -208,6 +208,6 @@ bool XevExportHelpers::readProperty(const QDomElement& ele,
 {
     const auto childEle = ele.firstChildElement(name);
     if (childEle.isNull()) { return false; }
-    prop->prp_readPropertyXEV(childEle, imp);
+    prop->prp_readPropertyXML(childEle, imp);
     return true;
 }

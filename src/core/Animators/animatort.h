@@ -41,13 +41,13 @@ protected:
         BasedAnimatorT<Animator, KeyT<T>, T>(name) {}
 
     using StringToValue = std::function<void(T&, const QStringRef&)>;
-    void readValuesXEV(const QDomElement& ele, const StringToValue& strToVal);
+    void readValuesXML(const QDomElement& ele, const StringToValue& strToVal);
     using ValueToString = std::function<QString(const T&)>;
-    void writeValuesXEV(QDomElement& ele, const ValueToString& valToStr) const;
+    void writeValuesXML(QDomElement& ele, const ValueToString& valToStr) const;
 };
 
 template<typename T>
-void AnimatorT<T>::readValuesXEV(
+void AnimatorT<T>::readValuesXML(
         const QDomElement& ele, const StringToValue& strToVal) {
     const bool hasValues = ele.hasAttribute("values");
     const bool hasFrames = ele.hasAttribute("frames");
@@ -81,7 +81,7 @@ void AnimatorT<T>::readValuesXEV(
 }
 
 template<typename T>
-void AnimatorT<T>::writeValuesXEV(
+void AnimatorT<T>::writeValuesXML(
         QDomElement& ele, const ValueToString& valToStr) const {
     if(this->anim_hasKeys()) {
         QString values;

@@ -38,5 +38,5 @@ void CustomRasterEffect::writeIdentifier(eWriteStream& dst) const {
 
 void CustomRasterEffect::writeIdentifierXEV(QDomElement& ele) const {
     RasterEffect::writeIdentifierXEV(ele);
-    getIdentifier().writeXEV(ele);
+    getIdentifier().writeXML(ele);
 }

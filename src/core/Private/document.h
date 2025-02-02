@@ -157,7 +157,7 @@ public:
     void writeScenes(eWriteStream &dst) const;
     void readScenes(eReadStream &src);
 
-    void writeXEV(const std::shared_ptr<Friction::Core::XmlZipFileSaver>& xevFileSaver,
+    void writeXML(const std::shared_ptr<Friction::Core::XmlZipFileSaver>& xevFileSaver,
                   const Friction::Core::RuntimeIdToWriteId& objListIdConv) const;
     void writeDoxumentXEV(QDomDocument& doc) const;
     void writeScenesXEV(const std::shared_ptr<Friction::Core::XmlZipFileSaver>& xevFileSaver,

@@ -32,7 +32,7 @@ qCubicSegment1DAnimator::qCubicSegment1DAnimator(const QString &name) :
 void qCubicSegment1DAnimator::prp_readPropertyXML_impl(
         const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
     Q_UNUSED(imp)
-    readValuesXEV(ele, [](qCubicSegment1D& seg, const QStringRef& str) {
+    readValuesXML(ele, [](qCubicSegment1D& seg, const QStringRef& str) {
         const auto valueStrs = str.split(' ', Qt::SkipEmptyParts);
         if(valueStrs.count() == 4) {
             const qreal p0 = Friction::Core::XmlExportHelpers::stringToDouble(valueStrs[0]);
@@ -47,7 +47,7 @@ void qCubicSegment1DAnimator::prp_readPropertyXML_impl(
 QDomElement qCubicSegment1DAnimator::prp_writePropertyXML_impl(const Friction::Core::XmlExporter& exp) const {
     auto result = exp.createElement("CubicSegment1D");
 
-    writeValuesXEV(result, [](const qCubicSegment1D& seg) {
+    writeValuesXML(result, [](const qCubicSegment1D& seg) {
         return QString::number(seg.p0()) + ' ' +
                QString::number(seg.c1()) + ' ' +
                QString::number(seg.c2()) + ' ' +

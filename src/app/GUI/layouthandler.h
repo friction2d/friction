@@ -64,23 +64,23 @@ struct LayoutData {
         fTimelineLayout->readData(src);
     }
 
-    void writeXEV(QDomElement& ele, QDomDocument& doc,
+    void writeXML(QDomElement& ele, QDomDocument& doc,
                   Friction::Core::RuntimeIdToWriteId& objListIdConv) const {
         ele.setAttribute("name", fName);
-        const auto canvasLayout = fSceneLayout->writeXEV(doc, objListIdConv);
-        const auto timelineLayout = fTimelineLayout->writeXEV(doc, objListIdConv);
+        const auto canvasLayout = fSceneLayout->writeXML(doc, objListIdConv);
+        const auto timelineLayout = fTimelineLayout->writeXML(doc, objListIdConv);
         ele.appendChild(canvasLayout);
         ele.appendChild(timelineLayout);
     }
 
-    void readXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
+    void readXML(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                  const QDomElement& ele,
                  Friction::Core::RuntimeIdToWriteId& objListIdConv) {
         fName = ele.attribute("name");
         const auto canvasLayout = ele.firstChildElement("CanvasLayout");
         const auto timelineLayout = ele.firstChildElement("TimelineLayout");
-        fSceneLayout->readDataXEV(boxReadHandler, canvasLayout, objListIdConv);
-        fTimelineLayout->readDataXEV(boxReadHandler, timelineLayout, objListIdConv);
+        fSceneLayout->readDataXML(boxReadHandler, canvasLayout, objListIdConv);
+        fTimelineLayout->readDataXML(boxReadHandler, timelineLayout, objListIdConv);
     }
 
     QString fName;
@@ -140,24 +140,24 @@ public:
         setCurrent(absId);
     }
 
-    void writeXEV(QDomElement& ele, QDomDocument& doc,
+    void writeXML(QDomElement& ele, QDomDocument& doc,
                   Friction::Core::RuntimeIdToWriteId& objListIdConv) const {
         for(int i = mNumberLayouts - 1; i >= 0; i--) {
             auto layEle = doc.createElement("CustomLayout");
-            mLayouts.at(uint(i))->writeXEV(layEle, doc, objListIdConv);
+            mLayouts.at(uint(i))->writeXML(layEle, doc, objListIdConv);
             ele.appendChild(layEle);
         }
         const int nScenes = int(mLayouts.size()) - mNumberLayouts;
         for(int i = 0; i < nScenes; i++) {
             auto layEle = doc.createElement("SceneLayout");
             const uint layoutId = uint(i + mNumberLayouts);
-            mLayouts.at(layoutId)->writeXEV(layEle, doc, objListIdConv);
+            mLayouts.at(layoutId)->writeXML(layEle, doc, objListIdConv);
             ele.appendChild(layEle);
         }
         ele.setAttribute("currentId", mCurrentId);
     }
 
-    void readXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
+    void readXML(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                  const QDomElement& ele,
                  Friction::Core::RuntimeIdToWriteId& objListIdConv) {
         setCurrent(-1);
@@ -167,7 +167,7 @@ public:
         for(int i = 0; i < nCLays; i++) {
             const auto layNode = cLays.at(i);
             const auto layEle = layNode.toElement();
-            newLayout()->readXEV(boxReadHandler, layEle, objListIdConv);
+            newLayout()->readXML(boxReadHandler, layEle, objListIdConv);
         }
 
         const auto sLays = ele.elementsByTagName("SceneLayout");
@@ -176,7 +176,7 @@ public:
             const auto layNode = sLays.at(i);
             const auto layEle = layNode.toElement();
             const auto layout = mLayouts.at(uint(i + mNumberLayouts));
-            layout->readXEV(boxReadHandler, layEle, objListIdConv);
+            layout->readXML(boxReadHandler, layEle, objListIdConv);
         }
 
         const auto currentIdStr = ele.attribute("currentId");

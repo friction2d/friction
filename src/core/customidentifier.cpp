@@ -37,7 +37,7 @@ void CustomIdentifier::write(eWriteStream& dst) const {
     dst.write(&fVersion, sizeof(Version));
 }
 
-void CustomIdentifier::writeXEV(QDomElement& ele) const {
+void CustomIdentifier::writeXML(QDomElement& ele) const {
     ele.setAttribute("id", fEffectId);
     ele.setAttribute("name", fEffectName);
     ele.setAttribute("version", fVersion.toString());

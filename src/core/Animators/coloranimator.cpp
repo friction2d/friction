@@ -312,7 +312,7 @@ QDomElement ColorAnimator::prp_writePropertyXML_impl(
     auto result = exp.createElement("Color");
     result.setAttribute("mode", static_cast<int>(mColorMode));
 
-    writeChildPropertiesXEV(result, exp);
+    writeChildPropertiesXML(result, exp);
 
     return result;
 }

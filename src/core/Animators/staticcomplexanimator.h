@@ -40,7 +40,7 @@ public:
 
     using ComplexAnimator::ca_addChild;
 protected:
-    void writeChildPropertiesXEV(QDomElement& prop, const Friction::Core::XmlExporter& exp) const;
+    void writeChildPropertiesXML(QDomElement& prop, const Friction::Core::XmlExporter& exp) const;
 private:
     using ComplexAnimator::ca_removeAllChildren;
     using ComplexAnimator::ca_removeChild;

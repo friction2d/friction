@@ -78,10 +78,10 @@ public:
     void writeState(eWriteStream& dst) const;
     void readState(eReadStream& src);
 
-    void readStateXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
+    void readStateXML(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                       const QDomElement& ele,
                       Friction::Core::RuntimeIdToWriteId& objListIdConv);
-    void writeStateXEV(QDomElement& ele, QDomDocument& doc,
+    void writeStateXML(QDomElement& ele, QDomDocument& doc,
                        Friction::Core::RuntimeIdToWriteId& objListIdConv) const;
     void readSettings(ChangeWidthWidget *chww);
     void writeSettings();

@@ -344,7 +344,7 @@ protected:
                 const auto prop = TReadTypeAndCreateXEV(element);
                 this->addChild(prop);
                 const auto path = QString::number(i) + "/";
-                prop->prp_readPropertyXEV(element, imp.withAssetsPath(path));
+                prop->prp_readPropertyXML(element, imp.withAssetsPath(path));
             } catch(const std::exception& e) {
                 gPrintExceptionCritical(e);
             }

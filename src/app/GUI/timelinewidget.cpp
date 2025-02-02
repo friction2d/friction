@@ -436,7 +436,7 @@ void TimelineWidget::readState(eReadStream &src) {
     setViewedFrameRange({minViewedFrame, maxViewedFrame});
 }
 
-void TimelineWidget::readStateXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
+void TimelineWidget::readStateXML(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                                   const QDomElement& ele,
                                   Friction::Core::RuntimeIdToWriteId& objListIdConv) {
     objListIdConv.assign(mBoxesListWidget->getId());
@@ -486,7 +486,7 @@ void TimelineWidget::readStateXEV(Friction::Core::XmlReadBoxesHandler& boxReadHa
     setViewedFrameRange({minViewedFrame, maxViewedFrame});
 }
 
-void TimelineWidget::writeStateXEV(QDomElement& ele, QDomDocument& doc,
+void TimelineWidget::writeStateXML(QDomElement& ele, QDomDocument& doc,
                                    Friction::Core::RuntimeIdToWriteId& objListIdConv) const {
     Q_UNUSED(doc)
 

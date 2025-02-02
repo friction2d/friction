@@ -197,12 +197,12 @@ void MainWindow::saveToFileXEV(const QString &path) {
         fileSaver.processText("UI/layouts.xml", [&](QTextStream& stream) {
             QDomDocument doc;
             auto ele = doc.createElement("Layouts");
-            mLayoutHandler->writeXEV(ele, doc, objListIdConv);
+            mLayoutHandler->writeXML(ele, doc, objListIdConv);
             doc.appendChild(ele);
             stream << doc.toString();
         });
 
-        mDocument.writeXEV(xevfileSaver, objListIdConv);
+        mDocument.writeXML(xevfileSaver, objListIdConv);
     } catch(...) {
         RuntimeThrow("Error while writing to file " + path);
     }
@@ -226,7 +226,7 @@ void MainWindow::loadXevFile(const QString &path) {
             QDomDocument doc;
             doc.setContent(src);
             const auto ele = doc.firstChildElement("Layouts");
-            mLayoutHandler->readXEV(boxReadHandler, ele, objListIdConv);
+            mLayoutHandler->readXML(boxReadHandler, ele, objListIdConv);
         });
 
         mDocument.readScenesXEV(boxReadHandler, fileLoader, scenes, objListIdConv);
