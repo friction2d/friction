@@ -133,7 +133,7 @@ void SmartPathAnimator::prp_readPropertyXEV_impl(
     });
 }
 
-QDomElement SmartPathAnimator::prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const {
+QDomElement SmartPathAnimator::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const {
     auto result = exp.createElement("Path");
     result.setAttribute("closed", isClosed() ? "true" : "false");
     result.setAttribute("name", prp_getName());

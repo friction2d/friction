@@ -38,7 +38,7 @@ class CORE_EXPORT BrushSettingsAnimator : public StaticComplexAnimator {
     BrushSettingsAnimator();
 protected:
     void prp_readPropertyXEV_impl(const QDomElement& ele, const Friction::Core::XmlImporter& imp);
-    QDomElement prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const;
+    QDomElement prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const;
 public:    
     void prp_writeProperty_impl(eWriteStream &dst) const;
     void prp_readProperty_impl(eReadStream &src);

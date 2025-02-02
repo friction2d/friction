@@ -134,7 +134,7 @@ public:
 
     void saveSVG(SvgExporter& exp, DomEleTask* const eleTask) const;
 
-    void writeBoxOrSoundXEV(const stdsptr<Friction::Core::XfZipFileSaver>& xevFileSaver,
+    void writeBoxOrSoundXEV(const stdsptr<Friction::Core::XmlZipFileSaver>& xevFileSaver,
                             const Friction::Core::RuntimeIdToWriteId& objListIdConv,
                             const QString& path) const;
     void readBoxOrSoundXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
@@ -152,7 +152,7 @@ public:
     void queTasks();
 
     void writeAllContained(eWriteStream &dst) const;
-    void writeAllContainedXEV(const stdsptr<Friction::Core::XfZipFileSaver>& fileSaver,
+    void writeAllContainedXEV(const stdsptr<Friction::Core::XmlZipFileSaver>& fileSaver,
                               const Friction::Core::RuntimeIdToWriteId& objListIdConv,
                               const QString& path) const;
 

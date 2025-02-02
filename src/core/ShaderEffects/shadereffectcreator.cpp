@@ -28,6 +28,7 @@
 #include "shadereffect.h"
 #include "shadervaluehandler.h"
 #include "regexhelpers.h"
+#include "XML/xmlexporthelpers.h"
 
 #include <QDomDocument>
 

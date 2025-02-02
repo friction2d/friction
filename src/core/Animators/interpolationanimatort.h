@@ -28,6 +28,7 @@
 #include "graphanimatort.h"
 #include "qrealpoint.h"
 #include "interpolationkeyt.h"
+#include "XML/xmlexporthelpers.h"
 
 template <typename T, typename K = InterpolationKeyT<T>>
 class InterpolationAnimatorT :

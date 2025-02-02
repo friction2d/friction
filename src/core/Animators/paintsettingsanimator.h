@@ -54,7 +54,7 @@ protected:
     virtual void showHideChildrenBeforeChangingPaintType(
             const PaintType newPaintType);
 
-    QDomElement prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const;
+    QDomElement prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const;
     void prp_readPropertyXEV_impl(const QDomElement& ele, const Friction::Core::XmlImporter& imp);
 public:
     void prp_writeProperty_impl(eWriteStream& dst) const;
@@ -91,7 +91,7 @@ protected:
                  QDomElement& parent,
                  const FrameRange& visRange,
                  const QString& name) const;
-    virtual QDomElement writeBrushPaint(const Friction::Core::XevExporter& exp) const
+    virtual QDomElement writeBrushPaint(const Friction::Core::XmlExporter& exp) const
     { Q_UNUSED(exp) return QDomElement(); }
     virtual void readBrushPaint(const QDomElement& ele,
                                 const Friction::Core::XmlImporter& imp)

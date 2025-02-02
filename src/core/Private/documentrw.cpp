@@ -147,7 +147,7 @@ void Document::writeDoxumentXEV(QDomDocument& doc) const {
     doc.appendChild(document);
 }
 
-void Document::writeScenesXEV(const std::shared_ptr<Friction::Core::XfZipFileSaver>& xevFileSaver,
+void Document::writeScenesXEV(const std::shared_ptr<Friction::Core::XmlZipFileSaver>& xevFileSaver,
                               const Friction::Core::RuntimeIdToWriteId& objListIdConv) const {
     int id = 0;
     for(const auto &s : fScenes) {
@@ -156,7 +156,7 @@ void Document::writeScenesXEV(const std::shared_ptr<Friction::Core::XfZipFileSav
     }
 }
 
-void Document::writeXEV(const std::shared_ptr<Friction::Core::XfZipFileSaver>& xevFileSaver,
+void Document::writeXEV(const std::shared_ptr<Friction::Core::XmlZipFileSaver>& xevFileSaver,
                         const Friction::Core::RuntimeIdToWriteId& objListIdConv) const {
     auto& fileSaver = xevFileSaver->fileSaver();
     fileSaver.processText("document.xml", [&](QTextStream& stream) {

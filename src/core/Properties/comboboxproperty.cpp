@@ -24,6 +24,7 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "comboboxproperty.h"
+#include "XML/xmlexporthelpers.h"
 
 ComboBoxProperty::ComboBoxProperty(const QString &name,
                                    const QStringList &list) :
@@ -39,7 +40,7 @@ void ComboBoxProperty::prp_readProperty_impl(eReadStream& src) {
     src >> mCurrentValue;
 }
 
-QDomElement ComboBoxProperty::prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const {
+QDomElement ComboBoxProperty::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const {
     auto result = exp.createElement("Combo");
     result.setAttribute("value", mCurrentValue);
     return result;

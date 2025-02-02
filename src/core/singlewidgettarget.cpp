@@ -25,6 +25,7 @@
 
 #include "singlewidgettarget.h"
 #include "swt_abstraction.h"
+#include "XML/xmlexporthelpers.h"
 
 SWT_Abstraction* SingleWidgetTarget::SWT_createAbstraction(
         const UpdateFuncs& updateFuncs,
@@ -151,7 +152,7 @@ void SingleWidgetTarget::SWT_readAbstraction(eReadStream& src) const {
 }
 
 void SingleWidgetTarget::SWT_writeAbstractionXEV(QDomElement& ele,
-                                                 const Friction::Core::XevExporter &exp) const
+                                                 const Friction::Core::XmlExporter &exp) const
 {
     QString absOpen;
     const auto& objListIdConv = exp.objListIdConv();

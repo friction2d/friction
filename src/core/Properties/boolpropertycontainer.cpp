@@ -70,7 +70,7 @@ void BoolPropertyContainer::prp_readProperty_impl(eReadStream& src) {
 }
 
 QDomElement BoolPropertyContainer::prp_writePropertyXEV_impl(
-        const Friction::Core::XevExporter& exp) const {
+        const Friction::Core::XmlExporter& exp) const {
     auto result = StaticComplexAnimator::prp_writePropertyXEV_impl(exp);
     result.setAttribute("checked", mValue ? "true" : "false");
     return result;

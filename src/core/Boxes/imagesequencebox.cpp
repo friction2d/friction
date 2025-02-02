@@ -83,7 +83,7 @@ void ImageSequenceBox::readBoundingBox(eReadStream& src) {
 }
 
 QDomElement ImageSequenceBox::prp_writePropertyXEV_impl(
-        const Friction::Core::XevExporter& exp) const {
+        const Friction::Core::XmlExporter& exp) const {
     auto result = AnimationBox::prp_writePropertyXEV_impl(exp);
     const QString& absSrc = mFileHandler.path();
     Friction::Core::XevExportHelpers::setAbsAndRelFileSrc(absSrc, result, exp);

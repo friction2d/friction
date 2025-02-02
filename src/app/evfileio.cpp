@@ -184,7 +184,7 @@ void MainWindow::saveToFile(const QString &path,
 
 void MainWindow::saveToFileXEV(const QString &path) {
     try {
-        const auto xevfileSaver = std::make_shared<Friction::Core::XfZipFileSaver>();
+        const auto xevfileSaver = std::make_shared<Friction::Core::XmlZipFileSaver>();
         xevfileSaver->setPath(path);
         auto& fileSaver = xevfileSaver->fileSaver();
 

@@ -29,6 +29,7 @@
 #include "simplemath.h"
 #include "svgexporthelpers.h"
 #include "appsupport.h"
+#include "XML/xmlexporthelpers.h"
 
 QStringAnimator::QStringAnimator(const QString &name) :
     SteppedAnimator<QString>(name) {}
@@ -101,7 +102,7 @@ void QStringAnimator::prp_readPropertyXEV_impl(
     }
 }
 
-void saveTextXEV(const QString& path, const Friction::Core::XevExporter& exp,
+void saveTextXEV(const QString& path, const Friction::Core::XmlExporter& exp,
                  const QString& txt) {
     exp.processAsset(path, [&](QIODevice* const dst) {
         QTextStream stream(dst);
@@ -109,7 +110,7 @@ void saveTextXEV(const QString& path, const Friction::Core::XevExporter& exp,
     }, false);
 }
 
-QDomElement QStringAnimator::prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const {
+QDomElement QStringAnimator::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const {
     auto result = exp.createElement("Text");
     if(anim_hasKeys()) {
         QString frames;

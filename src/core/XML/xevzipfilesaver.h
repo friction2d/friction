@@ -23,21 +23,22 @@
 
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
-#ifndef XEVZIPFILESAVER_H
-#define XEVZIPFILESAVER_H
+#ifndef XML_ZIP_FILE_SAVER_H
+#define XML_ZIP_FILE_SAVER_H
+
+#include "core_global.h"
 
 #include <QDir>
-
 #include "zipfilesaver.h"
 
 namespace Friction
 {
     namespace Core
     {
-        class CORE_EXPORT XfZipFileSaver
+        class CORE_EXPORT XmlZipFileSaver
         {
         public:
-            XfZipFileSaver();
+            XmlZipFileSaver();
             ZipFileSaver& fileSaver() { return mFileSaver; }
             void setPath(const QString& path);
             QString absPathToRelPath(const QString& absPath) const;
@@ -50,4 +51,4 @@ namespace Friction
     }
 }
 
-#endif // XEVZIPFILESAVER_H
+#endif // XML_ZIP_FILE_SAVER_H

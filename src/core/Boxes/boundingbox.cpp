@@ -142,7 +142,7 @@ void BoundingBox::prp_readPropertyXEV_impl(const QDomElement& ele,
     eBoxOrSound::prp_readPropertyXEV_impl(ele, imp);
 }
 
-QDomElement BoundingBox::prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const {
+QDomElement BoundingBox::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const {
     if(mWriteId < 0) assignWriteId();
     auto result = eBoxOrSound::prp_writePropertyXEV_impl(exp);
     result.setAttribute("id", mWriteId);

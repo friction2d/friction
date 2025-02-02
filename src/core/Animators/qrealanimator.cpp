@@ -862,7 +862,7 @@ void QrealAnimator::saveQrealSVG(SvgExporter& exp,
     }
 }
 
-QDomElement QrealAnimator::prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const {
+QDomElement QrealAnimator::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const {
     auto result = exp.createElement("Float");
 
     if(anim_hasKeys()) {

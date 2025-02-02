@@ -36,7 +36,7 @@ void BoolProperty::prp_readProperty_impl(eReadStream& src) {
     src >> mValue;
 }
 
-QDomElement BoolProperty::prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const {
+QDomElement BoolProperty::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const {
     auto result = exp.createElement("Combo");
     result.setAttribute("value", mValue ? "true" : "false");
     return result;

@@ -418,7 +418,7 @@ void TextBox::readBoundingBox(eReadStream& src) {
     setFontFamilyAndStyle(fontFamily, style);
 }
 
-QDomElement TextBox::prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const {
+QDomElement TextBox::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const {
     auto result = PathBox::prp_writePropertyXEV_impl(exp);
     result.setAttribute("hAlign", static_cast<int>(mHAlignment));
     result.setAttribute("vAlign", static_cast<int>(mVAlignment));

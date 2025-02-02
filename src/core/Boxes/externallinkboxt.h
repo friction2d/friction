@@ -41,7 +41,7 @@ protected:
         this->prp_setName("Empty Link");
     }
 
-    QDomElement prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const override {
+    QDomElement prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const override {
         auto result = T::prp_writePropertyXEV(exp);
         Friction::Core::XevExportHelpers::setAbsAndRelFileSrc(getFilePath(), result, exp);
         return result;

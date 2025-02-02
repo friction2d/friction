@@ -1380,7 +1380,7 @@ void Canvas::readMarkers(eReadStream &src)
     }
 }
 
-void Canvas::writeBoxOrSoundXEV(const stdsptr<XfZipFileSaver>& xevFileSaver,
+void Canvas::writeBoxOrSoundXEV(const stdsptr<XmlZipFileSaver>& xevFileSaver,
                                 const Friction::Core::RuntimeIdToWriteId& objListIdConv,
                                 const QString& path) const
 {
@@ -1391,7 +1391,7 @@ void Canvas::writeBoxOrSoundXEV(const stdsptr<XfZipFileSaver>& xevFileSaver,
         QDomDocument doc;
         auto gradients = doc.createElement("Gradients");
         int id = 0;
-        const auto exp = enve::make_shared<Friction::Core::XevExporter>(
+        const auto exp = enve::make_shared<Friction::Core::XmlExporter>(
                     doc, xevFileSaver, objListIdConv, path);
         for (const auto &grad : mGradients) {
             auto gradient = grad->prp_writePropertyXEV(*exp);

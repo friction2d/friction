@@ -127,7 +127,7 @@ void BoxTargetProperty::prp_readProperty_impl(eReadStream& src) {
     });
 }
 
-QDomElement BoxTargetProperty::prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const {
+QDomElement BoxTargetProperty::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const {
     auto result = exp.createElement("ObjectLink");
 
     int targetWriteId = -1;

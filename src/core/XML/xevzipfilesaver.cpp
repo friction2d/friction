@@ -28,9 +28,9 @@
 
 using namespace Friction::Core;
 
-XfZipFileSaver::XfZipFileSaver() {}
+XmlZipFileSaver::XmlZipFileSaver() {}
 
-void XfZipFileSaver::setPath(const QString& path)
+void XmlZipFileSaver::setPath(const QString& path)
 {
     mDir.setPath(QFileInfo(path).path());
     mFile.setFileName(path);
@@ -41,7 +41,7 @@ void XfZipFileSaver::setPath(const QString& path)
     mFileSaver.setIoDevice(&mFile);
 }
 
-QString XfZipFileSaver::absPathToRelPath(const QString& absPath) const
+QString XmlZipFileSaver::absPathToRelPath(const QString& absPath) const
 {
     return mDir.relativeFilePath(absPath);
 }

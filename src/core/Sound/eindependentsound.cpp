@@ -161,7 +161,7 @@ void eIndependentSound::prp_readProperty_impl(eReadStream& src)
     }
 }
 
-QDomElement eIndependentSound::prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const
+QDomElement eIndependentSound::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const
 {
     auto result = eBoxOrSound::prp_writePropertyXEV_impl(exp);
     const QString& absSrc = mFileHandler.path();

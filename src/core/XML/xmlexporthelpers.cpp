@@ -170,7 +170,7 @@ QString XmlExportHelpers::matrixToString(const QMatrix& m)
 
 void XevExportHelpers::setAbsAndRelFileSrc(const QString& absSrc,
                                            QDomElement& ele,
-                                           const XevExporter& exp)
+                                           const XmlExporter& exp)
 {
     ele.setAttribute("relSrc", exp.absPathToRelPath(absSrc));
     ele.setAttribute("absSrc", absSrc);
@@ -191,7 +191,7 @@ QString XevExportHelpers::getAbsAndRelFileSrc(const QDomElement& ele,
 }
 
 bool XevExportHelpers::writeProperty(QDomElement& ele,
-                                     const XevExporter& exp,
+                                     const XmlExporter& exp,
                                      const QString& name,
                                      Property* const prop)
 {

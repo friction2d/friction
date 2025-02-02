@@ -44,7 +44,7 @@ void qCubicSegment1DAnimator::prp_readPropertyXEV_impl(
     });
 }
 
-QDomElement qCubicSegment1DAnimator::prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const {
+QDomElement qCubicSegment1DAnimator::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const {
     auto result = exp.createElement("CubicSegment1D");
 
     writeValuesXEV(result, [](const qCubicSegment1D& seg) {

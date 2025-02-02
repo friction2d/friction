@@ -59,7 +59,7 @@ void BrushSettingsAnimator::prp_readPropertyXEV_impl(const QDomElement& ele, con
     mBrush = Friction::Core::XevExportHelpers::brushFromElement(brush);
 }
 
-QDomElement BrushSettingsAnimator::prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const {
+QDomElement BrushSettingsAnimator::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const {
     auto result = StaticComplexAnimator::prp_writePropertyXEV_impl(exp);
     const auto brush = Friction::Core::XevExportHelpers::brushToElement(mBrush.get(), exp.doc());
     result.appendChild(brush);

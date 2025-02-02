@@ -317,7 +317,7 @@ public:
         }
     }
 protected:
-    QDomElement prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const override {
+    QDomElement prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const override {
         if(!this->ca_hasChildren()) return QDomElement();
         auto result = exp.createElement(this->prp_tagNameXEV());
         const auto& children = this->ca_getChildren();

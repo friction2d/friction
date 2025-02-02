@@ -48,7 +48,7 @@ void FrameRemappingBase::prp_writeProperty_impl(eWriteStream &dst) const {
     QrealAnimator::prp_writeProperty_impl(dst);
 }
 
-QDomElement FrameRemappingBase::prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const {
+QDomElement FrameRemappingBase::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const {
     auto result = QrealAnimator::prp_writePropertyXEV_impl(exp);
     result.setAttribute("enabled", mEnabled ? "true" : "false");
     return result;

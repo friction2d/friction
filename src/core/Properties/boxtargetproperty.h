@@ -39,7 +39,7 @@ class CORE_EXPORT BoxTargetProperty : public Property {
 protected:
     BoxTargetProperty(const QString& name);
 
-    QDomElement prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const;
+    QDomElement prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const;
     void prp_readPropertyXEV_impl(const QDomElement& ele, const Friction::Core::XmlImporter& imp);
 public:
     bool SWT_dropSupport(const QMimeData* const data);

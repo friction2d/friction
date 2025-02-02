@@ -32,7 +32,7 @@ class CORE_EXPORT FrameRemappingBase : public QrealAnimator {
 protected:
     FrameRemappingBase();
 
-    QDomElement prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const override;
+    QDomElement prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const override;
     void prp_readPropertyXEV_impl(const QDomElement& ele,
                                   const Friction::Core::XmlImporter& imp) override;
 public:    

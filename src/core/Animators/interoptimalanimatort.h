@@ -29,6 +29,7 @@
 #include "qrealpoint.h"
 #include "interpolationkeyt.h"
 #include "simpletask.h"
+#include "XML/xmlexporthelpers.h"
 
 template <typename T, typename K = InterpolationKeyT<T>>
 class InterOptimalAnimatorT : public GraphAnimator {

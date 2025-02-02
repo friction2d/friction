@@ -25,6 +25,7 @@
 
 #include "staticcomplexanimator.h"
 #include "ReadWrite/evformat.h"
+#include "XML/xmlexporthelpers.h"
 
 StaticComplexAnimator::StaticComplexAnimator(const QString &name) :
     ComplexAnimator(name) {}
@@ -62,7 +63,7 @@ void StaticComplexAnimator::prp_readPropertyXEV_impl(
 }
 
 void StaticComplexAnimator::writeChildPropertiesXEV(
-        QDomElement& prop, const Friction::Core::XevExporter& exp) const {
+        QDomElement& prop, const Friction::Core::XmlExporter& exp) const {
     const auto& children = ca_getChildren();
     for(const auto& c : children) {
         const QString tagName = c->prp_tagNameXEV();
@@ -72,7 +73,7 @@ void StaticComplexAnimator::writeChildPropertiesXEV(
     }
 }
 
-QDomElement StaticComplexAnimator::prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const {
+QDomElement StaticComplexAnimator::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const {
     auto result = exp.createElement(prp_tagNameXEV());
     writeChildPropertiesXEV(result, exp);
     return result;

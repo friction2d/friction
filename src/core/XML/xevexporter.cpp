@@ -24,15 +24,13 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "xevexporter.h"
-
-#include "../XML/xevzipfilesaver.h"
-
+#include "XML/xevzipfilesaver.h"
 #include "smartPointers/ememory.h"
 
 using namespace Friction::Core;
 
-XevExporter::XevExporter(QDomDocument& doc,
-                         const std::shared_ptr<Friction::Core::XfZipFileSaver>& xevFileSaver,
+XmlExporter::XmlExporter(QDomDocument& doc,
+                         const std::shared_ptr<Friction::Core::XmlZipFileSaver>& xevFileSaver,
                          const RuntimeIdToWriteId& objListIdConv,
                          const QString& path,
                          const QString& assetsPath) :
@@ -40,26 +38,26 @@ XevExporter::XevExporter(QDomDocument& doc,
     mObjectListIdConv(objListIdConv),
     mPath(path), mAssetsPath(assetsPath) {}
 
-stdsptr<XevExporter> XevExporter::withAssetsPath(const QString& path) const {
-    return enve::make_shared<XevExporter>(
+stdsptr<XmlExporter> XmlExporter::withAssetsPath(const QString& path) const {
+    return enve::make_shared<XmlExporter>(
                 mDoc, mFileSaver, mObjectListIdConv,
                 mPath, mAssetsPath + path);
 }
 
-QDomElement XevExporter::createElement(const QString& tagName) const {
+QDomElement XmlExporter::createElement(const QString& tagName) const {
     return mDoc.createElement(tagName);
 }
 
-QDomText XevExporter::createTextNode(const QString& data) const {
+QDomText XmlExporter::createTextNode(const QString& data) const {
     return mDoc.createTextNode(data);
 }
 
-void XevExporter::processAsset(const QString& file, const Processor& func,
+void XmlExporter::processAsset(const QString& file, const Processor& func,
                                const bool compress) const {
     auto& fileSaver = mFileSaver->fileSaver();
     fileSaver.process(mPath + "assets/" + mAssetsPath + file, func, compress);
 }
 
-QString XevExporter::absPathToRelPath(const QString& absPath) const {
+QString XmlExporter::absPathToRelPath(const QString& absPath) const {
     return mFileSaver->absPathToRelPath(absPath);
 }

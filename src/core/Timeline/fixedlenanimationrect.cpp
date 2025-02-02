@@ -26,6 +26,7 @@
 #include "fixedlenanimationrect.h"
 #include "Properties/property.h"
 #include "appsupport.h"
+#include "XML/xmlexporthelpers.h"
 
 int FixedLenAnimationRect::getMinAnimRelFrame() const {
     return mMinAnimationFrame;

@@ -308,7 +308,7 @@ void ColorAnimator::prp_setupTreeViewMenu(PropertyMenu * const menu) {
 }
 
 QDomElement ColorAnimator::prp_writePropertyXEV_impl(
-        const Friction::Core::XevExporter& exp) const {
+        const Friction::Core::XmlExporter& exp) const {
     auto result = exp.createElement("Color");
     result.setAttribute("mode", static_cast<int>(mColorMode));
 

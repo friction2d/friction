@@ -51,7 +51,7 @@ void OutlineSettingsAnimator::prp_readProperty_impl(eReadStream& src) {
     src.read(&mOutlineCompositionMode, sizeof(QPainter::CompositionMode));
 }
 
-QDomElement OutlineSettingsAnimator::prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const {
+QDomElement OutlineSettingsAnimator::prp_writePropertyXEV_impl(const Friction::Core::XmlExporter& exp) const {
     auto props = PaintSettingsAnimator::prp_writePropertyXEV_impl(exp);
 
     const auto lineWidth = mLineWidth->prp_writeNamedPropertyXEV("Width", exp);
@@ -234,7 +234,7 @@ void OutlineSettingsAnimator::saveCapsSVG(QDomElement &parent) const
     parent.setAttribute("stroke-linejoin", linejoin);
 }
 
-QDomElement OutlineSettingsAnimator::writeBrushPaint(const Friction::Core::XevExporter& exp) const {
+QDomElement OutlineSettingsAnimator::writeBrushPaint(const Friction::Core::XmlExporter& exp) const {
     return mBrushSettings->prp_writePropertyXEV(exp);
 }
 

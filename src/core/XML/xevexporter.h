@@ -23,24 +23,25 @@
 
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
-#ifndef XEVEXPORTER_H
-#define XEVEXPORTER_H
+#ifndef XML_EXPORTER_H
+#define XML_EXPORTER_H
 
-#include "../smartPointers/stdselfref.h"
+#include "smartPointers/stdselfref.h"
 
-#include "xmlexporthelpers.h"
-#include "runtimewriteid.h"
-#include "xevzipfilesaver.h"
+#include <QDomDocument>
 
 namespace Friction
 {
     namespace Core
     {
-        class CORE_EXPORT XevExporter : public StdSelfRef
+        class RuntimeIdToWriteId;
+        class XmlZipFileSaver;
+
+        class CORE_EXPORT XmlExporter : public StdSelfRef
         {
         public:
-            XevExporter(QDomDocument& doc,
-                        const std::shared_ptr<XfZipFileSaver>& xevFileSaver,
+            XmlExporter(QDomDocument& doc,
+                        const std::shared_ptr<XmlZipFileSaver>& xevFileSaver,
                         const RuntimeIdToWriteId& objListIdConv,
                         const QString& path,
                         const QString& assetsPath = "");
@@ -49,7 +50,7 @@ namespace Friction
 
             QDomDocument& doc() const { return mDoc; }
 
-            stdsptr<XevExporter> withAssetsPath(const QString& path) const;
+            stdsptr<XmlExporter> withAssetsPath(const QString& path) const;
 
             QDomElement createElement(const QString& tagName) const;
             QDomText createTextNode(const QString& data) const;
@@ -62,7 +63,7 @@ namespace Friction
 
         private:
             QDomDocument& mDoc;
-            const stdsptr<XfZipFileSaver> mFileSaver;
+            const stdsptr<XmlZipFileSaver> mFileSaver;
             const RuntimeIdToWriteId& mObjectListIdConv;
             const QString mPath;
             const QString mAssetsPath;
@@ -70,4 +71,4 @@ namespace Friction
     }
 }
 
-#endif // XEVEXPORTER_H
+#endif // XML_EXPORTER_H

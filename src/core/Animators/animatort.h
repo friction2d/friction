@@ -31,6 +31,7 @@
 #include "differsinterpolate.h"
 #include "keyt.h"
 #include "basedanimatort.h"
+#include "XML/xmlexporthelpers.h"
 
 template <typename T>
 class AnimatorT : public BasedAnimatorT<Animator, KeyT<T>, T> {
