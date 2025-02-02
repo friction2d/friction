@@ -34,70 +34,79 @@
 #include <QString>
 
 class SimpleBrushWrapper;
-class XevExporter;
-class XevImporter;
 class Property;
 
-namespace XmlExportHelpers {
-    CORE_EXPORT
-    SkBlendMode stringToBlendMode(const QString& compOpStr);
-    CORE_EXPORT
-    QString blendModeToString(const SkBlendMode blendMode);
+namespace Friction
+{
+    namespace Core
+    {
+        class XevImporter;
+        class XevExporter;
 
-    CORE_EXPORT
-    qreal stringToDouble(const QStringRef& string);
-    CORE_EXPORT
-    qreal stringToDouble(const QString& string);
-    CORE_EXPORT
-    int stringToInt(const QStringRef& string);
-    CORE_EXPORT
-    int stringToInt(const QString& string);
+        namespace XmlExportHelpers
+        {
+            CORE_EXPORT
+            SkBlendMode stringToBlendMode(const QString& compOpStr);
+            CORE_EXPORT
+            QString blendModeToString(const SkBlendMode blendMode);
 
-    template <typename T, typename S>
-    T stringToEnum(const S& string) {
-        const int intVal = stringToInt(string);
-        return static_cast<T>(intVal);
+            CORE_EXPORT
+            qreal stringToDouble(const QStringRef& string);
+            CORE_EXPORT
+            qreal stringToDouble(const QString& string);
+            CORE_EXPORT
+            int stringToInt(const QStringRef& string);
+            CORE_EXPORT
+            int stringToInt(const QString& string);
+
+            template <typename T, typename S>
+            T stringToEnum(const S& string) {
+                const int intVal = stringToInt(string);
+                return static_cast<T>(intVal);
+            }
+
+            template <typename T, typename S>
+            T stringToEnum(const S& string, const T min, const T max) {
+                const auto result = stringToEnum<T>(string);
+                if(result < min || result > max)
+                    RuntimeThrow("Value outside of enum value range");
+                return result;
+            }
+
+            template <typename T, typename S>
+            T stringToEnum(const S& string, const T max) {
+                return stringToEnum(string, 0, max);
+            }
+
+            CORE_EXPORT
+            QMatrix stringToMatrix(const QString& str);
+            CORE_EXPORT
+            QString matrixToString(const QMatrix& m);
+        };
+
+        namespace XevExportHelpers
+        {
+            CORE_EXPORT
+            QDomElement brushToElement(SimpleBrushWrapper* const brush,
+                                       QDomDocument& doc);
+            CORE_EXPORT
+            SimpleBrushWrapper* brushFromElement(const QDomElement& ele);
+
+            CORE_EXPORT
+            void setAbsAndRelFileSrc(const QString& absSrc,
+                                     QDomElement& ele,
+                                     const XevExporter& exp);
+            CORE_EXPORT
+            QString getAbsAndRelFileSrc(const QDomElement& ele,
+                                        const XevImporter& imp);
+            CORE_EXPORT
+            bool writeProperty(QDomElement& ele, const XevExporter& exp,
+                               const QString& name, Property* const prop);
+            CORE_EXPORT
+            bool readProperty(const QDomElement& ele, const XevImporter& imp,
+                              const QString& name, Property* const prop);
+        };
     }
-
-    template <typename T, typename S>
-    T stringToEnum(const S& string, const T min, const T max) {
-        const auto result = stringToEnum<T>(string);
-        if(result < min || result > max)
-            RuntimeThrow("Value outside of enum value range");
-        return result;
-    }
-
-    template <typename T, typename S>
-    T stringToEnum(const S& string, const T max) {
-        return stringToEnum(string, 0, max);
-    }
-
-    CORE_EXPORT
-    QMatrix stringToMatrix(const QString& str);
-    CORE_EXPORT
-    QString matrixToString(const QMatrix& m);
-};
-
-namespace XevExportHelpers {
-    CORE_EXPORT
-    QDomElement brushToElement(SimpleBrushWrapper* const brush,
-                               QDomDocument& doc);
-    CORE_EXPORT
-    SimpleBrushWrapper* brushFromElement(const QDomElement& ele);
-
-    CORE_EXPORT
-    void setAbsAndRelFileSrc(const QString& absSrc,
-                             QDomElement& ele,
-                             const XevExporter& exp);
-    CORE_EXPORT
-    QString getAbsAndRelFileSrc(const QDomElement& ele,
-                                const XevImporter& imp);
-    CORE_EXPORT
-    bool writeProperty(QDomElement& ele, const XevExporter& exp,
-                       const QString& name, Property* const prop);
-    CORE_EXPORT
-    bool readProperty(const QDomElement& ele, const XevImporter& imp,
-                      const QString& name, Property* const prop);
-};
+}
 
 #endif // XMLEXPORTHELPERS_H

@@ -32,34 +32,42 @@
 #include "runtimewriteid.h"
 #include "xevzipfilesaver.h"
 
-class XevExporter : public StdSelfRef {
-public:
-    XevExporter(QDomDocument& doc,
-                const std::shared_ptr<Friction::Core::XfZipFileSaver>& xevFileSaver,
-                const RuntimeIdToWriteId& objListIdConv,
-                const QString& path,
-                const QString& assetsPath = "");
+namespace Friction
+{
+    namespace Core
+    {
+        class CORE_EXPORT XevExporter : public StdSelfRef
+        {
+        public:
+            XevExporter(QDomDocument& doc,
+                        const std::shared_ptr<XfZipFileSaver>& xevFileSaver,
+                        const RuntimeIdToWriteId& objListIdConv,
+                        const QString& path,
+                        const QString& assetsPath = "");
 
-    const RuntimeIdToWriteId& objListIdConv() const { return mObjectListIdConv; }
+            const RuntimeIdToWriteId& objListIdConv() const { return mObjectListIdConv; }
 
-    QDomDocument& doc() const { return mDoc; }
+            QDomDocument& doc() const { return mDoc; }
 
-    stdsptr<XevExporter> withAssetsPath(const QString& path) const;
+            stdsptr<XevExporter> withAssetsPath(const QString& path) const;
 
-    QDomElement createElement(const QString& tagName) const;
-    QDomText createTextNode(const QString& data) const;
+            QDomElement createElement(const QString& tagName) const;
+            QDomText createTextNode(const QString& data) const;
 
-    using Processor = std::function<void(QIODevice* const dst)>;
-    void processAsset(const QString& file, const Processor& func,
-                      const bool compress = true) const;
+            using Processor = std::function<void(QIODevice* const dst)>;
+            void processAsset(const QString& file, const Processor& func,
+                              const bool compress = true) const;
 
-    QString absPathToRelPath(const QString& absPath) const;
-private:
-    QDomDocument& mDoc;
-    const stdsptr<Friction::Core::XfZipFileSaver> mFileSaver;
-    const RuntimeIdToWriteId& mObjectListIdConv;
-    const QString mPath;
-    const QString mAssetsPath;
-};
+            QString absPathToRelPath(const QString& absPath) const;
+
+        private:
+            QDomDocument& mDoc;
+            const stdsptr<XfZipFileSaver> mFileSaver;
+            const RuntimeIdToWriteId& mObjectListIdConv;
+            const QString mPath;
+            const QString mAssetsPath;
+        };
+    }
+}
 
 #endif // XEVEXPORTER_H

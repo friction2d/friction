@@ -94,7 +94,7 @@ void PaintSettingsAnimator::prp_readProperty_impl(eReadStream& src)
     setPaintType(paintType);
 }
 
-QDomElement PaintSettingsAnimator::prp_writePropertyXEV_impl(const XevExporter& exp) const {
+QDomElement PaintSettingsAnimator::prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const {
     auto result = exp.createElement(prp_tagNameXEV());
 
     result.setAttribute("type", static_cast<int>(mPaintType));
@@ -130,9 +130,9 @@ QDomElement PaintSettingsAnimator::prp_writePropertyXEV_impl(const XevExporter& 
 
 
 void PaintSettingsAnimator::prp_readPropertyXEV_impl(const QDomElement& ele,
-                                                const XevImporter& imp) {
+                                                const Friction::Core::XevImporter& imp) {
     const auto typeStr = ele.attribute("type");
-    const int typeInt = XmlExportHelpers::stringToInt(typeStr);
+    const int typeInt = Friction::Core::XmlExportHelpers::stringToInt(typeStr);
     const auto type = static_cast<PaintType>(typeInt);
     switch(type) {
     case PaintType::FLATPAINT: {
@@ -146,12 +146,12 @@ void PaintSettingsAnimator::prp_readPropertyXEV_impl(const QDomElement& ele,
         const auto gradient = ele.firstChildElement("Gradient");
 
         const auto typeStr = gradient.attribute("type");
-        const int typeInt = XmlExportHelpers::stringToInt(typeStr);
+        const int typeInt = Friction::Core::XmlExportHelpers::stringToInt(typeStr);
         const auto type = static_cast<GradientType>(typeInt);
         mGradientType = type;
 
         const auto gradIdStr = gradient.attribute("id");
-        const int gradId = XmlExportHelpers::stringToInt(gradIdStr);
+        const int gradId = Friction::Core::XmlExportHelpers::stringToInt(gradIdStr);
 
         SimpleTask::sScheduleContexted(this, [this, gradId]() {
             const auto parentScene = getParentScene();

@@ -180,7 +180,7 @@ public:
         }
 
         const auto currentIdStr = ele.attribute("currentId");
-        const int relCurrentId = XmlExportHelpers::stringToInt(currentIdStr);
+        const int relCurrentId = Friction::Core::XmlExportHelpers::stringToInt(currentIdStr);
         if(relCurrentId == -1) return;
         const int absId = relCurrentId < nCLays ? relCurrentId :
                                                  mNumberLayouts - nCLays + relCurrentId;

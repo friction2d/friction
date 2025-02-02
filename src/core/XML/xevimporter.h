@@ -50,35 +50,34 @@ namespace Friction
             std::map<int, BoundingBox*> mReadBoxes;
             QList<XevImporterDoneTask> mDoneTasks;
         };
+
+        class CORE_EXPORT XevImporter
+        {
+        public:
+            XevImporter(XMLReadBoxesHandler& xevReadBoxesHandler,
+                        ZipFileLoader& fileLoader,
+                        const RuntimeIdToWriteId& objListIdConv,
+                        const QString& path,
+                        const QString& assetsPath = "");
+
+            XMLReadBoxesHandler& getXevReadBoxesHandler() const {
+                return mXevReadBoxesHandler;
+            }
+
+            const RuntimeIdToWriteId& objListIdConv() const { return mObjectListIdConv; }
+            XevImporter withAssetsPath(const QString& path) const;
+            using Processor = std::function<void(QIODevice* const dst)>;
+            void processAsset(const QString& file, const Processor& func) const;
+            QString relPathToAbsPath(const QString& relPath) const;
+
+        private:
+            XMLReadBoxesHandler& mXevReadBoxesHandler;
+            ZipFileLoader& mFileLoader;
+            const RuntimeIdToWriteId& mObjectListIdConv;
+            const QString mPath;
+            const QString mAssetsPath;
+        };
     }
 }
-
-class XevImporter {
-public:
-    XevImporter(Friction::Core::XMLReadBoxesHandler& xevReadBoxesHandler,
-                Friction::Core::ZipFileLoader& fileLoader,
-                const RuntimeIdToWriteId& objListIdConv,
-                const QString& path,
-                const QString& assetsPath = "");
-
-    Friction::Core::XMLReadBoxesHandler& getXevReadBoxesHandler() const {
-        return mXevReadBoxesHandler;
-    }
-
-    const RuntimeIdToWriteId& objListIdConv() const { return mObjectListIdConv; }
-
-    XevImporter withAssetsPath(const QString& path) const;
-
-    using Processor = std::function<void(QIODevice* const dst)>;
-    void processAsset(const QString& file, const Processor& func) const;
-
-    QString relPathToAbsPath(const QString& relPath) const;
-private:
-    Friction::Core::XMLReadBoxesHandler& mXevReadBoxesHandler;
-    Friction::Core::ZipFileLoader& mFileLoader;
-    const RuntimeIdToWriteId& mObjectListIdConv;
-    const QString mPath;
-    const QString mAssetsPath;
-};
 
 #endif // XEVIMPORTER_H

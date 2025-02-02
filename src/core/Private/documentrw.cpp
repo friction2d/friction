@@ -120,7 +120,7 @@ void Document::writeDoxumentXEV(QDomDocument& doc) const {
 
     auto bBrushes = doc.createElement("BrushBookmarks");
     for(const auto &b : fBrushes) {
-        const auto brush = XevExportHelpers::brushToElement(b, doc);
+        const auto brush = Friction::Core::XevExportHelpers::brushToElement(b, doc);
         bBrushes.appendChild(brush);
     }
     document.appendChild(bBrushes);
@@ -181,7 +181,7 @@ void Document::readDocumentXEV(const QDomDocument& doc,
     const auto document = doc.firstChildElement("Document");
     const QString versionStr = document.attribute("format-version", "");
     if(versionStr.isEmpty()) RuntimeThrow("No format version specified");
-//    const int version = XmlExportHelpers::stringToInt(versionStr);
+//    const int version = Friction::Core::XmlExportHelpers::stringToInt(versionStr);
 
     auto bColors = document.firstChildElement("ColorBookmarks");
     const auto colors = bColors.elementsByTagName("Color");
@@ -202,7 +202,7 @@ void Document::readDocumentXEV(const QDomDocument& doc,
         const auto brush = brushes.at(i);
         if(!brush.isElement()) continue;
         const auto brushEle = brush.toElement();
-        const auto brushPtr = XevExportHelpers::brushFromElement(brushEle);
+        const auto brushPtr = Friction::Core::XevExportHelpers::brushFromElement(brushEle);
         if(brushPtr) addBookmarkBrush(brushPtr);
     }
 
@@ -215,17 +215,17 @@ void Document::readDocumentXEV(const QDomDocument& doc,
         const auto sceneEle = sceneNode.toElement();
 
         const auto resStr = sceneEle.attribute("resolution");
-        const qreal res = XmlExportHelpers::stringToDouble(resStr);
-        const int frame = XmlExportHelpers::stringToInt(sceneEle.attribute("frame"));
-        const int width = XmlExportHelpers::stringToInt(sceneEle.attribute("width"));
-        const int height = XmlExportHelpers::stringToInt(sceneEle.attribute("height"));
-        const qreal fps = XmlExportHelpers::stringToDouble(sceneEle.attribute("fps"));
+        const qreal res = Friction::Core::XmlExportHelpers::stringToDouble(resStr);
+        const int frame = Friction::Core::XmlExportHelpers::stringToInt(sceneEle.attribute("frame"));
+        const int width = Friction::Core::XmlExportHelpers::stringToInt(sceneEle.attribute("width"));
+        const int height = Friction::Core::XmlExportHelpers::stringToInt(sceneEle.attribute("height"));
+        const qreal fps = Friction::Core::XmlExportHelpers::stringToDouble(sceneEle.attribute("fps"));
         const bool clip = sceneEle.attribute("clip") == "true";
         const auto rangeStr = sceneEle.attribute("frameRange", "0 200");
         const auto rangeStrs = rangeStr.split(' ', Qt::SkipEmptyParts);
         if(rangeStrs.count() != 2) RuntimeThrow("Invalid frame range " + rangeStr);
-        const int rangeMin = XmlExportHelpers::stringToInt(rangeStrs[0]);
-        const int rangeMax = XmlExportHelpers::stringToInt(rangeStrs[1]);
+        const int rangeMin = Friction::Core::XmlExportHelpers::stringToInt(rangeStrs[0]);
+        const int rangeMax = Friction::Core::XmlExportHelpers::stringToInt(rangeStrs[1]);
 
         const auto newScene = createNewScene();
         newScene->setResolution(res);

@@ -150,8 +150,9 @@ void SingleWidgetTarget::SWT_readAbstraction(eReadStream& src) const {
     }
 }
 
-void SingleWidgetTarget::SWT_writeAbstractionXEV(
-        QDomElement& ele, const XevExporter& exp) const {
+void SingleWidgetTarget::SWT_writeAbstractionXEV(QDomElement& ele,
+                                                 const Friction::Core::XevExporter &exp) const
+{
     QString absOpen;
     const auto& objListIdConv = exp.objListIdConv();
     for(const auto& abs : SWT_mAllAbstractions) {
@@ -167,13 +168,13 @@ void SingleWidgetTarget::SWT_writeAbstractionXEV(
 }
 
 void SingleWidgetTarget::SWT_readAbstractionXEV(
-        const QDomElement& ele, const XevImporter& imp) const {
+        const QDomElement& ele, const Friction::Core::XevImporter& imp) const {
     const QString absOpenStr = ele.attribute("open");
     if(absOpenStr.isEmpty()) return;
     const auto absOpenStrs = absOpenStr.splitRef(' ');
     QList<int> open;
     for(const auto& val : absOpenStrs) {
-        open << XmlExportHelpers::stringToInt(val);
+        open << Friction::Core::XmlExportHelpers::stringToInt(val);
     }
 
     const auto& objListIdConv = imp.objListIdConv();

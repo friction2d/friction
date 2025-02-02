@@ -115,7 +115,7 @@ void writePathEffectType(PathEffect * const obj, eWriteStream &dst) {
 
 qsptr<PathEffect> readIdCreatePathEffectXEV(const QDomElement& ele) {
     const auto typeStr = ele.attribute("type");
-    const int typeInt = XmlExportHelpers::stringToInt(typeStr);
+    const int typeInt = Friction::Core::XmlExportHelpers::stringToInt(typeStr);
     const auto type = static_cast<PathEffectType>(typeInt);
     const auto eff = createNonCustomPathEffect(type);
     if(eff) return eff;

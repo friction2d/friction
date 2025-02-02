@@ -449,17 +449,17 @@ void TimelineWidget::readStateXEV(Friction::Core::XMLReadBoxesHandler& boxReadHa
         RuntimeThrow("Invalid frame range value " + frameRangeStr);
 
     const auto minViewedFrameStr = frameRangeValStrs.first();
-    const int minViewedFrame = XmlExportHelpers::stringToInt(minViewedFrameStr);
+    const int minViewedFrame = Friction::Core::XmlExportHelpers::stringToInt(minViewedFrameStr);
 
     const auto maxViewedFrameStr = frameRangeValStrs.last();
-    const int maxViewedFrame = XmlExportHelpers::stringToInt(maxViewedFrameStr);
+    const int maxViewedFrame = Friction::Core::XmlExportHelpers::stringToInt(maxViewedFrameStr);
 
-    const int frame = XmlExportHelpers::stringToInt(frameStr);
+    const int frame = Friction::Core::XmlExportHelpers::stringToInt(frameStr);
 
     const auto search = ele.attribute("search");
 
     const auto sceneIdStr = ele.attribute("sceneId");
-    const int sceneId = XmlExportHelpers::stringToInt(sceneIdStr);
+    const int sceneId = Friction::Core::XmlExportHelpers::stringToInt(sceneIdStr);
 
     boxReadHandler.addXevImporterDoneTask(
                 [this, sceneId](const Friction::Core::XMLReadBoxesHandler& imp) {
@@ -469,15 +469,15 @@ void TimelineWidget::readStateXEV(Friction::Core::XMLReadBoxesHandler& boxReadHa
     });
 
     const auto boxRuleStr = ele.attribute("objRule");
-    const auto boxRule = XmlExportHelpers::stringToEnum<SWT_BoxRule>(boxRuleStr);
+    const auto boxRule = Friction::Core::XmlExportHelpers::stringToEnum<SWT_BoxRule>(boxRuleStr);
     setBoxRule(boxRule);
 
     const auto typeStr = ele.attribute("objType");
-    const auto type = XmlExportHelpers::stringToEnum<SWT_Type>(typeStr);
+    const auto type = Friction::Core::XmlExportHelpers::stringToEnum<SWT_Type>(typeStr);
     setType(type);
 
     const auto targetStr = ele.attribute("objTarget");
-    const auto target = XmlExportHelpers::stringToEnum<SWT_Target>(targetStr);
+    const auto target = Friction::Core::XmlExportHelpers::stringToEnum<SWT_Target>(targetStr);
     setTarget(target);
 
     mSearchLine->setText(search);

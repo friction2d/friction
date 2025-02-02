@@ -133,16 +133,16 @@ qreal BoundingBox::getOpacity(const qreal relFrame) const {
 }
 
 void BoundingBox::prp_readPropertyXEV_impl(const QDomElement& ele,
-                                           const XevImporter& imp) {
+                                           const Friction::Core::XevImporter& imp) {
     const auto readIdStr = ele.attribute("id");
-    const int readId = XmlExportHelpers::stringToInt(readIdStr);
+    const int readId = Friction::Core::XmlExportHelpers::stringToInt(readIdStr);
     auto& handler = imp.getXevReadBoxesHandler();
     handler.addReadBox(readId, this);
 
     eBoxOrSound::prp_readPropertyXEV_impl(ele, imp);
 }
 
-QDomElement BoundingBox::prp_writePropertyXEV_impl(const XevExporter& exp) const {
+QDomElement BoundingBox::prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const {
     if(mWriteId < 0) assignWriteId();
     auto result = eBoxOrSound::prp_writePropertyXEV_impl(exp);
     result.setAttribute("id", mWriteId);

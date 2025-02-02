@@ -32,15 +32,15 @@ class CORE_EXPORT StaticComplexAnimator : public ComplexAnimator {
 protected:
     StaticComplexAnimator(const QString &name);
 
-    void prp_readPropertyXEV_impl(const QDomElement& ele, const XevImporter& imp);
-    QDomElement prp_writePropertyXEV_impl(const XevExporter& exp) const;
+    void prp_readPropertyXEV_impl(const QDomElement& ele, const Friction::Core::XevImporter& imp);
+    QDomElement prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const;
 public:
     void prp_writeProperty_impl(eWriteStream& dst) const;
     void prp_readProperty_impl(eReadStream& src);
 
     using ComplexAnimator::ca_addChild;
 protected:
-    void writeChildPropertiesXEV(QDomElement& prop, const XevExporter& exp) const;
+    void writeChildPropertiesXEV(QDomElement& prop, const Friction::Core::XevExporter& exp) const;
 private:
     using ComplexAnimator::ca_removeAllChildren;
     using ComplexAnimator::ca_removeChild;

@@ -111,19 +111,21 @@ QString Property::prp_tagNameXEV() const {
     return result;
 }
 
-QDomElement Property::prp_writePropertyXEV(const XevExporter& exp) const {
+QDomElement Property::prp_writePropertyXEV(const Friction::Core::XevExporter &exp) const
+{
     auto result = prp_writePropertyXEV_impl(exp);
     SWT_writeAbstractionXEV(result, exp);
     return result;
 }
 
-void Property::prp_readPropertyXEV(const QDomElement& ele, const XevImporter& imp) {
+void Property::prp_readPropertyXEV(const QDomElement& ele, const Friction::Core::XevImporter& imp) {
     prp_readPropertyXEV_impl(ele, imp);
     SWT_readAbstractionXEV(ele, imp);
 }
 
-QDomElement Property::prp_writeNamedPropertyXEV(
-        const QString& name, const XevExporter& exp) const {
+QDomElement Property::prp_writeNamedPropertyXEV(const QString& name,
+                                                const Friction::Core::XevExporter &exp) const
+{
     auto prop = prp_writePropertyXEV(exp);
     prop.setTagName(name);
     return prop;

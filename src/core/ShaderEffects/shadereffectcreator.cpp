@@ -131,7 +131,7 @@ ShaderEffectCreator::Identifier ShaderEffectCreator::sReadIdentifierXEV(
     const auto propsStrList = propsStr.splitRef(',');
     QList<ShaderPropertyType> props;
     for(const auto &propStr : propsStrList) {
-        const int propInt = XmlExportHelpers::stringToInt(propStr);
+        const int propInt = Friction::Core::XmlExportHelpers::stringToInt(propStr);
         const ShaderPropertyType prop = static_cast<ShaderPropertyType>(propInt);
         props << prop;
     }

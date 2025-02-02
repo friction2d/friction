@@ -392,21 +392,21 @@ void SmartPath::loadXEV(const QStringRef& xev) {
     for(const auto& node : nodes) {
         const auto values = node.split(' ', Qt::SkipEmptyParts);
         if(values.count() == 1) {
-            const qreal t = XmlExportHelpers::stringToDouble(values[0]);
+            const qreal t = Friction::Core::XmlExportHelpers::stringToDouble(values[0]);
             listOfNodes.append(Node(t));
         } else if(values.count() == 7) {
-            const qreal p1x = XmlExportHelpers::stringToDouble(values[2]);
-            const qreal p1y = XmlExportHelpers::stringToDouble(values[3]);
+            const qreal p1x = Friction::Core::XmlExportHelpers::stringToDouble(values[2]);
+            const qreal p1y = Friction::Core::XmlExportHelpers::stringToDouble(values[3]);
 
             const bool c0xEnabled = values[0] != '*';
             const bool c0yEnabled = values[1] != '*';
-            const qreal c0x = c0xEnabled ? XmlExportHelpers::stringToDouble(values[0]) : p1x;
-            const qreal c0y = c0yEnabled ? XmlExportHelpers::stringToDouble(values[1]) : p1y;
+            const qreal c0x = c0xEnabled ? Friction::Core::XmlExportHelpers::stringToDouble(values[0]) : p1x;
+            const qreal c0y = c0yEnabled ? Friction::Core::XmlExportHelpers::stringToDouble(values[1]) : p1y;
 
             const bool c2xEnabled = values[4] != '*';
             const bool c2yEnabled = values[5] != '*';
-            const qreal c2x = c2xEnabled ? XmlExportHelpers::stringToDouble(values[4]) : p1x;
-            const qreal c2y = c2yEnabled ? XmlExportHelpers::stringToDouble(values[5]) : p1y;
+            const qreal c2x = c2xEnabled ? Friction::Core::XmlExportHelpers::stringToDouble(values[4]) : p1x;
+            const qreal c2y = c2yEnabled ? Friction::Core::XmlExportHelpers::stringToDouble(values[5]) : p1y;
 
             bool ok;
             const int ctrlMode = values[6].toInt(&ok);

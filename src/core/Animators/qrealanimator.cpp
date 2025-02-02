@@ -862,7 +862,7 @@ void QrealAnimator::saveQrealSVG(SvgExporter& exp,
     }
 }
 
-QDomElement QrealAnimator::prp_writePropertyXEV_impl(const XevExporter& exp) const {
+QDomElement QrealAnimator::prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const {
     auto result = exp.createElement("Float");
 
     if(anim_hasKeys()) {
@@ -932,7 +932,7 @@ QDomElement QrealAnimator::prp_writePropertyXEV_impl(const XevExporter& exp) con
 }
 
 void QrealAnimator::prp_readPropertyXEV_impl(
-        const QDomElement& ele, const XevImporter& imp) {
+        const QDomElement& ele, const Friction::Core::XevImporter& imp) {
     Q_UNUSED(imp)
     const auto values = ele.attribute("values");
     if(!values.isEmpty()) {
@@ -956,12 +956,12 @@ void QrealAnimator::prp_readPropertyXEV_impl(
                 RuntimeThrow("Invalid frames count " + frames[i].toString());
             }
             const auto ctrlModeStr = keysCtrlModes[i];
-            const auto ctrlMode = XmlExportHelpers::stringToEnum<CtrlsMode>(
+            const auto ctrlMode = Friction::Core::XmlExportHelpers::stringToEnum<CtrlsMode>(
                                         ctrlModeStr, CtrlsMode::smooth,
                                         CtrlsMode::corner);
 
-            const qreal value = XmlExportHelpers::stringToDouble(values[1]);
-            const int relFrame = XmlExportHelpers::stringToInt(frames[1]);
+            const qreal value = Friction::Core::XmlExportHelpers::stringToDouble(values[1]);
+            const int relFrame = Friction::Core::XmlExportHelpers::stringToInt(frames[1]);
 
             const auto f0Str = frames[0];
             const auto f2Str = frames[2];
@@ -977,10 +977,10 @@ void QrealAnimator::prp_readPropertyXEV_impl(
             key->setC0Enabled(c0Enabled);
             key->setC1Enabled(c1Enabled);
 
-            key->setC0Frame(c0Enabled ? XmlExportHelpers::stringToDouble(f0Str) : relFrame);
-            key->setC1Frame(c1Enabled ? XmlExportHelpers::stringToDouble(f2Str) : relFrame);
-            key->setC0Value(c0Enabled ? XmlExportHelpers::stringToDouble(v0Str) : value);
-            key->setC1Value(c1Enabled ? XmlExportHelpers::stringToDouble(v2Str) : value);
+            key->setC0Frame(c0Enabled ? Friction::Core::XmlExportHelpers::stringToDouble(f0Str) : relFrame);
+            key->setC1Frame(c1Enabled ? Friction::Core::XmlExportHelpers::stringToDouble(f2Str) : relFrame);
+            key->setC0Value(c0Enabled ? Friction::Core::XmlExportHelpers::stringToDouble(v0Str) : value);
+            key->setC1Value(c1Enabled ? Friction::Core::XmlExportHelpers::stringToDouble(v2Str) : value);
 
             key->setCtrlsMode(ctrlMode);
 
@@ -989,7 +989,7 @@ void QrealAnimator::prp_readPropertyXEV_impl(
     } else {
         const auto value = ele.attribute("value");
         if(value.isEmpty()) RuntimeThrow("No values/frames and no value provided");
-        setCurrentBaseValue(XmlExportHelpers::stringToDouble(value));
+        setCurrentBaseValue(Friction::Core::XmlExportHelpers::stringToDouble(value));
     }
 
     const auto expression = ele.firstChildElement("Expression");

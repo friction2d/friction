@@ -117,11 +117,11 @@ void InterpolationAnimatorT<T, K>::readValuesXEV(
                 RuntimeThrow("Invalid ctrlValues count " + ctrlValuess[i].toString());
             }
             const auto ctrlModeStr = ctrlModes[i];
-            const auto ctrlMode = XmlExportHelpers::stringToEnum<CtrlsMode>(
+            const auto ctrlMode = Friction::Core::XmlExportHelpers::stringToEnum<CtrlsMode>(
                                         ctrlModeStr, CtrlsMode::smooth,
                                         CtrlsMode::corner);
 
-            const int frame = XmlExportHelpers::stringToInt(frames[1]);
+            const int frame = Friction::Core::XmlExportHelpers::stringToInt(frames[1]);
             const auto key = enve::make_shared<K>(frame, this);
             auto& keyValue = key->getValue();
             strToVal(keyValue, value);
@@ -138,11 +138,11 @@ void InterpolationAnimatorT<T, K>::readValuesXEV(
             key->setC0Enabled(c0Enabled);
             key->setC1Enabled(c1Enabled);
 
-            key->setC0FrameVar(c0Enabled ? XmlExportHelpers::stringToDouble(f0Str) : frame);
-            key->setC1FrameVar(c1Enabled ? XmlExportHelpers::stringToDouble(f2Str) : frame);
+            key->setC0FrameVar(c0Enabled ? Friction::Core::XmlExportHelpers::stringToDouble(f0Str) : frame);
+            key->setC1FrameVar(c1Enabled ? Friction::Core::XmlExportHelpers::stringToDouble(f2Str) : frame);
 
-            key->setC0ValueVar(c0Enabled ? XmlExportHelpers::stringToDouble(v0Str) : frame);
-            key->setC1ValueVar(c1Enabled ? XmlExportHelpers::stringToDouble(v2Str) : frame);
+            key->setC0ValueVar(c0Enabled ? Friction::Core::XmlExportHelpers::stringToDouble(v0Str) : frame);
+            key->setC1ValueVar(c1Enabled ? Friction::Core::XmlExportHelpers::stringToDouble(v2Str) : frame);
 
             key->setCtrlsMode(ctrlMode);
 

@@ -308,7 +308,7 @@ void ColorAnimator::prp_setupTreeViewMenu(PropertyMenu * const menu) {
 }
 
 QDomElement ColorAnimator::prp_writePropertyXEV_impl(
-        const XevExporter& exp) const {
+        const Friction::Core::XevExporter& exp) const {
     auto result = exp.createElement("Color");
     result.setAttribute("mode", static_cast<int>(mColorMode));
 
@@ -318,9 +318,9 @@ QDomElement ColorAnimator::prp_writePropertyXEV_impl(
 }
 
 void ColorAnimator::prp_readPropertyXEV_impl(
-        const QDomElement& ele, const XevImporter& imp) {
+        const QDomElement& ele, const Friction::Core::XevImporter& imp) {
     const auto modeStr = ele.attribute("mode", "0");
-    const int modeInt = XmlExportHelpers::stringToInt(modeStr);
+    const int modeInt = Friction::Core::XmlExportHelpers::stringToInt(modeStr);
     setColorMode(static_cast<ColorMode>(modeInt));
     StaticComplexAnimator::prp_readPropertyXEV_impl(ele, imp);
 }

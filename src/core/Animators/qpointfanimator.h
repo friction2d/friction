@@ -128,7 +128,7 @@ public:
                          const bool motion = false,
                          const bool motionRotate = false,
                          const QString & motionPath = QString()) const;
-    QDomElement prp_writePropertyXEV_impl(const XevExporter& exp) const;
+    QDomElement prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const;
 protected:
     qsptr<QrealAnimator> mXAnimator;
     qsptr<QrealAnimator> mYAnimator;

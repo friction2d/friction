@@ -192,7 +192,7 @@ void writeRasterEffectType(RasterEffect * const obj, eWriteStream &dst) {
 }
 
 qsptr<RasterEffect> readIdCreateRasterEffectXEV(const QDomElement& ele) {
-    const int typeInt = XmlExportHelpers::stringToInt(ele.attribute("type"));
+    const int typeInt = Friction::Core::XmlExportHelpers::stringToInt(ele.attribute("type"));
     const RasterEffectType type = static_cast<RasterEffectType>(typeInt);
 
     auto result = createRasterEffectForNonCustomType(type);

@@ -97,8 +97,8 @@ void FixedLenAnimationRect::readDurationRectangleXEV(const QDomElement& ele) {
     const auto animRangeStr = ele.attribute("animFrameRange");
     const auto animRangeStrs = animRangeStr.split(' ', Qt::SkipEmptyParts);
     if(animRangeStrs.count() != 2) RuntimeThrow("Invalid frame range " + animRangeStr);
-    mMinAnimationFrame = XmlExportHelpers::stringToInt(animRangeStrs[0]);
-    mMaxAnimationFrame = XmlExportHelpers::stringToInt(animRangeStrs[1]);
+    mMinAnimationFrame = Friction::Core::XmlExportHelpers::stringToInt(animRangeStrs[0]);
+    mMaxAnimationFrame = Friction::Core::XmlExportHelpers::stringToInt(animRangeStrs[1]);
 
     mSetMaxFrameAtLeastOnce = ele.attribute("maxFrameSet") == "true";
 }

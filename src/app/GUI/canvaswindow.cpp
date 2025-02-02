@@ -405,7 +405,7 @@ void CanvasWindow::readStateXEV(Friction::Core::XMLReadBoxesHandler& boxReadHand
                                 const QDomElement& ele)
 {
     const auto sceneIdStr = ele.attribute("sceneId");
-    const int sceneId = XmlExportHelpers::stringToInt(sceneIdStr);
+    const int sceneId = Friction::Core::XmlExportHelpers::stringToInt(sceneIdStr);
 
     boxReadHandler.addXevImporterDoneTask(
                 [this, sceneId](const Friction::Core::XMLReadBoxesHandler& imp) {
@@ -415,7 +415,7 @@ void CanvasWindow::readStateXEV(Friction::Core::XMLReadBoxesHandler& boxReadHand
     });
 
     const auto viewTransformStr = ele.attribute("viewTransform");
-    mViewTransform = XmlExportHelpers::stringToMatrix(viewTransformStr);
+    mViewTransform = Friction::Core::XmlExportHelpers::stringToMatrix(viewTransformStr);
 
     mFitToSizeBlocked = true;
 }
@@ -426,7 +426,7 @@ void CanvasWindow::writeStateXEV(QDomElement& ele,
     Q_UNUSED(doc)
     const int sceneId = mCurrentCanvas ? mCurrentCanvas->getWriteId() : -1;
     ele.setAttribute("sceneId", sceneId);
-    const auto viewTransformStr = XmlExportHelpers::matrixToString(mViewTransform);
+    const auto viewTransformStr = Friction::Core::XmlExportHelpers::matrixToString(mViewTransform);
     ele.setAttribute("viewTransform", viewTransformStr);
 }
 

@@ -34,8 +34,8 @@ class CORE_EXPORT OutlineSettingsAnimator : public PaintSettingsAnimator {
 protected:
     OutlineSettingsAnimator(BoundingBox * const parent);
 
-    QDomElement prp_writePropertyXEV_impl(const XevExporter& exp) const;
-    void prp_readPropertyXEV_impl(const QDomElement& ele, const XevImporter& imp);
+    QDomElement prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const;
+    void prp_readPropertyXEV_impl(const QDomElement& ele, const Friction::Core::XevImporter& imp);
 public:
     void showHideChildrenBeforeChangingPaintType(const PaintType newPaintType);
 
@@ -116,9 +116,9 @@ public:
     void saveCapsSVG(QDomElement& parent) const;
 
 protected:
-    QDomElement writeBrushPaint(const XevExporter& exp) const;
+    QDomElement writeBrushPaint(const Friction::Core::XevExporter& exp) const;
     void readBrushPaint(const QDomElement& ele,
-                        const XevImporter& imp);
+                        const Friction::Core::XevImporter& imp);
 
     QString prp_tagNameXEV() const { return "Outline"; }
 private:

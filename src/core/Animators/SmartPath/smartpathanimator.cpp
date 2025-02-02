@@ -119,12 +119,12 @@ void SmartPathAnimator::prp_writeProperty_impl(eWriteStream &dst) const {
 }
 
 void SmartPathAnimator::prp_readPropertyXEV_impl(
-        const QDomElement& ele, const XevImporter& imp) {
+        const QDomElement& ele, const Friction::Core::XevImporter& imp) {
     Q_UNUSED(imp)
     const bool closed = ele.attribute("closed", "true") == "true";
     prp_setName(ele.attribute("name", "path"));
     const QString modeStr = ele.attribute("mode", "0");
-    const int modeInt = XmlExportHelpers::stringToInt(modeStr);
+    const int modeInt = Friction::Core::XmlExportHelpers::stringToInt(modeStr);
     mMode = static_cast<Mode>(modeInt);
 
     readValuesXEV(ele, [closed](SmartPath& path, const QStringRef& str) {
@@ -133,7 +133,7 @@ void SmartPathAnimator::prp_readPropertyXEV_impl(
     });
 }
 
-QDomElement SmartPathAnimator::prp_writePropertyXEV_impl(const XevExporter& exp) const {
+QDomElement SmartPathAnimator::prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const {
     auto result = exp.createElement("Path");
     result.setAttribute("closed", isClosed() ? "true" : "false");
     result.setAttribute("name", prp_getName());

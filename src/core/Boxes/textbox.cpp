@@ -418,7 +418,7 @@ void TextBox::readBoundingBox(eReadStream& src) {
     setFontFamilyAndStyle(fontFamily, style);
 }
 
-QDomElement TextBox::prp_writePropertyXEV_impl(const XevExporter& exp) const {
+QDomElement TextBox::prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const {
     auto result = PathBox::prp_writePropertyXEV_impl(exp);
     result.setAttribute("hAlign", static_cast<int>(mHAlignment));
     result.setAttribute("vAlign", static_cast<int>(mVAlignment));
@@ -430,7 +430,7 @@ QDomElement TextBox::prp_writePropertyXEV_impl(const XevExporter& exp) const {
     return result;
 }
 
-void TextBox::prp_readPropertyXEV_impl(const QDomElement& ele, const XevImporter& imp) {
+void TextBox::prp_readPropertyXEV_impl(const QDomElement& ele, const Friction::Core::XevImporter& imp) {
     PathBox::prp_readPropertyXEV_impl(ele, imp);
     const auto hAlign = ele.attribute("hAlign");
     const auto vAlign = ele.attribute("vAlign");
@@ -440,12 +440,12 @@ void TextBox::prp_readPropertyXEV_impl(const QDomElement& ele, const XevImporter
     const auto fontWidthStr = ele.attribute("fontWidth");
     const auto fontSlantStr = ele.attribute("fontSlant");
 
-    mHAlignment = XmlExportHelpers::stringToEnum<Qt::Alignment>(hAlign);
-    mVAlignment = XmlExportHelpers::stringToEnum<Qt::Alignment>(vAlign);
-    const qreal fontSize = XmlExportHelpers::stringToDouble(fontSizeStr);
-    const int weight = XmlExportHelpers::stringToInt(fontWeightStr);
-    const int width = XmlExportHelpers::stringToInt(fontWidthStr);
-    const auto slant = XmlExportHelpers::stringToEnum<SkFontStyle::Slant>(fontSlantStr);
+    mHAlignment = Friction::Core::XmlExportHelpers::stringToEnum<Qt::Alignment>(hAlign);
+    mVAlignment = Friction::Core::XmlExportHelpers::stringToEnum<Qt::Alignment>(vAlign);
+    const qreal fontSize = Friction::Core::XmlExportHelpers::stringToDouble(fontSizeStr);
+    const int weight = Friction::Core::XmlExportHelpers::stringToInt(fontWeightStr);
+    const int width = Friction::Core::XmlExportHelpers::stringToInt(fontWidthStr);
+    const auto slant = Friction::Core::XmlExportHelpers::stringToEnum<SkFontStyle::Slant>(fontSlantStr);
 
     SkFontStyle fontStyle(weight, width, slant);
 

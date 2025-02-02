@@ -104,7 +104,7 @@ qsptr<Animator> readIdCreateCProperty(eReadStream &src) {
 }
 
 qsptr<Animator> readIdCreateCPropertyXEV(const QDomElement& ele) {
-    const int typeInt = XmlExportHelpers::stringToInt(ele.attribute("type"));
+    const int typeInt = Friction::Core::XmlExportHelpers::stringToInt(ele.attribute("type"));
     const PropertyType type = static_cast<PropertyType>(typeInt);
     return createCProperty(type);
 }

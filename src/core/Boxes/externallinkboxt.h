@@ -41,16 +41,16 @@ protected:
         this->prp_setName("Empty Link");
     }
 
-    QDomElement prp_writePropertyXEV_impl(const XevExporter& exp) const override {
+    QDomElement prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const override {
         auto result = T::prp_writePropertyXEV(exp);
-        XevExportHelpers::setAbsAndRelFileSrc(getFilePath(), result, exp);
+        Friction::Core::XevExportHelpers::setAbsAndRelFileSrc(getFilePath(), result, exp);
         return result;
     }
 
     void prp_readPropertyXEV_impl(const QDomElement& ele,
-                             const XevImporter& imp) override {
+                             const Friction::Core::XevImporter& imp) override {
         T::prp_readPropertyXEV_impl(ele, imp);
-        const QString absSrc = XevExportHelpers::getAbsAndRelFileSrc(ele, imp);
+        const QString absSrc = Friction::Core::XevExportHelpers::getAbsAndRelFileSrc(ele, imp);
         setFilePath(absSrc);
     }
 public:

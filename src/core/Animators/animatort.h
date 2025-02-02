@@ -67,7 +67,7 @@ void AnimatorT<T>::readValuesXEV(
                 RuntimeThrow("Invalid frames count " + framess[i].toString());
             }
 
-            const int frame = XmlExportHelpers::stringToInt(frames[1]);
+            const int frame = Friction::Core::XmlExportHelpers::stringToInt(frames[1]);
             const auto key = enve::make_shared<KeyT<T>>(frame, this);
             auto& keyValue = key->getValue();
             strToVal(keyValue, value);

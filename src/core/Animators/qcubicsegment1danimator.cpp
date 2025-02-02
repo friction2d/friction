@@ -30,21 +30,21 @@ qCubicSegment1DAnimator::qCubicSegment1DAnimator(const QString &name) :
     InterpolationAnimatorT<qCubicSegment1D>(name) {}
 
 void qCubicSegment1DAnimator::prp_readPropertyXEV_impl(
-        const QDomElement& ele, const XevImporter& imp) {
+        const QDomElement& ele, const Friction::Core::XevImporter& imp) {
     Q_UNUSED(imp)
     readValuesXEV(ele, [](qCubicSegment1D& seg, const QStringRef& str) {
         const auto valueStrs = str.split(' ', Qt::SkipEmptyParts);
         if(valueStrs.count() == 4) {
-            const qreal p0 = XmlExportHelpers::stringToDouble(valueStrs[0]);
-            const qreal c1 = XmlExportHelpers::stringToDouble(valueStrs[1]);
-            const qreal c2 = XmlExportHelpers::stringToDouble(valueStrs[2]);
-            const qreal p1 = XmlExportHelpers::stringToDouble(valueStrs[3]);
+            const qreal p0 = Friction::Core::XmlExportHelpers::stringToDouble(valueStrs[0]);
+            const qreal c1 = Friction::Core::XmlExportHelpers::stringToDouble(valueStrs[1]);
+            const qreal c2 = Friction::Core::XmlExportHelpers::stringToDouble(valueStrs[2]);
+            const qreal p1 = Friction::Core::XmlExportHelpers::stringToDouble(valueStrs[3]);
             seg = qCubicSegment1D(p0, c1, c2, p1);
         } else RuntimeThrow("Invalid value count '" + str.toString() + "'");
     });
 }
 
-QDomElement qCubicSegment1DAnimator::prp_writePropertyXEV_impl(const XevExporter& exp) const {
+QDomElement qCubicSegment1DAnimator::prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const {
     auto result = exp.createElement("CubicSegment1D");
 
     writeValuesXEV(result, [](const qCubicSegment1D& seg) {

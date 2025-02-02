@@ -51,28 +51,28 @@ void StaticComplexAnimator::prp_readProperty_impl(eReadStream &src)
 }
 
 void StaticComplexAnimator::prp_readPropertyXEV_impl(
-        const QDomElement& ele, const XevImporter& imp) {
+        const QDomElement& ele, const Friction::Core::XevImporter& imp) {
     const auto& children = ca_getChildren();
     for(const auto& c : children) {
         const QString tagName = c->prp_tagNameXEV();
         const auto path = tagName + "/";
         const auto impc = imp.withAssetsPath(path);
-        XevExportHelpers::readProperty(ele, impc, tagName, c.get());
+        Friction::Core::XevExportHelpers::readProperty(ele, impc, tagName, c.get());
     }
 }
 
 void StaticComplexAnimator::writeChildPropertiesXEV(
-        QDomElement& prop, const XevExporter& exp) const {
+        QDomElement& prop, const Friction::Core::XevExporter& exp) const {
     const auto& children = ca_getChildren();
     for(const auto& c : children) {
         const QString tagName = c->prp_tagNameXEV();
         const auto path = tagName + "/";
         const auto expc = exp.withAssetsPath(path);
-        XevExportHelpers::writeProperty(prop, *expc, tagName, c.get());
+        Friction::Core::XevExportHelpers::writeProperty(prop, *expc, tagName, c.get());
     }
 }
 
-QDomElement StaticComplexAnimator::prp_writePropertyXEV_impl(const XevExporter& exp) const {
+QDomElement StaticComplexAnimator::prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const {
     auto result = exp.createElement(prp_tagNameXEV());
     writeChildPropertiesXEV(result, exp);
     return result;

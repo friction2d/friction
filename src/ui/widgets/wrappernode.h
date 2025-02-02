@@ -270,7 +270,7 @@ protected:
                      RuntimeIdToWriteId& objListIdConv) {
         SplitWrapperNode::readDataXEV(boxReadHandler, ele, objListIdConv);
         const QString child2fracStr = ele.attribute("proportions");
-        const qreal child2frac = XmlExportHelpers::stringToDouble(child2fracStr);
+        const qreal child2frac = Friction::Core::XmlExportHelpers::stringToDouble(child2fracStr);
         appendWidget(fChild1->widget());
         appendWidget(fChild2->widget(), child2frac);
     }
@@ -318,7 +318,7 @@ protected:
                      RuntimeIdToWriteId& objListIdConv) {
         SplitWrapperNode::readDataXEV(boxReadHandler, ele, objListIdConv);
         const QString child2fracStr = ele.attribute("proportions");
-        const qreal child2frac = XmlExportHelpers::stringToDouble(child2fracStr);
+        const qreal child2frac = Friction::Core::XmlExportHelpers::stringToDouble(child2fracStr);
         appendWidget(fChild1->widget());
         appendWidget(fChild2->widget(), child2frac);
     }

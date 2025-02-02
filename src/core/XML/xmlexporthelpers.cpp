@@ -28,57 +28,59 @@
 #include "Properties/property.h"
 #include "Paint/simplebrushwrapper.h"
 #include "Paint/brushescontext.h"
-#include "xevexporter.h"
-#include "xevimporter.h"
 #include "exceptions.h"
 #include "appsupport.h"
 
-SkBlendMode XmlExportHelpers::stringToBlendMode(const QString& compOpStr) {
-    if(compOpStr.isEmpty()) return SkBlendMode::kSrcOver;
-    if(compOpStr == "svg:src-over") {
+using namespace Friction::Core;
+
+SkBlendMode XmlExportHelpers::stringToBlendMode(const QString& compOpStr)
+{
+    if (compOpStr.isEmpty()) { return SkBlendMode::kSrcOver; }
+    if (compOpStr == "svg:src-over") {
         return SkBlendMode::kSrcOver;
-    } else if(compOpStr == "svg:multiply") {
+    } else if (compOpStr == "svg:multiply") {
         return SkBlendMode::kMultiply;
-    } else if(compOpStr == "svg:screen") {
+    } else if (compOpStr == "svg:screen") {
         return SkBlendMode::kScreen;
-    } else if(compOpStr == "svg:overlay") {
+    } else if (compOpStr == "svg:overlay") {
         return SkBlendMode::kOverlay;
-    } else if(compOpStr == "svg:darken") {
+    } else if (compOpStr == "svg:darken") {
         return SkBlendMode::kDarken;
-    } else if(compOpStr == "svg:lighten") {
+    } else if (compOpStr == "svg:lighten") {
         return SkBlendMode::kLighten;
-    } else if(compOpStr == "svg:color-dodge") {
+    } else if (compOpStr == "svg:color-dodge") {
         return SkBlendMode::kColorDodge;
-    } else if(compOpStr == "svg:color-burn") {
+    } else if (compOpStr == "svg:color-burn") {
         return SkBlendMode::kColorBurn;
-    } else if(compOpStr == "svg:hard-light") {
+    } else if (compOpStr == "svg:hard-light") {
         return SkBlendMode::kHardLight;
-    } else if(compOpStr == "svg:soft-light") {
+    } else if (compOpStr == "svg:soft-light") {
         return SkBlendMode::kSoftLight;
-    } else if(compOpStr == "svg:difference") {
+    } else if (compOpStr == "svg:difference") {
         return SkBlendMode::kDifference;
-    } else if(compOpStr == "svg:color") {
+    } else if (compOpStr == "svg:color") {
         return SkBlendMode::kColor;
-    } else if(compOpStr == "svg:luminosity") {
+    } else if (compOpStr == "svg:luminosity") {
         return SkBlendMode::kLuminosity;
-    } else if(compOpStr == "svg:hue") {
+    } else if (compOpStr == "svg:hue") {
         return SkBlendMode::kHue;
-    } else if(compOpStr == "svg:saturation") {
+    } else if (compOpStr == "svg:saturation") {
         return SkBlendMode::kSaturation;
-    } else if(compOpStr == "svg:plus") {
+    } else if (compOpStr == "svg:plus") {
         return SkBlendMode::kPlus;
-    } else if(compOpStr == "svg:dst-in") {
+    } else if (compOpStr == "svg:dst-in") {
         return SkBlendMode::kDstIn;
-    } else if(compOpStr == "svg:dst-out") {
+    } else if (compOpStr == "svg:dst-out") {
         return SkBlendMode::kDstOut;
-    } else if(compOpStr == "svg:src-atop") {
+    } else if (compOpStr == "svg:src-atop") {
         return SkBlendMode::kSrcATop;
-    } else if(compOpStr == "svg:dst-atop") {
+    } else if (compOpStr == "svg:dst-atop") {
         return SkBlendMode::kDstATop;
-    } else return SkBlendMode::kSrcOver;
+    } else { return SkBlendMode::kSrcOver; }
 }
 
-QString XmlExportHelpers::blendModeToString(const SkBlendMode blendMode) {
+QString XmlExportHelpers::blendModeToString(const SkBlendMode blendMode)
+{
     switch(blendMode) {
     case SkBlendMode::kSrcOver: return "svg:src-over";
     case SkBlendMode::kMultiply: return "svg:multiply";
@@ -104,45 +106,52 @@ QString XmlExportHelpers::blendModeToString(const SkBlendMode blendMode) {
     }
 }
 
-qreal XmlExportHelpers::stringToDouble(const QStringRef& string) {
+qreal XmlExportHelpers::stringToDouble(const QStringRef& string)
+{
     bool ok;
     const qreal value = string.toDouble(&ok);
-    if(!ok) RuntimeThrow("Invalid value " + string.toString());
+    if (!ok) { RuntimeThrow("Invalid value " + string.toString()); }
     return value;
 }
 
-qreal XmlExportHelpers::stringToDouble(const QString& string) {
+qreal XmlExportHelpers::stringToDouble(const QString& string)
+{
     return stringToDouble(&string);
 }
 
-int XmlExportHelpers::stringToInt(const QStringRef& string) {
+int XmlExportHelpers::stringToInt(const QStringRef& string)
+{
     bool ok;
     const int value = string.toInt(&ok);
-    if(!ok) RuntimeThrow("Invalid value " + string.toString());
+    if (!ok) { RuntimeThrow("Invalid value " + string.toString()); }
     return value;
 }
 
-int XmlExportHelpers::stringToInt(const QString& string) {
+int XmlExportHelpers::stringToInt(const QString& string)
+{
     return stringToInt(&string);
 }
 
-QDomElement XevExportHelpers::brushToElement(
-        SimpleBrushWrapper* const brush, QDomDocument& doc) {
+QDomElement XevExportHelpers::brushToElement(SimpleBrushWrapper* const brush,
+                                             QDomDocument& doc)
+{
     auto ele = doc.createElement("Brush");
     ele.setAttribute("collection", brush ? brush->getCollectionName() : "");
     ele.setAttribute("name", brush ? brush->getBrushName() : "");
     return ele;
 }
 
-SimpleBrushWrapper* XevExportHelpers::brushFromElement(const QDomElement& ele) {
+SimpleBrushWrapper* XevExportHelpers::brushFromElement(const QDomElement& ele)
+{
     const QString coll = ele.attribute("collection");
     const QString name = ele.attribute("name");
     return BrushCollectionData::sGetBrush(coll, name);
 }
 
-QMatrix XmlExportHelpers::stringToMatrix(const QString& str) {
+QMatrix XmlExportHelpers::stringToMatrix(const QString& str)
+{
     const auto vals = str.split(' ', Qt::SkipEmptyParts);
-    if(vals.count() != 6) RuntimeThrow("Invalid matrix value '" + str + "'");
+    if (vals.count() != 6) { RuntimeThrow("Invalid matrix value '" + str + "'"); }
     const qreal m11 = stringToDouble(vals[0]);
     const qreal m12 = stringToDouble(vals[1]);
     const qreal m21 = stringToDouble(vals[2]);
@@ -152,7 +161,8 @@ QMatrix XmlExportHelpers::stringToMatrix(const QString& str) {
     return QMatrix(m11, m12, m21, m22, dx, dy);
 }
 
-QString XmlExportHelpers::matrixToString(const QMatrix& m) {
+QString XmlExportHelpers::matrixToString(const QMatrix& m)
+{
     return QString("%1 %2 %3 %4 %5 %6").arg(m.m11()).arg(m.m12()).
                                         arg(m.m21()).arg(m.m22()).
                                         arg(m.dx()).arg(m.dy());
@@ -160,38 +170,44 @@ QString XmlExportHelpers::matrixToString(const QMatrix& m) {
 
 void XevExportHelpers::setAbsAndRelFileSrc(const QString& absSrc,
                                            QDomElement& ele,
-                                           const XevExporter& exp) {
+                                           const XevExporter& exp)
+{
     ele.setAttribute("relSrc", exp.absPathToRelPath(absSrc));
     ele.setAttribute("absSrc", absSrc);
 }
 
 QString XevExportHelpers::getAbsAndRelFileSrc(const QDomElement& ele,
-                                              const XevImporter& imp) {
+                                              const XevImporter& imp)
+{
     const auto relSrc = ele.attribute("relSrc");
     const auto absRelSrc = imp.relPathToAbsPath(relSrc);
-    if(QFileInfo(absRelSrc).exists()) {
+    if (QFileInfo(absRelSrc).exists()) {
         return absRelSrc;
     } else {
         const auto absSrc = ele.attribute("absSrc");
-        if(absSrc.isEmpty()) return absRelSrc;
-        else return absSrc;
+        if (absSrc.isEmpty()) { return absRelSrc; }
+        else { return absSrc; }
     }
 }
 
-bool XevExportHelpers::writeProperty(
-        QDomElement& ele, const XevExporter& exp,
-        const QString& name, Property* const prop) {
+bool XevExportHelpers::writeProperty(QDomElement& ele,
+                                     const XevExporter& exp,
+                                     const QString& name,
+                                     Property* const prop)
+{
     const auto childEle = prop->prp_writeNamedPropertyXEV(name, exp);
-    if(childEle.isNull()) return false;
+    if (childEle.isNull()) { return false; }
     ele.appendChild(childEle);
     return true;
 }
 
-bool XevExportHelpers::readProperty(
-        const QDomElement& ele, const XevImporter& imp,
-        const QString& name, Property* const prop) {
+bool XevExportHelpers::readProperty(const QDomElement& ele,
+                                    const XevImporter& imp,
+                                    const QString& name,
+                                    Property* const prop)
+{
     const auto childEle = ele.firstChildElement(name);
-    if(childEle.isNull()) return false;
+    if (childEle.isNull()) { return false; }
     prop->prp_readPropertyXEV(childEle, imp);
     return true;
 }

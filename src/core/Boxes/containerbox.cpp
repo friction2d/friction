@@ -61,7 +61,7 @@ public:
     }
 
     void prp_readPropertyXEV_impl(const QDomElement &ele,
-                                  const XevImporter& imp) override {
+                                  const Friction::Core::XevImporter& imp) override {
         BoolPropertyContainer::prp_readPropertyXEV_impl(ele, imp);
         SWT_setVisible(getValue());
     }
@@ -1488,7 +1488,7 @@ void ContainerBox::writeBoxOrSoundXEV(const stdsptr<XfZipFileSaver>& xevFileSave
                 const auto blendMode = box->getBlendMode();
                 if(blendMode != SkBlendMode::kSrcOver) {
                     const QString compositeOp =
-                            XmlExportHelpers::blendModeToString(blendMode);
+                            Friction::Core::XmlExportHelpers::blendModeToString(blendMode);
                     ele.setAttribute("composite-op", compositeOp);
                 }
                 const int type = static_cast<int>(box->getBoxType());
@@ -1583,10 +1583,10 @@ void ContainerBox::readAllContainedXEV(
             qsptr<eBoxOrSound> ebs;
             if(tag == "Object") {
                 const QString comOpStr = ele.attribute("composite-op");
-                const SkBlendMode comOp = XmlExportHelpers::stringToBlendMode(comOpStr);
+                const SkBlendMode comOp = Friction::Core::XmlExportHelpers::stringToBlendMode(comOpStr);
 
                 const QString typeStr = ele.attribute("type", "-1");
-                const int typeInt = XmlExportHelpers::stringToInt(typeStr);
+                const int typeInt = Friction::Core::XmlExportHelpers::stringToInt(typeStr);
                 if(qBound(0, typeInt, int(eBoxType::count) - 1) != typeInt)
                     RuntimeThrow("Invalid object type " + typeStr);
                 const eBoxType type = static_cast<eBoxType>(typeInt);

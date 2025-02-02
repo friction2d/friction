@@ -70,14 +70,14 @@ void BoolPropertyContainer::prp_readProperty_impl(eReadStream& src) {
 }
 
 QDomElement BoolPropertyContainer::prp_writePropertyXEV_impl(
-        const XevExporter& exp) const {
+        const Friction::Core::XevExporter& exp) const {
     auto result = StaticComplexAnimator::prp_writePropertyXEV_impl(exp);
     result.setAttribute("checked", mValue ? "true" : "false");
     return result;
 }
 
 void BoolPropertyContainer::prp_readPropertyXEV_impl(
-        const QDomElement& ele, const XevImporter& imp) {
+        const QDomElement& ele, const Friction::Core::XevImporter& imp) {
     StaticComplexAnimator::prp_readPropertyXEV_impl(ele, imp);
     setValue(ele.attribute("checked") == "true");
 }

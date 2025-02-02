@@ -152,7 +152,7 @@ void eBoxOrSound::writeBoxOrSoundXEV(const std::shared_ptr<Friction::Core::XfZip
                                      const RuntimeIdToWriteId& objListIdConv,
                                      const QString& path) const {
     QDomDocument doc;
-    const auto exp = enve::make_shared<XevExporter>(
+    const auto exp = enve::make_shared<Friction::Core::XevExporter>(
                          doc, xevFileSaver, objListIdConv, path);
     auto obj = prp_writeNamedPropertyXEV("Object", *exp);
     if(mDurationRectangle) mDurationRectangle->writeDurationRectangleXEV(obj);
@@ -180,7 +180,7 @@ void eBoxOrSound::readBoxOrSoundXEV(Friction::Core::XMLReadBoxesHandler& boxRead
         if(!mDurationRectangle) createDurationRectangle();
         mDurationRectangle->readDurationRectangleXEV(obj);
     }
-    const XevImporter imp(boxReadHandler, fileLoader, objListIdConv, path);
+    const Friction::Core::XevImporter imp(boxReadHandler, fileLoader, objListIdConv, path);
     prp_readPropertyXEV(obj, imp);
 }
 

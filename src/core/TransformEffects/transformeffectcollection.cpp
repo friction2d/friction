@@ -174,7 +174,7 @@ void writeTransformEffectType(TransformEffect * const obj, eWriteStream &dst) {
 
 qsptr<TransformEffect> readIdCreateTransformEffectXEV(const QDomElement& ele) {
     const QString typeStr = ele.attribute("type");
-    const int typeInt = XmlExportHelpers::stringToInt(typeStr);
+    const int typeInt = Friction::Core::XmlExportHelpers::stringToInt(typeStr);
     const auto type = static_cast<TransformEffectType>(typeInt);
     return createTransformEffectForType(type);
 }

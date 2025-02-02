@@ -76,13 +76,13 @@ void QStringAnimator::saveSVG(SvgExporter& exp, QDomElement& parent,
 }
 
 void QStringAnimator::prp_readPropertyXEV_impl(
-        const QDomElement& ele, const XevImporter& imp) {
+        const QDomElement& ele, const Friction::Core::XevImporter& imp) {
     if(ele.hasAttribute("frames")) {
         const auto framesStr = ele.attribute("frames");
         const auto frameStrs = framesStr.splitRef(' ', Qt::SkipEmptyParts);
 
         for(const QStringRef& frame : frameStrs) {
-            const int iFrame = XmlExportHelpers::stringToInt(frame);
+            const int iFrame = Friction::Core::XmlExportHelpers::stringToInt(frame);
             imp.processAsset(frame + ".txt", [&](QIODevice* const src) {
                 QString value;
                 QTextStream stream(src);
@@ -101,7 +101,7 @@ void QStringAnimator::prp_readPropertyXEV_impl(
     }
 }
 
-void saveTextXEV(const QString& path, const XevExporter& exp,
+void saveTextXEV(const QString& path, const Friction::Core::XevExporter& exp,
                  const QString& txt) {
     exp.processAsset(path, [&](QIODevice* const dst) {
         QTextStream stream(dst);
@@ -109,7 +109,7 @@ void saveTextXEV(const QString& path, const XevExporter& exp,
     }, false);
 }
 
-QDomElement QStringAnimator::prp_writePropertyXEV_impl(const XevExporter& exp) const {
+QDomElement QStringAnimator::prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const {
     auto result = exp.createElement("Text");
     if(anim_hasKeys()) {
         QString frames;

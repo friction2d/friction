@@ -29,6 +29,8 @@
 
 #include "smartPointers/ememory.h"
 
+using namespace Friction::Core;
+
 XevExporter::XevExporter(QDomDocument& doc,
                          const std::shared_ptr<Friction::Core::XfZipFileSaver>& xevFileSaver,
                          const RuntimeIdToWriteId& objListIdConv,

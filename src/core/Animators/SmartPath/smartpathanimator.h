@@ -44,8 +44,8 @@ protected:
     SmartPathAnimator(const SkPath& path);
     SmartPathAnimator(const SmartPath& baseValue);
 
-    void prp_readPropertyXEV_impl(const QDomElement& ele, const XevImporter& imp);
-    QDomElement prp_writePropertyXEV_impl(const XevExporter& exp) const;
+    void prp_readPropertyXEV_impl(const QDomElement& ele, const Friction::Core::XevImporter& imp);
+    QDomElement prp_writePropertyXEV_impl(const Friction::Core::XevExporter& exp) const;
 public:
     enum class Mode {
         normal,
