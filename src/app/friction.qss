@@ -631,3 +631,7 @@ Friction--Ui--ToolBar::separator:vertical {
 Friction--Ui--ToolBar::separator:horizontal {
     width: 1px;
 }
+
+ExpressionEditor {
+    background: %6;
+}

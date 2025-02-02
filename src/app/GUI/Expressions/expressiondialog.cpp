@@ -43,15 +43,14 @@
 #include "appsupport.h"
 #include "canvas.h"
 
-#define DEFAULT_FONT "monospace", 10
-
 class JSLexer : public QsciLexerJavaScript {
 public:
     using QsciLexerJavaScript::QsciLexerJavaScript;
-    JSLexer(QsciScintilla* const editor) : QsciLexerJavaScript(editor) {
-        const QFont font(DEFAULT_FONT);
+    JSLexer(QsciScintilla* const editor)
+        : QsciLexerJavaScript(editor)
+    {
         setDefaultPaper(QColor(33, 33, 38)/*"#2E2F30"*/);
-        setFont(font);
+        setFont(QApplication::font());
         setColor("#D6CF9A");
 
         setColor("#666666", Comment);
@@ -147,13 +146,12 @@ public:
     JSEditor(const QString& fillerText) : mFillerTextV(fillerText) {
         setMinimumWidth(20*eSizesUI::widget);
 
-        QFont font(DEFAULT_FONT);
-        setFont(font);
+        setFont(QApplication::font());
         setMargins(2);
         setMarginType(0, NumberMargin);
         setMarginWidth(0, "9999");
         setMarginWidth(1, "9");
-        setMarginsFont(font);
+        setMarginsFont(font());
         setMarginsForegroundColor("#999999");
         setMarginsBackgroundColor(QColor(40, 40, 47)/*"#444444"*/);
 
@@ -282,6 +280,10 @@ void addBasicDefs(QsciAPIs* const target) {
     target->add("Math.tan(x)");
     target->add("Math.tanh(x)");
     target->add("Math.trunc(x)");
+
+    // load expressions bundle
+    const auto bundle = eSettings::instance().expressionsBundle;
+    for (const auto &fun : bundle) { target->add(fun.first); }
 }
 
 ExpressionDialog::ExpressionDialog(QrealAnimator* const target,
@@ -289,13 +291,7 @@ ExpressionDialog::ExpressionDialog(QrealAnimator* const target,
     : Friction::Ui::Dialog(parent)
     , mTarget(target)
     , mTab(nullptr)
-    , mTabEasingPreset(0)
     , mTabEditor(0)
-    , mEasingPresetsBox(nullptr)
-    , mEasingPresetStartValueSpin(nullptr)
-    , mEasingPresetEndValueSpin(nullptr)
-    , mEasingPresetStartFrameSpin(nullptr)
-    , mEasingPresetEndFrameSpin(nullptr)
 {
     setWindowTitle(tr("Expression %1").arg(target->prp_getName()));
 
@@ -305,159 +301,6 @@ ExpressionDialog::ExpressionDialog(QrealAnimator* const target,
     mTab = new QTabWidget(this);
     mTab->setTabBarAutoHide(true);
     windowLayout->addWidget(mTab);
-
-    const auto scene = mTarget->getParentScene();
-
-    QWidget *easingPresetWidget = new QWidget(this);
-    easingPresetWidget->setContentsMargins(0, 0, 0, 0);
-    const auto easingPresetLayout = new QVBoxLayout(easingPresetWidget);
-
-    mEasingPresetsBox = new QComboBox(this);
-    easingPresetLayout->addWidget(mEasingPresetsBox);
-
-    QWidget *easingPresetValueWidget = new QWidget(this);
-    easingPresetValueWidget->setContentsMargins(0, 0, 0, 0);
-    const auto easingPresetValueLayout = new QHBoxLayout(easingPresetValueWidget);
-    easingPresetValueLayout->setMargin(0);
-
-    QLabel *easingPresetValueFromLabel = new QLabel(tr("Value From"), this);
-
-    mEasingPresetStartValueSpin = new QDoubleSpinBox(this);
-    mEasingPresetStartValueSpin->setSizePolicy(QSizePolicy::Expanding,
-                                               QSizePolicy::Preferred);
-    mEasingPresetStartValueSpin->setRange(-INT_MAX, INT_MAX);
-    mEasingPresetStartValueSpin->setDecimals(5);
-    mEasingPresetStartValueSpin->setLocale(QLocale(QLocale::English,
-                                                   QLocale::UnitedStates));
-    mEasingPresetStartValueSpin->setValue(mTarget->getCurrentBaseValue());
-
-    QLabel *easingPresetValueToLabel = new QLabel(tr("To"), this);
-
-    mEasingPresetEndValueSpin = new QDoubleSpinBox(this);
-    mEasingPresetEndValueSpin->setSizePolicy(QSizePolicy::Expanding,
-                                             QSizePolicy::Preferred);
-    mEasingPresetEndValueSpin->setRange(-INT_MAX, INT_MAX);
-    mEasingPresetEndValueSpin->setDecimals(5);
-    mEasingPresetEndValueSpin->setLocale(QLocale(QLocale::English,
-                                                 QLocale::UnitedStates));
-    mEasingPresetEndValueSpin->setValue(mTarget->getCurrentBaseValue());
-
-    easingPresetValueLayout->addWidget(easingPresetValueFromLabel);
-    easingPresetValueLayout->addWidget(mEasingPresetStartValueSpin);
-    easingPresetValueLayout->addWidget(easingPresetValueToLabel);
-    easingPresetValueLayout->addWidget(mEasingPresetEndValueSpin);
-    easingPresetLayout->addWidget(easingPresetValueWidget);
-
-    QWidget *easingPresetFrameWidget = new QWidget(this);
-    easingPresetFrameWidget->setContentsMargins(0, 0, 0, 0);
-    const auto easingPresetFrameLayout = new QHBoxLayout(easingPresetFrameWidget);
-    easingPresetFrameLayout->setMargin(0);
-
-    QLabel *easingPresetFrameFromLabel = new QLabel(tr("Frame From"), this);
-
-    mEasingPresetStartFrameSpin = new QSpinBox(this);
-    mEasingPresetStartFrameSpin->setSizePolicy(QSizePolicy::Expanding,
-                                               QSizePolicy::Preferred);
-    mEasingPresetStartFrameSpin->setRange(0, INT_MAX);
-    mEasingPresetStartFrameSpin->setValue(scene ? scene->getMinFrame() :0);
-    easingPresetLayout->addWidget(mEasingPresetStartFrameSpin);
-
-    QLabel *easingPresetFrameToLabel = new QLabel(tr("To"), this);
-
-    mEasingPresetEndFrameSpin = new QSpinBox(this);
-    mEasingPresetEndFrameSpin->setSizePolicy(QSizePolicy::Expanding,
-                                             QSizePolicy::Preferred);
-    mEasingPresetEndFrameSpin->setRange(0, INT_MAX);
-    mEasingPresetEndFrameSpin->setValue(scene ? scene->getMaxFrame() : mTarget->anim_getCurrentAbsFrame());
-    easingPresetLayout->addWidget(mEasingPresetEndFrameSpin);
-
-    easingPresetFrameLayout->addWidget(easingPresetFrameFromLabel);
-    easingPresetFrameLayout->addWidget(mEasingPresetStartFrameSpin);
-    easingPresetFrameLayout->addWidget(easingPresetFrameToLabel);
-    easingPresetFrameLayout->addWidget(mEasingPresetEndFrameSpin);
-    easingPresetLayout->addWidget(easingPresetFrameWidget);
-
-    easingPresetLayout->addStretch();
-
-    QWidget *easingPresetButtonWidget = new QWidget(this);
-    easingPresetButtonWidget->setContentsMargins(0, 0, 0, 0);
-    const auto easingPresetButtonLayout = new QHBoxLayout(easingPresetButtonWidget);
-    easingPresetButtonLayout->setMargin(0);
-
-    const auto easingPresetConvertOnApply = new QCheckBox(tr("Convert to Keys"), this);
-    easingPresetConvertOnApply->setChecked(AppSupport::getSettings("settings",
-                                                                   "easingPresetConvertOnApply",
-                                                                   true).toBool());
-    easingPresetButtonLayout->addWidget(easingPresetConvertOnApply);
-    connect(easingPresetConvertOnApply, &QCheckBox::clicked,
-            this, [easingPresetConvertOnApply] {
-        AppSupport::setSettings("settings",
-                                "easingPresetConvertOnApply",
-                                easingPresetConvertOnApply->isChecked());
-    });
-
-    const auto easingPresetButtonApply = new QPushButton(tr("Apply"), this);
-    easingPresetButtonLayout->addWidget(easingPresetButtonApply);
-    connect(easingPresetButtonApply,
-            &QPushButton::released,
-            this,
-            [this, easingPresetConvertOnApply]()
-    {
-        if (mEasingPresetEndFrameSpin->value() <= mEasingPresetStartFrameSpin->value()) {
-            QMessageBox::warning(this,
-                                 tr("Frame error"),
-                                 tr("Frame start must be higher than frame end."));
-            return;
-        }
-        QString filename = mEasingPresetsBox->currentData().toString();
-        if (filename.isEmpty()) {
-            QMessageBox::warning(this,
-                                 tr("Preset error"),
-                                 tr("No preset selected."));
-            return;
-        }
-        const auto preset = AppSupport::readEasingPreset(filename);
-        if (!preset.valid) { return; }
-        QString script = preset.script;
-        script.replace("__START_VALUE__",
-                       QString::number(mEasingPresetStartValueSpin->value()));
-        script.replace("__END_VALUE__",
-                       QString::number(mEasingPresetEndValueSpin->value()));
-        script.replace("__START_FRAME__",
-                       QString::number(mEasingPresetStartFrameSpin->value()));
-        script.replace("__END_FRAME__",
-                       QString::number(mEasingPresetEndFrameSpin->value()));
-        mDefinitions->clearFillerText();
-        mDefinitions->setText(preset.definitions);
-        mBindings->clearFillerText();
-        mBindings->setPlainText(preset.bindings);
-        mScript->clearFillerText();
-        mScript->setText(script);
-        const bool valid = apply(true);
-        if (valid) {
-            if (easingPresetConvertOnApply->isChecked()) {
-                mTarget->applyExpression(FrameRange{mEasingPresetStartFrameSpin->value(),
-                                                    mEasingPresetEndFrameSpin->value()},
-                                         10, true, true);
-            }
-            accept();
-        }
-        else  { mTab->setCurrentIndex(mTabEditor); }
-    });
-
-    const auto easingPresetButtonClose = new QPushButton(tr("Close"), this);
-    easingPresetButtonLayout->addWidget(easingPresetButtonClose);
-    connect(easingPresetButtonClose,
-            &QPushButton::released,
-            this, [this]() { reject(); });
-
-    easingPresetLayout->addWidget(easingPresetButtonWidget);
-
-    if (populateEasingPresets()) {
-        mTabEasingPreset = mTab->addTab(easingPresetWidget, tr("Easing"));
-    } else {
-        easingPresetWidget->setVisible(false);
-    }
 
     QWidget *editorWidget = new QWidget(this);
     mTabEditor = mTab->addTab(editorWidget, tr("Editor"));
@@ -641,27 +484,6 @@ void ExpressionDialog::setCurrentTabId(const int id) {
     mDefsLabel->setVisible(!first);
     mDefinitions->setVisible(!first);
     mDefinitionsError->setVisible(!first);
-}
-
-bool ExpressionDialog::populateEasingPresets()
-{
-    const auto presets = AppSupport::getEasingPresets();
-    if (presets.size() < 1) { return false; }
-    else {
-        mEasingPresetsBox->clear();
-        mEasingPresetsBox->addItem(tr("Select preset ..."));
-    }
-    for (int i = 0; i < presets.size(); ++i) {
-        QFileInfo file(presets.at(i).second);
-        if (mEasingPresetsBox->findText(file.baseName(), Qt::MatchExactly) > -1) {
-            qWarning() << "expression preset already exists, skip:" << file.absoluteFilePath();
-            continue;
-        }
-        mEasingPresetsBox->addItem(QIcon::fromTheme("easing"),
-                                   presets.at(i).first,
-                                   file.absoluteFilePath());
-    }
-    return true;
 }
 
 void ExpressionDialog::updateAllScript() {

@@ -140,6 +140,9 @@ public:
     static const QList<QPair<QString,QString>> getEasingPresets();
     static void handlePortableFirstRun();
     static const QString filterId(const QString &input);
+    static const QList<QPair<QString,QString>> getExpressionsBundle();
+    static const QList<QPair<QString,QString>> findExpressions(const QStringList &paths);
+    static const QStringList scanForExpressions(const QString &path);
 };
 
 #endif // APPSUPPORT_H

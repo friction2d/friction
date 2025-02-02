@@ -57,6 +57,7 @@ set(
     Boxes/nullobject.cpp
     Expressions/expression.cpp
     Expressions/framebinding.cpp
+    Expressions/scenebinding.cpp
     Expressions/propertybinding.cpp
     Animators/SmartPath/listofnodes.cpp
     Animators/SmartPath/smartpath.cpp
@@ -359,6 +360,7 @@ set(
     Boxes/nullobject.h
     Expressions/expression.h
     Expressions/framebinding.h
+    Expressions/scenebinding.h
     Expressions/propertybinding.h
     Animators/SmartPath/listofnodes.h
     Animators/SmartPath/smartpath.h

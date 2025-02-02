@@ -8,7 +8,7 @@
 
 ## Contribute
 
-We accept any contributions, big or small. Before submitting a pull request it's recommended that you communicate with the developers first (on [GitHub](https://github.com/friction2d/friction/issues) or [Codeberg](https://codeberg.org/friction/friction/issues)).
+We accept any contributions, big or small. Before submitting a pull request it's recommended that you communicate with the developers first (on [GitHub](https://github.com/friction2d/friction/issues), [GitLab](https://gitlab.com/friction-graphics/friction/issues) or [Codeberg](https://codeberg.org/friction/friction/issues)).
 
 It's always preferred to submit pull requests against the `main` branch.
 
@@ -26,11 +26,21 @@ A new stable branch is cut from `main` on each `X` or `Y` release and is maintai
 
 Important fixes added to `main` will be backported to active stable branches when possible (and within reason).
 
+## Documentation
+
+See https://friction.graphics/documentation for generic documentation.
+
+### Build instructions
+
+* [Linux](https://friction.graphics/documentation/source-linux.html)
+* [Windows](https://friction.graphics/documentation/source-windows.html)
+* [macOS](https://friction.graphics/documentation/source-macos.html)
+
 ## License
 
 Friction is copyright &copy; Ole-André Rodlie and contributors.
 
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3.
 
 **This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the [GNU General Public License](LICENSE.md) for more details.**
 

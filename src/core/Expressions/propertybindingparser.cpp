@@ -26,9 +26,9 @@
 #include "propertybindingparser.h"
 
 #include "exceptions.h"
-
 #include "framebinding.h"
 #include "valuebinding.h"
+#include "scenebinding.h"
 #include "appsupport.h"
 
 void skipSpaces(const QString& exp, int& position) {
@@ -84,7 +84,7 @@ QString parse(const QString& exp, int& pos, const int n) {
 
 bool parse(const QString& exp, int& pos, const QString& test) {
     int newPos = pos;
-    const auto value = parse(exp, newPos, QString("$value").count());
+    const auto value = parse(exp, newPos, test.count());
     if(value == test) {
         pos = newPos;
         return true;
@@ -101,6 +101,26 @@ bool parseValue(const QString& exp, int& pos) {
 
 bool parseFrame(const QString& exp, int& pos) {
     return parse(exp, pos, "$frame");
+}
+
+bool parseSceneFPS(const QString& exp, int& pos) {
+    return parse(exp, pos, "$scene.fps");
+}
+
+bool parseSceneWidth(const QString& exp, int& pos) {
+    return parse(exp, pos, "$scene.width");
+}
+
+bool parseSceneHeight(const QString& exp, int& pos) {
+    return parse(exp, pos, "$scene.height");
+}
+
+bool parseSceneRangeMax(const QString& exp, int& pos) {
+    return parse(exp, pos, "$scene.rangeMax");
+}
+
+bool parseSceneRangeMin(const QString& exp, int& pos) {
+    return parse(exp, pos, "$scene.rangeMin");
 }
 
 void parseBinding(const QString& exp, int& pos, QString& binding) {
@@ -128,6 +148,21 @@ qsptr<PropertyBindingBase> PropertyBindingParser::parseBinding(
     skipSpaces(exp, pos);
     if(parseFrame(exp, pos)) {
         result = FrameBinding::sCreate(context);
+    } else if(parseSceneFPS(exp, pos)) {
+        result = SceneBinding::sCreate(context,
+                                       SceneBinding::SceneBindingFps);
+    } else if(parseSceneWidth(exp, pos)) {
+        result = SceneBinding::sCreate(context,
+                                       SceneBinding::SceneBindingWidth);
+    } else if(parseSceneHeight(exp, pos)) {
+        result = SceneBinding::sCreate(context,
+                                       SceneBinding::SceneBindingHeight);
+    } else if(parseSceneRangeMin(exp, pos)) {
+        result = SceneBinding::sCreate(context,
+                                       SceneBinding::SceneBindingRangeMin);
+    } else if(parseSceneRangeMax(exp, pos)) {
+        result = SceneBinding::sCreate(context,
+                                       SceneBinding::SceneBindingRangeMax);
     } else if(parseValue(exp, pos)) {
         result = ValueBinding::sCreate(context);
     } else {

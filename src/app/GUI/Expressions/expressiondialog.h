@@ -60,20 +60,12 @@ private:
     void updateScriptDefinitions();
     void updateAllScript();
     void setCurrentTabId(const int id);
-    bool populateEasingPresets();
     bool apply(const bool action);
 
     QrealAnimator* const mTarget;
 
     QTabWidget *mTab;
-    int mTabEasingPreset;
     int mTabEditor;
-
-    QComboBox *mEasingPresetsBox;
-    QDoubleSpinBox *mEasingPresetStartValueSpin;
-    QDoubleSpinBox *mEasingPresetEndValueSpin;
-    QSpinBox *mEasingPresetStartFrameSpin;
-    QSpinBox *mEasingPresetEndFrameSpin;
 
     QIcon mRedDotIcon;
 

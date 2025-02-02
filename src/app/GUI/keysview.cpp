@@ -230,18 +230,12 @@ void KeysView::wheelEvent(QWheelEvent *e)
     const bool ctrl = e->modifiers() & Qt::ControlModifier;
     const bool shift = e->modifiers() & Qt::ShiftModifier;
     const bool noMod = !alt && !ctrl && !shift;
+    const auto x = qAbs(e->angleDelta().x());
+    const auto y = qAbs(e->angleDelta().y());
+    //qDebug() << e->phase() << x << y;
     if (e->phase() != Qt::NoScrollPhase && noMod) {
-        if (e->phase() == Qt::ScrollBegin) {
-            mPanEvent = false;
-            const auto x = e->angleDelta().x();
-            const auto y = e->angleDelta().y();
-            if (x < 0) {
-                if (y > 0 || x < y || y == 0 || x == y) { mPanEvent = true; }
-            } else if (x > 0) {
-                if (y < 0 || x > y || y == 0 || x == y) { mPanEvent = true; }
-            }
-        } else if (e->phase() == Qt::ScrollEnd) { mPanEvent = false; }
-        //qDebug() << e->angleDelta().x() << e->angleDelta().y() << mPanEvent;
+        if (e->phase() == Qt::ScrollBegin) { mPanEvent = x > y; }
+        else if (e->phase() == Qt::ScrollEnd) { mPanEvent = false; }
         if (mPanEvent) { emit panEventSignal(e); }
     }
 #endif

@@ -36,12 +36,11 @@ ExpressionEditor::ExpressionEditor(QrealAnimator * const target,
 
 ExpressionEditor::ExpressionEditor(QrealAnimator * const target,
                                    const QString &text,
-                                   QWidget * const parent) :
-    QTextEdit(parent) {
-    setPalette(ThemeSupport::getDarkPalette());
-    //setStyleSheet("QWidget { background: #2E2F30; }");
+                                   QWidget * const parent)
+    : QTextEdit(parent)
+{
     setCursorWidth(2);
-    setFont(QFont("monospace"));
+    setFont(parent->font());
     setMinimumWidth(20*eSizesUI::widget);
     setMaximumHeight(5*eSizesUI::widget);
     const auto doc = document();

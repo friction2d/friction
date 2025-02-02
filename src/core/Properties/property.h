@@ -274,6 +274,11 @@ public:
     static QString prp_sFixName(const QString &name);
     static bool prp_sValidateName(const QString& name,
                                   QString* error = nullptr);
+    qreal prp_getSceneFPS() const;
+    int prp_getSceneWidth() const;
+    int prp_getSceneHeight() const;
+    int prp_getSceneRangeMin() const;
+    int prp_getSceneRangeMax() const;
 protected:
     void setPointsHandler(const stdsptr<PointsHandler>& handler);
 

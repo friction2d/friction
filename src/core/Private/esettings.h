@@ -159,6 +159,9 @@ public:
     QList<QAction*> fCommandPalette;
     QList<QString> fCommandHistory;
 
+    // Expressions bundle
+    QList<QPair<QString,QString>> expressionsBundle = AppSupport::getExpressionsBundle();
+
 signals:
     void settingsChanged();
 

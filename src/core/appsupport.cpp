@@ -323,8 +323,8 @@ const QString AppSupport::getAppExPresetsPath()
 {
     QString path1 = getAppPath();
     QString path2 = path1;
-    path1.append(QString::fromUtf8("/presets/expressions"));
-    path2.append(QString::fromUtf8("/../share/friction/presets/expressions"));
+    path1.append(QString::fromUtf8("/plugins/expressions"));
+    path2.append(QString::fromUtf8("/../share/friction/plugins/expressions"));
     if (QFile::exists(path1)) { return path1; }
     if (QFile::exists(path2)) { return path2; }
     return QString();
@@ -332,7 +332,12 @@ const QString AppSupport::getAppExPresetsPath()
 
 const QString AppSupport::getAppUserExPresetsPath()
 {
-    QString path = QString::fromUtf8("%1/ExpressionPresets").arg(getAppConfigPath());
+    const QString def = QString::fromUtf8("%1/Expressions").arg(getAppConfigPath());
+    QString path = getSettings("settings",
+                               "CustomExpressionPath",
+                               def).toString();
+    if (path.isEmpty()) { path = def; }
+
     QDir dir(path);
     if (!dir.exists()) { dir.mkpath(path); }
     return path;
@@ -1120,3 +1125,63 @@ const QString AppSupport::filterId(const QString &input)
 {
     return QString(input).simplified().replace(" ", "");
 }
+
+const QList<QPair<QString, QString> >
+AppSupport::getExpressionsBundle()
+{
+    QStringList exprCore;
+    exprCore << ":/expressions/clamp.conf";
+
+    auto result = findExpressions(exprCore);
+
+    // we don't plan to ship external expressions with Friction at this moment
+    //const auto exprApp = findExpressions(scanForExpressions(getAppExPresetsPath()));
+    //for (const auto &expr : exprApp) { result << expr; }
+
+    const auto exprUsr = findExpressions(scanForExpressions(getAppUserExPresetsPath()));
+    for (const auto &expr : exprUsr) { result << expr; }
+
+    return result;
+}
+
+const QList<QPair<QString, QString> >
+AppSupport::findExpressions(const QStringList &paths)
+{
+    QList<QPair<QString, QString> > result;
+    for (const auto &path : paths) {
+        QFileInfo info(path);
+        const QString funConf = path;
+        const QString funJs = QString("%1/%2.js").arg(info.absolutePath(),
+                                                      info.baseName());
+        if (!QFile::exists(funConf) || !QFile::exists(funJs)) { continue; }
+        QPair<QString,QString> expr;
+        QSettings conf(funConf, QSettings::IniFormat);
+        expr.first = conf.value("target").toString();
+        QFile funFile(funJs);
+        if (funFile.open(QIODevice::Text | QIODevice::ReadOnly)) {
+            expr.second = funFile.readAll();
+            funFile.close();
+        }
+        if (expr.first.isEmpty() || expr.second.isEmpty()) { continue; }
+        qDebug() << "Added expression function" << expr.first << funConf;
+        result << expr;
+    }
+    return result;
+}
+
+const QStringList AppSupport::scanForExpressions(const QString &path)
+{
+    QStringList result;
+    if (!QFile::exists(path)) { return result; }
+    qDebug() << "Checking for expressions in" << path;
+    for (const auto &file : getFilesFromPath(path,
+                                             QStringList() << "*.conf")) {
+        QFileInfo info(file);
+        QString js = QString("%1/%2.js").arg(info.absolutePath(),
+                                             info.baseName());
+        if (!QFile::exists(js)) { continue; }
+        result << file;
+    }
+    return result;
+}
+
