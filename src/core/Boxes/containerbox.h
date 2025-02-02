@@ -144,7 +144,7 @@ public:
     virtual bool isFlipBook() const;
     virtual iValueRange getContainedMinMax() const;
 
-    void readAllContainedXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
+    void readAllContainedXML(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                              Friction::Core::ZipFileLoader& fileLoader, const QString& path,
                              const Friction::Core::RuntimeIdToWriteId& objListIdConv);
 
@@ -152,7 +152,7 @@ public:
     void queTasks();
 
     void writeAllContained(eWriteStream &dst) const;
-    void writeAllContainedXEV(const stdsptr<Friction::Core::XmlZipFileSaver>& fileSaver,
+    void writeAllContainedXML(const stdsptr<Friction::Core::XmlZipFileSaver>& fileSaver,
                               const Friction::Core::RuntimeIdToWriteId& objListIdConv,
                               const QString& path) const;
 

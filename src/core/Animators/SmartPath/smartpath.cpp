@@ -353,7 +353,7 @@ NodeList SmartPath::getAndClearLastDetached() {
     return detached;
 }
 
-QString SmartPath::toXEV() const {
+QString SmartPath::toXML() const {
     QString result;
     const QString blueprint = QStringLiteral("%1 %2 %3 %4 %5 %6 %7");
     for(const auto& node : mNodesList) {
@@ -385,7 +385,7 @@ QString SmartPath::toXEV() const {
     return result;
 }
 
-void SmartPath::loadXEV(const QStringRef& xev) {
+void SmartPath::loadXML(const QStringRef& xev) {
     ListOfNodes listOfNodes;
 
     const auto nodes = xev.split(',', Qt::SkipEmptyParts);

@@ -172,13 +172,13 @@ void writeTransformEffectType(TransformEffect * const obj, eWriteStream &dst) {
     obj->writeIdentifier(dst);
 }
 
-qsptr<TransformEffect> readIdCreateTransformEffectXEV(const QDomElement& ele) {
+qsptr<TransformEffect> readIdCreateTransformEffectXML(const QDomElement& ele) {
     const QString typeStr = ele.attribute("type");
     const int typeInt = Friction::Core::XmlExportHelpers::stringToInt(typeStr);
     const auto type = static_cast<TransformEffectType>(typeInt);
     return createTransformEffectForType(type);
 }
 
-void writeTransformEffectTypeXEV(TransformEffect* const obj, QDomElement& ele) {
+void writeTransformEffectTypeXML(TransformEffect* const obj, QDomElement& ele) {
     obj->writeIdentifierXML(ele);
 }

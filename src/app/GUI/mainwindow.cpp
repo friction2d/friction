@@ -1801,6 +1801,7 @@ void MainWindow::openFile()
 void MainWindow::openFile(const QString& openPath)
 {
     clearAll();
+    qDebug() << "open file" << openPath << AppSupport::getMimeType(openPath);
     try {
         QFileInfo fi(openPath);
         const QString suffix = fi.suffix();
@@ -1848,7 +1849,7 @@ void MainWindow::saveFile(const QString& path,
         if (suffix == "friction") {
             saveToFile(path);
         } else if (suffix == "fdesign") {
-            saveToFileXEV(path);
+            saveToFileXML(path);
         } else { RuntimeThrow("Unrecognized file extension " + suffix); }
         if (setPath) mDocument.setPath(path);
         setFileChangedSinceSaving(false);

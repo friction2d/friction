@@ -182,7 +182,7 @@ void MainWindow::saveToFile(const QString &path,
 
 #include "XML/xmlzipfilesaver.h"
 
-void MainWindow::saveToFileXEV(const QString &path) {
+void MainWindow::saveToFileXML(const QString &path) {
     try {
         const auto xevfileSaver = std::make_shared<Friction::Core::XmlZipFileSaver>();
         xevfileSaver->setPath(path);
@@ -217,7 +217,7 @@ void MainWindow::loadXevFile(const QString &path) {
         fileLoader.setZipPath(path);
 
         QList<Canvas*> scenes;
-        mDocument.readDocumentXEV(fileLoader, scenes);
+        mDocument.readDocumentXML(fileLoader, scenes);
 
         Friction::Core::XmlReadBoxesHandler boxReadHandler;
         Friction::Core::RuntimeIdToWriteId objListIdConv;
@@ -229,7 +229,7 @@ void MainWindow::loadXevFile(const QString &path) {
             mLayoutHandler->readXML(boxReadHandler, ele, objListIdConv);
         });
 
-        mDocument.readScenesXEV(boxReadHandler, fileLoader, scenes, objListIdConv);
+        mDocument.readScenesXML(boxReadHandler, fileLoader, scenes, objListIdConv);
     } catch(...) {
         RuntimeThrow("Error while reading from file " + path);
     }

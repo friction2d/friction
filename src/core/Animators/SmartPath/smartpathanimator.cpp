@@ -128,7 +128,7 @@ void SmartPathAnimator::prp_readPropertyXML_impl(
     mMode = static_cast<Mode>(modeInt);
 
     readValuesXML(ele, [closed](SmartPath& path, const QStringRef& str) {
-        path.loadXEV(str);
+        path.loadXML(str);
         path.setClosed(closed);
     });
 }
@@ -140,7 +140,7 @@ QDomElement SmartPathAnimator::prp_writePropertyXML_impl(const Friction::Core::X
     result.setAttribute("mode", int(mMode));
 
     writeValuesXML(result, [](const SmartPath& path) {
-        return path.toXEV();
+        return path.toXML();
     });
 
     return result;

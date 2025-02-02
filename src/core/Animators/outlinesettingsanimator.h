@@ -120,7 +120,7 @@ protected:
     void readBrushPaint(const QDomElement& ele,
                         const Friction::Core::XmlImporter& imp);
 
-    QString prp_tagNameXEV() const { return "Outline"; }
+    QString prp_tagNameXML() const { return "Outline"; }
 private:
     SkPaint::Cap mCapStyle = SkPaint::kRound_Cap;
     SkPaint::Join mJoinStyle = SkPaint::kRound_Join;

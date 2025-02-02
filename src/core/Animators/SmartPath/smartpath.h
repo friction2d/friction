@@ -152,8 +152,8 @@ public:
     bool write(eWriteStream& dst) const
     { return mNodesList.write(dst); }
 
-    QString toXEV() const;
-    void loadXEV(const QStringRef& xev);
+    QString toXML() const;
+    void loadXML(const QStringRef& xev);
 
     const NodeList& getNodesRef() const
     { return mNodesList; }

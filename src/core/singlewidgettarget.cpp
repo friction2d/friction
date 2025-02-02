@@ -151,7 +151,7 @@ void SingleWidgetTarget::SWT_readAbstraction(eReadStream& src) const {
     }
 }
 
-void SingleWidgetTarget::SWT_writeAbstractionXEV(QDomElement& ele,
+void SingleWidgetTarget::SWT_writeAbstractionXML(QDomElement& ele,
                                                  const Friction::Core::XmlExporter &exp) const
 {
     QString absOpen;
@@ -168,7 +168,7 @@ void SingleWidgetTarget::SWT_writeAbstractionXEV(QDomElement& ele,
     if(!absOpen.isEmpty()) ele.setAttribute("open", absOpen);
 }
 
-void SingleWidgetTarget::SWT_readAbstractionXEV(
+void SingleWidgetTarget::SWT_readAbstractionXML(
         const QDomElement& ele, const Friction::Core::XmlImporter& imp) const {
     const QString absOpenStr = ele.attribute("open");
     if(absOpenStr.isEmpty()) return;

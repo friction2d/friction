@@ -66,7 +66,7 @@ public:
     void writeIdentifierXML(QDomElement& ele) const;
 
     static Identifier sReadIdentifier(eReadStream& src);
-    static Identifier sReadIdentifierXEV(const QDomElement& ele);
+    static Identifier sReadIdentifierXML(const QDomElement& ele);
 
     static stdsptr<ShaderEffectCreator> sLoadFromFile(
             QGL33 * const gl, const QString& grePath);

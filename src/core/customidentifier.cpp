@@ -51,7 +51,7 @@ CustomIdentifier CustomIdentifier::sRead(eReadStream& src) {
     return id;
 }
 
-CustomIdentifier CustomIdentifier::sReadXEV(const QDomElement& ele) {
+CustomIdentifier CustomIdentifier::sReadXML(const QDomElement& ele) {
     CustomIdentifier id;
     id.fEffectId = Friction::Core::XmlExportHelpers::stringToInt(ele.attribute("id"));
     id.fEffectName = Friction::Core::XmlExportHelpers::stringToInt(ele.attribute("name"));

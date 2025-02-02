@@ -11,16 +11,16 @@ CORE_EXPORT
 void writeBlendEffectType(BlendEffect* const obj, eWriteStream& dst);
 
 CORE_EXPORT
-qsptr<BlendEffect> readIdCreateBlendEffectXEV(const QDomElement& ele);
+qsptr<BlendEffect> readIdCreateBlendEffectXML(const QDomElement& ele);
 CORE_EXPORT
-void writeBlendEffectTypeXEV(BlendEffect* const obj, QDomElement& ele);
+void writeBlendEffectTypeXML(BlendEffect* const obj, QDomElement& ele);
 
 typedef DynamicComplexAnimator<
     BlendEffect,
     writeBlendEffectType,
     readIdCreateBlendEffect,
-    writeBlendEffectTypeXEV,
-    readIdCreateBlendEffectXEV> BlendEffectCollectionBase;
+    writeBlendEffectTypeXML,
+    readIdCreateBlendEffectXML> BlendEffectCollectionBase;
 
 class CORE_EXPORT BlendEffectCollection : public BlendEffectCollectionBase {
     Q_OBJECT

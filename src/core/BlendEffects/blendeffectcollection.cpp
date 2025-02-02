@@ -110,13 +110,13 @@ void writeBlendEffectType(BlendEffect * const obj, eWriteStream &dst) {
     obj->writeIdentifier(dst);
 }
 
-qsptr<BlendEffect> readIdCreateBlendEffectXEV(const QDomElement& ele) {
+qsptr<BlendEffect> readIdCreateBlendEffectXML(const QDomElement& ele) {
     const QString typeStr = ele.attribute("type");
     const int typeInt = Friction::Core::XmlExportHelpers::stringToInt(typeStr);
     const auto type = static_cast<BlendEffectType>(typeInt);
     return createBlendEffectForType(type);
 }
 
-void writeBlendEffectTypeXEV(BlendEffect* const obj, QDomElement& ele) {
+void writeBlendEffectTypeXML(BlendEffect* const obj, QDomElement& ele) {
     obj->writeIdentifierXML(ele);
 }

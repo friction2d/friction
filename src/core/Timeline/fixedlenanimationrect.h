@@ -38,8 +38,8 @@ public:
     void writeDurationRectangle(eWriteStream& dst);
     void readDurationRectangle(eReadStream &src);
 
-    void writeDurationRectangleXEV(QDomElement& ele) const;
-    void readDurationRectangleXEV(const QDomElement& ele);
+    void writeDurationRectangleXML(QDomElement& ele) const;
+    void readDurationRectangleXML(const QDomElement& ele);
 
     void setFirstAnimationFrame(const int minAnimationFrame) {
         const int animDur = mMaxAnimationFrame - mMinAnimationFrame;

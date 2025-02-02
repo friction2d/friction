@@ -74,7 +74,7 @@ public:
 
     static WrapperNode *sRead(eReadStream& src,
                               const WidgetCreator& creator);
-    static WrapperNode *sReadXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
+    static WrapperNode *sReadXML(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                                  const QDomElement& ele,
                                  const WidgetCreator& creator,
                                  Friction::Core::RuntimeIdToWriteId& objListIdConv);
@@ -150,7 +150,7 @@ public:
                      Friction::Core::RuntimeIdToWriteId& objListIdConv) {
         const auto child = ele.firstChildElement();
         const auto childTag = child.tagName();
-        const auto newChild = sReadXEV(boxReadHandler, child, fCreator, objListIdConv);
+        const auto newChild = sReadXML(boxReadHandler, child, fCreator, objListIdConv);
         replaceAndDeleteChild(newChild);
     }
 
@@ -222,8 +222,8 @@ protected:
         const auto child1 = ele.firstChildElement();
         const auto child2 = ele.lastChildElement();
 
-        fChild1 = sReadXEV(boxReadHandler, child1, fCreator, objListIdConv);
-        fChild2 = sReadXEV(boxReadHandler, child2, fCreator, objListIdConv);
+        fChild1 = sReadXML(boxReadHandler, child1, fCreator, objListIdConv);
+        fChild2 = sReadXML(boxReadHandler, child2, fCreator, objListIdConv);
 
         fChild1->fParent = this;
         fChild2->fParent = this;

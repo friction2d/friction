@@ -81,7 +81,7 @@ struct CORE_EXPORT CustomIdentifier {
     void writeXML(QDomElement& ele) const;
 
     static CustomIdentifier sRead(eReadStream& src);
-    static CustomIdentifier sReadXEV(const QDomElement& ele);
+    static CustomIdentifier sReadXML(const QDomElement& ele);
 };
 
 #endif // CUSTOMIDENTIFIER_H

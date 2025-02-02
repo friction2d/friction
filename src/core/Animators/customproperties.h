@@ -35,16 +35,16 @@ CORE_EXPORT
 void writeCPropertyType(Animator* const obj, eWriteStream& dst);
 
 CORE_EXPORT
-qsptr<Animator> readIdCreateCPropertyXEV(const QDomElement& ele);
+qsptr<Animator> readIdCreateCPropertyXML(const QDomElement& ele);
 CORE_EXPORT
-void writeCPropertyTypeXEV(Animator* const obj, QDomElement& ele);
+void writeCPropertyTypeXML(Animator* const obj, QDomElement& ele);
 
 using CustomPropertiesBase =
     DynamicComplexAnimator<Animator,
                            writeCPropertyType,
                            readIdCreateCProperty,
-                           writeCPropertyTypeXEV,
-                           readIdCreateCPropertyXEV>;
+                           writeCPropertyTypeXML,
+                           readIdCreateCPropertyXML>;
 
 class CORE_EXPORT CustomProperties : public CustomPropertiesBase {
     Q_OBJECT

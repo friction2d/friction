@@ -163,7 +163,7 @@ public:
 public:
     virtual void prp_readProperty(eReadStream& src);
     void prp_writeProperty(eWriteStream& dst) const;
-    QString prp_tagNameXEV() const;
+    QString prp_tagNameXML() const;
 
     QDomElement prp_writePropertyXML(const Friction::Core::XmlExporter& exp) const;
     void prp_readPropertyXML(const QDomElement& ele, const Friction::Core::XmlImporter& imp);

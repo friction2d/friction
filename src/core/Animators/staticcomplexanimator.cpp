@@ -55,7 +55,7 @@ void StaticComplexAnimator::prp_readPropertyXML_impl(
         const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
     const auto& children = ca_getChildren();
     for(const auto& c : children) {
-        const QString tagName = c->prp_tagNameXEV();
+        const QString tagName = c->prp_tagNameXML();
         const auto path = tagName + "/";
         const auto impc = imp.withAssetsPath(path);
         Friction::Core::XevExportHelpers::readProperty(ele, impc, tagName, c.get());
@@ -66,7 +66,7 @@ void StaticComplexAnimator::writeChildPropertiesXML(
         QDomElement& prop, const Friction::Core::XmlExporter& exp) const {
     const auto& children = ca_getChildren();
     for(const auto& c : children) {
-        const QString tagName = c->prp_tagNameXEV();
+        const QString tagName = c->prp_tagNameXML();
         const auto path = tagName + "/";
         const auto expc = exp.withAssetsPath(path);
         Friction::Core::XevExportHelpers::writeProperty(prop, *expc, tagName, c.get());
@@ -74,7 +74,7 @@ void StaticComplexAnimator::writeChildPropertiesXML(
 }
 
 QDomElement StaticComplexAnimator::prp_writePropertyXML_impl(const Friction::Core::XmlExporter& exp) const {
-    auto result = exp.createElement(prp_tagNameXEV());
+    auto result = exp.createElement(prp_tagNameXML());
     writeChildPropertiesXML(result, exp);
     return result;
 }

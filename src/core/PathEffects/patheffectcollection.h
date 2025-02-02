@@ -37,16 +37,16 @@ CORE_EXPORT
 void writePathEffectType(PathEffect* const obj, eWriteStream& dst);
 
 CORE_EXPORT
-qsptr<PathEffect> readIdCreatePathEffectXEV(const QDomElement& ele);
+qsptr<PathEffect> readIdCreatePathEffectXML(const QDomElement& ele);
 CORE_EXPORT
-void writePathEffectTypeXEV(PathEffect* const obj, QDomElement& ele);
+void writePathEffectTypeXML(PathEffect* const obj, QDomElement& ele);
 
 typedef DynamicComplexAnimator<
     PathEffect,
     writePathEffectType,
     readIdCreatePathEffect,
-    writePathEffectTypeXEV,
-    readIdCreatePathEffectXEV> PathEffectCollectionBase;
+    writePathEffectTypeXML,
+    readIdCreatePathEffectXML> PathEffectCollectionBase;
 
 class CORE_EXPORT PathEffectCollection : public PathEffectCollectionBase {
     e_OBJECT

@@ -39,16 +39,16 @@ CORE_EXPORT
 void writeRasterEffectType(RasterEffect* const obj, eWriteStream& dst);
 
 CORE_EXPORT
-qsptr<RasterEffect> readIdCreateRasterEffectXEV(const QDomElement& ele);
+qsptr<RasterEffect> readIdCreateRasterEffectXML(const QDomElement& ele);
 CORE_EXPORT
-void writeRasterEffectTypeXEV(RasterEffect* const obj, QDomElement& ele);
+void writeRasterEffectTypeXML(RasterEffect* const obj, QDomElement& ele);
 
 typedef DynamicComplexAnimator<
     RasterEffect,
     writeRasterEffectType,
     readIdCreateRasterEffect,
-    writeRasterEffectTypeXEV,
-    readIdCreateRasterEffectXEV> RasterEffectCollectionBase;
+    writeRasterEffectTypeXML,
+    readIdCreateRasterEffectXML> RasterEffectCollectionBase;
 
 class CORE_EXPORT RasterEffectCollection : public RasterEffectCollectionBase {
     e_OBJECT

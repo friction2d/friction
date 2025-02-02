@@ -155,7 +155,7 @@ void eBoxOrSound::writeBoxOrSoundXML(const std::shared_ptr<Friction::Core::XmlZi
     const auto exp = enve::make_shared<Friction::Core::XmlExporter>(
                          doc, xevFileSaver, objListIdConv, path);
     auto obj = prp_writeNamedPropertyXML("Object", *exp);
-    if(mDurationRectangle) mDurationRectangle->writeDurationRectangleXEV(obj);
+    if(mDurationRectangle) mDurationRectangle->writeDurationRectangleXML(obj);
 
     doc.appendChild(obj);
     auto& fileSaver = xevFileSaver->fileSaver();
@@ -178,7 +178,7 @@ void eBoxOrSound::readBoxOrSoundXML(Friction::Core::XmlReadBoxesHandler& boxRead
     const bool hasDurRect = obj.hasAttribute("visRange");
     if(hasDurRect) {
         if(!mDurationRectangle) createDurationRectangle();
-        mDurationRectangle->readDurationRectangleXEV(obj);
+        mDurationRectangle->readDurationRectangleXML(obj);
     }
     const Friction::Core::XmlImporter imp(boxReadHandler, fileLoader, objListIdConv, path);
     prp_readPropertyXML(obj, imp);

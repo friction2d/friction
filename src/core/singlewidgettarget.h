@@ -181,8 +181,8 @@ protected:
     void SWT_writeAbstraction(eWriteStream& dst) const;
     void SWT_readAbstraction(eReadStream& src) const;
 
-    void SWT_writeAbstractionXEV(QDomElement& ele, const Friction::Core::XmlExporter& exp) const;
-    void SWT_readAbstractionXEV(const QDomElement& ele, const Friction::Core::XmlImporter& imp) const;
+    void SWT_writeAbstractionXML(QDomElement& ele, const Friction::Core::XmlExporter& exp) const;
+    void SWT_readAbstractionXML(const QDomElement& ele, const Friction::Core::XmlImporter& imp) const;
 signals:
     void SWT_changedDisabled(bool);
 private:

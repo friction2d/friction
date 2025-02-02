@@ -1462,7 +1462,7 @@ void ContainerBox::writeAllContained(eWriteStream& dst) const {
     }
 }
 
-void ContainerBox::writeAllContainedXEV(
+void ContainerBox::writeAllContainedXML(
         const stdsptr<XmlZipFileSaver>& fileSaver,
         const Friction::Core::RuntimeIdToWriteId& objListIdConv,
         const QString& path) const {
@@ -1506,7 +1506,7 @@ void ContainerBox::writeBoxOrSoundXML(const stdsptr<XmlZipFileSaver>& xevFileSav
         doc.appendChild(stack);
         stream << doc.toString();
     });
-    writeAllContainedXEV(xevFileSaver, objListIdConv, path);
+    writeAllContainedXML(xevFileSaver, objListIdConv, path);
 }
 
 #include "smartvectorpath.h"
@@ -1564,7 +1564,7 @@ qsptr<BoundingBox> createBoxOfNonCustomType(const eBoxType type) {
     return nullptr;
 }
 
-void ContainerBox::readAllContainedXEV(
+void ContainerBox::readAllContainedXML(
         Friction::Core::XmlReadBoxesHandler& boxReadHandler,
         ZipFileLoader& fileLoader, const QString& path,
         const Friction::Core::RuntimeIdToWriteId& objListIdConv) {
@@ -1594,7 +1594,7 @@ void ContainerBox::readAllContainedXEV(
                 auto obj = createBoxOfNonCustomType(type);
 
                 if(type == eBoxType::custom) {
-                    const auto id = CustomIdentifier::sReadXEV(ele);
+                    const auto id = CustomIdentifier::sReadXML(ele);
                     obj = CustomBoxCreator::sCreateForIdentifier(id);
                 } else if(!obj) RuntimeThrow("Invalid box type '" +
                                              std::to_string(int(type)) + "'");
@@ -1636,7 +1636,7 @@ void ContainerBox::readBoxOrSoundXML(
         ZipFileLoader& fileLoader, const QString& path,
         const Friction::Core::RuntimeIdToWriteId& objListIdConv) {
     BoundingBox::readBoxOrSoundXML(boxReadHandler, fileLoader, path, objListIdConv);
-    readAllContainedXEV(boxReadHandler, fileLoader, path, objListIdConv);
+    readAllContainedXML(boxReadHandler, fileLoader, path, objListIdConv);
 }
 
 void ContainerBox::writeBoundingBox(eWriteStream& dst) const {

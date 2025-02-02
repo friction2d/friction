@@ -103,7 +103,7 @@ qsptr<Animator> readIdCreateCProperty(eReadStream &src) {
     return createCProperty(type);
 }
 
-qsptr<Animator> readIdCreateCPropertyXEV(const QDomElement& ele) {
+qsptr<Animator> readIdCreateCPropertyXML(const QDomElement& ele) {
     const int typeInt = Friction::Core::XmlExportHelpers::stringToInt(ele.attribute("type"));
     const PropertyType type = static_cast<PropertyType>(typeInt);
     return createCProperty(type);
@@ -124,7 +124,7 @@ void writeCPropertyType(Animator * const obj, eWriteStream &dst) {
     dst.write(&type, sizeof(PropertyType));
 }
 
-void writeCPropertyTypeXEV(Animator * const obj, QDomElement& ele) {
+void writeCPropertyTypeXML(Animator * const obj, QDomElement& ele) {
     const auto type = cPropertyType(obj);
     ele.setAttribute("type", static_cast<int>(type));
 }

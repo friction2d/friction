@@ -252,13 +252,13 @@ void TNoWriteType(T* const obj, eWriteStream& dst) {
 }
 
 template <class T>
-qsptr<T> TCreateOnlyXEV(const QDomElement& ele) {
+qsptr<T> TCreateOnlyXML(const QDomElement& ele) {
     Q_UNUSED(ele)
     return enve::make_shared<T>();
 }
 
 template <class T>
-void TNoWriteTypeXEV(T* const obj, QDomElement& ele) {
+void TNoWriteTypeXML(T* const obj, QDomElement& ele) {
     Q_UNUSED(obj)
     Q_UNUSED(ele)
 }
@@ -266,8 +266,8 @@ void TNoWriteTypeXEV(T* const obj, QDomElement& ele) {
 template <class T,
           void (&TWriteType)(T* const obj, eWriteStream& dst) = TNoWriteType<T>,
           qsptr<T> (&TReadTypeAndCreate)(eReadStream& src) = TCreateOnly<T>,
-          void (&TWriteTypeXEV)(T* const obj, QDomElement& ele) = TNoWriteTypeXEV<T>,
-          qsptr<T> (&TReadTypeAndCreateXEV)(const QDomElement& ele) = TCreateOnlyXEV<T>>
+          void (&TWriteTypeXML)(T* const obj, QDomElement& ele) = TNoWriteTypeXML<T>,
+          qsptr<T> (&TReadTypeAndCreateXML)(const QDomElement& ele) = TCreateOnlyXML<T>>
 class CORE_EXPORT DynamicComplexAnimator : public DynamicComplexAnimatorBase<T> {
     e_OBJECT
 protected:
@@ -319,7 +319,7 @@ public:
 protected:
     QDomElement prp_writePropertyXML_impl(const Friction::Core::XmlExporter& exp) const override {
         if(!this->ca_hasChildren()) return QDomElement();
-        auto result = exp.createElement(this->prp_tagNameXEV());
+        auto result = exp.createElement(this->prp_tagNameXML());
         const auto& children = this->ca_getChildren();
         int id = 0;
         for(const auto& c : children) {
@@ -327,7 +327,7 @@ protected:
             const auto path = QString::number(id++) + "/";
             const auto expc = exp.withAssetsPath(path);
             auto child = c->prp_writePropertyXML(*expc);
-            TWriteTypeXEV(TProp, child);
+            TWriteTypeXML(TProp, child);
             result.appendChild(child);
         }
         return result;
@@ -341,7 +341,7 @@ protected:
             if(!node.isElement()) continue;
             const auto element = node.toElement();
             try {
-                const auto prop = TReadTypeAndCreateXEV(element);
+                const auto prop = TReadTypeAndCreateXML(element);
                 this->addChild(prop);
                 const auto path = QString::number(i) + "/";
                 prop->prp_readPropertyXML(element, imp.withAssetsPath(path));

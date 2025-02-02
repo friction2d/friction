@@ -156,8 +156,8 @@ public:
     virtual void writeDurationRectangle(eWriteStream& dst);
     virtual void readDurationRectangle(eReadStream &src);
 
-    virtual void writeDurationRectangleXEV(QDomElement& ele) const;
-    virtual void readDurationRectangleXEV(const QDomElement& ele);
+    virtual void writeDurationRectangleXML(QDomElement& ele) const;
+    virtual void readDurationRectangleXML(const QDomElement& ele);
 
     Qt::CursorShape getHoverCursorShape() {
         return Qt::OpenHandCursor;

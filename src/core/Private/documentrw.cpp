@@ -106,7 +106,7 @@ void Document::readScenes(eReadStream& src) {
     SimpleTask::sProcessAll();
 }
 
-void Document::writeDoxumentXEV(QDomDocument& doc) const {
+void Document::writeDoxumentXML(QDomDocument& doc) const {
     auto document = doc.createElement("Document");
     document.setAttribute("format-version", XevFormat::version);
 
@@ -147,7 +147,7 @@ void Document::writeDoxumentXEV(QDomDocument& doc) const {
     doc.appendChild(document);
 }
 
-void Document::writeScenesXEV(const std::shared_ptr<Friction::Core::XmlZipFileSaver>& xevFileSaver,
+void Document::writeScenesXML(const std::shared_ptr<Friction::Core::XmlZipFileSaver>& xevFileSaver,
                               const Friction::Core::RuntimeIdToWriteId& objListIdConv) const {
     int id = 0;
     for(const auto &s : fScenes) {
@@ -161,22 +161,22 @@ void Document::writeXML(const std::shared_ptr<Friction::Core::XmlZipFileSaver>& 
     auto& fileSaver = xevFileSaver->fileSaver();
     fileSaver.processText("document.xml", [&](QTextStream& stream) {
         QDomDocument document;
-        writeDoxumentXEV(document);
+        writeDoxumentXML(document);
         stream << document.toString();
     });
-    writeScenesXEV(xevFileSaver, objListIdConv);
+    writeScenesXML(xevFileSaver, objListIdConv);
 }
 
-void Document::readDocumentXEV(Friction::Core::ZipFileLoader& fileLoader,
+void Document::readDocumentXML(Friction::Core::ZipFileLoader& fileLoader,
                                QList<Canvas*>& scenes) {
     fileLoader.process("document.xml", [&](QIODevice* const src) {
         QDomDocument document;
         document.setContent(src);
-        readDocumentXEV(document, scenes);
+        readDocumentXML(document, scenes);
     });
 }
 
-void Document::readDocumentXEV(const QDomDocument& doc,
+void Document::readDocumentXML(const QDomDocument& doc,
                                QList<Canvas*>& scenes) {
     const auto document = doc.firstChildElement("Document");
     const QString versionStr = document.attribute("format-version", "");
@@ -240,7 +240,7 @@ void Document::readDocumentXEV(const QDomDocument& doc,
     }
 }
 
-void Document::readScenesXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
+void Document::readScenesXML(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                              Friction::Core::ZipFileLoader& fileLoader,
                              const QList<Canvas*>& scenes,
                              const Friction::Core::RuntimeIdToWriteId& objListIdConv) {

@@ -143,8 +143,8 @@ qsptr<ShaderEffect> readIdCreateShaderEffect(eReadStream& src) {
     return createShaderEffect(id);
 }
 
-qsptr<ShaderEffect> readIdCreateShaderEffectXEV(const QDomElement& ele) {
-    const auto id = ShaderEffectCreator::sReadIdentifierXEV(ele);
+qsptr<ShaderEffect> readIdCreateShaderEffectXML(const QDomElement& ele) {
+    const auto id = ShaderEffectCreator::sReadIdentifierXML(ele);
     return createShaderEffect(id);
 }
 
@@ -191,23 +191,23 @@ void writeRasterEffectType(RasterEffect * const obj, eWriteStream &dst) {
     obj->writeIdentifier(dst);
 }
 
-qsptr<RasterEffect> readIdCreateRasterEffectXEV(const QDomElement& ele) {
+qsptr<RasterEffect> readIdCreateRasterEffectXML(const QDomElement& ele) {
     const int typeInt = Friction::Core::XmlExportHelpers::stringToInt(ele.attribute("type"));
     const RasterEffectType type = static_cast<RasterEffectType>(typeInt);
 
     auto result = createRasterEffectForNonCustomType(type);
     if(result) return result;
     if(type == RasterEffectType::CUSTOM) {
-        const auto id = CustomIdentifier::sReadXEV(ele);
+        const auto id = CustomIdentifier::sReadXML(ele);
         const auto eff = CustomRasterEffectCreator::sCreateForIdentifier(id);
         if(eff) return eff;
         RuntimeThrow("Unrecognized CustomRasterEffect identifier " + id.toString());
     } else if(type == RasterEffectType::CUSTOM_SHADER) {
-        return readIdCreateShaderEffectXEV(ele);
+        return readIdCreateShaderEffectXML(ele);
     } else RuntimeThrow("Invalid RasterEffect type '" +
                         QString::number(int(type)) + "'");
 }
 
-void writeRasterEffectTypeXEV(RasterEffect* const obj, QDomElement& ele) {
+void writeRasterEffectTypeXML(RasterEffect* const obj, QDomElement& ele) {
     obj->writeIdentifierXML(ele);
 }

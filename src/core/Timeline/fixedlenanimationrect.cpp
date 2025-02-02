@@ -84,8 +84,8 @@ void FixedLenAnimationRect::readDurationRectangle(eReadStream& src) {
     DurationRectangle::readDurationRectangle(src);
 }
 
-void FixedLenAnimationRect::writeDurationRectangleXEV(QDomElement& ele) const {
-    DurationRectangle::writeDurationRectangleXEV(ele);
+void FixedLenAnimationRect::writeDurationRectangleXML(QDomElement& ele) const {
+    DurationRectangle::writeDurationRectangleXML(ele);
     const auto visRange = QString("%1 %2").arg(mMinAnimationFrame).
                                            arg(mMaxAnimationFrame);
     ele.setAttribute("animFrameRange", visRange);
@@ -93,8 +93,8 @@ void FixedLenAnimationRect::writeDurationRectangleXEV(QDomElement& ele) const {
     ele.setAttribute("maxFrameSet", mSetMaxFrameAtLeastOnce ? "true" : "false");
 }
 
-void FixedLenAnimationRect::readDurationRectangleXEV(const QDomElement& ele) {
-    DurationRectangle::readDurationRectangleXEV(ele);
+void FixedLenAnimationRect::readDurationRectangleXML(const QDomElement& ele) {
+    DurationRectangle::readDurationRectangleXML(ele);
     const auto animRangeStr = ele.attribute("animFrameRange");
     const auto animRangeStrs = animRangeStr.split(' ', Qt::SkipEmptyParts);
     if(animRangeStrs.count() != 2) RuntimeThrow("Invalid frame range " + animRangeStr);

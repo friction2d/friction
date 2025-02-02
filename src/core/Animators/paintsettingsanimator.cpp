@@ -95,7 +95,7 @@ void PaintSettingsAnimator::prp_readProperty_impl(eReadStream& src)
 }
 
 QDomElement PaintSettingsAnimator::prp_writePropertyXML_impl(const Friction::Core::XmlExporter& exp) const {
-    auto result = exp.createElement(prp_tagNameXEV());
+    auto result = exp.createElement(prp_tagNameXML());
 
     result.setAttribute("type", static_cast<int>(mPaintType));
 

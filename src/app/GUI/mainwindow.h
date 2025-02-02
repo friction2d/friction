@@ -93,7 +93,7 @@ public:
     FillStrokeSettingsWidget *getFillStrokeSettings();
     void saveToFile(const QString &path,
                     const bool addRecent = true);
-    void saveToFileXEV(const QString& path);
+    void saveToFileXML(const QString& path);
     void loadEVFile(const QString &path);
     void loadXevFile(const QString &path);
     void clearAll();

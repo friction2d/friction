@@ -113,14 +113,14 @@ void writePathEffectType(PathEffect * const obj, eWriteStream &dst) {
     obj->writeIdentifier(dst);
 }
 
-qsptr<PathEffect> readIdCreatePathEffectXEV(const QDomElement& ele) {
+qsptr<PathEffect> readIdCreatePathEffectXML(const QDomElement& ele) {
     const auto typeStr = ele.attribute("type");
     const int typeInt = Friction::Core::XmlExportHelpers::stringToInt(typeStr);
     const auto type = static_cast<PathEffectType>(typeInt);
     const auto eff = createNonCustomPathEffect(type);
     if(eff) return eff;
     if(type == PathEffectType::CUSTOM) {
-        const auto id = CustomIdentifier::sReadXEV(ele);
+        const auto id = CustomIdentifier::sReadXML(ele);
         const auto eff = CustomPathEffectCreator::sCreateForIdentifier(id);
         if(eff) return eff;
         RuntimeThrow("Unrecognized CustomPathEffect identifier " + id.toString());
@@ -128,6 +128,6 @@ qsptr<PathEffect> readIdCreatePathEffectXEV(const QDomElement& ele) {
                         QString::number(int(type)) + "'");
 }
 
-void writePathEffectTypeXEV(PathEffect* const obj, QDomElement& ele) {
+void writePathEffectTypeXML(PathEffect* const obj, QDomElement& ele) {
     obj->writeIdentifierXML(ele);
 }

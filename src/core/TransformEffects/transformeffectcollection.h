@@ -35,16 +35,16 @@ CORE_EXPORT
 void writeTransformEffectType(TransformEffect* const obj, eWriteStream& dst);
 
 CORE_EXPORT
-qsptr<TransformEffect> readIdCreateTransformEffectXEV(const QDomElement& ele);
+qsptr<TransformEffect> readIdCreateTransformEffectXML(const QDomElement& ele);
 CORE_EXPORT
-void writeTransformEffectTypeXEV(TransformEffect* const obj, QDomElement& ele);
+void writeTransformEffectTypeXML(TransformEffect* const obj, QDomElement& ele);
 
 typedef DynamicComplexAnimator<
     TransformEffect,
     writeTransformEffectType,
     readIdCreateTransformEffect,
-    writeTransformEffectTypeXEV,
-    readIdCreateTransformEffectXEV> TransformEffectCollectionBase;
+    writeTransformEffectTypeXML,
+    readIdCreateTransformEffectXML> TransformEffectCollectionBase;
 
 
 class CORE_EXPORT TransformEffectCollection :

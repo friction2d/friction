@@ -159,13 +159,13 @@ public:
 
     void writeXML(const std::shared_ptr<Friction::Core::XmlZipFileSaver>& xevFileSaver,
                   const Friction::Core::RuntimeIdToWriteId& objListIdConv) const;
-    void writeDoxumentXEV(QDomDocument& doc) const;
-    void writeScenesXEV(const std::shared_ptr<Friction::Core::XmlZipFileSaver>& xevFileSaver,
+    void writeDoxumentXML(QDomDocument& doc) const;
+    void writeScenesXML(const std::shared_ptr<Friction::Core::XmlZipFileSaver>& xevFileSaver,
                         const Friction::Core::RuntimeIdToWriteId& objListIdConv) const;
 
-    void readDocumentXEV(Friction::Core::ZipFileLoader& fileLoader,
+    void readDocumentXML(Friction::Core::ZipFileLoader& fileLoader,
                          QList<Canvas*>& scenes);
-    void readScenesXEV(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
+    void readScenesXML(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
                        Friction::Core::ZipFileLoader& fileLoader,
                        const QList<Canvas*>& scenes,
                        const Friction::Core::RuntimeIdToWriteId& objListIdConv);
@@ -174,7 +174,7 @@ public:
                               const UpdateFuncs &updateFuncs,
                               const int visiblePartWidgetId);
 private:
-    void readDocumentXEV(const QDomDocument& doc,
+    void readDocumentXML(const QDomDocument& doc,
                          QList<Canvas*>& scenes);
 
     Clipboard *getClipboard(const ClipboardType type) const;

@@ -124,7 +124,7 @@ ShaderEffectCreator::Identifier ShaderEffectCreator::sReadIdentifier(eReadStream
     return Identifier(grePath, name, props);
 }
 
-ShaderEffectCreator::Identifier ShaderEffectCreator::sReadIdentifierXEV(
+ShaderEffectCreator::Identifier ShaderEffectCreator::sReadIdentifierXML(
         const QDomElement& ele) {
     const QString name = ele.attribute("name");
     const QString grePath = ele.attribute("grePath");
