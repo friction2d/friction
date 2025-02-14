@@ -251,6 +251,9 @@ eSettings::eSettings(const int cpuThreads,
                                               "DefaultFillStrokeIndex",
                                                0);
 
+    gSettings << std::make_shared<eBoolSetting>(fPreviewCache,
+                                                "PreviewCache",
+                                                true);
     /*gSettings << std::make_shared<eBoolSetting>(
                      fTimelineAlternateRow,
                      "timelineAlternateRow", true);

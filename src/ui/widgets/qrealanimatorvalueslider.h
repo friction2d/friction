@@ -37,16 +37,27 @@ class UI_EXPORT QrealAnimatorValueSlider : public QDoubleSlider
 {
     Q_OBJECT
 public:
-    QrealAnimatorValueSlider(QString name, qreal minVal,
-                             qreal maxVal, qreal prefferedStep,
+    QrealAnimatorValueSlider(QString name,
+                             qreal minVal,
+                             qreal maxVal,
+                             qreal prefferedStep,
                              QWidget *parent);
-    QrealAnimatorValueSlider(qreal minVal, qreal maxVal, qreal prefferedStep,
+    QrealAnimatorValueSlider(qreal minVal,
+                             qreal maxVal,
+                             qreal prefferedStep,
                              QWidget *parent);
-    QrealAnimatorValueSlider(qreal minVal, qreal maxVal, qreal prefferedStep,
-                             QWidget *parent, bool autoAdjust);
-    QrealAnimatorValueSlider(qreal minVal, qreal maxVal, qreal prefferedStep,
-                             QrealAnimator* animator, QWidget *parent = nullptr);
-    QrealAnimatorValueSlider(QrealAnimator* animator, QWidget *parent = nullptr);
+    QrealAnimatorValueSlider(qreal minVal,
+                             qreal maxVal,
+                             qreal prefferedStep,
+                             QWidget *parent,
+                             bool autoAdjust);
+    QrealAnimatorValueSlider(qreal minVal,
+                             qreal maxVal,
+                             qreal prefferedStep,
+                             QrealAnimator* animator,
+                             QWidget *parent = nullptr);
+    QrealAnimatorValueSlider(QrealAnimator* animator,
+                             QWidget *parent = nullptr);
     QrealAnimatorValueSlider(QWidget *parent = nullptr);
 
     void setTarget(QrealAnimator * const animator);
@@ -64,8 +75,14 @@ protected:
     void cancelTransform();
     qreal startSlideValue() const;
 
-    void mouseMoveEvent(QMouseEvent *event);
-    bool eventFilter(QObject *obj, QEvent *event);
+#ifdef Q_OS_MAC
+    void wheelEvent(QWheelEvent *e);
+#endif
+    void mouseMoveEvent(QMouseEvent *e);
+    void keyPressEvent(QKeyEvent *e);
+    void keyReleaseEvent(QKeyEvent *e);
+    bool eventFilter(QObject *obj,
+                     QEvent *event);
 
 private:
     QrealAnimator *getTransformTargetSibling();
@@ -75,6 +92,8 @@ private:
     ConnContextQPtr<QrealAnimator> mTarget;
     qptr<QrealAnimator> mTransformTarget;
     qreal mBaseValue;
+
+    bool mUniform = false;
 };
 
 #endif // QREALANIMATORVALUESLIDER_H

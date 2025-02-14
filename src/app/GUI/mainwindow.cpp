@@ -970,6 +970,21 @@ void MainWindow::setupMenuBar()
     connect(mClipViewToCanvas, &QAction::triggered,
             &mActions, &Actions::setClipToCanvas);
 
+    const auto previewCacheAct = mViewMenu->addAction(tr("Preview Cache"));
+    previewCacheAct->setCheckable(true);
+    previewCacheAct->setChecked(eSettings::instance().fPreviewCache);
+    connect(previewCacheAct, &QAction::triggered,
+            this, [this, previewCacheAct]() {
+        const bool checked = previewCacheAct->isChecked();
+        eSettings::sInstance->fPreviewCache = checked;
+        eSettings::sInstance->saveKeyToFile("PreviewCache");
+        statusBar()->showMessage(tr("%1 Preview Cache").arg(checked ?
+                                                                tr("Enabled") :
+                                                                tr("Disabled")),
+                                 5000);
+    });
+    cmdAddAction(previewCacheAct);
+
     mRasterEffectsVisible = mViewMenu->addAction(
                 tr("Raster Effects", "MenuBar_View"));
     mRasterEffectsVisible->setCheckable(true);

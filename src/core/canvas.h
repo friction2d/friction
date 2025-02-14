@@ -315,14 +315,7 @@ public:
                   const bool mouseGrabbing);
 
     void setCanvasSize(const int width,
-                       const int height)
-    {
-        if (width == mWidth && height == mHeight) { return; }
-        mWidth = width;
-        mHeight = height;
-        prp_afterWholeInfluenceRangeChanged();
-        emit dimensionsChanged(width, height);
-    }
+                       const int height);
 
     int getCanvasWidth() const
     {

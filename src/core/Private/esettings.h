@@ -140,6 +140,8 @@ public:
 
     int fDefaultFillStrokeIndex = 0;
 
+    bool fPreviewCache = true;
+
     // timeline settings
     bool fTimelineAlternateRow = true;
     QColor fTimelineAlternateRowColor = QColor(0, 0, 0, 25);

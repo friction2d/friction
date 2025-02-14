@@ -426,8 +426,46 @@ void Canvas::renderSk(SkCanvas* const canvas,
         mValueInput.draw(canvas, drawRect.height() - eSizesUI::widget);
 }
 
+void Canvas::setCanvasSize(const int width,
+                           const int height)
+{
+    if (width == mWidth && height == mHeight) { return; }
+    {
+        prp_pushUndoRedoName("Scene Changed");
+        UndoRedo ur;
+        const QSize origSize{mWidth, mHeight};
+        const QSize newSize{width, height};
+        ur.fUndo = [this, origSize]() {
+            setCanvasSize(origSize.width(),
+                          origSize.height());
+        };
+        ur.fRedo = [this, newSize]() {
+            setCanvasSize(newSize.width(),
+                          newSize.height());
+        };
+        prp_addUndoRedo(ur);
+    }
+    mWidth = width;
+    mHeight = height;
+    prp_afterWholeInfluenceRangeChanged();
+    emit dimensionsChanged(width, height);
+}
+
 void Canvas::setFrameRange(const FrameRange &range)
 {
+    {
+        prp_pushUndoRedoName("Scene Changed");
+        UndoRedo ur;
+        const FrameRange origRange(mRange);
+        const FrameRange newRange(range);
+        ur.fUndo = [this, origRange]() {
+            setFrameRange(origRange);
+        };
+        ur.fRedo = [this, newRange]() {
+            setFrameRange(newRange);
+        };
+        prp_addUndoRedo(ur);
+    }
     mRange = range;
     emit newFrameRange(range);
 }
