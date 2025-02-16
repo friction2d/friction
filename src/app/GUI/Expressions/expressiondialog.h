@@ -37,6 +37,7 @@
 
 #include "conncontext.h"
 #include "dialogs/dialog.h"
+#include "Private/esettings.h"
 
 class QrealAnimator;
 class ExpressionEditor;
@@ -61,6 +62,15 @@ private:
     void updateAllScript();
     void setCurrentTabId(const int id);
     bool apply(const bool action);
+
+    QWidget* setupPresetsUi();
+    void populatePresets(const bool &clear = false);
+    void exportPreset(const QString &path);
+    void importPreset(const QString &path);
+    void savePreset(const QString &title);
+    void applyPreset(const QString &id);
+    const QString genPresetId(const QString &title);
+    const QString filterPresetId(const QString &id);
 
     QrealAnimator* const mTarget;
 
@@ -91,6 +101,10 @@ private:
     QLabel* mScriptError;
 
     ConnContext mAutoApplyConn;
+
+    QComboBox* mPresetsCombo;
+
+    eSettings* mSettings;
 };
 
 #endif // EXPRESSIONDIALOG_H

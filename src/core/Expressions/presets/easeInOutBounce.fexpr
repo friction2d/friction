@@ -1,0 +1,13 @@
+[General]
+author=
+bindings="current = $frame;"
+categories=Core, Easing, Ease In/Out
+definitions="// bounce easing out\nMath.easeOutBounce = function (t, b, c, d) {\n\tif ((t/=d) < (1/2.75)) {\n\t\treturn c*(7.5625*t*t) + b;\n\t} else if (t < (2/2.75)) {\n\t\treturn c*(7.5625*(t-=(1.5/2.75))*t + .75) + b;\n\t} else if (t < (2.5/2.75)) {\n\t\treturn c*(7.5625*(t-=(2.25/2.75))*t + .9375) + b;\n\t} else {\n\t\treturn c*(7.5625*(t-=(2.625/2.75))*t + .984375) + b;\n\t}\n};\n// bounce easing in\nMath.easeInBounce = function (t, b, c, d) {\n\treturn c - Math.easeOutBounce (d-t, 0, c, d) + b;\n};\n// bounce easing in/out\nMath.easeInOutBounce = function (t, b, c, d) {\n\tif (t < d/2) return Math.easeInBounce (t*2, 0, c, d) * .5 + b;\n\treturn Math.easeOutBounce (t*2-d, 0, c, d) * .5 + c*.5 + b;\n};"
+description=Ease In/Out Bounce
+highlighters=@Invalid()
+id=graphics.friction.easeInOutBounce
+license=
+script="frame = current;\nstartVal = __START_VALUE__;\nendVal = __END_VALUE__;\nstartFrame = __START_FRAME__;\nendFrame = __END_FRAME__;\nduration = endFrame - startFrame;\nendVal = endVal - startVal;\nif (frame < startFrame) { frame = startFrame; }\nelse if (frame > endFrame) { frame = endFrame; }\nif (frame >= startFrame && frame <= endFrame) { frame = frame - startFrame; }\nif (duration <= 0) { duration = 1; }\nif (frame < 0) { frame = 0; }\nreturn Math.easeInOutBounce(frame, startVal, endVal, duration);"
+title=Bounce
+url=
+version=1

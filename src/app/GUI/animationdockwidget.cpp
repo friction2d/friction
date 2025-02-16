@@ -26,6 +26,7 @@
 #include "animationdockwidget.h"
 #include "GUI/keysview.h"
 #include "appsupport.h"
+#include "Private/esettings.h"
 
 #include <QMenu>
 
@@ -125,9 +126,9 @@ void AnimationDockWidget::generateEasingActions(QPushButton *button,
                                                 KeysView *keysView)
 {
     const QIcon easeIcon(QIcon::fromTheme("easing"));
-    const QString easeInText = tr("Ease In ");
-    const QString easeOutText = tr("Ease Out ");
-    const QString easeInOutText = tr("Ease In/Out ");
+    const QString easeInText = tr("Ease In");
+    const QString easeOutText = tr("Ease Out");
+    const QString easeInOutText = tr("Ease In/Out");
 
     const auto menu = new QMenu(this);
     const auto menuIn = new QMenu(easeInText, menu);
@@ -138,23 +139,18 @@ void AnimationDockWidget::generateEasingActions(QPushButton *button,
     menuOut->setIcon(easeIcon);
     menuInOut->setIcon(easeIcon);
 
-    const auto presets = AppSupport::getEasingPresets();
+    const auto presets = eSettings::sInstance->fExpressions.getCore("Easing");
     for (const auto &preset : presets) {
         const auto presetAct = new QAction(easeIcon, QString(), this);
-        presetAct->setData(preset.second);
-        QString title = preset.first;
-        if (title.startsWith(easeInText)) {
-            title.replace(easeInText, "");
+        presetAct->setData(preset.id);
+        presetAct->setText(preset.title);
+        if (preset.categories.contains(easeInText)) {
             menuIn->addAction(presetAct);
-        } else if (title.startsWith(easeOutText)) {
-            title.replace(easeOutText, "");
+        } else if (preset.categories.contains(easeOutText)) {
             menuOut->addAction(presetAct);
-        } else if (title.startsWith(easeInOutText)) {
-            title.replace(easeInOutText, "");
+        } else if (preset.categories.contains(easeInOutText)) {
             menuInOut->addAction(presetAct);
         }
-        presetAct->setText(title.simplified());
-
         connect(presetAct, &QAction::triggered,
                 this, [presetAct, keysView]() {
             keysView->graphEasingAction(presetAct->data().toString());

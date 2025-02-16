@@ -630,10 +630,11 @@ void MainWindow::setupMenuExtras()
     // Easing
     {
         const QIcon easeIcon(QIcon::fromTheme("easing"));
-        const auto presets = AppSupport::getEasingPresets();
+        const auto presets = eSettings::sInstance->fExpressions.getCore("Easing");
         for (const auto &preset : presets) {
-            const auto presetAct = new QAction(easeIcon, preset.second, this);
-            presetAct->setData(preset.first);
+            const auto presetAct = new QAction(easeIcon, preset.id, this);
+            const QString cat = QStringList(preset.categories).takeLast();
+            presetAct->setData(QString("%1 %2").arg(cat, preset.title));
             cmdAddAction(presetAct);
             connect(presetAct, &QAction::triggered,
                     this, [this, presetAct]() {

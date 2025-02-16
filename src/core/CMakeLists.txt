@@ -56,6 +56,7 @@ set(
     appsupport.cpp
     Boxes/nullobject.cpp
     Expressions/expression.cpp
+    Expressions/expressionpresets.cpp
     Expressions/framebinding.cpp
     Expressions/scenebinding.cpp
     Expressions/propertybinding.cpp
@@ -359,6 +360,7 @@ set(
     appsupport.h
     Boxes/nullobject.h
     Expressions/expression.h
+    Expressions/expressionpresets.h
     Expressions/framebinding.h
     Expressions/scenebinding.h
     Expressions/propertybinding.h
