@@ -1,0 +1,13 @@
+[General]
+author=
+bindings="current = $frame;"
+categories=Core, Easing, Ease Out
+definitions="// back easing out - moving towards target, overshooting it slightly, then reversing and coming back to target\nMath.easeOutBack = function (t, b, c, d, s) {\n\tif (s == undefined) s = 1.70158;\n\treturn c*((t=t/d-1)*t*((s+1)*t + s) + 1) + b;\n};"
+description=Ease Out Back
+highlighters=@Invalid()
+id=graphics.friction.easeOutBack
+license=
+script="frame = current;\nstartVal = __START_VALUE__;\nendVal = __END_VALUE__;\nstartFrame = __START_FRAME__;\nendFrame = __END_FRAME__;\nduration = endFrame - startFrame;\nendVal = endVal - startVal;\nif (frame < startFrame) { frame = startFrame; }\nelse if (frame > endFrame) { frame = endFrame; }\nif (frame >= startFrame && frame <= endFrame) { frame = frame - startFrame; }\nif (duration <= 0) { duration = 1; }\nif (frame < 0) { frame = 0; }\nreturn Math.easeOutBack(frame, startVal, endVal, duration);"
+title=Back
+url=
+version=1

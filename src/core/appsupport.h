@@ -136,13 +136,8 @@ public:
                                          const QStringList &args);
     static void printVersion();
     static void printHelp(const bool &isRenderer);
-    static const ExpressionPreset readEasingPreset(const QString &filename);
-    static const QList<QPair<QString,QString>> getEasingPresets();
     static void handlePortableFirstRun();
     static const QString filterId(const QString &input);
-    static const QList<QPair<QString,QString>> getExpressionsBundle();
-    static const QList<QPair<QString,QString>> findExpressions(const QStringList &paths);
-    static const QStringList scanForExpressions(const QString &path);
 };
 
 #endif // APPSUPPORT_H
