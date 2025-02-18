@@ -876,7 +876,11 @@ void ExpressionDialog::populatePresets(const bool &clear)
         mPresetsCombo->clear();
         mPresetsCombo->addItem(tr("Select ..."));
     }
-    for (const auto &expr : mSettings->fExpressions.getUser()) {
+    auto expressions = mSettings->fExpressions.getUser();
+    std::sort(expressions.begin(), expressions.end(), [](const auto &a, const auto &b) {
+        return a.title.toLower() < b.title.toLower();
+    });
+    for (const auto &expr : expressions) {
         mPresetsCombo->addItem(expr.title, expr.id);
     }
 }
