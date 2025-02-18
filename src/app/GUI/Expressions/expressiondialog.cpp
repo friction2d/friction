@@ -1001,7 +1001,7 @@ void ExpressionDialog::savePreset(const QString &title)
 
     const QString path = QString("%1/%2.fexpr").arg(AppSupport::getAppUserExPresetsPath(),
                                                     expr.id);
-
+    expr.path = path;
     if (!mSettings->fExpressions.saveExpr(expr, path)) {
         QMessageBox::warning(this,
                              tr("Save Failed"),
