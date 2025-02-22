@@ -25,6 +25,8 @@
 
 #include "xmlexporthelpers.h"
 
+#include <QMatrix4x4>
+
 #include "Properties/property.h"
 #include "Paint/simplebrushwrapper.h"
 #include "Paint/brushescontext.h"
@@ -157,6 +159,39 @@ QString XmlExportHelpers::matrixToString(const QMatrix& m) {
                                         arg(m.m21()).arg(m.m22()).
                                         arg(m.dx()).arg(m.dy());
 }
+
+QMatrix4x4 XmlExportHelpers::stringToMatrix4x4(const QString& str) {
+    const auto vals = str.split(' ', Qt::SkipEmptyParts);
+    if(vals.count() != 7) RuntimeThrow("Invalid matrix value '" + str + "'");
+    const qreal m11 = stringToDouble(vals[0]);
+    const qreal m12 = stringToDouble(vals[1]);
+    const qreal m13 = stringToDouble(vals[1]);
+    const qreal m14 = stringToDouble(vals[1]);
+    const qreal m21 = stringToDouble(vals[2]);
+    const qreal m22 = stringToDouble(vals[3]);
+    const qreal m23 = stringToDouble(vals[1]);
+    const qreal m24 = stringToDouble(vals[1]);
+    const qreal m31 = stringToDouble(vals[1]);
+    const qreal m32 = stringToDouble(vals[1]);
+    const qreal m33 = stringToDouble(vals[1]);
+    const qreal m34 = stringToDouble(vals[1]);
+    const qreal m41 = stringToDouble(vals[1]);
+    const qreal m42 = stringToDouble(vals[1]);
+    const qreal m43 = stringToDouble(vals[1]);
+    const qreal m44 = stringToDouble(vals[1]);
+    return QMatrix4x4(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
+}
+// TODO
+/*QString XmlExportHelpers::matrix4x4ToString(const QMatrix4x4& m) {
+    return QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10 %11 %12 %13 %14").arg(m.m11()).arg(m.m12())
+                                                                    .arg(m.m13()).arg(m.m14())
+                                                                    .arg(m.m21()).arg(m.m22())
+                                                                    .arg(m.m23()).arg(m.m24())
+                                                                    .arg(m.m31()).arg(m.m32())
+                                                                    .arg(m.m33()).arg(m.m34())
+                                                                    .arg(m.m41()).arg(m.42())
+                                                                    .arg(m.m43()).arg(m.m44());
+                                                                    }*/
 
 void XevExportHelpers::setAbsAndRelFileSrc(const QString& absSrc,
                                            QDomElement& ele,

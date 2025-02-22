@@ -26,6 +26,7 @@
 #include "boxpathpoint.h"
 #include "pointhelpers.h"
 #include "Animators/transformanimator.h"
+#include "Animators/qpointfanimator.h"
 #include "themesupport.h"
 
 BoxPathPoint::BoxPathPoint(QPointFAnimator * const associatedAnimator,

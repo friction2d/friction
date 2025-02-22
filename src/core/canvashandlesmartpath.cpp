@@ -97,7 +97,7 @@ void Canvas::handleAddSmartPointMouseMove(const eMouseEvent &e) {
         mLastEndPoint->moveC0ToAbsPos(e.fPos);
     } else {
         if(!mLastEndPoint->hasNextNormalPoint() &&
-           !mLastEndPoint->hasPrevNormalPoint()) {            
+           !mLastEndPoint->hasPrevNormalPoint()) {
             mLastEndPoint->setCtrlsMode(CtrlsMode::corner);
             mLastEndPoint->setC2Enabled(true);
         } else {

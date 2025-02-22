@@ -38,7 +38,7 @@ ExpressionHighlighter::ExpressionHighlighter(
     QSyntaxHighlighter(parent),
     mTarget(target),
     mSearchCtxt(target->getParent()),
-    mEditor(editor) {    
+    mEditor(editor) {
     HighlightingRule rule;
 
     mErrorFormat.setForeground(Qt::red);

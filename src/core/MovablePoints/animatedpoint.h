@@ -48,7 +48,7 @@ protected:
     AnimatedPoint(QPointFAnimator * const associatedAnimator,
                   BasicTransformAnimator * const trans,
                   const MovablePointType type);
-public:    
+public:
     QPointF getRelativePos() const;
     void setRelativePos(const QPointF &relPos);
 

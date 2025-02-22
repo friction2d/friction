@@ -25,13 +25,16 @@
 
 #ifndef GRADIENTPOINT_H
 #define GRADIENTPOINT_H
+
 #include "MovablePoints/animatedpoint.h"
+
 class PathBox;
+class QPointFAnimator;
 
 class CORE_EXPORT GradientPoint : public AnimatedPoint {
     e_OBJECT
 public:
-    GradientPoint(QPointFAnimator* const associatedAnimator,
+    GradientPoint(QPointFAnimator * const associatedAnimator,
                   BoundingBox * const parent);
     void setColor(const QColor &fillColor);
     void drawSk(SkCanvas * const canvas,

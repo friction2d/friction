@@ -28,7 +28,10 @@
 
 #include "targettransformeffect.h"
 
-#include "Animators/qpointfanimator.h"
+#include "Animators/qrealanimator.h"
+#include "Animators/qvector3danimator.h"
+
+class QVector3D;
 
 class FollowObjectEffectBase : public TargetTransformEffect {
 public:
@@ -38,11 +41,11 @@ public:
 protected:
     void applyEffectWithTransform(
             const qreal relFrame,
-            qreal &pivotX, qreal &pivotY,
-            qreal &posX, qreal &posY,
-            qreal &rot,
-            qreal &scaleX, qreal &scaleY,
-            qreal &shearX, qreal &shearY,
+            qreal &pivotX, qreal &pivotY, qreal &pivotZ,
+            qreal &posX, qreal &posY, qreal &posZ,
+            qreal &rotX, qreal &rotY, qreal &rotZ,
+            qreal &scaleX, qreal &scaleY, qreal &scaleZ,
+            qreal &shearX, qreal &shearY, qreal &shearZ,
             BoundingBox* const parent,
             const QMatrix& transform);
 protected:
@@ -50,9 +53,9 @@ protected:
                 BoundingBox* const oldTarget,
                 BoundingBox* const newTarget) override;
 
-    qsptr<QPointFAnimator> mPosInfluence;
-    qsptr<QPointFAnimator> mScaleInfluence;
-    qsptr<QrealAnimator> mRotInfluence;
+    qsptr<QVector3DAnimator> mPosInfluence;
+    qsptr<QVector3DAnimator> mScaleInfluence;
+    qsptr<QVector3DAnimator> mRotInfluence;
 };
 
 #endif // FOLLOWOBJECTEFFECTBASE_H

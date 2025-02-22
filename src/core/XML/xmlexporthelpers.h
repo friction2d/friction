@@ -33,6 +33,7 @@
 #include <QDomElement>
 #include <QString>
 
+class QMatrix4x4;
 class SimpleBrushWrapper;
 class XevExporter;
 class XevImporter;
@@ -76,6 +77,11 @@ namespace XmlExportHelpers {
     QMatrix stringToMatrix(const QString& str);
     CORE_EXPORT
     QString matrixToString(const QMatrix& m);
+
+    CORE_EXPORT
+    QMatrix4x4 stringToMatrix4x4(const QString& str);
+    /*CORE_EXPORT TODO
+    QString matrix4x4ToString(const QMatrix4x4& matrix);*/
 };
 
 namespace XevExportHelpers {

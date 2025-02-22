@@ -24,23 +24,22 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "followobjecteffectbase.h"
-
 #include "Boxes/boundingbox.h"
 #include "Animators/transformanimator.h"
-#include "Animators/qrealanimator.h"
+#include "Animators/qvector3danimator.h"
 
 FollowObjectEffectBase::FollowObjectEffectBase(
         const QString& name, const TransformEffectType type) :
     TargetTransformEffect(name, type) {
-    mPosInfluence = enve::make_shared<QPointFAnimator>(
-                        QPointF{1., 1.}, QPointF{-10., -10.},
-                        QPointF{10., 10.}, QPointF{0.01, 0.01},
+    mPosInfluence = enve::make_shared<QVector3DAnimator>(
+                        QVector3D{1., 1., 1.}, QVector3D{-10., -10., -10.},
+                        QVector3D{10., 10., 10.}, QVector3D{0.01, 0.01, 0.01},
                         "pos influence");
-    mScaleInfluence = enve::make_shared<QPointFAnimator>(
-                        QPointF{1., 1.}, QPointF{-10., -10.},
-                        QPointF{10., 10.}, QPointF{0.01, 0.01},
+    mScaleInfluence = enve::make_shared<QVector3DAnimator>(
+                        QVector3D{1., 1., 1.}, QVector3D{-10., -10., -10.},
+                        QVector3D{10., 10., 10.}, QVector3D{0.01, 0.01, 0.01},
                         "scale influence");
-    mRotInfluence = enve::make_shared<QrealAnimator>(
+    mRotInfluence = enve::make_shared<QVector3DAnimator>(
                         1, -10, 10, 0.01, "rot influence");
 
     ca_addChild(mPosInfluence);
@@ -50,16 +49,22 @@ FollowObjectEffectBase::FollowObjectEffectBase(
 
 void FollowObjectEffectBase::applyEffectWithTransform(
         const qreal relFrame,
-        qreal& pivotX, qreal& pivotY,
-        qreal& posX, qreal& posY, qreal& rot,
-        qreal& scaleX, qreal& scaleY,
-        qreal& shearX, qreal& shearY,
+        qreal& pivotX, qreal& pivotY, qreal& pivotZ,
+        qreal& posX, qreal& posY, qreal& posZ,
+        qreal& rotX, qreal& rotY, qreal& rotZ,
+        qreal& scaleX, qreal& scaleY, qreal& scaleZ,
+        qreal& shearX, qreal& shearY, qreal& shearZ,
         BoundingBox* const parent,
         const QMatrix& transform) {
-    Q_UNUSED(pivotX);
-    Q_UNUSED(pivotY);
-    Q_UNUSED(shearX);
-    Q_UNUSED(shearY);
+    Q_UNUSED(pivotX)
+    Q_UNUSED(pivotY)
+    Q_UNUSED(pivotZ)
+    Q_UNUSED(posZ)
+    Q_UNUSED(rotZ)
+    Q_UNUSED(scaleZ)
+    Q_UNUSED(shearX)
+    Q_UNUSED(shearY)
+    Q_UNUSED(shearZ)
 
     if(!isVisible()) return;
 
@@ -85,7 +90,8 @@ void FollowObjectEffectBase::applyEffectWithTransform(
     const qreal posYInfl = mPosInfluence->getEffectiveYValue(relFrame);
     const qreal scaleXInfl = mScaleInfluence->getEffectiveXValue(relFrame);
     const qreal scaleYInfl = mScaleInfluence->getEffectiveYValue(relFrame);
-    const qreal rotInfl = mRotInfluence->getEffectiveValue(relFrame);
+    const qreal rotXInfl = mRotInfluence->getEffectiveXValue(relFrame);
+    const qreal rotYInfl = mRotInfluence->getEffectiveYValue(relFrame);
 
     posX += p1.x()*posXInfl;
     posY += p1.y()*posYInfl;
@@ -93,7 +99,8 @@ void FollowObjectEffectBase::applyEffectWithTransform(
     scaleX *= 1 + (xScale - 1)*scaleXInfl;
     scaleY *= 1 + (yScale - 1)*scaleYInfl;
 
-    rot += targetRot*rotInfl;
+    rotX += targetRot*rotXInfl;
+    rotY += targetRot*rotYInfl;
 }
 
 void FollowObjectEffectBase::setRotScaleAfterTargetChange(
@@ -103,19 +110,28 @@ void FollowObjectEffectBase::setRotScaleAfterTargetChange(
 
     const qreal scaleXInfl = mScaleInfluence->getEffectiveXValue();
     const qreal scaleYInfl = mScaleInfluence->getEffectiveYValue();
-    const qreal rotInfl = mRotInfluence->getEffectiveValue();
+    const qreal scaleZInfl = mRotInfluence->getEffectiveZValue();
+    const qreal rotXInfl = mRotInfluence->getEffectiveXValue();
+    const qreal rotYInfl = mRotInfluence->getEffectiveYValue();
+    const qreal rotZInfl = mRotInfluence->getEffectiveZValue();
 
-    qreal rot = 0.;
+    qreal rotX = 0.;
+    qreal rotY = 0.;
+    qreal rotZ = 0.;
     qreal scaleX = 1.;
     qreal scaleY = 1.;
+    qreal scaleZ = 1.;
     if(oldTarget) {
         const auto trans = oldTarget->getTransformAnimator();
         const auto rotAnim = trans->getRotAnimator();
         const auto scaleAnim = trans->getScaleAnimator();
 
-        rot += rotAnim->getEffectiveValue()*rotInfl;
+        rotX += rotAnim->getEffectiveXValue()*rotXInfl;
+        rotY += rotAnim->getEffectiveYValue()*rotYInfl;
+        rotZ += rotAnim->getEffectiveZValue()*rotZInfl;
         scaleX *= 1 + (scaleAnim->getEffectiveXValue() - 1)*scaleXInfl;
         scaleY *= 1 + (scaleAnim->getEffectiveYValue() - 1)*scaleYInfl;
+        scaleZ *= 1 + (scaleAnim->getEffectiveZValue() - 1)*scaleZInfl;
     }
 
     if(newTarget) {
@@ -123,9 +139,12 @@ void FollowObjectEffectBase::setRotScaleAfterTargetChange(
         const auto rotAnim = trans->getRotAnimator();
         const auto scaleAnim = trans->getScaleAnimator();
 
-        rot -= rotAnim->getEffectiveValue()*rotInfl;
+        rotX -= rotAnim->getEffectiveXValue()*rotXInfl;
+        rotY -= rotAnim->getEffectiveYValue()*rotYInfl;
+        rotZ -= rotAnim->getEffectiveZValue()*rotZInfl;
         const qreal scaleXDiv = 1 + (scaleAnim->getEffectiveXValue() - 1)*scaleXInfl;
         const qreal scaleYDiv = 1 + (scaleAnim->getEffectiveYValue() - 1)*scaleYInfl;
+        const qreal scaleZDiv = 1 + (scaleAnim->getEffectiveZValue() - 1)*scaleYInfl;
         if(!isZero4Dec(scaleXDiv)) {
             scaleX /= scaleXDiv;
         }
@@ -133,11 +152,15 @@ void FollowObjectEffectBase::setRotScaleAfterTargetChange(
         if(!isZero4Dec(scaleYDiv)) {
             scaleY /= scaleYDiv;
         }
+
+        if (!isZero4Dec(scaleZDiv)) {
+            scaleZ /= scaleZDiv;
+        }
     }
 
     parent->startRotTransform();
-    parent->rotateBy(rot);
+    parent->rotateBy(rotX, rotY, rotZ);
 
     parent->startScaleTransform();
-    parent->scale(scaleX, scaleY);
+    parent->scale(scaleX, scaleY, scaleZ);
 }

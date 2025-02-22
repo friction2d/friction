@@ -25,9 +25,12 @@
 
 #ifndef VALUEANIMATORS_H
 #define VALUEANIMATORS_H
+
 #include "graphanimator.h"
 #include "qrealsnapshot.h"
 #include "../conncontextptr.h"
+#include "qpointfanimator.h"
+#include "qvector3danimator.h"
 
 class QrealKey;
 class Expression;
@@ -36,6 +39,7 @@ class CORE_EXPORT QrealAnimator :  public GraphAnimator {
     Q_OBJECT
     e_OBJECT
     friend class QPointFAnimator;
+    friend class QVector3DAnimator;
 protected:
     QrealAnimator(const QString& name);
     QrealAnimator(const qreal iniVal,

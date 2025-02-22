@@ -31,6 +31,7 @@
 #include "PropertyCreators/qrealanimatorcreator.h"
 #include "PropertyCreators/intanimatorcreator.h"
 #include "PropertyCreators/qpointfanimatorcreator.h"
+#include "PropertyCreators/qvector3danimatorcreator.h"
 #include "PropertyCreators/coloranimatorcreator.h"
 #include "glhelpers.h"
 
@@ -40,6 +41,7 @@ enum class ShaderPropertyType {
     floatProperty,
     intProperty,
     vec2Property,
+    vec3Property,
     colorProperty,
     invalid
 };

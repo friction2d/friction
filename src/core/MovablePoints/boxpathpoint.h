@@ -25,8 +25,11 @@
 
 #ifndef BOXPATHPOINT_H
 #define BOXPATHPOINT_H
+
 #include "animatedpoint.h"
+
 class BoxTransformAnimator;
+
 class CORE_EXPORT BoxPathPoint : public AnimatedPoint {
     e_OBJECT
 protected:

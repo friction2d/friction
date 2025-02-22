@@ -699,8 +699,8 @@ void Canvas::handleMovePointMouseMove(const eMouseEvent &e) {
 }
 
 void Canvas::scaleSelected(const eMouseEvent& e) {
-    const QPointF absPos = mRotPivot->getAbsolutePos();
-    const QPointF distMoved = e.fPos - e.fLastPressPos;
+    const auto absPos = mRotPivot->getAbsolutePos();
+    const auto distMoved = e.fPos - e.fLastPressPos;
 
     qreal scaleBy;
     if(mValueInput.inputEnabled()) {

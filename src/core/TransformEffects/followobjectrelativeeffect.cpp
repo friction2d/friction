@@ -36,11 +36,11 @@ FollowObjectRelativeEffect::FollowObjectRelativeEffect() :
 
 void FollowObjectRelativeEffect::applyEffect(
         const qreal relFrame,
-        qreal& pivotX, qreal& pivotY,
-        qreal& posX, qreal& posY,
-        qreal& rot,
-        qreal& scaleX, qreal& scaleY,
-        qreal& shearX, qreal& shearY,
+        qreal& pivotX, qreal& pivotY, qreal& pivotZ,
+        qreal& posX, qreal& posY, qreal& posZ,
+        qreal& rotX, qreal& rotY, qreal& rotZ,
+        qreal& scaleX, qreal& scaleY, qreal& scaleZ,
+        qreal& shearX, qreal& shearY, qreal& shearZ,
         QMatrix& postTransform,
         BoundingBox* const parent) {
     Q_UNUSED(pivotX)
@@ -60,8 +60,11 @@ void FollowObjectRelativeEffect::applyEffect(
 
     const auto targetTransform = target->getTotalTransformAtFrame(targetRelFrame);
 
-    applyEffectWithTransform(relFrame, pivotX, pivotY,
-                             posX, posY, rot,
-                             scaleX, scaleY, shearX, shearY,
+    applyEffectWithTransform(relFrame,
+                             pivotX, pivotY, pivotZ,
+                             posX, posY, posZ,
+                             rotX, rotY, rotZ,
+                             scaleX, scaleY, scaleZ,
+                             shearX, shearY, shearZ,
                              parent, targetTransform);
 }

@@ -25,7 +25,9 @@
 
 #ifndef DUPLICATEPATHEFFECT_H
 #define DUPLICATEPATHEFFECT_H
+
 #include "PathEffects/patheffect.h"
+
 class IntAnimator;
 class QPointFAnimator;
 

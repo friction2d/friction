@@ -26,6 +26,7 @@
 #include "gradientpoint.h"
 #include "pointhelpers.h"
 #include "Boxes/pathbox.h"
+#include "Animators/qpointfanimator.h"
 #include "Animators/transformanimator.h"
 
 GradientPoint::GradientPoint(QPointFAnimator * const associatedAnimator,

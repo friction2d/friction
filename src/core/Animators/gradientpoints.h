@@ -25,12 +25,15 @@
 
 #ifndef GRADIENTPOINTS_H
 #define GRADIENTPOINTS_H
+
 #include "Animators/staticcomplexanimator.h"
+#include "skia/skiaincludes.h"
+
 class GradientPoint;
 class MovablePoint;
 class PathBox;
+class QVector3DAnimator;
 class QPointFAnimator;
-#include "skia/skiaincludes.h"
 
 class CORE_EXPORT GradientPoints : public StaticComplexAnimator {
     e_OBJECT

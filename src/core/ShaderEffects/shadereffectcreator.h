@@ -25,6 +25,7 @@
 
 #ifndef SHADEREFFECTCREATOR_H
 #define SHADEREFFECTCREATOR_H
+
 #include "shadereffectprogram.h"
 
 class ShaderEffect;

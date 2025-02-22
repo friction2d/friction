@@ -35,7 +35,7 @@
 class TransformUpdater;
 class BoxPathPoint;
 class MovablePoint;
-class QPointFAnimator;
+class QVector3DAnimator;
 
 class CORE_EXPORT BasicTransformAnimator : public StaticComplexAnimator {
     e_OBJECT
@@ -56,7 +56,9 @@ public:
     void resetRotation();
 
     void setScale(const qreal sx, const qreal sy);
+    void setScale(const qreal sx, const qreal sy, const qreal sz);
     void setPosition(const qreal x, const qreal y);
+    void setPosition(const qreal x, const qreal y, const qreal z);
     void setRotation(const qreal rot);
 
     void startRotTransform();
@@ -64,25 +66,51 @@ public:
     void startScaleTransform();
 
     void setRelativePos(const QPointF &relPos);
-    void moveByAbs(const QPointF &absTrans);
+    void setRelativePos(const QVector3D &relPos);
 
-    void rotateRelativeToSavedValue(const qreal rotRel);
+    void moveByAbs(const QPointF &absTrans);
+    void moveByAbs(const QVector3D &absTrans);
+
+    void rotateRelativeToSavedValue(const qreal rx, const qreal ry);
+    void rotateRelativeToSavedValue(const qreal rx, const qreal ry, const qreal rz);
+
     void translate(const qreal dX, const qreal dY);
+    void translate(const qreal dX, const qreal dY, const qreal dZ);
+
     void scale(const qreal sx, const qreal sy);
+    void scale(const qreal sx, const qreal sy, const qreal sz);
+
     void moveRelativeToSavedValue(const qreal dX,
                                   const qreal dY);
 
+    void moveRelativeToSavedValue(const qreal dX,
+                                  const qreal dY,
+                                  const qreal dZ);
+
     qreal dx();
     qreal dy();
+    qreal dz();
+
     qreal rot();
-    qreal xScale();
-    qreal yScale();
+    qreal rx();
+    qreal ry();
+    qreal rz();
+
+    qreal sx();
+    qreal sy();
+    qreal sz();
+
     QPointF pos();
+    QVector3D pos3();
 
     QPointF mapAbsPosToRel(const QPointF &absPos) const;
     QPointF mapRelPosToAbs(const QPointF &relPos) const;
+    QVector3D mapAbsPosToRel(const QVector3D &absPos) const;
+    QVector3D mapRelPosToAbs(const QVector3D &relPos) const;
 
     QPointF mapFromParent(const QPointF &parentRelPos) const;
+    QVector3D mapFromParent(const QVector3D &parentRelPos) const;
+
     SkPoint mapAbsPosToRel(const SkPoint &absPos) const;
     SkPoint mapRelPosToAbs(const SkPoint &relPos) const;
     SkPoint mapFromParent(const SkPoint &parentRelPos) const;
@@ -102,8 +130,8 @@ public:
 
     void setParentTransformAnimator(BasicTransformAnimator *parent);
 
-    QPointFAnimator *getPosAnimator() const;
-    QPointFAnimator *getScaleAnimator() const;
+    QVector3DAnimator *getPosAnimator() const;
+    QVector3DAnimator *getScaleAnimator() const;
     QrealAnimator *getRotAnimator() const;
 
     void updateTotalTransform(const UpdateReason reason);
@@ -119,9 +147,9 @@ protected:
 
     ConnContextQPtr<BasicTransformAnimator> mParentTransform;
 
-    qsptr<QPointFAnimator> mPosAnimator;
-    qsptr<QPointFAnimator> mScaleAnimator;
-    qsptr<QrealAnimator> mRotAnimator;
+    qsptr<QVector3DAnimator> mPosAnimator;
+    qsptr<QVector3DAnimator> mScaleAnimator;
+    qsptr<QVector3DAnimator> mRotAnimator;
     qsptr<ComboBoxProperty> mSVGBeginProperty;
     qsptr<ComboBoxProperty> mSVGEndProperty;
 
@@ -142,11 +170,11 @@ public:
             const qreal relFrame, QMatrix* postTransform = nullptr) const;
 
     void applyTransformEffects(const qreal relFrame,
-                               qreal& pivotX, qreal& pivotY,
-                               qreal& posX, qreal& posY,
-                               qreal& rot,
-                               qreal& scaleX, qreal& scaleY,
-                               qreal& shearX, qreal& shearY,
+                               qreal& pivotX, qreal& pivotY, qreal& pivotZ,
+                               qreal& posX, qreal& posY, qreal& posZ,
+                               qreal& rotX, qreal& rotY, qreal& rotZ,
+                               qreal& scaleX, qreal& scaleY, qreal& scaleZ,
+                               qreal& shearX, qreal& shearY, qreal& shearZ,
                                QMatrix& postTransform) const;
 
     void setValues(const TransformValues& values);
@@ -158,14 +186,19 @@ public:
     void resetShear();
     void resetPivot();
     void setPivotFixedTransform(const QPointF &newPivot);
+    void setPivotFixedTransform(const QVector3D &newPivot);
 
     QPointF getPivot(const qreal relFrame);
+    QVector3D getPivot3(const qreal relFrame);
     QPointF getPivot();
+    QVector3D getPivot3();
     qreal getPivotX();
     qreal getPivotY();
+    qreal getPivotZ();
 
     void startShearTransform();
     void setShear(const qreal shearX, const qreal shearY);
+    void setShear(const qreal shearX, const qreal shearY, const qreal shearZ);
 
     qreal getOpacity();
 
@@ -174,22 +207,25 @@ public:
     void startOpacityTransform();
     void setOpacity(const qreal newOpacity);
     void setPivot(const qreal x, const qreal y);
+    void setPivot(const qreal x, const qreal y, const qreal z);
     void startPivotTransform();
 
     void finishPivotTransform();
     QPointF getPivotAbs();
     QPointF getPivotAbs(const qreal relFrame);
+    QVector3D getPivotAbs3();
+    QVector3D getPivotAbs3(const qreal relFrame);
 
     qreal getOpacity(const qreal relFrame);
 
     bool posOrPivotRecording() const;
     bool rotOrScaleOrPivotRecording() const;
 
-    QPointFAnimator *getShearAnimator() const {
+    QVector3DAnimator *getShearAnimator() const {
         return mShearAnimator.get();
     }
 
-    QPointFAnimator *getPivotAnimator() const {
+    QVector3DAnimator *getPivotAnimator() const {
         return mPivotAnimator.get();
     }
 
@@ -197,8 +233,8 @@ public:
         return mOpacityAnimator.get();
     }
 private:
-    qsptr<QPointFAnimator> mPivotAnimator;
-    qsptr<QPointFAnimator> mShearAnimator;
+    qsptr<QVector3DAnimator> mPivotAnimator;
+    qsptr<QVector3DAnimator> mShearAnimator;
     qsptr<QrealAnimator> mOpacityAnimator;
 };
 

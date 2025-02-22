@@ -135,19 +135,22 @@ void FollowPathEffect::setRotScaleAfterTargetChange(
 }
 
 void FollowPathEffect::applyEffect(const qreal relFrame,
-        qreal& pivotX, qreal& pivotY,
-        qreal& posX, qreal& posY,
-        qreal& rot,
-        qreal& scaleX, qreal& scaleY,
-        qreal& shearX, qreal& shearY,
+        qreal& pivotX, qreal& pivotY, qreal& pivotZ,
+        qreal& posX, qreal& posY, qreal& posZ,
+        qreal& rotX, qreal& rotY, qreal& rotZ,
+        qreal& scaleX, qreal& scaleY, qreal& scaleZ,
+        qreal& shearX, qreal& shearY, qreal& shearZ,
         QMatrix& postTransform,
         BoundingBox* const parent) {
     Q_UNUSED(pivotX)
     Q_UNUSED(pivotY)
+    Q_UNUSED(pivotZ)
     Q_UNUSED(scaleX)
     Q_UNUSED(scaleY)
+    Q_UNUSED(scaleZ)
     Q_UNUSED(shearX)
     Q_UNUSED(shearY)
+    Q_UNUSED(shearZ)
     Q_UNUSED(postTransform)
 
     if(!isVisible()) return;
@@ -177,7 +180,7 @@ void FollowPathEffect::applyEffect(const qreal relFrame,
                                 lengthBased, rotate, infl, per,
                                 rotChange, posXChange, posYChange);
 
-    if(rotate) rot += rotChange;
+    if(rotate) rotX += rotChange;
 
     posX += posXChange; //p1.x()*infl;
     posY += posYChange; //p1.y()*infl;

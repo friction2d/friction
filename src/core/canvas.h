@@ -334,6 +334,7 @@ public:
 
     QRect getCurrentBounds() const
     {
+        // TODO: ?
         //if(mClipToCanvasSize) return getCanvasBounds();
         //else return getMaxBounds();
         return getMaxBounds();

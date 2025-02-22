@@ -371,12 +371,12 @@ void Canvas::rotateSelectedBy(const qreal rotBy,
         }
     }
 }
-
 void Canvas::scaleSelectedBy(const qreal scaleBy,
-                             const QPointF &absOrigin,
+                             const QPointF& absOrigin,
                              const bool startTrans) {
     scaleSelectedBy(scaleBy, scaleBy, absOrigin, startTrans);
 }
+
 
 void Canvas::scaleSelectedBy(const qreal scaleXBy,
                              const qreal scaleYBy,
@@ -686,6 +686,7 @@ void Canvas::moveSelectedBoxesByAbs(const QPointF &by,
     }
 }
 
+// FIXME: ?
 //QPointF BoxesGroup::getRelCenterPosition() {
 //    QPointF posSum = QPointF(0., 0.);
 //    if(mChildren.isEmpty()) return posSum;

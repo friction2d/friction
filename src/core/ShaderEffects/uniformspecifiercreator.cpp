@@ -77,19 +77,48 @@ QString vec2ValScript(const QString& name,
                            QString::number(value.y()) + "]";
 }
 
-void qPointFAnimatorCreate(ShaderEffectJS &engine,
-                           const bool glValue,
-                           const GLint loc,
-                           Property * const property,
-                           const qreal relFrame,
-                           const qreal resolution,
-                           const qreal influence,
-                           UniformSpecifiers& uniSpec)
+QString vec3ValScript(const QString& name,
+                      const QVector3D& value)
+{
+    return name + " = [" + QString::number(value.x()) + "," +
+                           QString::number(value.y()) + "," +
+                           QString::number(value.z()) + "]";
+}
+
+void QPointFAnimatorCreate(ShaderEffectJS &engine,
+                             const bool glValue,
+                             const GLint loc,
+                             Property * const property,
+                             const qreal relFrame,
+                             const qreal resolution,
+                             const qreal influence,
+                             UniformSpecifiers& uniSpec)
 {
     const auto anim = static_cast<QPointFAnimator*>(property);
     const QPointF val = anim->getEffectiveValue(relFrame)*resolution*influence;
     const QString valScript = vec2ValScript(anim->prp_getName(), val);
     engine.addSetter(val);
+
+    if (!glValue) { return; }
+    Q_ASSERT(loc >= 0);
+    uniSpec << [loc, val, valScript](QGL33 * const gl) {
+        gl->glUniform2f(loc, val.x(), val.y());
+    };
+}
+
+void QVector3DAnimatorCreate(ShaderEffectJS &engine,
+                             const bool glValue,
+                             const GLint loc,
+                             Property * const property,
+                             const qreal relFrame,
+                             const qreal resolution,
+                             const qreal influence,
+                             UniformSpecifiers& uniSpec)
+{
+    const auto anim = static_cast<QVector3DAnimator*>(property);
+    const auto val = anim->getEffectiveValue(relFrame)*resolution*influence;
+    const QString valScript = vec3ValScript(anim->prp_getName(), val);
+    //engine.addSetter(val);
 
     if (!glValue) { return; }
     Q_ASSERT(loc >= 0);
@@ -155,7 +184,7 @@ void UniformSpecifierCreator::create(ShaderEffectJS &engine,
                                  mInfluenceScaled ? influence : 1,
                                  uniSpec);
     case ShaderPropertyType::vec2Property:
-        return qPointFAnimatorCreate(engine,
+        return QPointFAnimatorCreate(engine,
                                      fGLValue,
                                      loc,
                                      property,
@@ -163,6 +192,15 @@ void UniformSpecifierCreator::create(ShaderEffectJS &engine,
                                      mResolutionScaled ? resolution : 1,
                                      mInfluenceScaled ? influence : 1,
                                      uniSpec);
+    case ShaderPropertyType::vec3Property:
+        return QVector3DAnimatorCreate(engine,
+                                       fGLValue,
+                                       loc,
+                                       property,
+                                       relFrame,
+                                       mResolutionScaled ? resolution : 1,
+                                       mInfluenceScaled ? influence : 1,
+                                       uniSpec);
     case ShaderPropertyType::colorProperty:
         return colorAnimatorCreate(engine,
                                    fGLValue,

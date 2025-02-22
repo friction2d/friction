@@ -34,7 +34,7 @@
 
 class TextEffectPoint : public AnimatedPoint {
 public:
-    TextEffectPoint(QPointFAnimator * const anim,
+    TextEffectPoint(QVector3DAnimator * const anim,
                     TextEffect* const effect) :
         AnimatedPoint(anim, TYPE_PATH_POINT), mTextEffect(effect) {}
 
@@ -85,7 +85,7 @@ TextEffect::TextEffect() : eEffect("text effect") {
     mP4Anim = enve::make_shared<QPointFAnimator>("point 4");
     mP4Anim->getYAnimator()->setValueRange(0, 1);
     mP4Anim->getYAnimator()->setPrefferedValueStep(0.1);
-    mP4Anim->setBaseValue(50, 0);
+    mP4Anim->setBaseValue(50, 0, 0);
 
     setPointsHandler(enve::make_shared<PointsHandler>());
     mP1Pt = enve::make_shared<TextEffectPoint>(mP1Anim.get(), this);

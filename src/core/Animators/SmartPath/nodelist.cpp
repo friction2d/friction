@@ -489,13 +489,13 @@ void NodeList::setPath(const SkPath &path) {
         switch(verb) {
             case SkPath::kMove_Verb: {
                 if(firstNode) return;
-                const QPointF qPt = toQPointF(pts[0]);
+                const auto qPt = toQPointF(pts[0]);
                 firstNode = appendAndGetNode(Node(qPt));
                 prevNode = firstNode;
             }
                 break;
             case SkPath::kLine_Verb: {
-                const QPointF qPt = toQPointF(pts[1]);
+                const auto qPt = toQPointF(pts[1]);
 
                 prevNode->setC2Enabled(false);
                 prevNode->mC2 = prevNode->mP1;

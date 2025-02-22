@@ -26,6 +26,7 @@
 #include "animatedpoint.h"
 #include "skia/skqtconversions.h"
 #include "pointhelpers.h"
+#include "Animators/qpointfanimator.h"
 
 AnimatedPoint::AnimatedPoint(
         QPointFAnimator * const associatedAnimator,

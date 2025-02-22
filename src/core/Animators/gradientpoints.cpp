@@ -27,6 +27,8 @@
 #include "MovablePoints/gradientpoint.h"
 #include "skia/skqtconversions.h"
 #include "Boxes/pathbox.h"
+#include "Animators/qvector3danimator.h"
+#include "Animators/qpointfanimator.h"
 
 GradientPoints::GradientPoints(BoundingBox * const parent) :
     StaticComplexAnimator("gradient points") {

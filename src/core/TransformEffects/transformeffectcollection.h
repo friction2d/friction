@@ -69,11 +69,11 @@ public:
                                const QDomElement &parentElement) const;
 
     void applyEffects(const qreal relFrame,
-                      qreal& pivotX, qreal& pivotY,
-                      qreal& posX, qreal& posY,
-                      qreal& rot,
-                      qreal& scaleX, qreal& scaleY,
-                      qreal& shearX, qreal& shearY,
+                      qreal& pivotX, qreal& pivotY, qreal& pivotZ,
+                      qreal& posX, qreal& posY, qreal& posZ,
+                      qreal& rotX, qreal& rotY, qreal& rotZ,
+                      qreal& scaleX, qreal& scaleY, qreal& scaleZ,
+                      qreal& shearX, qreal& shearY, qreal& shearZ,
                       QMatrix& postTransform,
                       BoundingBox* const parent) const;
 };

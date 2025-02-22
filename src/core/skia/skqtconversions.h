@@ -28,6 +28,7 @@
 
 #include <QRectF>
 #include <QMatrix>
+#include <QMatrix4x4>
 #include <QColor>
 #include <QFont>
 
@@ -77,9 +78,21 @@ extern QMatrix toQMatrix(const SkMatrix &matrix);
 CORE_EXPORT
 extern SkMatrix toSkMatrix(const QMatrix &matrix);
 
+CORE_EXPORT
+extern QMatrix4x4 toQMatrix4x4(const SkMatrix44 &matrix);
+
+CORE_EXPORT
+extern SkMatrix44 toSkMatrix44(const QMatrix4x4 &matrix);
+
 extern inline QPointF toQPointF(const SkPoint &point) {
     return QPointF(toQreal(point.x()),
                    toQreal(point.y()));
+}
+
+extern inline QVector3D toQVector3D(const SkPoint3 &point) {
+    return QVector3D(toQreal(point.x()),
+                   toQreal(point.y()),
+                   toQreal(point.z()));
 }
 
 extern inline SkPoint toSkPoint(const QPointF &point) {
@@ -89,6 +102,20 @@ extern inline SkPoint toSkPoint(const QPointF &point) {
 
 extern inline SkPoint toSkPoint(const QPoint &point) {
     return SkPoint::Make(point.x(), point.y());
+}
+
+extern inline SkPoint3 toSkPoint3(const QPointF &point) {
+    return SkPoint3::Make(toSkScalar(point.x()),
+                          toSkScalar(point.y()),
+                          0);
+}
+
+extern inline SkPoint3 toSkPoint3(const QPoint &point) {
+    return SkPoint3::Make(point.x(), point.y(), 0);
+}
+
+extern inline SkPoint3 toSkPoint3(const QVector3D &point) {
+    return SkPoint3::Make(point.x(), point.y(), point.z());
 }
 
 CORE_EXPORT

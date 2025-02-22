@@ -52,6 +52,8 @@ QT_WARNING_DISABLE_GCC("-Wattributes")
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkFontMetrics.h"
+#include "include/core/SkMatrix44.h"
+#include "include/core/SkPoint3.h"
 
 #include "include/pathops/SkPathOps.h"
 

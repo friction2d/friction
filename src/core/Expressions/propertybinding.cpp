@@ -45,6 +45,7 @@ PropertyBinding::PropertyBinding(const Validator& validator,
 
 #include "Animators/qrealanimator.h"
 #include "Animators/qpointfanimator.h"
+#include "Animators/qvector3danimator.h"
 
 qsptr<PropertyBinding> PropertyBinding::sCreate(
         const QString& binding,

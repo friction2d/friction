@@ -27,24 +27,25 @@
 
 #include "Boxes/boundingbox.h"
 #include "Animators/transformanimator.h"
-#include "Animators/qrealanimator.h"
 
 FollowObjectEffect::FollowObjectEffect() :
     FollowObjectEffectBase("follow object",
                            TransformEffectType::followObject) {}
 
 void FollowObjectEffect::applyEffect(const qreal relFrame,
-        qreal& pivotX, qreal& pivotY,
-        qreal& posX, qreal& posY,
-        qreal& rot,
-        qreal& scaleX, qreal& scaleY,
-        qreal& shearX, qreal& shearY,
+        qreal& pivotX, qreal& pivotY, qreal& pivotZ,
+        qreal& posX, qreal& posY, qreal& posZ,
+        qreal& rotX, qreal& rotY, qreal& rotZ,
+        qreal& scaleX, qreal& scaleY, qreal& scaleZ,
+        qreal& shearX, qreal& shearY, qreal& shearZ,
         QMatrix& postTransform,
         BoundingBox* const parent) {
     Q_UNUSED(pivotX)
     Q_UNUSED(pivotY)
+    Q_UNUSED(pivotZ)
     Q_UNUSED(shearX)
     Q_UNUSED(shearY)
+    Q_UNUSED(shearZ)
     Q_UNUSED(postTransform)
 
     if(!isVisible()) return;
@@ -59,8 +60,10 @@ void FollowObjectEffect::applyEffect(const qreal relFrame,
     const auto targetTransform = target->getTotalTransformAtFrame(targetRelFrame);
     const auto transform = targetTransform*parentTransform.inverted();
 
-    applyEffectWithTransform(relFrame, pivotX, pivotY,
-                             posX, posY, rot,
-                             scaleX, scaleY, shearX, shearY,
+    applyEffectWithTransform(relFrame, pivotX, pivotY, pivotZ,
+                             posX, posY, posZ,
+                             rotX, rotY, rotZ,
+                             scaleX, scaleY, scaleZ,
+                             shearX, shearY, shearZ,
                              parent, transform);
 }

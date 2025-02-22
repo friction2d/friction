@@ -25,6 +25,7 @@
 
 #ifndef CIRCLE_H
 #define CIRCLE_H
+
 #include "MovablePoints/animatedpoint.h"
 
 enum class CanvasMode : short;

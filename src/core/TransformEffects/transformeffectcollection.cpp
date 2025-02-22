@@ -122,11 +122,11 @@ QDomElement TransformEffectCollection::saveEffectsSVG(SvgExporter &exp,
 
 void TransformEffectCollection::applyEffects(
         const qreal relFrame,
-        qreal& pivotX, qreal& pivotY,
-        qreal& posX, qreal& posY,
-        qreal& rot,
-        qreal& scaleX, qreal& scaleY,
-        qreal& shearX, qreal& shearY,
+        qreal& pivotX, qreal& pivotY, qreal& pivotZ,
+        qreal& posX, qreal& posY, qreal& posZ,
+        qreal& rotX, qreal& rotY, qreal& rotZ,
+        qreal& scaleX, qreal& scaleY, qreal& scaleZ,
+        qreal& shearX, qreal& shearY, qreal& shearZ,
         QMatrix& postTransform,
         BoundingBox* const parent) const {
     const int iMax = ca_getNumberOfChildren();
@@ -134,11 +134,11 @@ void TransformEffectCollection::applyEffects(
         const auto effect = getChild(i);
         if(!effect->isVisible()) continue;
         effect->applyEffect(relFrame,
-                            pivotX, pivotY,
-                            posX, posY,
-                            rot,
-                            scaleX, scaleY,
-                            shearX, shearY,
+                            pivotX, pivotY, pivotZ,
+                            posX, posY, posZ,
+                            rotX, rotY, rotZ,
+                            scaleX, scaleY, scaleZ,
+                            shearX, shearY, shearZ,
                             postTransform,
                             parent);
     }
