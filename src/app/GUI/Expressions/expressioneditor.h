@@ -65,7 +65,6 @@ protected:
 private:
     using QTextEdit::toHtml;
     using QTextEdit::toPlainText;
-    using QTextEdit::setText;
     void showCompleter();
     void insertCompletion(const QString &completion);
     QString textUnderCursor() const;

@@ -1,0 +1,13 @@
+[General]
+author=
+bindings="current = $frame;"
+categories=Core, Easing, Ease In
+definitions="// exponential easing in - accelerating from zero velocity\nMath.easeInExpo = function (t, b, c, d) {\n\treturn (t==0) ? b : c * Math.pow(2, 10 * (t/d - 1)) + b;\n};"
+description=Ease In Expo
+highlighters=@Invalid()
+id=graphics.friction.easeInExpo
+license=
+script="frame = current;\nstartVal = __START_VALUE__;\nendVal = __END_VALUE__;\nstartFrame = __START_FRAME__;\nendFrame = __END_FRAME__;\nduration = endFrame - startFrame;\nendVal = endVal - startVal;\nif (frame < startFrame) { frame = startFrame; }\nelse if (frame > endFrame) { frame = endFrame; }\nif (frame >= startFrame && frame <= endFrame) { frame = frame - startFrame; }\nif (duration <= 0) { duration = 1; }\nif (frame < 0) { frame = 0; }\nreturn Math.easeInExpo(frame, startVal, endVal, duration);"
+title=Expo
+url=
+version=1
