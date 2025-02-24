@@ -1,0 +1,13 @@
+[General]
+author=@pgilfernandez
+bindings="complete = properties.complete;\nframe = $frame;\noffsetX = path.transform.translation.x;\noffsetY = path.transform.translation.y;\n"
+categories=
+definitions=
+description="To be applied to Y parameter. Simulates the effect 'follow path' and allows accessing to 'translate' values for the 'complete' parameter. It needs to manually add the path vector points to the 'Script' in order to work"
+highlighters=
+id=graphics.friction.followPathY
+license=
+script="var path = [\n    [[0.0, 0.0], [524.965, 17.3065], [346.131, 398.051], [623.036, 565.347]],\n    [[623.036, 565.347], [899.941, 732.644], [1381.64, 449.97], [1214.34, 124.03]],\n    [[1214.34, 124.03], [1047.05, -201.91], [623.036, 23.0754], [686.493, 314.402]],\n    [[686.493, 314.402], [749.95, 605.729], [1468.17, 969.167], [1667.2, 297.096]]\n];\n\nvar numSegments = path.length;\n\nvar t_global = clamp(complete * numSegments, 0, numSegments);  \n\nvar segmentIndex = Math.floor(t_global);\nsegmentIndex = clamp(segmentIndex, 0, numSegments - 1);\n\nvar t_local = t_global - segmentIndex;\n\nvar P0 = path[segmentIndex][0];\nvar P1 = path[segmentIndex][1];\nvar P2 = path[segmentIndex][2];\nvar P3 = path[segmentIndex][3];\n\nvar x = Math.pow(1 - t_local, 3) * P0[0] +\n        3 * Math.pow(1 - t_local, 2) * t_local * P1[0] +\n        3 * (1 - t_local) * Math.pow(t_local, 2) * P2[0] +\n        Math.pow(t_local, 3) * P3[0];\n\nvar y = Math.pow(1 - t_local, 3) * P0[1] +\n        3 * Math.pow(1 - t_local, 2) * t_local * P1[1] +\n        3 * (1 - t_local) * Math.pow(t_local, 2) * P2[1] +\n        Math.pow(t_local, 3) * P3[1];\n\nreturn y + offsetY;"
+title=Follow path Y
+url=
+version=1

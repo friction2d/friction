@@ -1,0 +1,13 @@
+[General]
+author=@pgilfernandez
+bindings="fps = $scene.fps;\nframe = $frame;\nvalue = $value;\n"
+categories=
+definitions=
+description="Similar to AE Wiggle, it creates random variation of the initial value of the parameter"
+highlighters=
+id=graphics.friction.wiggle
+license=
+script="// value is used to set an origin from where the noise will start\ntime = frame / fps;\nscale = 0.6;\nstrength = 20;\nphase = 5; // use different values to randomize the init\ndetail = 4;\nnoise = generateNoise(time, scale, strength, phase, detail);\nreturn value + noise"
+title=Wiggle
+url=
+version=1

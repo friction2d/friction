@@ -1,0 +1,13 @@
+[General]
+author=@pgilfernandez
+bindings="fps = $scene.fps;\nframe = $frame;\nwidth = $scene.width;\n"
+categories=
+definitions=
+description="It creates a wave function that can be used to animate objects"
+highlighters=@Invalid()
+id=graphics.friction.wave
+license=
+script="origin = width/2;\ntime = frame / fps;\nfrequency = 400;\namplitude = 300;\nshift = 0;\nreturn oscillation(origin, time, frequency, amplitude, shift)"
+title=Wave
+url=
+version=1
