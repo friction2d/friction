@@ -1080,25 +1080,6 @@ bool ExpressionDialog::editDialog(const QString &title,
 
     QVBoxLayout layout(&dialog);
 
-    QHBoxLayout layoutVer;
-    QLabel labelVer(tr("Version"), &dialog);
-    QLineEdit editVer(&dialog);
-
-    layoutVer.addWidget(&labelVer);
-    layoutVer.addWidget(&editVer);
-
-    QHBoxLayout layoutId;
-    QLabel labelId(tr("ID"), &dialog);
-    QLineEdit editId(&dialog);
-
-    if (showId) {
-        layoutId.addWidget(&labelId);
-        layoutId.addWidget(&editId);
-    } else {
-        labelId.setVisible(false);
-        editId.setVisible(false);
-    }
-
     QHBoxLayout layoutTitle;
     QLabel labelTitle(tr("Title"), &dialog);
     QLineEdit editTitle(&dialog);
@@ -1113,19 +1094,39 @@ bool ExpressionDialog::editDialog(const QString &title,
     layoutAuthor.addWidget(&labelAuthor);
     layoutAuthor.addWidget(&editAuthor);
 
+    QHBoxLayout layoutDesc;
+    QLabel labelDesc(tr("Description"), &dialog);
+    QTextEdit editDesc(&dialog);
+    editDesc.setFixedHeight(4 * editDesc.fontMetrics().lineSpacing() + 10);
+
+    layoutDesc.addWidget(&labelDesc);
+    layoutDesc.addWidget(&editDesc);
+
+    QHBoxLayout layoutId;
+    QLabel labelId(tr("ID"), &dialog);
+    QLineEdit editId(&dialog);
+
+    if (showId) {
+        layoutId.addWidget(&labelId);
+        layoutId.addWidget(&editId);
+    } else {
+        labelId.setVisible(false);
+        editId.setVisible(false);
+    }
+    
+    QHBoxLayout layoutVer;
+    QLabel labelVer(tr("Version"), &dialog);
+    QLineEdit editVer(&dialog);
+
+    layoutVer.addWidget(&labelVer);
+    layoutVer.addWidget(&editVer);
+
     QHBoxLayout layoutUrl;
     QLabel labelUrl(tr("Url"), &dialog);
     QLineEdit editUrl(&dialog);
 
     layoutUrl.addWidget(&labelUrl);
     layoutUrl.addWidget(&editUrl);
-
-    QHBoxLayout layoutDesc;
-    QLabel labelDesc(tr("Description"), &dialog);
-    QLineEdit editDesc(&dialog);
-
-    layoutDesc.addWidget(&labelDesc);
-    layoutDesc.addWidget(&editDesc);
 
     QHBoxLayout layoutLic;
     QLabel labelLic(tr("License"), &dialog);
@@ -1134,27 +1135,17 @@ bool ExpressionDialog::editDialog(const QString &title,
     layoutLic.addWidget(&labelLic);
     layoutLic.addWidget(&editLic);
 
-    layout.addLayout(&layoutVer);
-    if (showId) { layout.addLayout(&layoutId); }
     layout.addLayout(&layoutTitle);
     layout.addLayout(&layoutAuthor);
-    layout.addLayout(&layoutUrl);
     layout.addLayout(&layoutDesc);
+    if (showId) { layout.addLayout(&layoutId); }
+    layout.addLayout(&layoutVer);
+    layout.addLayout(&layoutUrl);
     layout.addLayout(&layoutLic);
 
     QSizePolicy labelSizePolicy(QSizePolicy::Expanding,
                                 QSizePolicy::Preferred);
     const int labelSize = labelDesc.width();
-
-    labelVer.setSizePolicy(labelSizePolicy);
-    labelVer.setMinimumWidth(labelSize);
-    labelVer.setMaximumWidth(labelSize);
-
-    if (showId) {
-        labelId.setSizePolicy(labelSizePolicy);
-        labelId.setMinimumWidth(labelSize);
-        labelId.setMaximumWidth(labelSize);
-    }
 
     labelTitle.setSizePolicy(labelSizePolicy);
     labelTitle.setMinimumWidth(labelSize);
@@ -1164,27 +1155,38 @@ bool ExpressionDialog::editDialog(const QString &title,
     labelAuthor.setMinimumWidth(labelSize);
     labelAuthor.setMaximumWidth(labelSize);
 
-    labelUrl.setSizePolicy(labelSizePolicy);
-    labelUrl.setMinimumWidth(labelSize);
-    labelUrl.setMaximumWidth(labelSize);
-
     labelDesc.setSizePolicy(labelSizePolicy);
     labelDesc.setMinimumWidth(labelSize);
     labelDesc.setMaximumWidth(labelSize);
+    labelDesc.setAlignment(Qt::AlignTop);
+
+    if (showId) {
+        labelId.setSizePolicy(labelSizePolicy);
+        labelId.setMinimumWidth(labelSize);
+        labelId.setMaximumWidth(labelSize);
+    }
+
+    labelVer.setSizePolicy(labelSizePolicy);
+    labelVer.setMinimumWidth(labelSize);
+    labelVer.setMaximumWidth(labelSize);
+
+    labelUrl.setSizePolicy(labelSizePolicy);
+    labelUrl.setMinimumWidth(labelSize);
+    labelUrl.setMaximumWidth(labelSize);
 
     labelLic.setSizePolicy(labelSizePolicy);
     labelLic.setMinimumWidth(labelSize);
     labelLic.setMaximumWidth(labelSize);
 
-    editVer.setText(QString::number(expr->version));
-    if (showId) { editId.setText(expr->id); }
     editTitle.setText(expr->title);
     editAuthor.setText(expr->author);
-    editUrl.setText(expr->url);
     editDesc.setText(expr->description);
+    if (showId) { editId.setText(expr->id); }
+    editVer.setText(QString::number(expr->version));
+    editUrl.setText(expr->url);
     editLic.setText(expr->license);
 
-    editVer.setFocus();
+    editTitle.setFocus();
 
     QHBoxLayout buttonLayout;
     QPushButton noButton(tr("Cancel"), &dialog);
@@ -1209,7 +1211,7 @@ bool ExpressionDialog::editDialog(const QString &title,
     expr->title = editTitle.text().trimmed();
     expr->author = editAuthor.text().trimmed();
     expr->url = editUrl.text().trimmed();
-    expr->description = editDesc.text().trimmed();
+    expr->description = editDesc.toPlainText().trimmed();
     expr->license = editLic.text().trimmed();
 
     if (showId) {
