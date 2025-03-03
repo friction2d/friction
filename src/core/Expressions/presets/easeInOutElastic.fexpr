@@ -1,0 +1,13 @@
+[General]
+author=
+bindings="current = $frame;"
+categories=Core, Easing, Ease In/Out
+definitions="Math.easeInOutElastic = function (t, b, c, d) {\n    var s=1.70158;var p=0;var a=c;\n\tif (t==0) return b;  if ((t/=d/2)==2) return b+c;  if (!p) p=d*(.3*1.5);\n\tif (a < Math.abs(c)) { a=c; var s=p/4; }\n\telse var s = p/(2*Math.PI) * Math.asin (c/a);\n\tif (t < 1) return -.5*(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )) + b;\n\treturn a*Math.pow(2,-10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )*.5 + c + b;\n};"
+description=Ease In/Out Elastic
+highlighters=@Invalid()
+id=graphics.friction.easeInOutElastic
+license=
+script="frame = current;\nstartVal = __START_VALUE__;\nendVal = __END_VALUE__;\nstartFrame = __START_FRAME__;\nendFrame = __END_FRAME__;\nduration = endFrame - startFrame;\nendVal = endVal - startVal;\nif (frame < startFrame) { frame = startFrame; }\nelse if (frame > endFrame) { frame = endFrame; }\nif (frame >= startFrame && frame <= endFrame) { frame = frame - startFrame; }\nif (duration <= 0) { duration = 1; }\nif (frame < 0) { frame = 0; }\nreturn Math.easeInOutElastic(frame, startVal, endVal, duration);"
+title=Elastic
+url=
+version=1

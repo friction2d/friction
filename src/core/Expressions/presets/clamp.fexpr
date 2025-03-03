@@ -1,0 +1,8 @@
+[General]
+definitions="function clamp(number, lower, upper) { return Math.max(lower, Math.min(number, upper)); }"
+categories=Core
+description=Clamp value to upper and lower.
+highlighters="clamp(x, lower, upper)"
+id=graphics.friction.clamp
+title=Clamp
+version=1

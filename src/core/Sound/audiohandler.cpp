@@ -80,13 +80,13 @@ void AudioHandler::initializeAudio(eSoundSettingsData& soundSettings,
     if (!info.isFormatSupported(mAudioFormat)) {
         const auto oldFormat = mAudioFormat;
         mAudioFormat = info.nearestFormat(mAudioFormat);
-        std::cout << "Using:" << std::endl <<
+        /*std::cout << "Using:" << std::endl <<
                      "    Sample rate: " << mAudioFormat.sampleRate() << std::endl <<
                      "    Channel count: " << mAudioFormat.channelCount() << std::endl <<
                      "    Sample size: " << mAudioFormat.sampleSize() << std::endl <<
                      "    Codec: " << mAudioFormat.codec().toStdString() << std::endl <<
                      "    Sample Type: " << mAudioFormat.sampleType() << std::endl <<
-                     "    Byte order: " << mAudioFormat.byteOrder() << std::endl;
+                     "    Byte order: " << mAudioFormat.byteOrder() << std::endl;*/
         soundSettings.fSampleRate = mAudioFormat.sampleRate();
         soundSettings.fSampleFormat = toAVAudioFormat(mAudioFormat.sampleType());
     }

@@ -1,0 +1,13 @@
+[General]
+author=
+bindings="current = $frame;"
+categories=Core, Easing, Ease In/Out
+definitions="// quartic easing in/out - acceleration until halfway, then deceleration\nMath.easeInOutQuart = function (t, b, c, d) {\n\tif ((t/=d/2) < 1) return c/2*t*t*t*t + b;\n\treturn -c/2 * ((t-=2)*t*t*t - 2) + b;\n};"
+description=Ease In/Out Quart
+highlighters=@Invalid()
+id=graphics.friction.easeInOutQuart
+license=
+script="frame = current;\nstartVal = __START_VALUE__;\nendVal = __END_VALUE__;\nstartFrame = __START_FRAME__;\nendFrame = __END_FRAME__;\nduration = endFrame - startFrame;\nendVal = endVal - startVal;\nif (frame < startFrame) { frame = startFrame; }\nelse if (frame > endFrame) { frame = endFrame; }\nif (frame >= startFrame && frame <= endFrame) { frame = frame - startFrame; }\nif (duration <= 0) { duration = 1; }\nif (frame < 0) { frame = 0; }\nreturn Math.easeInOutQuart(frame, startVal, endVal, duration);"
+title=Quart
+url=
+version=1

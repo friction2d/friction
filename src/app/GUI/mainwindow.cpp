@@ -766,6 +766,7 @@ void MainWindow::setupMenuBar()
     {
         const auto qAct = mPathMenu->addAction(
                     tr("Union", "MenuBar_Path"));
+        qAct->setIcon(QIcon::fromTheme("booleans_union"));
         qAct->setShortcut(Qt::CTRL + Qt::Key_Plus);
         mActions.pathsUnionAction->connect(qAct);
         cmdAddAction(qAct);
@@ -774,6 +775,7 @@ void MainWindow::setupMenuBar()
     {
         const auto qAct = mPathMenu->addAction(
                     tr("Difference", "MenuBar_Path"));
+        qAct->setIcon(QIcon::fromTheme("booleans_difference"));
         qAct->setShortcut(Qt::CTRL + Qt::Key_Minus);
         mActions.pathsDifferenceAction->connect(qAct);
         cmdAddAction(qAct);
@@ -782,6 +784,7 @@ void MainWindow::setupMenuBar()
     {
         const auto qAct = mPathMenu->addAction(
                     tr("Intersection", "MenuBar_Path"));
+        qAct->setIcon(QIcon::fromTheme("booleans_intersection"));
         qAct->setShortcut(Qt::CTRL + Qt::Key_Asterisk);
         mActions.pathsIntersectionAction->connect(qAct);
         cmdAddAction(qAct);
@@ -790,6 +793,7 @@ void MainWindow::setupMenuBar()
     {
         const auto qAct = mPathMenu->addAction(
                     tr("Exclusion", "MenuBar_Path"));
+        qAct->setIcon(QIcon::fromTheme("booleans_exclusion"));
         qAct->setShortcut(Qt::CTRL + Qt::Key_AsciiCircum);
         mActions.pathsExclusionAction->connect(qAct);
         cmdAddAction(qAct);
@@ -798,6 +802,7 @@ void MainWindow::setupMenuBar()
     {
         const auto qAct = mPathMenu->addAction(
                     tr("Division", "MenuBar_Path"));
+        qAct->setIcon(QIcon::fromTheme("booleans_division"));
         qAct->setShortcut(Qt::CTRL + Qt::Key_Slash);
         mActions.pathsDivisionAction->connect(qAct);
         cmdAddAction(qAct);
@@ -808,6 +813,7 @@ void MainWindow::setupMenuBar()
     {
         const auto qAct = mPathMenu->addAction(
                     tr("Combine", "MenuBar_Path"));
+        qAct->setIcon(QIcon::fromTheme("booleans_combine"));
         qAct->setShortcut(Qt::CTRL + Qt::Key_K);
         mActions.pathsCombineAction->connect(qAct);
         cmdAddAction(qAct);
@@ -816,7 +822,7 @@ void MainWindow::setupMenuBar()
     {
         const auto qAct = mPathMenu->addAction(
                     tr("Break Apart", "MenuBar_Path"));
-        qAct->setIcon(QIcon::fromTheme("image-missing"));
+        qAct->setIcon(QIcon::fromTheme("booleans_break_apart"));
         qAct->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_K);
         mActions.pathsBreakApartAction->connect(qAct);
         cmdAddAction(qAct);
@@ -1082,12 +1088,6 @@ void MainWindow::setupMenuBar()
                                           this,
                                           &MainWindow::openAboutWindow);
     cmdAddAction(aboutAct);
-    help->addAction(QIcon::fromTheme("question"),
-                    tr("About Qt", "MenuBar_Help"), this, [this]() {
-        QMessageBox::aboutQt(this, tr("About Qt"));
-    });
-
-    help->addSeparator();
 
     QString cmdDefKey = "Ctrl+Space";
 #ifdef Q_OS_MAC

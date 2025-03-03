@@ -97,11 +97,11 @@ bool KeysView::graphEasingApplyExpression(QrealAnimator *anim,
                                           const FrameRange &range,
                                           const QString &easing)
 {
-    if (!anim || easing.isEmpty() || !QFile::exists(easing)) { return false; }
+    if (!anim || easing.isEmpty()) { return false; }
     qDebug() << "graphEasingApplyExpression" << anim->prp_getName() << range.fMin << range.fMax << easing;
 
-    const auto preset = AppSupport::readEasingPreset(easing);
-    if (!preset.valid) { return false; }
+    const auto preset = eSettings::sInstance->fExpressions.getExpr(easing);
+    if (!preset.valid || !preset.enabled) { return false; }
     QString script = preset.script;
     script.replace("__START_VALUE__",
                    QString::number(anim->getBaseValue(range.fMin)));

@@ -25,7 +25,6 @@
 #include <QApplication>
 #include <QSurfaceFormat>
 #include <QDesktopWidget>
-#include <QSplashScreen>
 
 #include "hardwareinfo.h"
 #include "Private/esettings.h"
@@ -39,6 +38,7 @@
 #include "themesupport.h"
 
 #ifdef Q_OS_WIN
+#include <QSplashScreen>
 #include "windowsincludes.h"
 #include <QtPlatformHeaders/QWindowsWindowFunctions>
 #endif
@@ -58,17 +58,6 @@ void setDefaultFormat()
     //format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
     //format.setSwapInterval(0); // Disable vertical refresh syncing
     QSurfaceFormat::setDefaultFormat(format);
-
-    const QString oVersion = QString("%1.%2").arg(QString::number(QSurfaceFormat::defaultFormat().version().first),
-                                                  QString::number(QSurfaceFormat::defaultFormat().version().second));
-    const auto oDepth = QSurfaceFormat::defaultFormat().depthBufferSize();
-    const auto oStencil = QSurfaceFormat::defaultFormat().stencilBufferSize();
-    const auto oSamples = QSurfaceFormat::defaultFormat().samples();
-    qWarning() << "OpenGL Format:"
-               << "version" << oVersion.toDouble()
-               << "depth" << oDepth
-               << "stencil" << oStencil
-               << "samples" << oSamples;
 }
 
 void generateAlphaMesh(QPixmap& alphaMesh,
@@ -120,23 +109,19 @@ int main(int argc, char *argv[])
     const auto handleXDGActs = AppSupport::handleXDGArgs(isRenderer,
                                                          QApplication::arguments());
     if (handleXDGActs.first) { return handleXDGActs.second; }
-#endif
-
-    // init splash
-    bool showSplash = true;
-#ifdef Q_OS_LINUX
     if (AppSupport::isWayland()) {
         QGuiApplication::setDesktopFileName(AppSupport::getAppID());
-        showSplash = false;
     }
 #endif
+
+    // init splash (windows-only)
+#ifdef Q_OS_WIN
     QSplashScreen splash(QPixmap(":/icons/splash/splash-00001.png"));
-    if (showSplash) {
-        splash.show();
-        splash.raise();
-        splash.showMessage(QObject::tr("Loading ..."),
-                           Qt::AlignRight | Qt::AlignBottom, Qt::white);
-    }
+    splash.show();
+    splash.raise();
+    splash.showMessage(QObject::tr("Loading ..."),
+                       Qt::AlignRight | Qt::AlignBottom, Qt::white);
+#endif
 
     // init hardware
 #ifdef Q_OS_WIN
@@ -159,11 +144,6 @@ int main(int argc, char *argv[])
         GPU_NOT_COMPATIBLE;
         gPrintExceptionCritical(e);
     }
-
-    std::cout << "OpenGL Vendor: " << HardwareInfo::sGpuVendorString().toStdString() << std::endl
-              << "OpenGL Renderer: " << HardwareInfo::sGpuRendererString().toStdString() << std::endl
-              << "OpenGL Version: " << HardwareInfo::sGpuVersionString().toStdString() << std::endl
-              << "---" << std::endl;
 
     // init settings
     eSettings settings(HardwareInfo::sCpuThreads(),
@@ -223,12 +203,12 @@ int main(int argc, char *argv[])
     AppSupport::initXDGDesktop(isRenderer);
 #endif
 
-    if (showSplash) {
-        splash.raise();
-        splash.setPixmap(QPixmap(":/icons/splash/splash-00002.png"));
-        splash.showMessage(QObject::tr("Initializing ..."),
-                           Qt::AlignRight | Qt::AlignBottom, Qt::white);
-    }
+#ifdef Q_OS_WIN
+    splash.raise();
+    splash.setPixmap(QPixmap(":/icons/splash/splash-00002.png"));
+    splash.showMessage(QObject::tr("Initializing ..."),
+                       Qt::AlignRight | Qt::AlignBottom, Qt::white);
+#endif
 
     // load settings
     try { settings.loadFromFile(); }
@@ -266,14 +246,14 @@ int main(int argc, char *argv[])
     //effectsLoader.iniCustomRasterEffects();
     //std::cout << "Custom raster effects initialized" << std::endl;
 
-    // init shaders
-    if (showSplash) {
-        splash.raise();
-        splash.setPixmap(QPixmap(":/icons/splash/splash-00003.png"));
-        splash.showMessage(QObject::tr("Loading Shaders ..."),
-                           Qt::AlignRight | Qt::AlignBottom, Qt::white);
-    }
+#ifdef Q_OS_WIN
+    splash.raise();
+    splash.setPixmap(QPixmap(":/icons/splash/splash-00003.png"));
+    splash.showMessage(QObject::tr("Loading Shaders ..."),
+                       Qt::AlignRight | Qt::AlignBottom, Qt::white);
+#endif
 
+    // init shaders
     try {
         effectsLoader.iniShaderEffects();
     } catch(const std::exception& e) {
@@ -292,14 +272,14 @@ int main(int argc, char *argv[])
     //effectsLoader.iniCustomBoxes();
     //std::cout << "Custom objects initialized" << std::endl;
 
-    // init audio
-    if (showSplash) {
-        splash.raise();
-        splash.setPixmap(QPixmap(":/icons/splash/splash-00004.png"));
-        splash.showMessage(QObject::tr("Loading Audio ..."),
-                           Qt::AlignRight | Qt::AlignBottom, Qt::white);
-    }
+#ifdef Q_OS_WIN
+    splash.raise();
+    splash.setPixmap(QPixmap(":/icons/splash/splash-00004.png"));
+    splash.showMessage(QObject::tr("Loading Audio ..."),
+                       Qt::AlignRight | Qt::AlignBottom, Qt::white);
+#endif
 
+    // init audio
     eSoundSettings soundSettings;
     AudioHandler audioHandler;
 
@@ -313,13 +293,15 @@ int main(int argc, char *argv[])
         }
     }
 
+
+#ifdef Q_OS_WIN
+    splash.raise();
+    splash.setPixmap(QPixmap(":/icons/splash/splash-00005.png"));
+    splash.showMessage(QObject::tr("Loading Encoder ..."),
+                       Qt::AlignRight | Qt::AlignBottom, Qt::white);
+#endif
+
     // init encoder
-    if (showSplash) {
-        splash.raise();
-        splash.setPixmap(QPixmap(":/icons/splash/splash-00005.png"));
-        splash.showMessage(QObject::tr("Loading Encoder ..."),
-                           Qt::AlignRight | Qt::AlignBottom, Qt::white);
-    }
     const auto videoEncoder = enve::make_shared<VideoEncoder>();
     RenderHandler renderHandler(document, audioHandler,
                                 *videoEncoder, memoryHandler);
@@ -327,12 +309,12 @@ int main(int argc, char *argv[])
     // check for ffmpeg version
     AppSupport::checkFFmpeg(isRenderer);
 
-    if (showSplash) {
-        splash.raise();
-        splash.setPixmap(QPixmap(":/icons/splash/splash-00006.png"));
-        splash.showMessage(QObject::tr("Loading User Interface ..."),
-                           Qt::AlignRight | Qt::AlignBottom, Qt::white);
-    }
+#ifdef Q_OS_WIN
+    splash.raise();
+    splash.setPixmap(QPixmap(":/icons/splash/splash-00006.png"));
+    splash.showMessage(QObject::tr("Loading User Interface ..."),
+                       Qt::AlignRight | Qt::AlignBottom, Qt::white);
+#endif
 
     // load UI
     const QString openProject = argc > 1 ? argv[1] : QString();
@@ -342,7 +324,10 @@ int main(int argc, char *argv[])
                  renderHandler,
                  openProject);
     w.show();
+
+#ifdef Q_OS_WIN
     splash.finish(&w);
+#endif
 
     try {
         return app.exec();

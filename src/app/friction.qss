@@ -240,13 +240,15 @@ QAction:checked
 
 QDoubleSpinBox,
 QSpinBox,
-QLineEdit {
+QLineEdit,
+QTextEdit#TextEdit {
     background-color: %3;
 }
 
 QDoubleSpinBox:hover,
 QSpinBox:hover,
-QLineEdit:hover {
+QLineEdit:hover,
+QTextEdit#TextEdit:hover {
     background-color: black;
 }
 

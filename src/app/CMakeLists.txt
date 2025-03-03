@@ -254,7 +254,6 @@ set(
     RESOURCES
     resources.qrc
     icons/hicolor.qrc
-    ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/easing.qrc
 )
 if(${LINUX_DEPLOY})
     list(APPEND RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../../docs/docs_lin.qrc)

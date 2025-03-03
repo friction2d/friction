@@ -22,7 +22,36 @@
         <file alias="value.frag">colorshaders/value.frag</file>
     </qresource>
     <qresource prefix="/expressions">
-        <file alias="clamp.conf">Expressions/functions/clamp.conf</file>
-        <file alias="clamp.js">Expressions/functions/clamp.js</file>
+        <file alias="clamp.fexpr">Expressions/presets/clamp.fexpr</file>
+        <file alias="easeInBack.fexpr">Expressions/presets/easeInBack.fexpr</file>
+        <file alias="easeInBounce.fexpr">Expressions/presets/easeInBounce.fexpr</file>
+        <file alias="easeInCirc.fexpr">Expressions/presets/easeInCirc.fexpr</file>
+        <file alias="easeInCubic.fexpr">Expressions/presets/easeInCubic.fexpr</file>
+        <file alias="easeInElastic.fexpr">Expressions/presets/easeInElastic.fexpr</file>
+        <file alias="easeInExpo.fexpr">Expressions/presets/easeInExpo.fexpr</file>
+        <file alias="easeInOutBack.fexpr">Expressions/presets/easeInOutBack.fexpr</file>
+        <file alias="easeInOutBounce.fexpr">Expressions/presets/easeInOutBounce.fexpr</file>
+        <file alias="easeInOutCirc.fexpr">Expressions/presets/easeInOutCirc.fexpr</file>
+        <file alias="easeInOutCubic.fexpr">Expressions/presets/easeInOutCubic.fexpr</file>
+        <file alias="easeInOutElastic.fexpr">Expressions/presets/easeInOutElastic.fexpr</file>
+        <file alias="easeInOutExpo.fexpr">Expressions/presets/easeInOutExpo.fexpr</file>
+        <file alias="easeInOutQuad.fexpr">Expressions/presets/easeInOutQuad.fexpr</file>
+        <file alias="easeInOutQuart.fexpr">Expressions/presets/easeInOutQuart.fexpr</file>
+        <file alias="easeInOutQuint.fexpr">Expressions/presets/easeInOutQuint.fexpr</file>
+        <file alias="easeInOutSine.fexpr">Expressions/presets/easeInOutSine.fexpr</file>
+        <file alias="easeInQuad.fexpr">Expressions/presets/easeInQuad.fexpr</file>
+        <file alias="easeInQuart.fexpr">Expressions/presets/easeInQuart.fexpr</file>
+        <file alias="easeInQuint.fexpr">Expressions/presets/easeInQuint.fexpr</file>
+        <file alias="easeInSine.fexpr">Expressions/presets/easeInSine.fexpr</file>
+        <file alias="easeOutBack.fexpr">Expressions/presets/easeOutBack.fexpr</file>
+        <file alias="easeOutBounce.fexpr">Expressions/presets/easeOutBounce.fexpr</file>
+        <file alias="easeOutCirc.fexpr">Expressions/presets/easeOutCirc.fexpr</file>
+        <file alias="easeOutCubic.fexpr">Expressions/presets/easeOutCubic.fexpr</file>
+        <file alias="easeOutElastic.fexpr">Expressions/presets/easeOutElastic.fexpr</file>
+        <file alias="easeOutExpo.fexpr">Expressions/presets/easeOutExpo.fexpr</file>
+        <file alias="easeOutQuad.fexpr">Expressions/presets/easeOutQuad.fexpr</file>
+        <file alias="easeOutQuart.fexpr">Expressions/presets/easeOutQuart.fexpr</file>
+        <file alias="easeOutQuint.fexpr">Expressions/presets/easeOutQuint.fexpr</file>
+        <file alias="easeOutSine.fexpr">Expressions/presets/easeOutSine.fexpr</file>
     </qresource>
 </RCC>

@@ -64,8 +64,8 @@ void Expression::sAddDefinitionsTo(const QString& definitionsStr,
                                    QJSEngine& e)
 {
     QString defs;
-    const auto bundle = eSettings::instance().expressionsBundle;
-    for (const auto &fun : bundle) { defs.append(fun.second); }
+    const auto expressions = eSettings::sInstance->fExpressions.getDefinitions();
+    for (const auto &expr : expressions) { defs.append(expr.definitions); }
     defs.append(definitionsStr);
 
     const auto defRet = e.evaluate(defs);

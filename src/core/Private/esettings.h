@@ -35,6 +35,7 @@
 #include "memorystructs.h"
 #include "appsupport.h"
 #include "themesupport.h"
+#include "Expressions/expressionpresets.h"
 
 enum class GpuVendor {
     intel,
@@ -161,8 +162,8 @@ public:
     QList<QAction*> fCommandPalette;
     QList<QString> fCommandHistory;
 
-    // Expressions bundle
-    QList<QPair<QString,QString>> expressionsBundle = AppSupport::getExpressionsBundle();
+    // expressions presets
+    Friction::Core::ExpressionPresets fExpressions;
 
 signals:
     void settingsChanged();
