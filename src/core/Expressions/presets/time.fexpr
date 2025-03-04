@@ -1,0 +1,13 @@
+[General]
+author=pgilfernandez
+bindings="frame =$frame;\nfps =$scene.fps;"
+categories=
+definitions=
+description="It animates the parameter based on the frame number and the frames per second of the scene."
+highlighters=
+id=graphics.friction.time
+license=
+script="time = frame / fps;\nreturn time"
+title=Time
+url=
+version=1

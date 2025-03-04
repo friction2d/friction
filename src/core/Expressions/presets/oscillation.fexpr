@@ -1,0 +1,13 @@
+[General]
+author=pgilfernandez
+bindings=
+categories=
+definitions="function oscillation(origin, time, frequency, amplitude, shift) {\n    var correctedShift = ((shift % (2 * Math.PI)) + (2 * Math.PI)) % (2 * Math.PI);\n    var val = Math.cos((correctedShift + time) * frequency) * amplitude;\n    return origin + val;\n}"
+description="It creates a oscillation movement like a wave"
+highlighters="oscillation(origin, time, frequency, amplitude, shift)"
+id=graphics.friction.oscillation
+license=
+script=
+title=Oscillation
+url=
+version=1
