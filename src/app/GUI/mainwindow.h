@@ -397,6 +397,7 @@ private:
 
     void initRenderPresets(const bool reinstall = false);
     void askInstallRenderPresets();
+    void askInstallExpressionsPresets();
 
     QLabel *mColorPickLabel;
 

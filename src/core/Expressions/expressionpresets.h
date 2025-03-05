@@ -111,6 +111,7 @@ namespace Friction
             QList<Expr> mExpr;
             QStringList mDisabled;
 
+            void firstRun();
             void scanAll(const bool &clear = false);
         };
     }

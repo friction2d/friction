@@ -503,13 +503,13 @@ const QString AppSupport::getRasterEffectHardwareSupportString(const QString &ef
         result = tr("CPU-only");
         break;
     case HardwareSupport::cpuPreffered:
-        result = tr("CPU preffered");
+        result = tr("CPU preferred");
         break;
     case HardwareSupport::gpuOnly:
         result = tr("GPU-only");
         break;
     case HardwareSupport::gpuPreffered:
-        result = tr("GPU preffered");
+        result = tr("GPU preferred");
         break;
     default:;
     }

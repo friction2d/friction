@@ -361,15 +361,62 @@ bool ExpressionPresets::isValidExprFile(const QString &path)
     return false;
 }
 
+void ExpressionPresets::firstRun()
+{
+    const QString path = AppSupport::getAppUserExPresetsPath();
+    const bool firstrun = AppSupport::getSettings("settings",
+                                                  "firstRunExprPresets",
+                                                  true).toBool();
+    if (!firstrun || path.isEmpty()) { return; }
+
+    QStringList presets;
+    presets << "copyX.fexpr";
+    presets << "copyY.fexpr";
+    presets << "noise.fexpr";
+    presets << "orbitX.fexpr";
+    presets << "orbitY.fexpr";
+    presets << "oscillation.fexpr";
+    presets << "rotation.fexpr";
+    presets << "time.fexpr";
+    presets << "trackObject.fexpr";
+    presets << "wave.fexpr";
+    presets << "wiggle.fexpr";
+
+    for (const auto &preset : presets) {
+        const auto expr = readExpr(QString(":/expressions/%1").arg(preset));
+        if (!expr.valid) { continue; }
+        QFile file(QString("%1/%2.fexpr").arg(path, expr.id));
+        if (file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
+            QFile res(expr.path);
+            if (res.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                file.write(res.readAll());
+                res.close();
+            } else {
+                qWarning() << "Failed to find expression preset" << res.fileName();
+            }
+            file.close();
+        } else {
+            qWarning() << "Failed to install expression preset" << file.fileName();
+        }
+    }
+
+    AppSupport::setSettings("settings",
+                            "firstRunExprPresets",
+                            false);
+}
+
 void ExpressionPresets::scanAll(const bool &clear)
 {
     if (clear) { mExpr.clear(); }
+
+    firstRun();
 
     mDisabled = AppSupport::getSettings("settings",
                                         "ExpressionsDisabled").toStringList();
 
     QStringList expressions;
     expressions << ":/expressions/clamp.fexpr";
+    expressions << ":/expressions/lerp.fexpr";
     expressions << ":/expressions/easeInBack.fexpr";
     expressions << ":/expressions/easeInBounce.fexpr";
     expressions << ":/expressions/easeInCirc.fexpr";

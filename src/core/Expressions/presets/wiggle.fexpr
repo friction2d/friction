@@ -1,0 +1,13 @@
+[General]
+author=pgilfernandez
+bindings="fps = $scene.fps;\nframe = $frame;\nvalue = $value;\n"
+categories=
+definitions=
+description="It creates random variation of the initial value of the parameter"
+highlighters=
+id=graphics.friction.wiggle
+license=
+script="time = frame / fps;\n\nfrequency = .5;\namplitude = 200; // pixels\nseed = 0; // randomize the start, integers works better\n\nreturn value + noise(frequency, amplitude, seed);\n\n// For more control use:\n// detail = 4;\n// return value + noise(frequency, amplitude, seed, time, detail);\n"
+title=Wiggle
+url=
+version=1

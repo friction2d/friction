@@ -265,9 +265,9 @@ void PerformanceSettingsWidget::setupRasterEffectWidgets()
     for (const auto &effect : effects) {
         const auto box = new QComboBox(this);
         box->addItem(tr("CPU-only"), static_cast<int>(HardwareSupport::cpuOnly));
-        box->addItem(tr("CPU preffered"), static_cast<int>(HardwareSupport::cpuPreffered));
+        box->addItem(tr("CPU preferred"), static_cast<int>(HardwareSupport::cpuPreffered));
         box->addItem(tr("GPU-only"), static_cast<int>(HardwareSupport::gpuOnly));
-        box->addItem(tr("GPU preffered"), static_cast<int>(HardwareSupport::gpuPreffered));
+        box->addItem(tr("GPU preferred"), static_cast<int>(HardwareSupport::gpuPreffered));
         box->setItemData(0, effect, RASTER_HW_SUPPORT_ID);
         box->setCurrentText(AppSupport::getRasterEffectHardwareSupportString(effect, defaultSupport));
         mRasterEffectsHardwareSupport << box;
@@ -302,7 +302,7 @@ void PerformanceSettingsWidget::saveRasterEffectsSupport()
 void PerformanceSettingsWidget::restoreDefaultRasterEffectsSupport()
 {
     for (const auto &box : mRasterEffectsHardwareSupport) {
-        box->setCurrentText(tr("GPU preffered"));
+        box->setCurrentText(tr("GPU preferred"));
     }
 }
 

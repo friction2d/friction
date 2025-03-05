@@ -1,0 +1,13 @@
+[General]
+author=pgilfernandez
+bindings="frame = $frame;\nvalue =$value "
+categories=
+definitions=
+description=To be applied to X parameter. It simulates the orbit around an origin with 'translate' X and Y parameters. It could be connected to custom properties to allow easier control of both expressions
+highlighters=
+id=graphics.friction.orbitX
+license=
+script="centerX = value;\nradius = 300;\n\nspeed = 150; // frames\ndirection = 1; // 1 clockwise, -1 counter clockwise\noffset = 0;\ncircleOverTimeX = Math.sin( (frame/speed) * 2 * Math.PI * direction + (offset * (Math.PI / 180)) ) * radius;  \nreturn centerX + circleOverTimeX;"
+title=Orbit X
+url=
+version=1

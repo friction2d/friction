@@ -1,0 +1,13 @@
+[General]
+author=
+bindings=
+categories=Core
+definitions="function lerp(a, b, t) {\n\treturn a + t * (b - a);\n}"
+description=Performs linear interpolation between two values.
+highlighters="lerp(a, b, t)"
+id=graphics.friction.lerp
+license=
+script=
+title=Lerp
+url=
+version=1

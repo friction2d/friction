@@ -1,0 +1,13 @@
+[General]
+author=pgilfernandez
+bindings="objectPos = transform.translation;\npivotPos = transform.pivot;\noffsetAngle = $value;\ntargetPos = your_target_object.transform.translation;\n"
+categories=
+definitions=
+description="It looks at another object, it is meant to be applied to a 'rotation' parameter"
+highlighters=
+id=graphics.friction.trackObject
+license=
+script="var realObjectPosX = objectPos[0] + pivotPos[0];\nvar realObjectPosY = objectPos[1] + pivotPos[1];\nvar realTargetPosX = targetPos[0];\nvar realTargetPosY = targetPos[1];\n\nvar deltaX = realTargetPosX - realObjectPosX;\nvar deltaY = realTargetPosY - realObjectPosY;\n\nvar angleRad = Math.atan2(deltaY, deltaX);\nvar angleDeg = angleRad * (180 / Math.PI);\n\nreturn angleDeg + offsetAngle;\n"
+title=Track object
+url=
+version=1

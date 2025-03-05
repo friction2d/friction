@@ -1,0 +1,13 @@
+[General]
+author=pgilfernandez
+bindings="fps = $scene.fps;\nframe = $frame;\nvalue = $value;"
+categories=
+definitions=
+description="It rotates the object on a constant speed controlled by FPS"
+highlighters=
+id=graphics.friction.rotation
+license=
+script="time = frame / fps;\nspeed = 100;\ndirection = 1;     // clockwise = 1, counterclockwise = -1\noffset = value;   // instead of controlling if with $value\n                            // you can use any float number\nreturn (time * speed + offset) % 360 * direction;"
+title=Rotation
+url=
+version=1

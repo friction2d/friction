@@ -1,0 +1,13 @@
+[General]
+author=pgilfernandez
+bindings=
+categories=
+definitions="function noise(frequency, amplitude, seed, t = time, detail = 4) {\n    // Fixed permutation for consistency\n    const permutation = Array.from({ length: 256 }, (_, i) => i).concat(Array.from({ length: 256 }, (_, i) => i));\n    \n    function fade(t) {\n        return t * t * t * (t * (t * 6 - 15) + 10);\n    }    function grad(hash, x) {\n        const h = hash & 15;\n        const gradient = 1 + (h & 7); // Gradient range between 1 and 8\n        return (h & 8 ? -gradient : gradient) * x;\n    }\n\n    function perlinNoise(x) {\n        const X = Math.floor(x) & 255;\n        x -= Math.floor(x);\n        const u = fade(x);\n\n        const a = permutation[X];\n        const b = permutation[X + 1];\n\n        return lerp(grad(a, x), grad(b, x - 1), u);\n    }\n\n    let total = 0;\n\n    for (let i = 0; i < detail; i++) {\n        total += perlinNoise((t + seed) * frequency) * amplitude;\n        frequency *= 2;       // Double frequency for each octave\n        amplitude /= 2;       // Halve amplitude for each octave\n    }\n    return total;\n}"
+description="Generates random noise to the base value, it will generate smooth variation along time"
+highlighters="noise(frequency, amplitude, seed, time, detail = 4)"
+id=graphics.friction.noise
+license=
+script=
+title=Noise
+url=
+version=1

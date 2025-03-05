@@ -1,0 +1,13 @@
+[General]
+author=pgilfernandez
+bindings="x = x"
+categories=
+definitions=
+description=It copies the value from it's X parameter. There is a proportion value that allow a proportional final Y value
+highlighters=
+id=graphics.friction.copyX
+license=
+script="// To be used for XY parameters\nscale = 1;  // Change this value for a proportional copy\nreturn x * scale"
+title=Copy X
+url=
+version=1
