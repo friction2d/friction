@@ -14,6 +14,12 @@
     <p>@PROJECT_DESCRIPTION@</p>
   </description>
   <releases>
+    <release date="2025-03-10" version="1.0.0-rc.1">
+      <description>
+        <p>First release candidate for v1.0.0 is now available.</p>
+      </description>
+      <url type="details">https://friction.graphics/releases/friction-100-rc1.html</url>
+    </release>
     <release date="2024-12-02" version="1.0.0-beta.2">
       <description>
         <p>This release includes several fixes, some new features and several UI/UX changes.</p>

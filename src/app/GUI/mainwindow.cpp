@@ -1103,6 +1103,17 @@ void MainWindow::setupMenuBar()
                                             cmdDefKey).toString()));
 
     help->addSeparator();
+    help->addAction(QIcon::fromTheme("user-home"),
+                    tr("Friction Website"), this, []() {
+        QDesktopServices::openUrl(QUrl("https://friction.graphics/"));
+    });
+
+    help->addAction(QIcon::fromTheme("dialog-information"),
+                    tr("Documentation"), this, []() {
+        QDesktopServices::openUrl(QUrl("https://friction.graphics/documentation"));
+    });
+
+    help->addSeparator();
     help->addAction(QIcon::fromTheme("renderlayers"),
                     tr("Reinstall default render profiles"),
                     this, &MainWindow::askInstallRenderPresets);
