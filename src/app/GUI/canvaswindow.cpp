@@ -451,7 +451,7 @@ bool CanvasWindow::handleCutCopyPasteKeyPress(QKeyEvent *event)
                event->key() == Qt::Key_X) {
         if (event->isAutoRepeat()) { return false; }
         (*mActions.cutAction)();
-    } else if (event->key() == Qt::Key_Delete) {
+    } else if (event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace) {
         (*mActions.deleteAction)();
     } else { return false; }
     return true;
