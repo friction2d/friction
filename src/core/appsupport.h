@@ -31,6 +31,7 @@
 #include <QPair>
 #include <QStringList>
 #include <QSettings>
+#include <QColor>
 
 #include "hardwareenums.h"
 
@@ -138,6 +139,19 @@ public:
     static void printHelp(const bool &isRenderer);
     static void handlePortableFirstRun();
     static const QString filterId(const QString &input);
+
+    static int getLastUsedWidth(int defaultWidth = 1920);
+    static int getLastUsedHeight(int defaultHeight = 1080);
+    static int getLastUsedMinFrame(int defaultMin = 0);
+    static int getLastUsedMaxFrame(int defaultMax = 300);
+    static qreal getLastUsedFps(qreal defaultFps = 30.0);
+    static QColor getLastUsedBgColor(const QColor &defaultColor = Qt::black);
+    static void saveLastUsedSceneSettings(int width,
+                                          int height,
+                                          int minFrame,
+                                          int maxFrame, 
+                                          qreal fps,
+                                          const QColor &bgColor);
 };
 
 #endif // APPSUPPORT_H
