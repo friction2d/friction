@@ -587,6 +587,7 @@ void MainWindow::setupMenuBar()
         mEditMenu->addAction(qAct);
 #ifndef Q_OS_MAC
         qAct->setShortcut(Qt::Key_Delete);
+        qAct->setShortcut(Qt::Key_Backspace);
 #endif
         mActions.deleteAction->connect(qAct);
         cmdAddAction(qAct);
@@ -1624,7 +1625,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
     const auto focusWidget = QApplication::focusWidget();
     if (type == QEvent::KeyPress) {
         const auto keyEvent = static_cast<QKeyEvent*>(e);
-        if (keyEvent->key() == Qt::Key_Delete && focusWidget) {
+        if ((keyEvent->key() == Qt::Key_Delete && focusWidget) || 
+            (keyEvent->key() == Qt::Key_Backspace && focusWidget)) {
             mEventFilterDisabled = true;
             const bool widHandled =
                     QCoreApplication::sendEvent(focusWidget, keyEvent);
@@ -1648,7 +1650,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
              key == Qt::Key_X || key == Qt::Key_D)) {
             return processKeyEvent(keyEvent);
         } else if (key == Qt::Key_A || key == Qt::Key_I ||
-                   key == Qt::Key_Delete) {
+                   key == Qt::Key_Delete || key == Qt::Key_Backspace) {
               return processKeyEvent(keyEvent);
         }
     } else if (type == QEvent::KeyRelease) {
@@ -1701,7 +1703,7 @@ bool MainWindow::processBoxesListKeyEvent(QKeyEvent *event)
     } else if (ctrl && event->key() == Qt::Key_X) {
         if (event->isAutoRepeat()) { return false; }
         (*mActions.cutAction)();
-    } else if (event->key() == Qt::Key_Delete) {
+    } else if (event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace) {
         (*mActions.deleteAction)();
     } else { return false; }
     return true;
