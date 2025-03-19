@@ -190,11 +190,11 @@ public:
         , mEle(ele)
         , mVisRange(visRange)
     {
-        // check for mask (DstIn)
+        // check for masks (DstIn or DstOut)
         if (mSrc->isLayer()) {
             const auto& boxes = mSrc->getContainedBoxes();
             for (const auto &box : boxes) {
-                if (box->getBlendMode() == SkBlendMode::kDstIn) {
+                if (box->getBlendMode() == SkBlendMode::kDstIn || box->getBlendMode() == SkBlendMode::kDstOut) {
                     mItemMaskId = box->prp_getName();
                     break;
                 }
