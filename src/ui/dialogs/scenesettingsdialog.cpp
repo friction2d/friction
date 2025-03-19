@@ -91,12 +91,14 @@ SceneSettingsDialog::SceneSettingsDialog(const QString &name,
     mWidthLabel = new QLabel(tr("Width"), this);
     mWidthSpinBox = new QSpinBox(this);
     mWidthSpinBox->setRange(1, INT_MAX);
-    mWidthSpinBox->setValue(width);
+    const int lastWidth = AppSupport::getLastUsedWidth(width);
+    mWidthSpinBox->setValue(lastWidth);
 
     mHeightLabel = new QLabel(tr("Height"), this);
     mHeightSpinBox = new QSpinBox(this);
     mHeightSpinBox->setRange(1, INT_MAX);
-    mHeightSpinBox->setValue(height);
+    const int lastHeight = AppSupport::getLastUsedHeight(height);
+    mHeightSpinBox->setValue(lastHeight);
 
     mResToolButton = new QToolButton(this);
     mResToolButton->setArrowType(Qt::NoArrow);
@@ -119,11 +121,11 @@ SceneSettingsDialog::SceneSettingsDialog(const QString &name,
     mFrameRangeLabel = new QLabel(tr("Duration"), this);
     mMinFrameSpin = new QSpinBox(this);
     mMinFrameSpin->setRange(0, INT_MAX);
-    mMinFrameSpin->setValue(range.fMin);
+    mMinFrameSpin->setValue(AppSupport::getLastUsedMinFrame(range.fMin));
 
     mMaxFrameSpin = new QSpinBox(this);
     mMaxFrameSpin->setRange(0, INT_MAX);
-    mMaxFrameSpin->setValue(range.fMax);
+    mMaxFrameSpin->setValue(AppSupport::getLastUsedMaxFrame(range.fMax));
 
     mTypeTime = new QComboBox(this);
     mTypeTime->addItem(tr("Frames"), "Frames");
@@ -153,7 +155,7 @@ SceneSettingsDialog::SceneSettingsDialog(const QString &name,
                                    QLocale::UnitedStates));
     mFPSSpinBox->setRange(1, INT_MAX);
     mFPSSpinBox->setDecimals(3);
-    mFPSSpinBox->setValue(fps);
+    mFPSSpinBox->setValue(AppSupport::getLastUsedFps(fps));
 
     mFPSLayout = new QHBoxLayout();
     mFPSLayout->addWidget(mFPSLabel);
@@ -163,7 +165,9 @@ SceneSettingsDialog::SceneSettingsDialog(const QString &name,
 
     mBgColorLabel = new QLabel(tr("Background"), this);
     mBgColorButton = new ColorAnimatorButton(bg, this);
-    if (!bg) { mBgColorButton->setColor(Qt::black); }
+    if (!bg) { 
+        mBgColorButton->setColor(AppSupport::getLastUsedBgColor(Qt::black)); 
+    }
 
     mBgColorLayout = new QHBoxLayout();
     mBgColorLayout->addWidget(mBgColorLabel);
@@ -288,6 +292,12 @@ void SceneSettingsDialog::applySettingsToCanvas(Canvas * const canvas) const
     if (mEnableResolutionPresets &&
         mEnableResolutionPresetsAuto) { AppSupport::saveResolutionPreset(getCanvasWidth(),
                                                                          getCanvasHeight()); }
+    AppSupport::saveLastUsedSceneSettings(getCanvasWidth(),
+                                          getCanvasHeight(),
+                                          getFrameRange().fMin,
+                                          getFrameRange().fMax,
+                                          getFps(),
+                                          mBgColorButton->color());
     if (canvas != mTargetCanvas) {
         canvas->getBgColorAnimator()->setColor(mBgColorButton->color());
     }
