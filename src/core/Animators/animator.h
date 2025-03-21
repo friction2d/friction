@@ -180,6 +180,7 @@ public:
     void anim_deleteCurrentKeyAction();
 
     int anim_getLowestAbsFrameForSelectedKey();
+    int anim_getHighestAbsFrameForSelectedKey();
 
     const QList<Key*>& anim_getSelectedKeys() const {
         return anim_mSelectedKeys;
