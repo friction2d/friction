@@ -131,7 +131,7 @@ void MemoryChecker::sGetFreeKB(intKB& procFreeKB, intKB& sysFreeKB)
         const auto ret = host_statistics(mach_host_self(), HOST_VM_INFO,
                                          (host_info_t)&vmstat, &count);
         if (ret != KERN_SUCCESS) { RuntimeThrow("Could not retrieve memory usage"); }
-        const int pageSize = 4;
+        const int pageSize = getpagesize() / 1024;
         freeExternal.fValue += vmstat.inactive_count * pageSize;
         freeExternal.fValue += vmstat.free_count * pageSize;
 #endif
