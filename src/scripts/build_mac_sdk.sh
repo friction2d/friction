@@ -31,6 +31,7 @@ PKGCONF_V=1.1.0
 
 QT_V=5.15.16_20241121_32be1543
 QSCINTILLA_V=2.14.1
+QUAZIP_V=1.5
 
 LAME_V=3.100
 VPX_V=1.13.0
@@ -67,11 +68,17 @@ SHARED_CONFIGURE="${COMMON_CONFIGURE} --enable-shared --disable-static"
 STATIC_CONFIGURE="${COMMON_CONFIGURE} --disable-shared --enable-static"
 DEFAULT_CONFIGURE="${SHARED_CONFIGURE}"
 
-if [ ! -d "${SDK}" ]; then
+if [ ! -d "${SDK}/lib" ]; then
     mkdir -p "${SDK}/lib"
-    mkdir -p "${SDK}/bin"
-    mkdir -p "${SDK}/src"
     (cd "${SDK}"; ln -sf lib lib64)
+fi
+
+if [ ! -d "${SDK}/bin" ]; then
+    mkdir -p "${SDK}/bin"
+fi
+
+if [ ! -d "${SRC}" ]; then
+    mkdir -p "${SRC}"
 fi
 
 # python
@@ -250,6 +257,26 @@ if [ ! -f "${SDK}/lib/libqscintilla2_qt5.dylib" ]; then
     cp -a libqscintilla2_qt5* ${SDK}/lib/
     cp -a Qsci ${SDK}/include/
 fi # qscintilla
+
+# quazip
+if [ ! -f "${SDK}/lib/libquazip1-qt5.dylib" ]; then
+    cd ${SRC}
+    QZ_SRC="quazip-${QUAZIP_V}"
+    rm -rf ${QZ_SRC}
+    tar xf ${DIST}/qt/${QZ_SRC}.tar.gz
+    cd ${QZ_SRC}
+    mkdir build && cd build
+    CFLAGS="${DEFAULT_CFLAGS}" \
+    CXXFLAGS="${DEFAULT_CFLAGS}" \
+    LDFLAGS="${DEFAULT_LDFLAGS}" \
+    cmake \
+    -DCMAKE_PREFIX_PATH=${SDK} \
+    -DCMAKE_INSTALL_PREFIX=${SDK} \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DQUAZIP_BZIP2=OFF ..
+    make -j${MKJOBS}
+    make install
+fi # quazip
 
 # lame
 if [ ! -f "${SDK}/lib/libmp3lame.dylib" ]; then
