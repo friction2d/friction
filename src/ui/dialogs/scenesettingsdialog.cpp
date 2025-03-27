@@ -27,8 +27,7 @@
 #include "canvas.h"
 #include "GUI/coloranimatorbutton.h"
 #include "appsupport.h"
-
-#include "GUI/global.h"
+#include "Private/document.h"
 
 SceneSettingsDialog::SceneSettingsDialog(Canvas * const canvas,
                                          QWidget * const parent)
@@ -38,7 +37,8 @@ SceneSettingsDialog::SceneSettingsDialog(Canvas * const canvas,
                           canvas->getFrameRange(),
                           canvas->getFps(),
                           canvas->getBgColorAnimator(),
-                          parent)
+                          parent,
+                          false)
 {
     mTargetCanvas = canvas;
 }
@@ -46,23 +46,36 @@ SceneSettingsDialog::SceneSettingsDialog(Canvas * const canvas,
 SceneSettingsDialog::SceneSettingsDialog(const QString &defName,
                                          QWidget * const parent)
     : SceneSettingsDialog(defName,
-                          1920,
-                          1080,
-                          {0, 300},
-                          30.,
+                          AppSupport::getSettings("scene",
+                                                  "DefaultWidth",
+                                                  1920).toInt(),
+                          AppSupport::getSettings("scene",
+                                                  "DefaultHeight",
+                                                  1080).toInt(),
+                          {AppSupport::getSettings("scene",
+                                                   "DefaultMin",
+                                                   0).toInt(),
+                           AppSupport::getSettings("scene",
+                                                   "DefaultMax",
+                                                   300).toInt()},
+                          AppSupport::getSettings("scene",
+                                                  "DefaultFps",
+                                                  30.).toDouble(),
                           nullptr,
-                          parent)
+                          parent,
+                          true)
 {
 
 }
 
 SceneSettingsDialog::SceneSettingsDialog(const QString &name,
-                                           const int width,
-                                           const int height,
-                                           const FrameRange& range,
-                                           const qreal fps,
-                                           ColorAnimator * const bg,
-                                           QWidget * const parent)
+                                         const int width,
+                                         const int height,
+                                         const FrameRange& range,
+                                         const qreal fps,
+                                         ColorAnimator * const bg,
+                                         QWidget * const parent,
+                                         bool isNew)
     : Friction::Ui::Dialog(parent)
 {
     const auto presetsFpsSettings = AppSupport::getFpsPresetStatus();
@@ -163,7 +176,13 @@ SceneSettingsDialog::SceneSettingsDialog(const QString &name,
 
     mBgColorLabel = new QLabel(tr("Background"), this);
     mBgColorButton = new ColorAnimatorButton(bg, this);
-    if (!bg) { mBgColorButton->setColor(Qt::black); }
+    if (!bg) {
+        if (isNew) {
+            mBgColorButton->setColor(AppSupport::getSettings("scene",
+                                                             "DefaultColor",
+                                                             QColor(Qt::black)).value<QColor>());
+        } else { mBgColorButton->setColor(Qt::black); }
+    }
 
     mBgColorLayout = new QHBoxLayout();
     mBgColorLayout->addWidget(mBgColorLabel);
@@ -179,7 +198,19 @@ SceneSettingsDialog::SceneSettingsDialog(const QString &name,
     mCancelButton = new QPushButton(QIcon::fromTheme("dialog-cancel"),
                                     tr("Cancel"), this);
     mButtonsLayout = new QHBoxLayout();
+
+    if (isNew) {
+        mSaveAsDefault = new QCheckBox(this);
+        mSaveAsDefault->setText(tr("Set as default"));
+        mSaveAsDefault->setToolTip(tr("Use selected properties as default for new scenes"));
+        mSaveAsDefault->setChecked(AppSupport::getSettings("scene",
+                                                           "SaveDefault",
+                                                           false).toBool());
+        mMainLayout->addWidget(mSaveAsDefault);
+    }
+
     mMainLayout->addLayout(mButtonsLayout);
+
     mButtonsLayout->addWidget(mOkButton);
     mButtonsLayout->addWidget(mCancelButton);
 
@@ -197,26 +228,30 @@ SceneSettingsDialog::SceneSettingsDialog(const QString &name,
     populateFpsPresets();
 }
 
-bool SceneSettingsDialog::validate() {
+bool SceneSettingsDialog::validate()
+{
     QString nameError;
-    const bool validName = Property::prp_sValidateName(
-                mNameEdit->text(), &nameError);
-    if(!nameError.isEmpty()) nameError += "\n";
+    const bool validName = Property::prp_sValidateName(mNameEdit->text(),
+                                                       &nameError);
+    if (!nameError.isEmpty()) { nameError += "\n"; }
     mErrorLabel->setText(nameError);
     const bool valid = validName;
     mOkButton->setEnabled(valid);
     return valid;
 }
 
-int SceneSettingsDialog::getCanvasWidth() const {
+int SceneSettingsDialog::getCanvasWidth() const
+{
     return mWidthSpinBox->value();
 }
 
-int SceneSettingsDialog::getCanvasHeight() const {
+int SceneSettingsDialog::getCanvasHeight() const
+{
     return mHeightSpinBox->value();
 }
 
-QString SceneSettingsDialog::getCanvasName() const {
+QString SceneSettingsDialog::getCanvasName() const
+{
     return mNameEdit->text();
 }
 
@@ -237,7 +272,8 @@ FrameRange SceneSettingsDialog::getFrameRange() const
     return range;
 }
 
-qreal SceneSettingsDialog::getFps() const {
+qreal SceneSettingsDialog::getFps() const
+{
     return mFPSSpinBox->value();
 }
 
@@ -283,6 +319,18 @@ void SceneSettingsDialog::applySettingsToCanvas(Canvas * const canvas) const
     canvas->setCanvasSize(getCanvasWidth(), getCanvasHeight());
     canvas->setFps(getFps());
     canvas->setFrameRange(getFrameRange());
+    if (mSaveAsDefault) {
+        const bool saveDef = mSaveAsDefault->isChecked();
+        AppSupport::setSettings("scene", "SaveDefault", saveDef);
+        if (saveDef) {
+            AppSupport::setSettings("scene", "DefaultWidth", getCanvasWidth());
+            AppSupport::setSettings("scene", "DefaultHeight", getCanvasHeight());
+            AppSupport::setSettings("scene", "DefaultMin", getFrameRange().fMin);
+            AppSupport::setSettings("scene", "DefaultMax", getFrameRange().fMax);
+            AppSupport::setSettings("scene", "DefaultFps", getFps());
+            AppSupport::setSettings("scene", "DefaultColor", mBgColorButton->color());
+        }
+    }
     if (mEnableFpsPresets &&
         mEnableFpsPresetsAuto) { AppSupport::saveFpsPreset(getFps()); }
     if (mEnableResolutionPresets &&
@@ -293,11 +341,10 @@ void SceneSettingsDialog::applySettingsToCanvas(Canvas * const canvas) const
     }
 }
 
-#include "Private/document.h"
 void SceneSettingsDialog::sNewSceneDialog(Document& document,
-                                          QWidget * const parent) {
-    const QString defName = "Scene " +
-            QString::number(document.fScenes.count());
+                                          QWidget * const parent)
+{
+    const QString defName = tr("Scene %1").arg(document.fScenes.count());
 
     const auto dialog = new SceneSettingsDialog(defName, parent);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
@@ -316,7 +363,7 @@ void SceneSettingsDialog::sNewSceneDialog(Document& document,
 void SceneSettingsDialog::updateDuration(int index)
 {
     const qreal fps = mFPSSpinBox->value();
-    switch(index) {
+    switch (index) {
         case 0: // Convert seconds to frames
             mMinFrameSpin->setValue(qRound(mMinFrameSpin->value() * fps));
             mMaxFrameSpin->setValue(qRound(mMaxFrameSpin->value() * fps));

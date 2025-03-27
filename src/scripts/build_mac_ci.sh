@@ -31,6 +31,6 @@ if [ ! -d "${CWD}/sdk" ]; then
     tar xf ${SDK_TAR}
 fi
 
-git submodule update -i --recursive
+git submodule update --init --recursive
 
 CUSTOM=CI ./src/scripts/build_mac.sh

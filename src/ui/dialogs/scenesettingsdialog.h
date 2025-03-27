@@ -35,6 +35,7 @@
 #include <QLabel>
 #include <QComboBox>
 #include <QToolButton>
+#include <QCheckBox>
 
 #include "smartPointers/ememory.h"
 #include "framerange.h"
@@ -58,7 +59,8 @@ public:
                         const FrameRange &range,
                         const qreal fps,
                         ColorAnimator * const bg,
-                        QWidget * const parent = nullptr);
+                        QWidget * const parent = nullptr,
+                        bool isNew = false);
 
     int getCanvasWidth() const;
     int getCanvasHeight() const;
@@ -113,6 +115,8 @@ private:
 
     QToolButton *mResToolButton;
     QToolButton *mFpsToolButton;
+
+    QCheckBox *mSaveAsDefault = nullptr;
 
     bool mEnableResolutionPresets;
     bool mEnableResolutionPresetsAuto;
