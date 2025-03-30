@@ -94,8 +94,12 @@ TimelineDockWidget::TimelineDockWidget(Document& document,
             this, [this]() {
         const auto scene = *mDocument.fActiveScene;
         if (!scene) { return; }
-        scene->anim_setAbsFrame(scene->getFrameRange().fMin);
-        mDocument.actionFinished();
+        if (QApplication::keyboardModifiers() & Qt::ShiftModifier) {
+            jumpToIntermediateFrame(false);
+        } else {
+            scene->anim_setAbsFrame(scene->getFrameRange().fMin);
+            mDocument.actionFinished();
+        }
     });
 
     mFrameFastForwardAct = new QAction(QIcon::fromTheme("fastforward"),
@@ -109,8 +113,12 @@ TimelineDockWidget::TimelineDockWidget(Document& document,
             this, [this]() {
         const auto scene = *mDocument.fActiveScene;
         if (!scene) { return; }
-        scene->anim_setAbsFrame(scene->getFrameRange().fMax);
-        mDocument.actionFinished();
+        if (QApplication::keyboardModifiers() & Qt::ShiftModifier) {
+            jumpToIntermediateFrame(true);
+        } else {
+            scene->anim_setAbsFrame(scene->getFrameRange().fMax);
+            mDocument.actionFinished();
+        }
     });
 
     mPlayFromBeginningButton = new QAction(QIcon::fromTheme("preview"),
@@ -679,6 +687,41 @@ void TimelineDockWidget::splitClip()
     const auto scene = *mDocument.fActiveScene;
     if (!scene) { return; }
     scene->splitAction();
+}
+
+void TimelineDockWidget::jumpToIntermediateFrame(bool forward) {
+    const auto scene = *mDocument.fActiveScene;
+    if (!scene) { return; }
+    
+    const auto range = scene->getFrameRange();
+    const int currentFrame = scene->anim_getCurrentAbsFrame();
+    const int totalFrames = range.fMax - range.fMin;
+    const int quarterFrame = range.fMin + qRound(totalFrames * 0.25);
+    const int middleFrame = range.fMin + qRound(totalFrames * 0.5);
+    const int threeQuarterFrame = range.fMin + qRound(totalFrames * 0.75);
+    
+    if (forward) {
+        if (currentFrame < quarterFrame) {
+            scene->anim_setAbsFrame(quarterFrame);
+        } else if (currentFrame < middleFrame) {
+            scene->anim_setAbsFrame(middleFrame);
+        } else if (currentFrame < threeQuarterFrame) {
+            scene->anim_setAbsFrame(threeQuarterFrame);
+        } else {
+            scene->anim_setAbsFrame(range.fMax);
+        }
+    } else {
+        if (currentFrame > threeQuarterFrame) {
+            scene->anim_setAbsFrame(threeQuarterFrame);
+        } else if (currentFrame > middleFrame) {
+            scene->anim_setAbsFrame(middleFrame);
+        } else if (currentFrame > quarterFrame) {
+            scene->anim_setAbsFrame(quarterFrame);
+        } else {
+            scene->anim_setAbsFrame(range.fMin);
+        }
+    }
+    mDocument.actionFinished();
 }
 
 void TimelineDockWidget::stepPreview()
