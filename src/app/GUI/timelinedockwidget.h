@@ -93,6 +93,7 @@ public:
 private:
     void setLoop(const bool loop);
     void interruptPreview();
+    void jumpToIntermediateFrame(bool forward);
 
     void playPreview();
     void renderPreview();
