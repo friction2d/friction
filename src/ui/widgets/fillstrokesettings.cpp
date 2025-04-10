@@ -127,6 +127,7 @@ FillStrokeSettingsWidget::FillStrokeSettingsWidget(Document &document,
     connect(mLineWidthSpin, &QrealAnimatorValueSlider::valueEdited,
             actions, [actions](const qreal value) {
         actions->strokeWidthAction(QrealAction::sMakeSet(value));
+        eSettings::sInstance->fLastUsedStrokeWidth = value;
     });
     connect(mLineWidthSpin, &QrealAnimatorValueSlider::editingFinished,
             actions, [actions]() {
@@ -598,6 +599,12 @@ void FillStrokeSettingsWidget::colorSettingReceived(const ColorSetting &colorSet
         PaintSettingsApplier paintSetting;
         paintSetting << std::make_shared<ColorPaintSetting>(mTarget, colorSetting);
         scene->applyPaintSettingToSelected(paintSetting);
+    }
+
+    if (mTarget == PaintSetting::OUTLINE &&
+        getCurrentPaintTypeVal() == PaintType::FLATPAINT) {
+        // store as last used stroke color
+        eSettings::sInstance->fLastUsedStrokeColor = colorSetting.getColor();
     }
 }
 

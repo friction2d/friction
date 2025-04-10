@@ -335,7 +335,11 @@ void Canvas::renderSk(SkCanvas* const canvas,
         paint.setAntiAlias(true);
 
         const auto& pts = mDrawPath.smoothPts();
-        paint.setARGB(255, 0, 125, 255);
+        const auto drawColor = eSettings::instance().fLastUsedStrokeColor;
+        paint.setARGB(255,
+                      drawColor.red(),
+                      drawColor.green(),
+                      drawColor.blue());
         const SkScalar ptSize = 0.25*nodeSize;
         for(const auto& pt : pts) {
             canvas->drawCircle(pt.x(), pt.y(), ptSize, paint);

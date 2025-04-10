@@ -25,8 +25,10 @@
 
 #ifndef OUTLINESETTINGSANIMATOR_H
 #define OUTLINESETTINGSANIMATOR_H
+
 #include "paintsettingsanimator.h"
 #include "Animators/brushsettingsanimator.h"
+#include "Private/esettings.h"
 
 class CORE_EXPORT OutlineSettingsAnimator : public PaintSettingsAnimator {
     typedef qCubicSegment1DAnimator::Action SegAction;
@@ -129,6 +131,7 @@ private:
     qsptr<BrushSettingsAnimator> mBrushSettings =
             enve::make_shared<BrushSettingsAnimator>();
     qsptr<QrealAnimator> mLineWidth =
-            enve::make_shared<QrealAnimator>(10, 0, 999, 1, "thickness");
+            enve::make_shared<QrealAnimator>(eSettings::instance().fLastUsedStrokeWidth,
+                                             0, 999, 1, "thickness");
 };
 #endif // OUTLINESETTINGSANIMATOR_H
