@@ -817,7 +817,7 @@ void BoundingBox::setupCanvasMenu(PropertyMenu * const menu)
 
     menu->addPlainAction(QIcon::fromTheme("trash"), tr("Delete"), [pScene]() {
         pScene->removeSelectedBoxesAndClearList();
-    })->setShortcut(Qt::Key_Delete);
+    })->setShortcut({Qt::Key_Delete, Qt::Key_Backspace});
 
     menu->addSeparator();
 
@@ -1299,7 +1299,7 @@ void BoundingBox::prp_setupTreeViewMenu(PropertyMenu * const menu)
                                                   tr("Are you sure you want to delete selected item(s)?"));
             if (ask != QMessageBox::Yes) { return; }*/
             pScene->removeSelectedBoxesAndClearList();
-        })->setShortcut(Qt::Key_Delete);
+        })->setShortcuts({Qt::Key_Delete, Qt::Key_Backspace});
     }
 
     menu->addSeparator();
