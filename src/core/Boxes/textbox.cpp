@@ -39,9 +39,10 @@
 #include "svgexporter.h"
 #include "Private/esettings.h"
 
-TextBox::TextBox() : PathBox("Text", eBoxType::text) {
+TextBox::TextBox()
+    : PathBox("Text", eBoxType::text)
+{
     mFillSettings->setPaintType(PaintType::FLATPAINT);
-    mFillSettings->setCurrentColor(QColor(Qt::white));
     mStrokeSettings->setPaintType(PaintType::NOPAINT);
 
     const auto pathsUpdater = [this](const UpdateReason reason) {

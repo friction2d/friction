@@ -1,10 +1,10 @@
-name: macOS (x86_64)
+name: macOS (arm64)
 
-on: workflow_dispatch
+on: [push, pull_request]
 
 jobs:
   release:
-    runs-on: macos-13
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - name: Build
@@ -12,5 +12,5 @@ jobs:
     - name: Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: friction-ci-macOS-x86_64
+        name: friction-ci-macOS-arm64
         path: build-release/*.dmg

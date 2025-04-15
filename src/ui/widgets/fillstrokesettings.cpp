@@ -127,6 +127,7 @@ FillStrokeSettingsWidget::FillStrokeSettingsWidget(Document &document,
     connect(mLineWidthSpin, &QrealAnimatorValueSlider::valueEdited,
             actions, [actions](const qreal value) {
         actions->strokeWidthAction(QrealAction::sMakeSet(value));
+        eSettings::sInstance->fLastUsedStrokeWidth = value;
     });
     connect(mLineWidthSpin, &QrealAnimatorValueSlider::editingFinished,
             actions, [actions]() {
@@ -599,6 +600,18 @@ void FillStrokeSettingsWidget::colorSettingReceived(const ColorSetting &colorSet
         paintSetting << std::make_shared<ColorPaintSetting>(mTarget, colorSetting);
         scene->applyPaintSettingToSelected(paintSetting);
     }
+
+    if (mTarget == PaintSetting::OUTLINE &&
+        getCurrentPaintTypeVal() == PaintType::FLATPAINT) {
+        // store as last used stroke color
+        eSettings::sInstance->fLastUsedStrokeColor = colorSetting.getColor();
+    }
+
+    if (mTarget == PaintSetting::FILL &&
+        getCurrentPaintTypeVal() == PaintType::FLATPAINT) {
+        // store as last used fill color
+        eSettings::sInstance->fLastUsedFillColor = colorSetting.getColor();
+    }
 }
 
 void FillStrokeSettingsWidget::connectGradient()
@@ -651,8 +664,17 @@ PaintType FillStrokeSettingsWidget::getCurrentPaintTypeVal()
 
 void FillStrokeSettingsWidget::setCurrentPaintTypeVal(const PaintType paintType)
 {
-    if (mTarget == PaintSetting::FILL) { mCurrentFillPaintType = paintType; }
-    else { mCurrentStrokePaintType = paintType; }
+    if (mTarget == PaintSetting::FILL) {
+        if (!mCurrentFillColorAnimator && (mCurrentFillPaintType != paintType)) {
+            eSettings::sInstance->fLastFillFlatEnabled = (paintType == PaintType::FLATPAINT);
+        }
+        mCurrentFillPaintType = paintType;
+    } else {
+        if (!mCurrentStrokeColorAnimator && (mCurrentStrokePaintType != paintType)) {
+            eSettings::sInstance->fLastStrokeFlatEnabled = (paintType == PaintType::FLATPAINT);
+        }
+        mCurrentStrokePaintType = paintType;
+    }
 }
 
 QColor FillStrokeSettingsWidget::getColorVal()

@@ -165,6 +165,29 @@ public:
     // expressions presets
     Friction::Core::ExpressionPresets fExpressions;
 
+    // last used stroke color
+    QColor fLastUsedStrokeColor = AppSupport::getSettings("FillStroke",
+                                                          "LastStrokeColor",
+                                                          ThemeSupport::getThemeObjectColor()).value<QColor>();
+
+    // last used stoke size
+    qreal fLastUsedStrokeWidth = AppSupport::getSettings("FillStroke",
+                                                         "LastStrokeWidth",
+                                                         10.).toDouble();
+
+    // last used fill color
+    QColor fLastUsedFillColor = AppSupport::getSettings("FillStroke",
+                                                        "LastFillColor",
+                                                        QColor(Qt::white)).value<QColor>();
+
+    // last fill/stroke state
+    bool fLastFillFlatEnabled = AppSupport::getSettings("FillStroke",
+                                                        "LastFillFlat",
+                                                        false).toBool();
+    bool fLastStrokeFlatEnabled = AppSupport::getSettings("FillStroke",
+                                                          "LastStrokeFlat",
+                                                          true).toBool();
+
 signals:
     void settingsChanged();
 

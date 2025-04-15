@@ -47,6 +47,7 @@ class AdvancedTransformAnimator;
 struct UpdatePaintSettings;
 
 class CORE_EXPORT PaintSettingsAnimator : public ComplexAnimator {
+    Q_OBJECT
 protected:
     PaintSettingsAnimator(const QString &name,
                           BoundingBox * const parent);
@@ -86,6 +87,10 @@ public:
                             UpdatePaintSettings& settings);
     void duplicatePaintSettingsNotAnim(PaintSettingsAnimator * const settings);
     void applyTransform(const QMatrix& transform);
+
+signals:
+    void paintTypeChanged(const PaintType &type);
+
 protected:
     void saveSVG(SvgExporter& exp,
                  QDomElement& parent,

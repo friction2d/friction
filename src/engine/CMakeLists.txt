@@ -46,10 +46,6 @@ else()
     set(SKIA_ENABLE_EXTERNAL "false")
 endif()
 
-# skia_use_egl=
-# skia_use_gl=
-# skia_use_x11=
-
 if(WIN32)
     set(GN_PATH ${SKIA_SRC}/bin/gn.exe)
     set(SKIA_ARGS_EXTRA --ide=vs)
@@ -87,8 +83,9 @@ else()
         endif()
     endif()
     if(APPLE)
-        set(GN_PATH ${SKIA_SRC}/bin/gn.bin)
+        set(GN_PATH ${SKIA_SRC}/bin/macOS/gn-${CMAKE_HOST_SYSTEM_PROCESSOR})
         set(SKIA_UPDATE_CMD python3 "tools/git-sync-deps")
+        set(SKIA_ARGS "${SKIA_ARGS} target_cpu=\"${CMAKE_HOST_SYSTEM_PROCESSOR}\"")
         if(${MAC_DEPLOY})
             set(SKIA_ARGS "${SKIA_ARGS} extra_cflags=[\"-Wno-error\", \"-Wno-psabi\", \"-mmacosx-version-min=12.7\"]")
             set(SKIA_ARGS "${SKIA_ARGS} extra_cflags_cc=[\"-frtti\", \"-mmacosx-version-min=12.7\"]")

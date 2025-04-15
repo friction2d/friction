@@ -39,6 +39,8 @@
 #include <QSpacerItem>
 #include <QMargins>
 #include <iostream>
+#include <QClipboard>
+#include <QMimeData>
 
 #include "GUI/edialogs.h"
 #include "dialogs/applyexpressiondialog.h"
@@ -568,6 +570,23 @@ void MainWindow::setupMenuBar()
 #endif
         mActions.pasteAction->connect(qAct);
         cmdAddAction(qAct);
+    }
+
+    { // import (paste) SVG from clipboard
+        mEditMenu->addAction(QIcon::fromTheme("paste"),
+                             tr("Paste from Clipboard"),
+                             [this]() {
+            const auto clipboard = QGuiApplication::clipboard();
+            if (clipboard) {
+                const auto mime = clipboard->mimeData();
+                qDebug() << mime->formats() << mime->text();
+                if (mime->hasText() && mime->text().contains("<svg")) {
+                    const QString svg = mime->text();
+                    try { mActions.importClipboard(svg); }
+                    catch (const std::exception& e) { gPrintExceptionCritical(e); }
+                }
+            }
+        }, QKeySequence(tr("Ctrl+Shift+V")));
     }
 
     {
@@ -1120,7 +1139,9 @@ void MainWindow::setupMenuBar()
     help->addAction(QIcon::fromTheme("renderlayers"),
                     tr("Reinstall default Expressions Presets"),
                     this, &MainWindow::askInstallExpressionsPresets);
-
+    help->addAction(QIcon::fromTheme("color"),
+                    tr("Restore default fill and stroke"),
+                    this, &MainWindow::askRestoreFillStrokeDefault);
 
     // toolbar actions
     mToolbar->addAction(newAct);
@@ -1400,6 +1421,21 @@ void MainWindow::askInstallExpressionsPresets()
                                                  "<p style='font-weight: normal;font-style: italic'>Note that:<ul><li>any user modification to default presets will be removed.</li><li>a restart of the application is required to install them all.</li></ul></p>"));
     if (result != QMessageBox::Yes) { return; }
     AppSupport::setSettings("settings", "firstRunExprPresets", true);
+}
+
+void MainWindow::askRestoreFillStrokeDefault()
+{
+    const auto result = QMessageBox::question(this,
+                                              tr("Restore default fill and stroke?"),
+                                              tr("Are you sure you want to restore fill and stroke defaults?"));
+    if (result != QMessageBox::Yes) { return; }
+
+    auto settings = eSettings::sInstance;
+    settings->fLastFillFlatEnabled = false;
+    settings->fLastStrokeFlatEnabled = true;
+    settings->fLastUsedFillColor = Qt::white;
+    settings->fLastUsedStrokeColor = ThemeSupport::getThemeObjectColor();
+    settings->fLastUsedStrokeWidth = 10.;
 }
 
 void MainWindow::openWelcomeDialog()
@@ -1786,6 +1822,18 @@ void MainWindow::writeSettings()
     AppSupport::setSettings("ui", "geometry", saveGeometry());
     AppSupport::setSettings("ui", "maximized", isMaximized());
     AppSupport::setSettings("ui", "fullScreen", isFullScreen());
+
+    AppSupport::setSettings("FillStroke", "LastStrokeColor",
+                            eSettings::instance().fLastUsedStrokeColor);
+    AppSupport::setSettings("FillStroke", "LastStrokeWidth",
+                            eSettings::instance().fLastUsedStrokeWidth);
+    AppSupport::setSettings("FillStroke", "LastStrokeFlat",
+                            eSettings::instance().fLastStrokeFlatEnabled);
+
+    AppSupport::setSettings("FillStroke", "LastFillColor",
+                            eSettings::instance().fLastUsedFillColor);
+    AppSupport::setSettings("FillStroke", "LastFillFlat",
+                            eSettings::instance().fLastFillFlatEnabled);
 }
 
 bool MainWindow::isEnabled()

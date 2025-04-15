@@ -35,4 +35,5 @@ src/scripts/flatpak/export
 src/scripts/flatpak/builder
 src/scripts/flatpak/repo
 src/scripts/flatpak/remote
+*.app
 

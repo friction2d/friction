@@ -24,6 +24,7 @@
 #include "aboutwidget.h"
 #include "appsupport.h"
 #include "themesupport.h"
+#include "hardwareinfo.h"
 
 #include <QApplication>
 #include <QHBoxLayout>
@@ -51,17 +52,21 @@ AboutWidget::AboutWidget(QWidget *parent)
     osName.append(QString(" %1").arg(QApplication::platformName() == "xcb" ? "X11" : QApplication::platformName()));
 #endif
 
+    const QString gpuName = QString("%1 %2").arg(HardwareInfo::sGpuRendererString(),
+                                                 HardwareInfo::sGpuVersionString());
+
     QString label = QString::fromUtf8("<div style=\"margin: 0; padding: 0; text-align: center; font-weight: normal;\">"
                                       "<img src=\":/icons/hicolor/%5x%5/apps/%4.png\" width=\"%2\" height=\"%2\">"
                                       "<h1 style=\"font-weight: normal; margin-top: 0; padding-top: 0;\">%3"
                                       "<br><span style=\"font-size: large;\">%1</span>"
-                                      "<br><span style=\"font-size: medium;\">%6<br>Qt %7</span></h1>"
+                                      "<br><span style=\"font-size: medium;\">%6<br>%7<br>Qt %8</span></h1>"
                                       "</div>").arg(AppSupport::getAppVersion(),
                                                     QString::number(ThemeSupport::getIconSize(logoSize).width()),
                                                     AppSupport::getAppDisplayName(),
                                                     AppSupport::getAppID(),
                                                     QString::number(ThemeSupport::getIconSize(qRound(logoSize * devicePixelRatioF())).width()),
                                                     osName,
+                                                    gpuName,
                                                     qVersion());
     const auto buildInfo = AppSupport::getAppBuildInfo(true);
     if (!buildInfo.isEmpty()) {

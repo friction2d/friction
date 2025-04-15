@@ -139,6 +139,8 @@ public:
     static void handlePortableFirstRun();
     static const QString filterId(const QString &input);
     static const QString getMimeType(const QString &path);
+    static const QColor adjustColorVisibility(const QColor &color,
+                                              const QColor &background);
 };
 
 #endif // APPSUPPORT_H

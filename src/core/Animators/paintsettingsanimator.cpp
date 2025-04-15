@@ -410,8 +410,9 @@ void PaintSettingsAnimator::showHideChildrenBeforeChangingPaintType(
         ca_addChild(mColor);
 }
 
-void PaintSettingsAnimator::setPaintType(const PaintType paintType) {
-    if(paintType == mPaintType) return;
+void PaintSettingsAnimator::setPaintType(const PaintType paintType)
+{
+    if (paintType == mPaintType) { return; }
     {
         UndoRedo ur;
         const auto oldValue = mPaintType;
@@ -433,6 +434,8 @@ void PaintSettingsAnimator::setPaintType(const PaintType paintType) {
     prp_afterWholeInfluenceRangeChanged();
 
     SWT_setDisabled(paintType == PaintType::NOPAINT);
+
+    emit paintTypeChanged(mPaintType);
 }
 
 ColorAnimator *PaintSettingsAnimator::getColorAnimator() {

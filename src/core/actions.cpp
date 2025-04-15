@@ -31,6 +31,7 @@
 #include "Sound/eindependentsound.h"
 #include "Boxes/externallinkboxt.h"
 #include "GUI/dialogsinterface.h"
+#include "svgimporter.h"
 
 #include <QMessageBox>
 #include <QStandardItemModel>
@@ -779,6 +780,50 @@ eBoxOrSound *Actions::importFile(const QString &path,
         }
         if (const auto videoBox = enve_cast<VideoBox*>(result)) {
             Document::sInstance->newVideo(videoBox->getSpecs());
+        }
+    }
+    afterAction();
+    return result.get();
+}
+
+eBoxOrSound *Actions::importClipboard(const QString &content)
+{
+    if (!mActiveScene) { return nullptr; }
+    return importClipboard(content, mActiveScene->getCurrentGroup());
+}
+
+eBoxOrSound *Actions::importClipboard(const QString &content,
+                                      ContainerBox * const target,
+                                      const int insertId,
+                                      const QPointF &relDropPos,
+                                      const int frame)
+{
+    const auto scene = target->getParentScene();
+    auto block = scene ? scene->blockUndoRedo() : UndoRedoStack::StackBlock();
+    qsptr<eBoxOrSound> result;
+
+    if (!content.contains("<svg")) { RuntimeThrow(tr("Unable to parse SVG")); }
+
+    try {
+        const auto gradientCreator = [scene]() {
+            return scene->createNewGradient();
+        };
+        result =  ImportSVG::loadSVGFile(content.toUtf8(),
+                                         gradientCreator);
+    } catch(const std::exception& e) {
+        gPrintExceptionCritical(e);
+    }
+
+    if (result) {
+        if (frame) { result->shiftAll(frame); }
+        block.reset();
+        target->prp_pushUndoRedoName("Import from Clipboard");
+        target->insertContained(insertId, result);
+        if (const auto importedBox = enve_cast<BoundingBox*>(result)) {
+            importedBox->planCenterPivotPosition();
+            importedBox->startPosTransform();
+            importedBox->moveByAbs(relDropPos);
+            importedBox->finishTransform();
         }
     }
     afterAction();

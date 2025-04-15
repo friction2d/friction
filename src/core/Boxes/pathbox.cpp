@@ -43,28 +43,35 @@
 #include "Boxes/smartvectorpath.h"
 #include "themesupport.h"
 
-PathBox::PathBox(const QString &name, const eBoxType type) :
-    BoxWithPathEffects(name, type) {
-    connect(this, &eBoxOrSound::parentChanged, this, [this]() {
+PathBox::PathBox(const QString &name,
+                 const eBoxType type)
+    : BoxWithPathEffects(name, type)
+{
+    connect(this, &eBoxOrSound::parentChanged,
+            this, [this]() {
         setPathsOutdated(UpdateReason::userChange);
     });
 
-    connect(mPathEffectsAnimators.get(), &Property::prp_currentFrameChanged,
+    connect(mPathEffectsAnimators.get(),
+            &Property::prp_currentFrameChanged,
             this, [this](const UpdateReason reason) {
         setPathsOutdated(reason);
     });
 
-    connect(mFillPathEffectsAnimators.get(), &Property::prp_currentFrameChanged,
+    connect(mFillPathEffectsAnimators.get(),
+            &Property::prp_currentFrameChanged,
             this, [this](const UpdateReason reason) {
         setFillPathOutdated(reason);
     });
 
-    connect(mOutlineBasePathEffectsAnimators.get(), &Property::prp_currentFrameChanged,
+    connect(mOutlineBasePathEffectsAnimators.get(),
+            &Property::prp_currentFrameChanged,
             this, [this](const UpdateReason reason) {
         setOutlinePathOutdated(reason);
     });
 
-    connect(mOutlinePathEffectsAnimators.get(), &Property::prp_currentFrameChanged,
+    connect(mOutlinePathEffectsAnimators.get(),
+            &Property::prp_currentFrameChanged,
             this, [this](const UpdateReason reason) {
         setOutlinePathOutdated(reason);
     });
@@ -74,8 +81,24 @@ PathBox::PathBox(const QString &name, const eBoxType type) :
     mStrokeSettings = enve::make_shared<OutlineSettingsAnimator>(this);
     mStrokeGradientPoints = mFillSettings->getGradientPoints();
 
-    mStrokeSettings->setPaintType(PaintType::FLATPAINT);
-    mStrokeSettings->setCurrentColor(ThemeSupport::getThemeObjectColor());
+    bool fillFlat = eSettings::instance().fLastFillFlatEnabled;
+    bool strokeFlat = eSettings::instance().fLastStrokeFlatEnabled;
+    if (!fillFlat && !strokeFlat) { strokeFlat = true; }
+
+    switch (type) {
+    case eBoxType::circle:
+    case eBoxType::rectangle:
+        mFillSettings->setPaintType(fillFlat ?
+                                    PaintType::FLATPAINT : PaintType::NOPAINT);
+        mStrokeSettings->setPaintType(strokeFlat ?
+                                      PaintType::FLATPAINT : PaintType::NOPAINT);
+        break;
+    default:
+        mStrokeSettings->setPaintType(PaintType::FLATPAINT);
+    }
+
+    mFillSettings->setCurrentColor(eSettings::instance().fLastUsedFillColor);
+    mStrokeSettings->setCurrentColor(eSettings::instance().fLastUsedStrokeColor);
 
     ca_prependChild(mPathEffectsAnimators.get(), mFillSettings);
     ca_prependChild(mPathEffectsAnimators.get(), mStrokeSettings);
@@ -90,6 +113,29 @@ PathBox::PathBox(const QString &name, const eBoxType type) :
     const auto brushSettings = mStrokeSettings->getBrushSettings();
     connect(brushSettings, &BrushSettingsAnimator::brushChanged,
             this, &BoundingBox::brushChanged);
+
+    connect(mFillSettings.get(),
+            &PaintSettingsAnimator::paintTypeChanged,
+            this, [this](const PaintType &type) {
+        switch (getBoxType()) {
+        case eBoxType::circle:
+        case eBoxType::rectangle:
+            eSettings::sInstance->fLastFillFlatEnabled = (type == PaintType::FLATPAINT);
+            break;
+        default:;
+        }
+    });
+    connect(mStrokeSettings.get(),
+            &PaintSettingsAnimator::paintTypeChanged,
+            this, [this](const PaintType &type) {
+        switch (getBoxType()) {
+        case eBoxType::circle:
+        case eBoxType::rectangle:
+            eSettings::sInstance->fLastStrokeFlatEnabled = (type == PaintType::FLATPAINT);
+            break;
+        default:;
+        }
+    });
 }
 
 HardwareSupport PathBox::hardwareSupport() const {

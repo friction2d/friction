@@ -6,8 +6,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# the Free Software Foundation, version 3.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -44,6 +43,9 @@ X264_V=20180806-2245
 X265_V=3.5
 AOM_V=3.6.1
 FFMPEG_V=4.2.10
+OSX=12.7
+OSX_HOST=`sw_vers -productVersion`
+CPU=`uname -m`
 
 CWD=`pwd`
 SDK=${SDK:-"${CWD}/sdk"}
@@ -60,8 +62,12 @@ CMAKE_BIN=${SDK}/bin/cmake
 export PATH="${SDK}/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 export PKG_CONFIG_PATH="${SDK}/lib/pkgconfig"
 
+export CC="/usr/bin/clang -mmacosx-version-min=${OSX}"
+export CXX="/usr/bin/clang++ -mmacosx-version-min=${OSX}"
+
 STATIC_CFLAGS="-fPIC"
 DEFAULT_CFLAGS="-I${SDK}/include"
+DEFAULT_CPPFLAGS="${DEFAULT_CFLAGS}"
 DEFAULT_LDFLAGS="-L${SDK}/lib"
 COMMON_CONFIGURE="--prefix=${SDK}"
 SHARED_CONFIGURE="${COMMON_CONFIGURE} --enable-shared --disable-static"
@@ -112,6 +118,9 @@ if [ ! -f "${CMAKE_BIN}" ]; then
     rm -rf ${CMAKE_SRC} || true
     tar xf ${DIST}/ffmpeg/${CMAKE_SRC}.tar.gz
     cd ${CMAKE_SRC}
+    if [ "${OSX_HOST}" = "15.4" ]; then
+        patch -p0 < ${DIST}/patches/cmake-zlib-macos154.diff
+    fi
     ./configure ${COMMON_CONFIGURE} --parallel=${MKJOBS} -- -DCMAKE_USE_OPENSSL=OFF
     make -j${MKJOBS}
     make install
@@ -162,6 +171,12 @@ if [ ! -f "${QMAKE_BIN}" ]; then
         tar xf ${DIST}/qt/${QT_SRC}.${SRC_SUFFIX}
     fi
     cd ${QT_SRC}
+    if [ "${OSX_HOST}" = "15.4" ]; then
+        patch -p0 < ${DIST}/patches/qt-zlib-macos154.diff
+        patch -p0 < ${DIST}/patches/qt-libpng-macos154.diff
+    fi
+    patch -p0 < ${DIST}/qt/qtbase-macos-versions.diff
+    CXXFLAGS="${DEFAULT_CPPFLAGS}" CFLAGS="${DEFAULT_CFLAGS}" \
     ./configure \
     -prefix ${SDK} \
     -c++std c++14 \
@@ -252,6 +267,7 @@ if [ ! -f "${SDK}/lib/libqscintilla2_qt5.dylib" ]; then
     sed -i '' 's#!ios:QT += printsupport##' qscintilla.pro
     sed -i '' 's#!ios:HEADERS += ./Qsci/qsciprinter.h##' qscintilla.pro
     sed -i '' 's#!ios:SOURCES += qsciprinter.cpp##' qscintilla.pro
+    CXXFLAGS="${DEFAULT_CPPFLAGS}" CFLAGS="${DEFAULT_CFLAGS}" \
     ${SDK}/bin/qmake CONFIG+=release
     make -j${MKJOBS}
     cp -a libqscintilla2_qt5* ${SDK}/lib/
@@ -285,9 +301,9 @@ if [ ! -f "${SDK}/lib/libmp3lame.dylib" ]; then
     rm -rf ${LAME_SRC} || true
     tar xf ${DIST}/ffmpeg/${LAME_SRC}.tar.gz
     cd ${LAME_SRC}
-    patch -p0 < ${DIST}/ffmpeg/patch-lame-avoid_undefined_symbols_error.diff
+    patch -p0 < ${DIST}/patches/patch-lame-avoid_undefined_symbols_error.diff
     CFLAGS="${DEFAULT_CFLAGS}" \
-    CXXFLAGS="${DEFAULT_CFLAGS}" \
+    CXXFLAGS="${DEFAULT_CPPFLAGS}" \
     LDFLAGS="${DEFAULT_LDFLAGS}" \
     ./configure ${DEFAULT_CONFIGURE} --disable-frontend --disable-gtktest --with-fileio=lame --enable-nasm
     make -j${MKJOBS}
@@ -295,27 +311,29 @@ if [ ! -f "${SDK}/lib/libmp3lame.dylib" ]; then
 fi # lame
 
 # libvpx
-if [ ! -f "${SDK}/lib/libvpx.dylib" ]; then
+if [ ! -f "${SDK}/lib/libvpx.a" ]; then
     cd ${SRC}
     VPX_SRC=libvpx-${VPX_V}
     rm -rf ${VPX_SRC} || true
     tar xf ${DIST}/ffmpeg/libvpx-${VPX_V}.tar.gz
     cd ${VPX_SRC}
-    patch -p0 < ${DIST}/ffmpeg/patch-vpx-Makefile.diff
-    patch -p0 < ${DIST}/ffmpeg/patch-vpx-configure.sh.diff
+    patch -p0 < ${DIST}/patches/patch-vpx-Makefile.diff
+    patch -p0 < ${DIST}/patches/patch-vpx-configure.sh.diff
     CFLAGS="${DEFAULT_CFLAGS}" \
-    CXXFLAGS="${DEFAULT_CFLAGS}" \
+    CXXFLAGS="${DEFAULT_CPPFLAGS}" \
     LDFLAGS="${DEFAULT_LDFLAGS}" \
     ./configure ${DEFAULT_CONFIGURE} \
     --enable-vp8 \
     --enable-vp9 \
+    --enable-vp9-highbitdepth \
     --enable-internal-stats \
     --enable-pic \
     --enable-postproc \
     --enable-multithread \
     --enable-runtime-cpu-detect \
     --enable-experimental \
-    --enable-shared \
+    --disable-shared \
+    --enable-static \
     --disable-install-docs \
     --disable-debug-libs \
     --disable-examples \
@@ -332,9 +350,9 @@ if [ ! -f "${SDK}/lib/libogg.dylib" ]; then
     tar xf ${DIST}/ffmpeg/${OGG_SRC}.tar.gz
     cd ${OGG_SRC}
     CFLAGS="${DEFAULT_CFLAGS}" \
-    CXXFLAGS="${DEFAULT_CFLAGS}" \
+    CXXFLAGS="${DEFAULT_CPPFLAGS}" \
     LDFLAGS="${DEFAULT_LDFLAGS}" \
-    ./configure ${DEFAULT_CONFIGURE}
+    ./configure ${STATIC_CONFIGURE}
     make -j${MKJOBS}
     make install
 fi # libogg
@@ -346,10 +364,11 @@ if [ ! -f "${SDK}/lib/libvorbis.dylib" ]; then
     rm -rf ${VORBIS_SRC} || true
     tar xf ${DIST}/ffmpeg/${VORBIS_SRC}.tar.gz
     cd ${VORBIS_SRC}
+    patch -p0 < ${DIST}/patches/vorbis-configure.diff
     CFLAGS="${DEFAULT_CFLAGS}" \
-    CXXFLAGS="${DEFAULT_CFLAGS}" \
+    CXXFLAGS="${DEFAULT_CPPFLAGS}" \
     LDFLAGS="${DEFAULT_LDFLAGS}" \
-    ./configure ${DEFAULT_CONFIGURE}
+    ./configure ${DEFAULT_CONFIGURE} --disable-oggtest --disable-silent-rules
     make -j${MKJOBS}
     make install
 fi # libvorbis
@@ -362,7 +381,7 @@ if [ ! -f "${SDK}/lib/libtheora.dylib" ]; then
     tar xf ${DIST}/ffmpeg/${THEORA_SRC}.tar.gz
     cd ${THEORA_SRC}
     CFLAGS="${DEFAULT_CFLAGS}" \
-    CXXFLAGS="${DEFAULT_CFLAGS}" \
+    CXXFLAGS="${DEFAULT_CPPFLAGS}" \
     LDFLAGS="${DEFAULT_LDFLAGS}" \
     ./configure ${DEFAULT_CONFIGURE} --disable-examples --disable-sdltest
     make -j${MKJOBS}
@@ -376,7 +395,7 @@ if [ ! -f "${SDK}/lib/libxvidcore.4.dylib" ]; then
     tar xf ${DIST}/ffmpeg/xvidcore-${XVID_V}.tar.gz
     cd xvidcore/build/generic
     CFLAGS="${DEFAULT_CFLAGS}" \
-    CXXFLAGS="${DEFAULT_CFLAGS}" \
+    CXXFLAGS="${DEFAULT_CPPFLAGS}" \
     LDFLAGS="${DEFAULT_LDFLAGS}" \
     ./configure ${COMMON_CONFIGURE}
     make -j${MKJOBS}
@@ -391,7 +410,7 @@ fi # xvidcore
 #    tar xf ${DIST}/ffmpeg/liblsmash-v${LSMASH_V}.tar.gz
 #    cd ${LSMASH_SRC}
 #    CFLAGS="${DEFAULT_CFLAGS}" \
-#    CXXFLAGS="${DEFAULT_CFLAGS}" \
+#    CXXFLAGS="${DEFAULT_CPPFLAGS}" \
 #    LDFLAGS="${DEFAULT_LDFLAGS}" \
 #    ./configure ${DEFAULT_CONFIGURE}
 #    make -j${MKJOBS}
@@ -401,12 +420,12 @@ fi # xvidcore
 # x264
 if [ ! -f "${SDK}/lib/libx264.dylib" ]; then
     cd ${SRC}
-    X264_SRC=x264-snapshot-${X264_V}
+    X264_SRC=x264-master #snapshot-${X264_V}
     rm -rf ${X264_SRC} || true
     tar xf ${DIST}/ffmpeg/${X264_SRC}.tar.bz2
     cd ${X264_SRC}
     CFLAGS="${DEFAULT_CFLAGS}" \
-    CXXFLAGS="${DEFAULT_CFLAGS}" \
+    CXXFLAGS="${DEFAULT_CPPFLAGS}" \
     LDFLAGS="${DEFAULT_LDFLAGS}" \
     ./configure ${COMMON_CONFIGURE} --enable-shared --disable-lavf --disable-swscale --disable-opencl --disable-cli
     make -j${MKJOBS}
@@ -422,9 +441,10 @@ if [ ! -f "${SDK}/lib/libx265.dylib" ]; then
     cd ${X265_SRC}/source
     mkdir build && cd build
     CFLAGS="${DEFAULT_CFLAGS}" \
-    CXXFLAGS="${DEFAULT_CFLAGS}" \
+    CXXFLAGS="${DEFAULT_CPPFLAGS}" \
     LDFLAGS="${DEFAULT_LDFLAGS}" \
     cmake \
+    -DCMAKE_OSX_DEPLOYMENT_TARGET=${OSX} \
     -DCMAKE_INSTALL_PREFIX=${SDK} \
     -DCMAKE_BUILD_TYPE=Release \
     -DENABLE_SHARED=ON \
@@ -442,9 +462,10 @@ if [ ! -f "${SDK}/lib/libaom.dylib" ]; then
     cd ${AOM_SRC}
     mkdir build2 && cd build2
     CFLAGS="${DEFAULT_CFLAGS}" \
-    CXXFLAGS="${DEFAULT_CFLAGS}" \
+    CXXFLAGS="${DEFAULT_CPPFLAGS}" \
     LDFLAGS="${DEFAULT_LDFLAGS}" \
     cmake \
+    -DCMAKE_OSX_DEPLOYMENT_TARGET=${OSX} \
     -DCMAKE_INSTALL_PREFIX=${SDK} \
     -DCMAKE_BUILD_TYPE=Release \
     -DENABLE_NASM=ON \
@@ -466,8 +487,9 @@ if [ ! -f "${SDK}/lib/pkgconfig/libavcodec.pc" ]; then
     rm -rf ${FFMPEG_SRC} || true
     tar xf ${DIST}/ffmpeg/${FFMPEG_SRC}.tar.xz
     cd ${FFMPEG_SRC}
+    export MACOSX_DEPLOYMENT_TARGET=${OSX}
     CFLAGS="${DEFAULT_CFLAGS}" \
-    CXXFLAGS="${DEFAULT_CFLAGS}" \
+    CXXFLAGS="${DEFAULT_CPPFLAGS}" \
     LDFLAGS="${DEFAULT_LDFLAGS}" \
     ./configure ${SHARED_CONFIGURE} \
     --disable-securetransport \
@@ -516,6 +538,12 @@ fi # ffmpeg
 install_name_tool -change libvpx.8.dylib @rpath/libvpx.8.dylib libavformat.58.dylib
 install_name_tool -change libvpx.8.dylib @rpath/libvpx.8.dylib libavcodec.58.dylib
 sh ${CWD}/src/scripts/macos_fix_dylib.sh
+for i in *.dylib; do
+otool -l $i | grep "minos"
+done
+for i in *.a; do
+otool -l $i | grep "minos"
+done
 )
 
 echo "Friction macOS SDK done!"

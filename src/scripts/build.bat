@@ -27,7 +27,7 @@ set SDK_VERSION=1.0.0
 
 set PATH=%SDK_DIR%\bin;%PATH%
 
-git submodule update -i --recursive
+git submodule update --init --recursive
 
 set BRANCH=
 for /f %%I in ('git rev-parse --abbrev-ref HEAD 2^> NUL') do set BRANCH=%%I

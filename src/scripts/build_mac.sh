@@ -6,8 +6,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# the Free Software Foundation, version 3.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -28,6 +27,8 @@ BRANCH=${BRANCH:-`git rev-parse --abbrev-ref HEAD`}
 COMMIT=${COMMIT:-`git rev-parse --short=8 HEAD`}
 CUSTOM=${CUSTOM:-""}
 BUILD_DIR=${BUILD_DIR:-"${CWD}/build-release"}
+OSX=12.7
+CPU=`uname -m`
 
 export PATH="${SDK}/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 export PKG_CONFIG_PATH="${SDK}/lib/pkgconfig"
@@ -52,7 +53,7 @@ fi
 mkdir ${BUILD_DIR} && cd ${BUILD_DIR}
 
 cmake -G Ninja \
--DCMAKE_OSX_DEPLOYMENT_TARGET=12.7 \
+-DCMAKE_OSX_DEPLOYMENT_TARGET=${OSX} \
 -DMAC_DEPLOY=ON \
 -DGIT_COMMIT=${COMMIT} \
 -DGIT_BRANCH=${BRANCH} \
@@ -85,4 +86,4 @@ rm -f src/app/Friction.app/Contents/Frameworks/{libQt5MultimediaWidgets.5.dylib,
 rm -rf src/app/Friction.app/Contents/PlugIns/{bearer,iconengines,imageformats,mediaservice,printsupport,styles}
 
 mkdir dmg && mv src/app/Friction.app dmg/
-hdiutil create -volname "Friction" -srcfolder dmg -ov -format ULMO Friction-${VERSION}-x86_64.dmg
+hdiutil create -volname "Friction" -srcfolder dmg -ov -format ULMO Friction-${VERSION}-${CPU}.dmg

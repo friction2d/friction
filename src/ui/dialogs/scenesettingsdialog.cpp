@@ -28,6 +28,7 @@
 #include "GUI/coloranimatorbutton.h"
 #include "appsupport.h"
 #include "Private/document.h"
+#include "Private/esettings.h"
 
 SceneSettingsDialog::SceneSettingsDialog(Canvas * const canvas,
                                          QWidget * const parent)
@@ -319,6 +320,7 @@ void SceneSettingsDialog::applySettingsToCanvas(Canvas * const canvas) const
     canvas->setCanvasSize(getCanvasWidth(), getCanvasHeight());
     canvas->setFps(getFps());
     canvas->setFrameRange(getFrameRange());
+
     if (mSaveAsDefault) {
         const bool saveDef = mSaveAsDefault->isChecked();
         AppSupport::setSettings("scene", "SaveDefault", saveDef);
@@ -338,6 +340,13 @@ void SceneSettingsDialog::applySettingsToCanvas(Canvas * const canvas) const
                                                                          getCanvasHeight()); }
     if (canvas != mTargetCanvas) {
         canvas->getBgColorAnimator()->setColor(mBgColorButton->color());
+
+        // Adjust default fill/stroke color to background color
+        auto settings = eSettings::sInstance;
+        settings->fLastUsedFillColor = AppSupport::adjustColorVisibility(eSettings::instance().fLastUsedFillColor,
+                                                                         mBgColorButton->color());
+        settings->fLastUsedStrokeColor = AppSupport::adjustColorVisibility(eSettings::instance().fLastUsedStrokeColor,
+                                                                           mBgColorButton->color());
     }
 }
 
