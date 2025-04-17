@@ -52,6 +52,7 @@ private:
     QAction *mSmoothButton;
     QAction *mCornerButton;
     QAction *mFitToHeightButton;
+    QAction *mFitToWidthButton;
 };
 
 #endif // ANIMATIONDOCKWIDGET_H
