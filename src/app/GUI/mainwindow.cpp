@@ -1970,8 +1970,9 @@ void MainWindow::saveBackup()
 {
     const QString defPath = mDocument.fEvFile;
     QFileInfo defInfo(defPath);
-    if (defPath.isEmpty() || defInfo.isDir())  { return; }
-    const QString backupPath = defPath + "_backup/backup_%1.friction";
+    const QString suffix = defInfo.suffix();
+    if (defPath.isEmpty() || defInfo.isDir()) { return; }
+    const QString backupPath = defPath + "_backup/backup_%1." + suffix;
     int id = 1;
     QFile backupFile(backupPath.arg(id));
     while (backupFile.exists()) {
@@ -1979,7 +1980,11 @@ void MainWindow::saveBackup()
         backupFile.setFileName(backupPath.arg(id) );
     }
     try {
-        saveToFile(backupPath.arg(id), false);
+        if (suffix == "friction") {
+            saveToFile(backupPath.arg(id), false);
+        } else if (suffix == "fdesign") {
+            saveToFileXML(backupPath.arg(id));
+        } else { RuntimeThrow("Unrecognized file extension " + suffix); }
     } catch(const std::exception& e) {
         gPrintExceptionCritical(e);
     }
