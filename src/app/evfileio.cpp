@@ -182,7 +182,17 @@ void MainWindow::saveToFile(const QString &path,
 
 #include "XML/xmlzipfilesaver.h"
 
-void MainWindow::saveToFileXML(const QString &path) {
+void MainWindow::saveToFileXML(const QString &path)
+{
+    // check if folder exists first
+    QFileInfo info(path);
+    QDir dir = info.absoluteDir();
+    if (!dir.exists()) {
+        if (!dir.mkpath(dir.absolutePath())) {
+            RuntimeThrow(tr("Unable to create directory: %1").arg(dir.absolutePath()));
+        }
+    }
+
     try {
         const auto xevfileSaver = std::make_shared<Friction::Core::XmlZipFileSaver>();
         xevfileSaver->setPath(path);
