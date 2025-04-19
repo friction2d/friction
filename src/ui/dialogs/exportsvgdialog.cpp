@@ -107,6 +107,12 @@ ExportSvgDialog::ExportSvgDialog(QWidget* const parent,
                                                 "notify",
                                                 true).toBool());
 
+
+    mBlendMix = new QCheckBox(tr("Mix Blend Modes"), this);
+    mBlendMix->setChecked(AppSupport::getSettings("exportSVG",
+                                                  "blendMix",
+                                                  false).toBool());
+
     connect(mBackground, &QCheckBox::stateChanged,
             this, [this] {
         AppSupport::setSettings("exportSVG",
@@ -136,6 +142,12 @@ ExportSvgDialog::ExportSvgDialog(QWidget* const parent,
         AppSupport::setSettings("exportSVG",
                                 "notify",
                                 mNotify->isChecked());
+    });
+    connect(mBlendMix, &QCheckBox::stateChanged,
+            this, [this] {
+        AppSupport::setSettings("exportSVG",
+                                "blendMix",
+                                mBlendMix->isChecked());
     });
 
     twoColLayout->addPair(new QLabel(tr("Scene")), sceneButton);
@@ -190,7 +202,7 @@ ExportSvgDialog::ExportSvgDialog(QWidget* const parent,
     optsTwoCol->addPair(mImageFormat, mImageQuality);
     optsTwoCol->addPair(mBackground, mFixedSize);
     optsTwoCol->addPair(mLoop, mOptimize);
-    optsTwoCol->addPair(mNotify, new QWidget());
+    optsTwoCol->addPair(mNotify, mBlendMix);
     optsTwoCol->addSpacing(4);
 
     sceneWidget->setLayout(twoColLayout);
@@ -328,6 +340,7 @@ ComplexTask* ExportSvgDialog::exportTo(const QString& file,
         const bool background = mBackground->isChecked();
         const bool fixedSize = mFixedSize->isChecked();
         const bool loop = mLoop->isChecked();
+        const bool blend = mBlendMix->isChecked();
 
         int imageQuality = mImageQuality->value();
         SkEncodedImageFormat imageFormat;
@@ -347,7 +360,8 @@ ComplexTask* ExportSvgDialog::exportTo(const QString& file,
 
         const auto task = new SvgExporter(file, scene, frameRange, fps,
                                           background, fixedSize, loop,
-                                          imageFormat, imageQuality, preview);
+                                          imageFormat, imageQuality, preview,
+                                          blend);
         const auto taskSPtr = qsptr<SvgExporter>(task, &QObject::deleteLater);
         task->nextStep();
         TaskScheduler::instance()->addComplexTask(taskSPtr);

@@ -41,7 +41,8 @@ public:
                 const bool loop,
                 const SkEncodedImageFormat imageFormat = SkEncodedImageFormat::kPNG,
                 const int imageQuality = 100,
-                bool html = false);
+                bool html = false,
+                bool blendMix = false);
 
     void nextStep() override;
 
@@ -55,6 +56,7 @@ public:
     const bool fLoop;
     const SkEncodedImageFormat fImageFormat;
     const int fImageQuality;
+    const bool fBlendMix;
 
     QDomElement createElement(const QString& tagName)
     {
