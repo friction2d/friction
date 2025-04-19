@@ -29,7 +29,7 @@
 #include "Boxes/boundingbox.h"
 #include "importhandler.h"
 
-class eXevImporter : public eImporter {
+class eXmlImporter : public eImporter {
 public:
     bool supports(const QFileInfo& fileInfo) const {
         return fileInfo.suffix() == "fdesign";

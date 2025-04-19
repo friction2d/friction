@@ -211,7 +211,7 @@ void MainWindow::saveToFileXML(const QString &path) {
     addRecentFile(path);
 }
 
-void MainWindow::loadXevFile(const QString &path) {
+void MainWindow::loadXmlFile(const QString &path) {
     try {
         Core::ZipFileLoader fileLoader;
         fileLoader.setZipPath(path);

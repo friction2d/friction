@@ -169,7 +169,7 @@ MainWindow::MainWindow(Document& document,
     Q_ASSERT(!sInstance);
     sInstance = this;
 
-    ImportHandler::sInstance->addImporter<eXevImporter>(); // not supported yet
+    ImportHandler::sInstance->addImporter<eXmlImporter>();
     ImportHandler::sInstance->addImporter<evImporter>();
     ImportHandler::sInstance->addImporter<eSvgImporter>();
     //ImportHandler::sInstance->addImporter<eOraImporter>(); // removed, will be added back soonish
@@ -1895,7 +1895,7 @@ void MainWindow::openFile(const QString& openPath)
         if (suffix == "friction") {
             loadEVFile(openPath);
         } else if (suffix == "fdesign") {
-            loadXevFile(openPath);
+            loadXmlFile(openPath);
         } else { RuntimeThrow("Unrecognized file extension " + suffix); }
         mDocument.setPath(openPath);
         setFileChangedSinceSaving(false);

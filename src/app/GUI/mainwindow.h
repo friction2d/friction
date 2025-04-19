@@ -95,7 +95,7 @@ public:
                     const bool addRecent = true);
     void saveToFileXML(const QString& path);
     void loadEVFile(const QString &path);
-    void loadXevFile(const QString &path);
+    void loadXmlFile(const QString &path);
     void clearAll();
     void updateTitle();
     void setFileChangedSinceSaving(const bool changed);
