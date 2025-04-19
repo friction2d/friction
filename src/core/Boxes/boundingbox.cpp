@@ -1602,6 +1602,13 @@ eTask* BoundingBox::saveSVGWithTransform(SvgExporter& exp,
 
             if (maskId == ptr->prp_getName()) { // move mask to defs
                 auto& eleMask = taskPtr->initialize("mask");
+                // check for mask (DstOut)
+                if (ptr->getBlendMode() == SkBlendMode::kDstOut) {
+                    auto rect = eleMask.appendChild(expPtr->createElement("rect")).toElement();
+                    rect.setAttribute("width", "100%");
+                    rect.setAttribute("height", "100%");
+                    rect.setAttribute("fill", "white");
+                }
                 eleMask.setAttribute("id", QString("%1Mask").arg(AppSupport::filterId(ptr->prp_getName())));
                 eleMask.appendChild(withEffects);
                 expPtr->addToDefs(eleMask);
