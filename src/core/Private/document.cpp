@@ -116,7 +116,6 @@ void Document::setCanvasMode(const CanvasMode mode) {
 Canvas *Document::createNewScene(const bool emitCreated) {
     const auto newScene = enve::make_shared<Canvas>(*this);
     fScenes.append(newScene);
-    SWT_addChild(newScene.get());
     if (emitCreated) {
         emit sceneCreated(newScene.get());
     }
@@ -131,7 +130,6 @@ bool Document::removeScene(const qsptr<Canvas>& scene) {
 bool Document::removeScene(const int id) {
     if(id < 0 || id >= fScenes.count()) return false;
     const auto scene = fScenes.takeAt(id);
-    SWT_removeChild(scene.data());
     emit sceneRemoved(scene.data());
     emit sceneRemoved(id);
     return true;
@@ -302,14 +300,4 @@ void Document::clear() {
         removeBookmarkColor(color);
     }
     fColors.clear();
-}
-
-void Document::SWT_setupAbstraction(SWT_Abstraction * const abstraction,
-                                    const UpdateFuncs &updateFuncs,
-                                    const int visiblePartWidgetId) {
-    for(const auto& scene : fScenes) {
-        auto abs = scene->SWT_abstractionForWidget(updateFuncs,
-                                                   visiblePartWidgetId);
-        abstraction->addChildAbstraction(abs->ref<SWT_Abstraction>());
-    }
 }

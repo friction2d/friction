@@ -30,7 +30,6 @@
 #include <QDomDocument>
 
 #include "smartPointers/ememory.h"
-#include "singlewidgettarget.h"
 #include "paintsettings.h"
 #include "Paint/brushcontexedwrapper.h"
 #include "actions.h"
@@ -61,7 +60,7 @@ enum class PaintMode {
     move, crop
 };
 
-class CORE_EXPORT Document : public SingleWidgetTarget {
+class CORE_EXPORT Document {
     Q_OBJECT
 public:
     Document(TaskScheduler& taskScheduler);
@@ -169,10 +168,6 @@ public:
                        ZipFileLoader& fileLoader,
                        const QList<Canvas*>& scenes,
                        const RuntimeIdToWriteId& objListIdConv);
-
-    void SWT_setupAbstraction(SWT_Abstraction * const abstraction,
-                              const UpdateFuncs &updateFuncs,
-                              const int visiblePartWidgetId);
 private:
     void readDocumentXEV(const QDomDocument& doc,
                          QList<Canvas*>& scenes);
