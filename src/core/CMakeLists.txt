@@ -244,6 +244,8 @@ set(
     TransformEffects/transformeffect.cpp
     TransformEffects/transformeffectcollection.cpp
     TransformEffects/transformeffectmenucreator.cpp
+    ViewLayers/basecanvas.cpp
+    ViewLayers/viewlayer_export.cpp
     XML/xevexporter.cpp
     XML/xevimporter.cpp
     XML/xevzipfilesaver.cpp
@@ -568,6 +570,9 @@ set(
     TransformEffects/transformeffect.h
     TransformEffects/transformeffectcollection.h
     TransformEffects/transformeffectmenucreator.h
+    ViewLayers/basecanvas.h
+    ViewLayers/viewlayer.h
+    ViewLayers/viewlayer_export.h
     XML/runtimewriteid.h
     XML/xevexporter.h
     XML/xevimporter.h
