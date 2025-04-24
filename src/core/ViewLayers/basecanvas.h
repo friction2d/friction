@@ -34,10 +34,14 @@
 class SkCanvas;
 class QRect;
 
+
+typedef Bounds = (int x, int y, int width, int height);
+
 // CanvasBase
 //
 // ONLY ONE RESPONSIBILITY!!!
-// Renders the ViewLayers content: shapes, movable points, selection...
+// A widget which renders the ViewLayers content:
+// shapes, movable points, selection...
 class CanvasBase : public QWidget {
 public:
     CanvasBase() {};
@@ -73,6 +77,9 @@ public: /* Getters / setters */
         viewLayers[layerId] = delete;
     }
 
+    Bounds bounds() {
+        return (boundX, boundY, boundWidth, boundHeight);
+    }
     void setBounds(int x, int y, int width, int height) {
         boundX = x;
         boundY = y;

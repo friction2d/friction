@@ -88,7 +88,7 @@ ViewLayerExport::repaint(SkCanvas *canvas) {
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setPathEffect(dashPathEffect);
         
-        auto currentBounds = toSkRect(getBounds());
+        auto currentBounds = toSkRect(bounds());
         canvas->drawRect(currentBounds, paint);
     }
 
