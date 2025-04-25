@@ -31,6 +31,11 @@
 
 #include "../efiltersettings.h"
 
+
+ViewLayerExport::ViewLayerExport(Document &document) : ViewLayer("export_layer", document) {
+
+};
+
 ViewLayerExport::repaint(SkCanvas *canvas) {
 
     /* ======== Setup ======== */

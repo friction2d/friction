@@ -26,13 +26,13 @@
 #ifndef BASE_CANVAS_H
 #define BASE_CANVAS_H
 
-
 #include <QWidget>
 
 #include "viewlayer.h"
 
 class SkCanvas;
 class QRect;
+class Document;
 
 
 typedef Bounds = (int x, int y, int width, int height);
@@ -41,10 +41,11 @@ typedef Bounds = (int x, int y, int width, int height);
 //
 // ONLY ONE RESPONSIBILITY!!!
 // A widget which renders the ViewLayers content:
-// shapes, movable points, selection...
+// shapes, movable points, selection... to the CanvasWindow.
 class CanvasBase : public QWidget {
 public:
-    CanvasBase() {};
+    explicit CanvasBase(Document& document,
+                        QWidget *parent = nullptr);
     ~CanvasBase() = default;
 
     void repaint(SkCanvas *canvas)
@@ -52,20 +53,14 @@ public:
 private: /* Data */
     std::map<string, ViewLayer> viewLayers;
 
-    // Bounds
-    //
-    // The canvas looks like a widget in the UI. But internally,
-    // it's a usual window and we must update its size and position
-    // every frame.
-    int boundX, boundY = 0
-    int boundWidth, boundHeight = 0
-
     // Zoom & translation
     QRect translationVector;
     float zoomMultiplier = 1;
 
     // Resolution 25% - 100%
     float resolution = 1;
+
+    Document &document;
 
 public: /* Getters / setters */
     void addViewLayer(ViewLayer &viewLayer) {
@@ -75,16 +70,6 @@ public: /* Getters / setters */
     }
     void removeViewLayer(string layerId) {
         viewLayers[layerId] = delete;
-    }
-
-    Bounds bounds() {
-        return (boundX, boundY, boundWidth, boundHeight);
-    }
-    void setBounds(int x, int y, int width, int height) {
-        boundX = x;
-        boundY = y;
-        boundWidth = width;
-        boundHeight = height;
     }
 
     float zoom() { return zoomMultiplier; }

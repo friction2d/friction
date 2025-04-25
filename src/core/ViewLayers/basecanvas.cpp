@@ -32,6 +32,10 @@
 #include "Private/document.h"
 
 
+CanvasBase::CanvasBase(Document& document, QWidget *parent) : QWidget(parent) {
+    document = document;
+}
+
 CanvasBase::repaint(SkCanvas *canvas) {
     for auto& viewLayer : viewLayers {
         viewLayer.repaint(canvas);

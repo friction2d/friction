@@ -31,7 +31,10 @@ class BaseCanvas;
 
 class ViewLayer {
 public:
-    ViewLayer(const std::string layerId) {};
+    ViewLayer(const std::string layerId, Document &document) {
+        layerId = layerId;
+        document = document;
+    };
     ~ViewLayer() = default;
 
     virtual void repaint(SkCanvas *canvas);
@@ -41,6 +44,7 @@ public:
 
 private:
     std::string const layerId;
+    Document &document;
 
     BaseCanvas &canvas;
 }
