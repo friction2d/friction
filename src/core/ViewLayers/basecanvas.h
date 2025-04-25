@@ -55,10 +55,10 @@ private: /* Data */
 
     // Zoom & translation
     QRect translationVector;
-    float zoomMultiplier = 1;
+    qreal zoomMultiplier = 1;
 
     // Resolution 25% - 100%
-    float resolution = 1;
+    qreal resolution = 1;
 
     Document &document;
 
@@ -73,13 +73,13 @@ public: /* Getters / setters */
     }
 
     float zoom() { return zoomMultiplier; }
-    void setZoom(float zoom) { zoomMultiplier = zoom; }
+    void setZoom(qreal zoom) { zoomMultiplier = zoom; }
 
     QRect translation() { return translationVector; }
     void setTranslation(QRect translationVector) { translationVector = translationVector; }
     
     int resolution() { return resolution; }
-    void setResolution(int resolution) { resolution = resolution; }
+    void setResolution(qreal resolution) { resolution = resolution; }
 }
 
 #endif // BASE_CANVAS_H
