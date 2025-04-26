@@ -20,6 +20,9 @@
 cmake_minimum_required(VERSION 3.12)
 project(friction.graphics)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED On)
+
 option(BUILD_ENGINE "Build Engine" ON)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/src/cmake")
