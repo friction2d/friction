@@ -26,18 +26,15 @@
 
 #include "basecanvas.h"
 
-#include <SkCanvas>
-#include <QRect>
-
-#include "Private/document.h"
+#include "skia/skiaincludes.h"
 
 
-CanvasBase::CanvasBase(Document& document, QWidget *parent) : QWidget(parent) {
-    document = document;
-}
+CanvasBase::CanvasBase(Document& document, QWidget *parent) : QScrollArea(parent) {
+   this->_document = document;
+};
 
 CanvasBase::repaint(SkCanvas *canvas) {
-    for auto& viewLayer : viewLayers {
+    for (auto& viewLayer : _viewLayers) {
         viewLayer.repaint(canvas);
     }
-}
+};

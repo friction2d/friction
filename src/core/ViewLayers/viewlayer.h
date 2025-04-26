@@ -27,26 +27,31 @@
 #define VIEW_LAYER_H
 
 
-class BaseCanvas;
+#include "basecanvas.h"
+#include "../Private/document.h"
 
 class ViewLayer {
 public:
-    ViewLayer(const std::string layerId, Document &document) {
-        layerId = layerId;
-        document = document;
+    ViewLayer(const std::string layerId,
+              Document &document,
+              CanvasBase &canvas) {
+        this->_layerId = layerId;
+        this->document = document;
+        this->canvas = canvas;
     };
     ~ViewLayer() = default;
 
     virtual void repaint(SkCanvas *canvas);
 
 public:
-    std::string layerId() const { return layerId; }
+    std::string layerId() const { return _layerId; }
+
+protected:
+    Document &document;
+    CanvasBase &canvas;
 
 private:
-    std::string const layerId;
-    Document &document;
-
-    BaseCanvas &canvas;
-}
+    std::string _layerId;
+};
 
 #endif // VIEW_LAYER_H

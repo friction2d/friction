@@ -33,11 +33,12 @@ class Document;
 
 class ViewLayerExport : public ViewLayer {
 public:
-    ViewLayerExport(Document &document) {}
+    ViewLayerExport(Document &document,
+                    CanvasBase &canvas);
     ~ViewLayerExport() = default;
 
 private:
     Document &document;
-}
+};
 
 #endif // VIEW_LAYER_EXPORT_H

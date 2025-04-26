@@ -32,23 +32,21 @@
 #include "../efiltersettings.h"
 
 
-ViewLayerExport::ViewLayerExport(Document &document) : ViewLayer("export_layer", document) {
-
-};
+ViewLayerExport::ViewLayerExport(Document &document, BaseCanvas &canvas) : ViewLayer("export_layer", document, canvas) {};
 
 ViewLayerExport::repaint(SkCanvas *canvas) {
 
     /* ======== Setup ======== */
 
     SkPaint paint;
-    paint.setStyle(skPaint::kFill_Style);    
+    paint.setStyle(skPaint::kFill_Style);
 
     const qreal pixelRatio = qApp->devicePixelRatio();
     const qreal zoom = canvas.zoom();
     const qreal translation = canvas.translation();
     const qreal qInverseZoom = 1/zoom * pixelRatio;
     const float inverseZoom = toSkScalar(qInverseZoom);
-    
+
     const SkRect canvasRect = SkRect::MakeWH(width, height);
     const auto filter = eFilterSettings::sDisplay(zoom, canvas.resolution);
     const SkMatrix skCanvasTranslation  = toSkMatrix(translation);
@@ -60,7 +58,7 @@ ViewLayerExport::repaint(SkCanvas *canvas) {
     canvas->concat(translation);
 
     /* ======== Rendering ======== */
-    
+
     // Render preview
     if (isPreviewingOrRendering()) {
         if (sceneFrame) {
@@ -92,7 +90,7 @@ ViewLayerExport::repaint(SkCanvas *canvas) {
         paint.setColor(SK_ColorGRAY);
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setPathEffect(dashPathEffect);
-        
+
         auto currentBounds = toSkRect(bounds());
         canvas->drawRect(currentBounds, paint);
     }
@@ -216,4 +214,4 @@ ViewLayerExport::repaint(SkCanvas *canvas) {
     if(mTransMode != TransformMode::none || mValueInput.inputEnabled())
         mValueInput.draw(canvas, drawRect.height() - eSizesUI::widget);
     */
-}
+};
