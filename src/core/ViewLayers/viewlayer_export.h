@@ -26,19 +26,17 @@
 #ifndef VIEW_LAYER_EXPORT_H
 #define VIEW_LAYER_EXPORT_H
 
-
 #include "viewlayer.h"
+
+#include "../skia/skiaincludes.h"
 
 class Document;
 
+
 class ViewLayerExport : public ViewLayer {
 public:
-    ViewLayerExport(Document &document,
-                    CanvasBase &canvas);
+    ViewLayerExport(Document &document, CanvasBase &canvas);
     ~ViewLayerExport() = default;
-
-private:
-    Document &document;
 };
 
 #endif // VIEW_LAYER_EXPORT_H

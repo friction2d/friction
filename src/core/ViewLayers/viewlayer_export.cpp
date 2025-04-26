@@ -26,13 +26,13 @@
 
 #include "viewlayer_export.h"
 
-#include <SkPaint>
-#include <SkRect>
+#include <QScreen>
 
 #include "../efiltersettings.h"
 
 
-ViewLayerExport::ViewLayerExport(Document &document, BaseCanvas &canvas) : ViewLayer("export_layer", document, canvas) {};
+ViewLayerExport::ViewLayerExport(Document &document, CanvasBase &canvas)
+    : ViewLayer("export_layer", document, canvas) {};
 
 ViewLayerExport::repaint(SkCanvas *canvas) {
 
@@ -41,16 +41,17 @@ ViewLayerExport::repaint(SkCanvas *canvas) {
     SkPaint paint;
     paint.setStyle(skPaint::kFill_Style);
 
-    const qreal pixelRatio = qApp->devicePixelRatio();
-    const qreal zoom = canvas.zoom();
-    const qreal translation = canvas.translation();
+    const qreal zoom = baseCanvas.zoom();
+    const QMatrix translation = baseCanvas.translation();
+
+    const qreal pixelRatio = QScreen::devicePixelRatio();
     const qreal qInverseZoom = 1/zoom * pixelRatio;
     const float inverseZoom = toSkScalar(qInverseZoom);
 
     const SkRect canvasRect = SkRect::MakeWH(width, height);
-    const auto filter = eFilterSettings::sDisplay(zoom, canvas.resolution);
+    const auto filter = eFilterSettings::sDisplay(zoom, baseCanvas.resolution());
     const SkMatrix skCanvasTranslation  = toSkMatrix(translation);
-    const QColor backgroundColor = backgroundColor->getColor();
+    const QColor qBackgroundColor = backgroundColor->getColor();
     const float intervals[2] = {eSizesUI::widget*0.25f*inverseZoom,
         eSizesUI::widget*0.25f*inverseZoom};
 
@@ -62,10 +63,12 @@ ViewLayerExport::repaint(SkCanvas *canvas) {
     // Render preview
     if (isPreviewingOrRendering()) {
         if (sceneFrame) {
-            canvas->clear(SK_COlorBLACK);
+            canvas->clear(SK_ColorBLACK);
             canvas->save();
-            if (backgroundColor.alpha() != 255)
-                drawTransparencyMesh(canvas, canvasRect);
+
+            // Undeclared identifier
+            /*if (qBackgroundColor.alpha() != 255)
+                drawTransparencyMesh(canvas, canvasRect);*/
 
             const float reversedResolution = toSkScalar(1/sceneFrame->fResolution);
             canvas->scale(reversedResolution, reversedResolution);
@@ -97,7 +100,7 @@ ViewLayerExport::repaint(SkCanvas *canvas) {
 
     const bool drawCanvas = sceneFrame && sceneFrame->fBoxState == stateId;
 
-    if (backgroundColor.alpha() != 255)
+    if (qBackgroundColor.alpha() != 255)
         drawTransparencyMesh(canvas, canvasRect);
 
     if (!clipToCanvasSize || !drawCanvas) {

@@ -26,8 +26,8 @@
 #ifndef BASE_CANVAS_H
 #define BASE_CANVAS_H
 
-#include <QScrollArea>
-#include <QRect>
+#include <QWidget>
+#include <QMatrix>
 
 #include "viewlayer.h"
 
@@ -40,19 +40,18 @@ class Document;
 // ONLY ONE RESPONSIBILITY!!!
 // A widget which renders the ViewLayers content:
 // shapes, movable points, selection... to the CanvasWindow.
-class CanvasBase : public QScrollArea {
+class CanvasBase : public QWidget {
 public:
-    explicit CanvasBase(Document& document,
-                        QWidget *parent = nullptr);
+    CanvasBase(Document& document, QWidget *parent = nullptr);
     ~CanvasBase() = default;
 
     void repaint(SkCanvas *canvas);
 
-private: /* Data */
-    std::map<std::string, ViewLayer> _viewLayers;
+private:
+    std::map<std::string, std::unique_ptr<ViewLayer>> _viewLayers;
 
     // Zoom & translation
-    QRect _translationVector;
+    QMatrix _translationVector;
     qreal _zoomMultiplier = 1;
 
     // Resolution 25% - 100%
@@ -60,24 +59,25 @@ private: /* Data */
 
     Document &_document;
 
-public: /* Getters / setters */
-    void addViewLayer(ViewLayer &viewLayer) {
-        auto layerId = viewLayer.layerId();
+public:
+    void addViewLayer(std::unique_ptr<ViewLayer> viewLayer) {
+        auto layerId = viewLayer->layerId();
 
-        _viewLayers[layerId] = viewLayer;
-    }
+        _viewLayers[layerId] = std::move(viewLayer);
+    };
     void removeViewLayer(std::string layerId) {
-        _viewLayers[layerId] = delete;
-    }
+        // Clear item from std::map using key-value
+        _viewLayers.erase(layerId);
+    };
 
-    float zoom() { return _zoomMultiplier; }
-    void setZoom(qreal zoom) { _zoomMultiplier = zoom; }
+    float zoom() { return _zoomMultiplier; };
+    void setZoom(qreal zoom) { _zoomMultiplier = zoom; };
 
-    QRect translation() { return _translationVector; }
-    void setTranslation(QRect translationVector) { _translationVector = translationVector; }
+    QMatrix translation() { return _translationVector; };
+    void setTranslation(QMatrix translationVector) { _translationVector = translationVector; };
 
-    int resolution() { return _resolution; }
-    void setResolution(qreal resolution) { _resolution = resolution; }
+    int resolution() { return _resolution; };
+    void setResolution(qreal resolution) { _resolution = resolution; };
 };
 
 #endif // BASE_CANVAS_H

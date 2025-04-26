@@ -29,12 +29,17 @@
 #include "skia/skiaincludes.h"
 
 
-CanvasBase::CanvasBase(Document& document, QWidget *parent) : QScrollArea(parent) {
-   this->_document = document;
+CanvasBase::CanvasBase(Document& document, QWidget *parent)
+    : QWidget(parent)
+    , _document(document) {
+
 };
 
-CanvasBase::repaint(SkCanvas *canvas) {
-    for (auto& viewLayer : _viewLayers) {
+void CanvasBase::repaint(SkCanvas *canvas) {
+    // This is a std::pair (like a tuple) with two values:
+    // (int index, T value). In this case T = ViewLayer
+    for (auto pair : _viewLayers) {
+        auto viewLayer = pair.second;
         viewLayer.repaint(canvas);
     }
 };
