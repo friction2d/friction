@@ -41,7 +41,7 @@ class Document;
 // shapes, movable points, selection... to the CanvasWindow.
 class CanvasBase {
 public:
-    CanvasBase(Document& document);
+    CanvasBase();
     ~CanvasBase() = default;
 
     void repaint(SkCanvas *canvas);
@@ -55,8 +55,6 @@ private:
 
     // Resolution 25% - 100%
     qreal _resolution = 1;
-
-    Document &_document;
 
 public:
     void addViewLayer(std::unique_ptr<ViewLayer> viewLayer) {
