@@ -26,7 +26,6 @@
 #ifndef BASE_CANVAS_H
 #define BASE_CANVAS_H
 
-#include <QWidget>
 #include <QMatrix>
 
 #include "viewlayer.h"
@@ -40,9 +39,9 @@ class Document;
 // ONLY ONE RESPONSIBILITY!!!
 // A widget which renders the ViewLayers content:
 // shapes, movable points, selection... to the CanvasWindow.
-class CanvasBase : public QWidget {
+class CanvasBase {
 public:
-    CanvasBase(Document& document, QWidget *parent = nullptr);
+    CanvasBase(Document& document);
     ~CanvasBase() = default;
 
     void repaint(SkCanvas *canvas);

@@ -29,9 +29,8 @@
 #include "skia/skiaincludes.h"
 
 
-CanvasBase::CanvasBase(Document& document, QWidget *parent)
-    : QWidget(parent)
-    , _document(document) {
+CanvasBase::CanvasBase(Document& document)
+    : _document(document) {
 
 };
 
