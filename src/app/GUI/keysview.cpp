@@ -478,7 +478,7 @@ bool KeysView::KFT_keyPressEvent(QKeyEvent *event)
             clearKeySelection();
             container->paste(mCurrentScene->getCurrentFrame(), true,
                              [this](Key* key) { addKeyToSelection(key); });
-         } else if(event->key() == Qt::Key_Delete) {
+         } else if(event->key() == Qt::Key_Delete  || event->key() == Qt::Key_Backspace) {
             if(mGraphViewed) {
                 graphDeletePressed();
             } else {
