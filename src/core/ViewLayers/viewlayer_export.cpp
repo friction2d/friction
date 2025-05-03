@@ -28,17 +28,21 @@
 
 #include <QScreen>
 
+#include "basecanvas.h"
+#include "../Private/document.h"
 #include "../efiltersettings.h"
 
 
 ViewLayerExport::ViewLayerExport(Document &document, CanvasBase &canvas)
-    : ViewLayer("export_layer", document, canvas) {};
+    : ViewLayer("export_layer")
+    , _document(document)
+    , _baseCanvas(canvas) {};
 
 ViewLayerExport::repaint(SkCanvas *canvas) {
 
     /* ======== Setup ======== */
 
-    SkPaint paint;
+    /*SkPaint paint;
     paint.setStyle(skPaint::kFill_Style);
 
     const qreal zoom = baseCanvas.zoom();
@@ -56,20 +60,20 @@ ViewLayerExport::repaint(SkCanvas *canvas) {
         eSizesUI::widget*0.25f*inverseZoom};
 
     // Move canvas to a certain position
-    canvas->concat(translation);
+    canvas->concat(translation);*/
 
     /* ======== Rendering ======== */
 
     // Render preview
-    if (isPreviewingOrRendering()) {
+    /*if (isPreviewingOrRendering()) {
         if (sceneFrame) {
             canvas->clear(SK_ColorBLACK);
             canvas->save();
 
-            // Undeclared identifier
+            // Undeclared identifier*/
             /*if (qBackgroundColor.alpha() != 255)
                 drawTransparencyMesh(canvas, canvasRect);*/
-
+/*
             const float reversedResolution = toSkScalar(1/sceneFrame->fResolution);
             canvas->scale(reversedResolution, reversedResolution);
 
@@ -78,11 +82,11 @@ ViewLayerExport::repaint(SkCanvas *canvas) {
         }
 
         return;
-    }
+    }*/
 
     // Else, render normal canvas mode
 
-    canvas->save();
+    /*canvas->save();
 
     if (clipToCanvasSize) {
         canvas->clear(SK_ColorBLACK);
@@ -130,7 +134,7 @@ ViewLayerExport::repaint(SkCanvas *canvas) {
 
     if (!enve_cast<Canvas*>(currentContainer)) {
         currentContainer->drawBoundingRect(canvas, inverseZoom);
-    }
+    }*/
 
     /*
     if(CurrentMode == CanvasMode::boxTransform ||

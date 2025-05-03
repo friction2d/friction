@@ -46,8 +46,13 @@ public:
 
     void repaint(SkCanvas *canvas);
 
+    // Scene id
+    // Used internally in XEV format for identification purposes
+    int getWriteId();
+    int getDocumentId();
+
 private:
-    std::map<std::string, std::unique_ptr<ViewLayer>> _viewLayers;
+    std::map<std::string, ViewLayer> _viewLayers;
 
     // Zoom & translation
     QMatrix _translationVector;
@@ -57,10 +62,14 @@ private:
     qreal _resolution = 1;
 
 public:
-    void addViewLayer(std::unique_ptr<ViewLayer> viewLayer) {
-        auto layerId = viewLayer->layerId();
+    void addViewLayer(ViewLayer viewLayer) {
+        auto layerId = viewLayer.layerId();
 
-        _viewLayers[layerId] = std::move(viewLayer);
+        // We can't use the operator[] here because ViewLayer doesn't have a default empty constructor.
+        // stackoverflow.com/questions/6952486/recommended-way-to-insert-elements-into-map
+        // wtf is this shit c++
+        auto pair = std::pair<std::string, ViewLayer>(layerId, viewLayer);
+        _viewLayers.insert(pair);
     };
     void removeViewLayer(std::string layerId) {
         // Clear item from std::map using key-value

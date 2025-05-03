@@ -26,28 +26,19 @@
 #ifndef VIEW_LAYER_H
 #define VIEW_LAYER_H
 
-#include "basecanvas.h"
-#include "../Private/document.h"
+#include "../skia/skiaincludes.h"
 
 
 class ViewLayer {
 public:
-    ViewLayer(const std::string layerId,
-              Document &document,
-              CanvasBase &canvas)
-        : document(document)
-        , baseCanvas(canvas)
-        , _layerId(layerId) {};
+    ViewLayer(std::string layerId)
+        : _layerId(layerId) {};
     ~ViewLayer() = default;
 
     virtual void repaint(SkCanvas *canvas);
 
 public:
-    std::string layerId() const { return _layerId; }
-
-protected:
-    Document &document;
-    CanvasBase &baseCanvas;
+    std::string layerId() { return _layerId; }
 
 private:
     std::string _layerId;

@@ -28,15 +28,21 @@
 
 #include "viewlayer.h"
 
+#include "basecanvas.h"
 #include "../skia/skiaincludes.h"
 
 class Document;
+class CanvasBase;
 
 
 class ViewLayerExport : public ViewLayer {
 public:
     ViewLayerExport(Document &document, CanvasBase &canvas);
     ~ViewLayerExport() = default;
+
+private:
+    BaseCanvas _baseCanvas;
+    Document _document;
 };
 
 #endif // VIEW_LAYER_EXPORT_H
