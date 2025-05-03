@@ -38,7 +38,7 @@ ViewLayerExport::ViewLayerExport(Document &document, CanvasBase &canvas)
     , _document(document)
     , _baseCanvas(canvas) {};
 
-ViewLayerExport::repaint(SkCanvas *canvas) {
+void ViewLayerExport::repaint(SkCanvas *canvas) {
 
     /* ======== Setup ======== */
 

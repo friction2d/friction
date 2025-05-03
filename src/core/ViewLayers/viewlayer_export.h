@@ -31,9 +31,6 @@
 #include "basecanvas.h"
 #include "../skia/skiaincludes.h"
 
-class Document;
-class CanvasBase;
-
 
 class ViewLayerExport : public ViewLayer {
 public:
