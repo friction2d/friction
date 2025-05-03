@@ -133,10 +133,7 @@ void CanvasWindow::renderSk(SkCanvas * const canvas)
     qreal pixelRatio = this->devicePixelRatioF();
     if (mCurrentCanvas) {
         canvas->save();
-        mCurrentCanvas->renderSk(canvas,
-                                 rect(),
-                                 mViewTransform,
-                                 mMouseGrabber);
+        mCurrentCanvas->repaint(canvas);
         canvas->restore();
     }
 
