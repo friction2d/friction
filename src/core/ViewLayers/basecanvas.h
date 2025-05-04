@@ -26,7 +26,7 @@
 #ifndef BASE_CANVAS_H
 #define BASE_CANVAS_H
 
-#include <QMatrix>
+#include <QTransform>
 
 #include "viewlayer.h"
 
@@ -55,7 +55,7 @@ private:
     std::map<std::string, ViewLayer> _viewLayers;
 
     // Zoom & translation
-    QMatrix _translationVector;
+    QTransform _translationVector;
     qreal _zoomMultiplier = 1;
 
     // Resolution 25% - 100%
@@ -79,8 +79,8 @@ public:
     float zoom() { return _zoomMultiplier; };
     void setZoom(qreal zoom) { _zoomMultiplier = zoom; };
 
-    QMatrix translation() { return _translationVector; };
-    void setTranslation(QMatrix translationVector) { _translationVector = translationVector; };
+    QTransform translation() { return _translationVector; };
+    void setTranslation(QTransform translationVector) { _translationVector = translationVector; };
 
     int resolution() { return _resolution; };
     void setResolution(qreal resolution) { _resolution = resolution; };

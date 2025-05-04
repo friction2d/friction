@@ -26,6 +26,8 @@
 #ifndef VIEW_LAYER_H
 #define VIEW_LAYER_H
 
+#include <string>
+
 #include "../skia/skiaincludes.h"
 
 

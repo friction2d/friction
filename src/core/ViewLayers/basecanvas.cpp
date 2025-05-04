@@ -29,10 +29,7 @@
 #include "skia/skiaincludes.h"
 
 
-CanvasBase::CanvasBase(Document& document)
-    : _document(document) {
-
-};
+CanvasBase::CanvasBase() {};
 
 void CanvasBase::repaint(SkCanvas *canvas) {
     // This is a std::pair (like a tuple) with two values:
