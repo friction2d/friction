@@ -33,7 +33,7 @@
 #include "../efiltersettings.h"
 
 
-ViewLayerExport::ViewLayerExport(Document &document, CanvasBase &canvas)
+ViewLayerExport::ViewLayerExport(Document &document, BaseCanvas &canvas)
     : ViewLayer("export_layer")
     , _baseCanvas(canvas)
     , _document(document) {};

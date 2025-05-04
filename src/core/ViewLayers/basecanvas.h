@@ -27,6 +27,7 @@
 #define BASE_CANVAS_H
 
 #include <QTransform>
+#include <QWidget>
 
 #include "viewlayer.h"
 
@@ -39,10 +40,10 @@ class Document;
 // ONLY ONE RESPONSIBILITY!!!
 // A widget which renders the ViewLayers content:
 // shapes, movable points, selection... to the CanvasWindow.
-class CanvasBase {
+class BaseCanvas : public QWidget {
 public:
-    CanvasBase();
-    ~CanvasBase() = default;
+    BaseCanvas(QWidget * parent = nullptr) : QWidget(parent) {};
+    ~BaseCanvas() = default;
 
     void repaint(SkCanvas *canvas);
 

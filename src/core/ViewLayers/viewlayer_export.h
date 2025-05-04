@@ -35,13 +35,13 @@
 
 class ViewLayerExport : public ViewLayer {
 public:
-    ViewLayerExport(Document &document, CanvasBase &canvas);
+    ViewLayerExport(Document &document, BaseCanvas &canvas);
     ~ViewLayerExport() = default;
 
     void repaint(SkCanvas *canvas) override;
 
 private:
-    CanvasBase &_baseCanvas;
+    BaseCanvas &_baseCanvas;
     Document &_document;
 };
 
