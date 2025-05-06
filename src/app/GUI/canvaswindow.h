@@ -30,13 +30,11 @@
 #ifdef Q_OS_MAC
 #include <QNativeGestureEvent>
 #endif
-
+#include "widgets/glwindow.h"
 #include "singlewidgettarget.h"
-
 #include "misc/keyfocustarget.h"
 #include "smartPointers/ememory.h"
-#include "widgets/glwindow.h"
-#include "ViewLayers/basecanvas.h"
+#include "canvas.h"
 
 class Brush;
 class WindowSingleWidgetTarget;
@@ -51,12 +49,11 @@ class RenderInstanceSettings;
 class eTask;
 class ImageBox;
 class VideoBox;
-class BaseCanvas;
+class Canvas;
 class PaintSettingsAnimator;
 class OutlineSettingsAnimator;
 class SimpleBrushWrapper;
 class Actions;
-
 
 class CanvasWindow : public GLWindow, public KeyFocusTarget
 {
@@ -66,11 +63,11 @@ public:
     explicit CanvasWindow(Document& document,
                           QWidget * const parent = nullptr);
     ~CanvasWindow();
-    BaseCanvas *getCurrentCanvas();
+    Canvas *getCurrentCanvas();
     const QMatrix& getViewTransform() const
     { return mViewTransform; }
 
-    void setCurrentCanvas(BaseCanvas * const canvas);
+    void setCurrentCanvas(Canvas * const canvas);
     bool hasNoCanvas();
 
     void finishAction();
@@ -128,6 +125,9 @@ protected:
     }
 
 private:
+    void setCanvasMode(const CanvasMode mode);
+    void updatePaintModeCursor();
+
     Document& mDocument;
     Actions& mActions;
 
@@ -142,20 +142,32 @@ private:
 
     qsptr<WindowSingleWidgetTarget> mWindowSWTTarget;
 
-    ConnContextPtr<BaseCanvas> mCurrentCanvas;
+    ConnContextPtr<Canvas> mCurrentCanvas;
     bool mFitToSizeBlocked;
 
     //void paintEvent(QPaintEvent *);
 
     void renderSk(SkCanvas * const canvas);
+    void tabletEvent(QTabletEvent *e);
 
+    bool handleCanvasModeChangeKeyPress(QKeyEvent *event);
+    bool handleCutCopyPasteKeyPress(QKeyEvent *event);
+    bool handleTransformationKeyPress(QKeyEvent *event);
+    bool handleZValueKeyPress(QKeyEvent *event);
+    bool handleParentChangeKeyPress(QKeyEvent *event);
+    bool handleGroupChangeKeyPress(QKeyEvent *event);
+    bool handleResetTransformKeyPress(QKeyEvent *event);
+    bool handleRevertPathKeyPress(QKeyEvent *event);
+    bool handleStartTransformKeyPress(const eKeyEvent &e);
+    bool handleSelectAllKeyPress(QKeyEvent *event);
+    //bool handleShiftKeysKeyPress(QKeyEvent *event);
 #ifdef Q_OS_MAC
     bool handleNativeGestures(QNativeGestureEvent *event);
 #endif
 
 signals:
     void changeCanvasFrameRange(FrameRange);
-    void currentSceneChanged(BaseCanvas *const scene);
+    void currentSceneChanged(Canvas* const scene);
 
 public:
     void setCurrentCanvas(const int id);
