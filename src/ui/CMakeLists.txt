@@ -64,6 +64,8 @@ set(
     optimalscrollarena/scrollwidget.cpp
     optimalscrollarena/scrollwidgetvisiblepart.cpp
     optimalscrollarena/singlewidget.cpp
+    viewlayers/basecanvas.cpp
+    viewlayers/viewlayer_export.cpp
     widgets/aboutwidget.cpp
     widgets/actionbutton.cpp
     widgets/alignwidget.cpp
@@ -136,6 +138,9 @@ set(
     optimalscrollarena/scrollwidget.h
     optimalscrollarena/scrollwidgetvisiblepart.h
     optimalscrollarena/singlewidget.h
+    viewlayers/basecanvas.h
+    viewlayers/viewlayer.h
+    viewlayers/viewlayer_export.h
     widgets/aboutwidget.h
     widgets/actionbutton.h
     widgets/alignwidget.h

@@ -29,8 +29,8 @@
 #include <QScreen>
 
 #include "basecanvas.h"
-#include "../Private/document.h"
-#include "../efiltersettings.h"
+#include "Private/document.h"
+#include "efiltersettings.h"
 
 
 ViewLayerExport::ViewLayerExport(Document &document, BaseCanvas &canvas)

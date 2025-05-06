@@ -29,8 +29,8 @@
 #include "viewlayer.h"
 
 #include "basecanvas.h"
-#include "../Private/document.h"
-#include "../skia/skiaincludes.h"
+#include "Private/document.h"
+#include "skia/skiaincludes.h"
 
 
 class ViewLayerExport : public ViewLayer {

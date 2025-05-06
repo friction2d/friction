@@ -23,17 +23,27 @@
 
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
+#ifndef VIEW_LAYER_H
+#define VIEW_LAYER_H
 
-#include "basecanvas.h"
+#include <string>
 
 #include "skia/skiaincludes.h"
 
 
-void BaseCanvas::repaint(SkCanvas *canvas) {
-    // This is a std::pair (like a tuple) with two values:
-    // (int index, T value). In this case T = ViewLayer
-    for (auto pair : _viewLayers) {
-        auto viewLayer = pair.second;
-        viewLayer.repaint(canvas);
-    }
+class ViewLayer {
+public:
+    ViewLayer(std::string layerId)
+        : _layerId(layerId) {};
+    ~ViewLayer() = default;
+
+    virtual void repaint(SkCanvas *canvas);
+
+public:
+    std::string layerId() { return _layerId; }
+
+private:
+    std::string _layerId;
 };
+
+#endif // VIEW_LAYER_H

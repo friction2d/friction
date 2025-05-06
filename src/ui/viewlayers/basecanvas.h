@@ -29,6 +29,7 @@
 #include <QTransform>
 #include <QWidget>
 
+#include "../widgets/glwindow.h"
 #include "viewlayer.h"
 
 class SkCanvas;
@@ -40,12 +41,12 @@ class Document;
 // ONLY ONE RESPONSIBILITY!!!
 // A widget which renders the ViewLayers content:
 // shapes, movable points, selection... to the CanvasWindow.
-class BaseCanvas : public QWidget {
+class BaseCanvas : public GLWindow {
 public:
-    BaseCanvas(QWidget * parent = nullptr) : QWidget(parent) {};
+    explicit BaseCanvas(QWidget * parent = nullptr) : GLWindow(parent) {};
     ~BaseCanvas() = default;
 
-    void repaint(SkCanvas *canvas);
+    void renderSk(SkCanvas *canvas) override;
 
     // Scene id
     // Used internally in XEV format for identification purposes

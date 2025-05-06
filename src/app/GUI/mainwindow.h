@@ -49,6 +49,7 @@
 #include "fileshandler.h"
 #include "ekeyfilter.h"
 #include "GUI/RenderWidgets/renderwidget.h"
+#include "viewlayers/basecanvas.h"
 #include "widgets/colortoolbar.h"
 #include "widgets/qdoubleslider.h"
 #include "widgets/canvastoolbar.h"
@@ -185,6 +186,7 @@ protected:
 private:
     bool mShutdown;
     QWidget *mWelcomeDialog;
+    BaseCanvas *mBaseCanvas;
     QStackedWidget *mStackWidget;
 
     QTabWidget *mTabProperties;

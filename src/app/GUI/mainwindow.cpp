@@ -96,6 +96,7 @@ MainWindow::MainWindow(Document& document,
     : QMainWindow(parent)
     , mShutdown(false)
     , mWelcomeDialog(nullptr)
+    , mBaseCanvas(nullptr)
     , mStackWidget(nullptr)
     , mTabProperties(nullptr)
     , mTimeline(nullptr)
@@ -283,8 +284,10 @@ MainWindow::MainWindow(Document& document,
        []() { MainWindow::sGetInstance()->openFile(); },
        this);
 
+    mBaseCanvas = new BaseCanvas(this);
+
     mStackWidget = new QStackedWidget(this);
-    mStackIndexScene = mStackWidget->addWidget(mLayoutHandler->sceneLayout());
+    mStackIndexScene = mStackWidget->addWidget(mBaseCanvas);
     mStackIndexWelcome = mStackWidget->addWidget(mWelcomeDialog);
 
     mColorToolBar = new Ui::ColorToolBar(mDocument, this);
