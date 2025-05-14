@@ -29,8 +29,8 @@
 #include "viewlayer.h"
 
 #include "basecanvas.h"
-#include "Private/document.h"
-#include "skia/skiaincludes.h"
+#include "../../core/Private/document.h"
+#include "../../core/skia/skiaincludes.h"
 
 
 class ViewLayerExport : public ViewLayer {
@@ -38,7 +38,7 @@ public:
     ViewLayerExport(Document &document, BaseCanvas &canvas);
     ~ViewLayerExport() = default;
 
-    void repaint(SkCanvas *canvas) override;
+    void repaint(SkCanvas * const canvas) override;
 
 private:
     BaseCanvas &_baseCanvas;

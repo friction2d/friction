@@ -26,32 +26,33 @@
 #ifndef BASE_CANVAS_H
 #define BASE_CANVAS_H
 
+#include <map>
+
 #include <QTransform>
 #include <QWidget>
 
-#include "../widgets/glwindow.h"
 #include "viewlayer.h"
-
-class SkCanvas;
-class Document;
-
+#include "../ui_global.h"
+#include "../widgets/glwindow.h"
+#include "../../core/skia/skiaincludes.h"
+#include "../../core/Private/document.h"
 
 // CanvasBase
 //
 // ONLY ONE RESPONSIBILITY!!!
 // A widget which renders the ViewLayers content:
 // shapes, movable points, selection... to the CanvasWindow.
-class BaseCanvas : public GLWindow {
+class UI_EXPORT BaseCanvas : public GLWindow {
 public:
     explicit BaseCanvas(QWidget * parent = nullptr) : GLWindow(parent) {};
     ~BaseCanvas() = default;
 
-    void renderSk(SkCanvas *canvas) override;
+    void renderSk(SkCanvas * const canvas) override;
 
     // Scene id
     // Used internally in XEV format for identification purposes
-    int getWriteId();
-    int getDocumentId();
+    int getWriteId() { return -1; };
+    int getDocumentId() { return -1; };
 
 private:
     std::map<std::string, ViewLayer> _viewLayers;

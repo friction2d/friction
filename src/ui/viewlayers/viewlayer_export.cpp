@@ -29,8 +29,7 @@
 #include <QScreen>
 
 #include "basecanvas.h"
-#include "Private/document.h"
-#include "efiltersettings.h"
+#include "../../core/efiltersettings.h"
 
 
 ViewLayerExport::ViewLayerExport(Document &document, BaseCanvas &canvas)
@@ -38,7 +37,7 @@ ViewLayerExport::ViewLayerExport(Document &document, BaseCanvas &canvas)
     , _baseCanvas(canvas)
     , _document(document) {};
 
-void ViewLayerExport::repaint(SkCanvas *canvas) {
+void ViewLayerExport::repaint(SkCanvas * const canvas) {
 
     /* ======== Setup ======== */
 

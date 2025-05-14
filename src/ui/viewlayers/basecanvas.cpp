@@ -26,14 +26,11 @@
 
 #include "basecanvas.h"
 
-#include "skia/skiaincludes.h"
-
-
-void BaseCanvas::renderSk(SkCanvas *canvas) {
+void BaseCanvas::renderSk(SkCanvas * const canvas) {
     // This is a std::pair (like a tuple) with two values:
     // (int index, T value). In this case T = ViewLayer
     for (auto& pair : _viewLayers) {
-        auto viewLayer = pair.second;
+        auto& viewLayer = pair.second;
         viewLayer.repaint(canvas);
     }
 };

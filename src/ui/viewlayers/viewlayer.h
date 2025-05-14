@@ -28,7 +28,7 @@
 
 #include <string>
 
-#include "skia/skiaincludes.h"
+#include "../../core/skia/skiaincludes.h"
 
 
 class ViewLayer {
@@ -37,13 +37,13 @@ public:
         : _layerId(layerId) {};
     ~ViewLayer() = default;
 
-    virtual void repaint(SkCanvas *canvas);
+    virtual void repaint(SkCanvas * const canvas) = 0;
 
 public:
-    std::string layerId() { return _layerId; }
+    std::string layerId() const { return _layerId; }
 
 private:
-    std::string _layerId;
+    std::string const _layerId;
 };
 
 #endif // VIEW_LAYER_H
