@@ -34,7 +34,8 @@
 class ViewLayer {
 public:
     ViewLayer(std::string layerId)
-        : _layerId(layerId) {};
+        : _layerId(layerId)
+        , _isVisible(true) {};
     ~ViewLayer() = default;
 
     virtual void repaint(SkCanvas * const canvas) = 0;
