@@ -36,6 +36,7 @@
 #include "../widgets/glwindow.h"
 #include "../../core/skia/skiaincludes.h"
 #include "../../core/Private/document.h"
+#include "../../core/eevent.h"
 
 // CanvasBase
 //
@@ -87,6 +88,12 @@ public:
 
     int resolution() { return _resolution; };
     void setResolution(qreal resolution) { _resolution = resolution; };
+
+    // Mouse events
+    void mousePressEvent(QMouseEvent *e) override;
+    void mouseReleaseEvent(QMouseEvent *e) override;
+    void mouseMoveEvent(QMouseEvent *e) override;
+    void mouseDoubleClickEvent(QMouseEvent *e) override;
 };
 
 #endif // BASE_CANVAS_H

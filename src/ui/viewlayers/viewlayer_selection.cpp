@@ -27,6 +27,7 @@
 #include "viewlayer_selection.h"
 
 #include <QColor>
+#include <cstdio>
 
 #include "basecanvas.h"
 #include "../drawables/rectangle_drawable.h"
@@ -34,9 +35,7 @@
 
 ViewLayerSelection::ViewLayerSelection(BaseCanvas *canvas)
     : ViewLayer("selection_layer")
-    , _baseCanvas(canvas) {
-
-    };
+    , _baseCanvas(canvas) {};
 
 void ViewLayerSelection::repaint(SkCanvas * const canvas) {
     canvas->restore();
@@ -62,3 +61,11 @@ void ViewLayerSelection::repaint(SkCanvas * const canvas) {
 
     canvas->save();
 };
+
+void ViewLayerSelection::mousePressEvent(QMouseEvent *e) {};
+
+void ViewLayerSelection::mouseReleaseEvent(QMouseEvent *e) {};
+
+void ViewLayerSelection::mouseMoveEvent(QMouseEvent *e) {};
+
+void ViewLayerSelection::mouseDoubleClickEvent(QMouseEvent *e) {};

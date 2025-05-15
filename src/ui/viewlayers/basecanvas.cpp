@@ -37,3 +37,35 @@ void BaseCanvas::renderSk(SkCanvas * const canvas) {
         viewLayer.repaint(canvas);
     }
 };
+
+void BaseCanvas::mousePressEvent(QMouseEvent *e) {
+    for (auto& pair : _viewLayers) {
+        auto& viewLayer = pair.second;
+
+        viewLayer.mousePressEvent(e);
+    }
+};
+
+void BaseCanvas::mouseReleaseEvent(QMouseEvent *e) {
+    for (auto& pair : _viewLayers) {
+        auto& viewLayer = pair.second;
+
+        viewLayer.mouseReleaseEvent(e);
+    }
+};
+
+void BaseCanvas::mouseMoveEvent(QMouseEvent *e) {
+    for (auto& pair : _viewLayers) {
+        auto& viewLayer = pair.second;
+
+        viewLayer.mouseMoveEvent(e);
+    }
+};
+
+void BaseCanvas::mouseDoubleClickEvent(QMouseEvent *e) {
+    for (auto& pair : _viewLayers) {
+        auto& viewLayer = pair.second;
+
+        viewLayer.mouseDoubleClickEvent(e);
+    }
+};

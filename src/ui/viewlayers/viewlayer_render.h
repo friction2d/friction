@@ -40,6 +40,12 @@ public:
 
     void repaint(SkCanvas * const canvas) override;
 
+    // Mouse events
+    void mousePressEvent(QMouseEvent *e) override {};
+    void mouseReleaseEvent(QMouseEvent *e) override {};
+    void mouseMoveEvent(QMouseEvent *e) override {};
+    void mouseDoubleClickEvent(QMouseEvent *e) override {};
+
 private:
     BaseCanvas *_baseCanvas;
     Document &_document;

@@ -29,6 +29,7 @@
 #include <string>
 
 #include "../../core/skia/skiaincludes.h"
+#include "../../core/eevent.h"
 
 
 class ViewLayer {
@@ -47,6 +48,12 @@ public:
     void hide() { setVisible(false); };
     void setVisible(bool isVisible) { _isVisible = isVisible; };
     bool isVisible() { return _isVisible; };
+
+    // Mouse events
+    virtual void mousePressEvent(QMouseEvent *e) = 0;
+    virtual void mouseReleaseEvent(QMouseEvent *e) = 0;
+    virtual void mouseMoveEvent(QMouseEvent *e) = 0;
+    virtual void mouseDoubleClickEvent(QMouseEvent *e) = 0;
 
 private:
     std::string const _layerId;
