@@ -28,6 +28,8 @@
 
 #include "viewlayer.h"
 
+#include <QRectF>
+
 #include "basecanvas.h"
 #include "../../core/Private/document.h"
 #include "../../core/skia/skiaincludes.h"
@@ -43,7 +45,10 @@ public:
 private:
     BaseCanvas *_baseCanvas;
 
-    SkRect _selectionRect;
+    bool _isCurrentlySelecting;
+
+    QRectF _selectionRect;
+    QRectF _cursorPosition;
 };
 
 #endif // VIEW_LAYER_SELECTION_H

@@ -128,6 +128,8 @@ set(
     dialogs/qrealpointvaluedialog.h
     dialogs/renderoutputwidget.h
     dialogs/scenesettingsdialog.h
+    drawables/drawable.h
+    drawables/rectangle_drawable.h
     gradientwidgets/currentgradientwidget.h
     gradientwidgets/displayedgradientswidget.h
     gradientwidgets/gradientslistwidget.h

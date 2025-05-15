@@ -37,21 +37,22 @@ public:
     Drawable() {};
     ~Drawable() = default;
 
-public:
-    void setPosition(float x, float y);
-    QPointF position();
-    void setSize(float width, float height);
-    QPointF size();
-    void setRotation(float rotation);
-    float rotation();
+    virtual void drawToCanvas(SkCanvas * const canvas);
 
-    void setFillColor(QColor fillColor);
-    QColor fillColor();
-    void setStrokeColor(QColor strokeColor);
-    QColor strokeColor();
+    void setPosition(float x, float y) { _position = QPointF(x, y); };
+    QPointF position() { return _position; };
+    void setSize(float width, float height) { _size = QPointF(width, height); };
+    QPointF size() { return _size; };
+    void setRotation(float rotation) { _rotation = rotation; };
+    float rotation() { return _rotation; };
 
-    void setStrokeSize(float size);
-    float strokeSize();
+    void setFillColor(QColor fillColor) { _fillColor = fillColor; };
+    QColor fillColor() { return _fillColor; };
+    void setStrokeColor(QColor strokeColor) { _strokeColor = strokeColor; };
+    QColor strokeColor() { return _strokeColor; };
+
+    void setStrokeSize(float size) { _strokeSize = size; };
+    float strokeSize() { return _strokeSize; };
 
 private:
     QPointF _position;

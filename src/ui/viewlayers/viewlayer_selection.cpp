@@ -26,10 +26,10 @@
 
 #include "viewlayer_selection.h"
 
-#include <QScreen>
+#include <QColor>
 
 #include "basecanvas.h"
-#include "../../core/efiltersettings.h"
+#include "../drawables/rectangle_drawable.h"
 
 
 ViewLayerSelection::ViewLayerSelection(BaseCanvas *canvas)
@@ -39,10 +39,26 @@ ViewLayerSelection::ViewLayerSelection(BaseCanvas *canvas)
     };
 
 void ViewLayerSelection::repaint(SkCanvas * const canvas) {
-
     canvas->restore();
 
+    if (_isCurrentlySelecting) {
+        auto selectionRectangle = RectangleDrawable();
 
+        // Set the rectangle's size and position
+        selectionRectangle.setSize(_selectionRect.x(), _selectionRect.y());
+        selectionRectangle.setPosition(_cursorPosition.x(), _cursorPosition.y());
+
+        // Style the rectangle (at each's liking)
+        auto fillColor = QColor(0, 0, 255, 150);
+        auto strokeColor = QColor(0, 0, 255);
+        auto strokeWidth = 3;
+
+        selectionRectangle.setFillColor(fillColor);
+        selectionRectangle.setStrokeColor(strokeColor);
+        selectionRectangle.setStrokeSize(strokeWidth);
+
+        selectionRectangle.drawToCanvas(canvas);
+    }
 
     canvas->save();
 };
