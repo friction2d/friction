@@ -65,6 +65,7 @@ set(
     optimalscrollarena/scrollwidgetvisiblepart.cpp
     optimalscrollarena/singlewidget.cpp
     viewlayers/basecanvas.cpp
+    viewlayers/utils.cpp
     viewlayers/viewlayer_render.cpp
     viewlayers/viewlayer_preview.cpp
     viewlayers/viewlayer_selection.cpp

@@ -287,7 +287,7 @@ MainWindow::MainWindow(Document& document,
        []() { MainWindow::sGetInstance()->openFile(); },
        this);
 
-    mBaseCanvas = new BaseCanvas(this);
+    mBaseCanvas = new BaseCanvas(1920, 1080, nullptr, this);
 
     mViewLayerPreview = new ViewLayerPreview(mDocument, mBaseCanvas);
     mViewLayerRender = new ViewLayerRender(mDocument, mBaseCanvas);

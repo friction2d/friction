@@ -26,6 +26,7 @@
 
 #include "viewlayer_preview.h"
 
+#include <QGuiApplication>
 #include <QScreen>
 #include <QTransform>
 
@@ -50,13 +51,13 @@ void ViewLayerPreview::repaint(SkCanvas * const canvas) {
     const qreal zoom = _baseCanvas->zoom();
     const QTransform translation = _baseCanvas->translation();
 
-    const qreal pixelRatio = QScreen::devicePixelRatio();
+    const qreal pixelRatio = QGuiApplication::primaryScreen()->devicePixelRatio();
     const qreal qInverseZoom = 1/zoom * pixelRatio;
     const float inverseZoom = toSkScalar(qInverseZoom);
 
     const SkRect canvasRect = SkRect::MakeWH(_baseCanvas->width(), _baseCanvas->height());
     const auto filter = eFilterSettings::sDisplay(zoom, _baseCanvas->resolution());
-    const QColor qBackgroundColor = _baseCanvas->backgroundColor();
+    const QColor backgroundColor = _baseCanvas->backgroundColor();
     const float intervals[2] = {eSizesUI::widget*0.25f*inverseZoom,
         eSizesUI::widget*0.25f*inverseZoom};
 
@@ -67,7 +68,7 @@ void ViewLayerPreview::repaint(SkCanvas * const canvas) {
     /* ======== Rendering ======== */
 
     canvas->save();
-
+/*
     if (clipToCanvasSize) {
         canvas->clear(SK_ColorBLACK);
         canvas->clipRect(canvasRect);
@@ -81,17 +82,17 @@ void ViewLayerPreview::repaint(SkCanvas * const canvas) {
         auto currentBounds = toSkRect(bounds());
         canvas->drawRect(currentBounds, paint);
     }
+*/
+    const bool drawCanvas = _sceneFrame /*&& _sceneFrame->fBoxState == stateId*/;
 
-    const bool drawCanvas = sceneFrame && sceneFrame->fBoxState == stateId;
-
-    if (qBackgroundColor.alpha() != 255)
+    if (backgroundColor.alpha() != 255)
         drawTransparencyMesh(canvas, canvasRect);
 
-    if (!clipToCanvasSize || !drawCanvas) {
+    if (/*!clipToCanvasSize || */!drawCanvas) {
         canvas->saveLayer(nullptr, nullptr);
 
-        if (backgroundColor.alpha() == 255 &&
-            skCanvasTranslation.mapRect(translation).contains(toSkRect(drawRect))) {
+        if (backgroundColor.alpha() == 255 /*&&
+            //skCanvasTranslation.mapRect(translation).contains(toSkRect(drawRect))*/) {
             canvas->clear(toSkColor(backgroundColor));
         } else {
             paint.setStyle(SkPaint::kFill_Style);
@@ -100,13 +101,13 @@ void ViewLayerPreview::repaint(SkCanvas * const canvas) {
             canvas->drawRect(canvasRect, paint);
         }
 
-        drawContained(canvas, filter);
+        //drawContained(canvas, filter);
         canvas->restore();
     } else if (drawCanvas) {
         canvas->save();
-        const float reversedResolution = toSkScalar(1/sceneFrame->fResolution);
+        const float reversedResolution = toSkScalar(1/_sceneFrame->fResolution);
         canvas->scale(reversedResolution, reversedResolution);
-        sceneFrame->drawImage(canvas, filter);
+        _sceneFrame->drawImage(canvas, filter);
         canvas->restore();
     }
 
@@ -116,17 +117,17 @@ void ViewLayerPreview::repaint(SkCanvas * const canvas) {
         currentContainer->drawBoundingRect(canvas, inverseZoom);
         }*/
 
-    if(CurrentMode == CanvasMode::boxTransform ||
+    /*if(CurrentMode == CanvasMode::boxTransform ||
        mCurrentMode == CanvasMode::pointTransform) {
         if(mTransMode == TransformMode::rotate ||
            mTransMode == TransformMode::scale) {
-            mRotPivot->drawTransforming(canvas, mCurrentMode, invZoom,
-                                        eSizesUI::widget*0.25f*invZoom);
+            mRotPivot->drawTransforming(canvas, mCurrentMode, inverseZoom,
+                                        eSizesUI::widget*0.25f*inverseZoom);
         } else if(!mouseGrabbing || mRotPivot->isSelected()) {
-            mRotPivot->drawSk(canvas, mCurrentMode, invZoom, false, false);
+            mRotPivot->drawSk(canvas, mCurrentMode, inverseZoom, false, false);
         }
     } else if(mCurrentMode == CanvasMode::drawPath) {
-        const SkScalar nodeSize = 0.15f*eSizesUI::widget*invZoom;
+        const SkScalar nodeSize = 0.15f*eSizesUI::widget*inverseZoom;
         SkPaint paint;
         paint.setStyle(SkPaint::kFill_Style);
         paint.setAntiAlias(true);
@@ -155,48 +156,48 @@ void ViewLayerPreview::repaint(SkCanvas * const canvas) {
             paint.setARGB(255, 255, 0, 0);
             for(const auto& seg : fitted) {
                 const auto path = seg.toSkPath();
-                SkiaHelpers::drawOutlineOverlay(canvas, path, invZoom, SK_ColorWHITE);
+                SkiaHelpers::drawOutlineOverlay(canvas, path, inverseZoom, SK_ColorWHITE);
                 const auto& p0 = seg.p0();
                 canvas->drawCircle(p0.x(), p0.y(), nodeSize, paint);
             }
             if(!mDrawPathTmp.isEmpty()) {
                 SkiaHelpers::drawOutlineOverlay(canvas, mDrawPathTmp,
-                                                invZoom, SK_ColorWHITE);
+                                                inverseZoom, SK_ColorWHITE);
             }
         }
 
         paint.setARGB(255, 0, 75, 155);
         if(mHoveredPoint_d && mHoveredPoint_d->isSmartNodePoint()) {
             const QPointF pos = mHoveredPoint_d->getAbsolutePos();
-            const qreal r = 0.5*qInvZoom*mHoveredPoint_d->getRadius();
+            const qreal r = 0.5*qinverseZoom*mHoveredPoint_d->getRadius();
             canvas->drawCircle(pos.x(), pos.y(), r, paint);
         }
         if(mDrawPathFirst) {
             const QPointF pos = mDrawPathFirst->getAbsolutePos();
-            const qreal r = 0.5*qInvZoom*mDrawPathFirst->getRadius();
+            const qreal r = 0.5*qinverseZoom*mDrawPathFirst->getRadius();
             canvas->drawCircle(pos.x(), pos.y(), r, paint);
         }
-    }
+        }*/
 
-        if(mHoveredPoint_d) {
-            mHoveredPoint_d->drawHovered(canvas, invZoom);
+        /*if(mHoveredPoint_d) {
+            mHoveredPoint_d->drawHovered(canvas, inverseZoom);
         } else if(mHoveredNormalSegment.isValid()) {
-            mHoveredNormalSegment.drawHoveredSk(canvas, invZoom);
+            mHoveredNormalSegment.drawHoveredSk(canvas, inverseZoom);
         } else if(mHoveredBox) {
             if(!mCurrentNormalSegment.isValid()) {
-                mHoveredBox->drawHoveredSk(canvas, invZoom);
+                mHoveredBox->drawHoveredSk(canvas, inverseZoom);
             }
-        }
+            }*/
     //}
 
     paint.setStyle(SkPaint::kStroke_Style);
-    paint.setStrokeWidth(invZoom);
+    paint.setStrokeWidth(inverseZoom);
     paint.setColor(SK_ColorGRAY);
     paint.setPathEffect(nullptr);
-    canvas->drawRect(canvasRect, paint);
+    //canvas->drawRect(canvasRect, paint);
 
     canvas->resetMatrix();
 
-    if(mTransMode != TransformMode::none || mValueInput.inputEnabled())
-        mValueInput.draw(canvas, drawRect.height() - eSizesUI::widget);
+    /*if(mTransMode != TransformMode::none || mValueInput.inputEnabled())
+        mValueInput.draw(canvas, drawRect.height() - eSizesUI::widget);*/
 };

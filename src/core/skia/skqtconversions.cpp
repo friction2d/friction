@@ -67,6 +67,15 @@ QMatrix toQMatrix(const SkMatrix &matrix) {
                    toQreal(matrix.getTranslateY()));
 }
 
+QTransform toQTransform(const SkMatrix &matrix) {
+    return QTransform(toQreal(matrix.getScaleX()),
+                      toQreal(matrix.getSkewY()),
+                      toQreal(matrix.getSkewX()),
+                      toQreal(matrix.getScaleY()),
+                      toQreal(matrix.getTranslateX()),
+                      toQreal(matrix.getTranslateY()));
+}
+
 SkMatrix toSkMatrix(const QMatrix &matrix) {
     SkMatrix skMatrix;
     skMatrix.reset();
@@ -76,6 +85,17 @@ SkMatrix toSkMatrix(const QMatrix &matrix) {
     skMatrix.set(SkMatrix::kMSkewY, toSkScalar(matrix.m12()));
     skMatrix.set(SkMatrix::kMTransX, toSkScalar(matrix.dx()));
     skMatrix.set(SkMatrix::kMTransY, toSkScalar(matrix.dy()));
+    return skMatrix;
+}
+
+SkMatrix toSkMatrix(const QTransform &transform) {
+    SkMatrix skMatrix;
+    skMatrix.set(SkMatrix::kMScaleX, toSkScalar(transform.m11()));
+    skMatrix.set(SkMatrix::kMScaleY, toSkScalar(transform.m22()));
+    skMatrix.set(SkMatrix::kMSkewX, toSkScalar(transform.m21()));
+    skMatrix.set(SkMatrix::kMSkewY, toSkScalar(transform.m12()));
+    skMatrix.set(SkMatrix::kMTransX, toSkScalar(transform.dx()));
+    skMatrix.set(SkMatrix::kMTransY, toSkScalar(transform.dy()));
     return skMatrix;
 }
 

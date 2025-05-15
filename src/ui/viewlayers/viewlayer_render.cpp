@@ -26,6 +26,7 @@
 
 #include "viewlayer_render.h"
 
+#include <QGuiApplication>
 #include <QScreen>
 #include <QTransform>
 
@@ -49,7 +50,7 @@ void ViewLayerRender::repaint(SkCanvas * const canvas) {
     const qreal zoom = _baseCanvas->zoom();
     const QTransform translation = _baseCanvas->translation();
 
-    const qreal pixelRatio = QScreen::devicePixelRatio();
+    const qreal pixelRatio = QGuiApplication::primaryScreen()->devicePixelRatio();
     const qreal qInverseZoom = 1/zoom * pixelRatio;
     const float inverseZoom = toSkScalar(qInverseZoom);
 

@@ -23,14 +23,24 @@
 
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
-#ifndef FRICTION_UI_VIEW_LAYER_UTILITIES
-#define FRICTION_UI_VIEW_LAYER_UTILITIES
-
-#include "../../core/skia/skiaincludes.h"
-#include "../../core/GUI/global.h"
-
+#include "utils.h"
 
 void drawTransparencyMesh(SkCanvas* const canvas,
-                          const SkRect &drawRect);
+                          const SkRect &drawRect)
+{
+    SkPaint paint;
+    SkBitmap bitmap;
+    bitmap.setInfo(SkImageInfo::MakeA8(2, 2), 2);
+    uint8_t pixels[4] = { 0, 255, 255, 0 };
+    bitmap.setPixels(pixels);
 
-#endif // FRICTION_UI_VIEW_LAYER_UTILITIES
+    SkMatrix matr;
+    const float scale = canvas->getTotalMatrix().getMinScale();
+    const float dim = eSizesUI::widget*0.5f / (scale > 1.f ? 1.f : scale);
+    matr.setScale(dim, dim);
+    const auto shader = bitmap.makeShader(SkTileMode::kRepeat,
+                                              SkTileMode::kRepeat, &matr);
+    paint.setShader(shader);
+    paint.setColor(SkColorSetARGB(255, 100, 100, 100));
+    canvas->drawRect(drawRect, paint);
+}
