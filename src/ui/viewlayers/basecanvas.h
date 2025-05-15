@@ -30,6 +30,7 @@
 
 #include <QTransform>
 #include <QWidget>
+#include <QColor>
 
 #include "viewlayer.h"
 #include "../ui_global.h"
@@ -45,10 +46,26 @@
 // shapes, movable points, selection... to the CanvasWindow.
 class UI_EXPORT BaseCanvas : public GLWindow {
 public:
-    explicit BaseCanvas(QWidget * parent = nullptr) : GLWindow(parent) {};
+    explicit BaseCanvas(
+        int width,
+        int height,
+        QColor backgroundColor = QColor(0, 0, 0),
+        QWidget * parent = nullptr)
+            : GLWindow(parent)
+            , _width(width)
+            , _height(height)
+            , _backgroundColor(backgroundColor) {};
     ~BaseCanvas() = default;
 
     void renderSk(SkCanvas * const canvas) override;
+
+    void setBackgroundColor(QColor color) { _backgroundColor = color; };
+    QColor backgroundColor() { return _backgroundColor; };
+
+    int width() { return _width; };
+    int height() { return _height; };
+
+    void setSize(int width, int height) { _width = width; _height = height; };
 
     // Scene id
     // Used internally in XEV format for identification purposes
@@ -57,6 +74,10 @@ public:
 
 private:
     std::map<std::string, ViewLayer&> _viewLayers;
+
+    int _width;
+    int _height;
+    QColor _backgroundColor;
 
     // Zoom & translation
     QTransform _translationVector;

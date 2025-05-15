@@ -23,14 +23,16 @@
 
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
-#ifndef VIEW_LAYER_RENDER_H
-#define VIEW_LAYER_RENDER_H
+#ifndef FRICTION_UI_VIEW_LAYER_RENDER_H
+#define FRICTION_UI_VIEW_LAYER_RENDER_H
 
 #include "viewlayer.h"
 
 #include "basecanvas.h"
 #include "../../core/Private/document.h"
 #include "../../core/skia/skiaincludes.h"
+#include "../../core/CacheHandlers/usepointer.h"
+#include "../../core/CacheHandlers/sceneframecontainer.h"
 
 
 class ViewLayerRender : public ViewLayer {
@@ -49,6 +51,8 @@ public:
 private:
     BaseCanvas *_baseCanvas;
     Document &_document;
+
+    UseSharedPointer<SceneFrameContainer> _sceneFrame;
 };
 
-#endif // VIEW_LAYER_RENDER_H
+#endif // FRICTION_UI_VIEW_LAYER_RENDER_H

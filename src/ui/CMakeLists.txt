@@ -142,6 +142,7 @@ set(
     optimalscrollarena/scrollwidget.h
     optimalscrollarena/scrollwidgetvisiblepart.h
     optimalscrollarena/singlewidget.h
+    viewlayers/utils.h
     viewlayers/basecanvas.h
     viewlayers/viewlayer.h
     viewlayers/viewlayer_render.h

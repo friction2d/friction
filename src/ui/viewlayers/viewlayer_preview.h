@@ -31,6 +31,8 @@
 #include "basecanvas.h"
 #include "../../core/Private/document.h"
 #include "../../core/skia/skiaincludes.h"
+#include "../../core/CacheHandlers/usepointer.h"
+#include "../../core/CacheHandlers/sceneframecontainer.h"
 
 
 class ViewLayerPreview : public ViewLayer {
@@ -49,6 +51,8 @@ public:
 private:
     BaseCanvas *_baseCanvas;
     Document &_document;
+
+    UseSharedPointer<SceneFrameContainer> _sceneFrame;
 };
 
 #endif // VIEW_LAYER_PREVIEW_H

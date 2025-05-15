@@ -27,10 +27,12 @@
 #include "viewlayer_render.h"
 
 #include <QScreen>
+#include <QTransform>
 
 #include "basecanvas.h"
+#include "utils.h"
 #include "../../core/efiltersettings.h"
-
+#include "../../core/GUI/global.h"
 
 ViewLayerRender::ViewLayerRender(Document &document, BaseCanvas *canvas)
     : ViewLayer("render_layer")
@@ -41,40 +43,40 @@ void ViewLayerRender::repaint(SkCanvas * const canvas) {
 
     /* ======== Setup ======== */
 
-    /*SkPaint paint;
-    paint.setStyle(skPaint::kFill_Style);
+    SkPaint paint;
+    paint.setStyle(SkPaint::kFill_Style);
 
-    const qreal zoom = baseCanvas.zoom();
-    const QMatrix translation = baseCanvas.translation();
+    const qreal zoom = _baseCanvas->zoom();
+    const QTransform translation = _baseCanvas->translation();
 
     const qreal pixelRatio = QScreen::devicePixelRatio();
     const qreal qInverseZoom = 1/zoom * pixelRatio;
     const float inverseZoom = toSkScalar(qInverseZoom);
 
-    const SkRect canvasRect = SkRect::MakeWH(width, height);
-    const auto filter = eFilterSettings::sDisplay(zoom, baseCanvas.resolution());
-    const SkMatrix skCanvasTranslation  = toSkMatrix(translation);
-    const QColor qBackgroundColor = backgroundColor->getColor();
+    const SkRect canvasRect = SkRect::MakeWH(_baseCanvas->width(), _baseCanvas->height());
+    const auto filter = eFilterSettings::sDisplay(zoom, _baseCanvas->resolution());
+    const QColor qBackgroundColor = _baseCanvas->backgroundColor();
     const float intervals[2] = {eSizesUI::widget*0.25f*inverseZoom,
         eSizesUI::widget*0.25f*inverseZoom};
 
     // Move canvas to a certain position
-    canvas->concat(translation);*/
+    const SkMatrix skCanvasTranslation  = toSkMatrix(translation);
+    canvas->concat(skCanvasTranslation);
 
     /* ======== Rendering ======== */
 
-    /*if (sceneFrame) {
+    if (_sceneFrame) {
         canvas->clear(SK_ColorBLACK);
         canvas->save();
 
-        // Undeclared identifier
         if (qBackgroundColor.alpha() != 255)
             drawTransparencyMesh(canvas, canvasRect);
 
-        const float reversedResolution = toSkScalar(1/sceneFrame->fResolution);
+        const float reversedResolution = toSkScalar(1/_sceneFrame->fResolution);
         canvas->scale(reversedResolution, reversedResolution);
 
-        sceneFrame->drawImage(canvas, filter);
+        _sceneFrame->drawImage(canvas, filter);
+
         canvas->restore();
-        }*/
+        }
 };

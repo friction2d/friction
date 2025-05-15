@@ -27,9 +27,12 @@
 #include "viewlayer_preview.h"
 
 #include <QScreen>
+#include <QTransform>
 
 #include "basecanvas.h"
+#include "utils.h"
 #include "../../core/efiltersettings.h"
+#include "../../core/GUI/global.h"
 
 
 ViewLayerPreview::ViewLayerPreview(Document &document, BaseCanvas *canvas)
@@ -41,29 +44,29 @@ void ViewLayerPreview::repaint(SkCanvas * const canvas) {
 
     /* ======== Setup ======== */
 
-    /*SkPaint paint;
-    paint.setStyle(skPaint::kFill_Style);
+    SkPaint paint;
+    paint.setStyle(SkPaint::kFill_Style);
 
-    const qreal zoom = baseCanvas.zoom();
-    const QMatrix translation = baseCanvas.translation();
+    const qreal zoom = _baseCanvas->zoom();
+    const QTransform translation = _baseCanvas->translation();
 
     const qreal pixelRatio = QScreen::devicePixelRatio();
     const qreal qInverseZoom = 1/zoom * pixelRatio;
     const float inverseZoom = toSkScalar(qInverseZoom);
 
-    const SkRect canvasRect = SkRect::MakeWH(width, height);
-    const auto filter = eFilterSettings::sDisplay(zoom, baseCanvas.resolution());
-    const SkMatrix skCanvasTranslation  = toSkMatrix(translation);
-    const QColor qBackgroundColor = backgroundColor->getColor();
+    const SkRect canvasRect = SkRect::MakeWH(_baseCanvas->width(), _baseCanvas->height());
+    const auto filter = eFilterSettings::sDisplay(zoom, _baseCanvas->resolution());
+    const QColor qBackgroundColor = _baseCanvas->backgroundColor();
     const float intervals[2] = {eSizesUI::widget*0.25f*inverseZoom,
         eSizesUI::widget*0.25f*inverseZoom};
 
     // Move canvas to a certain position
-    canvas->concat(translation);*/
+    const SkMatrix skCanvasTranslation  = toSkMatrix(translation);
+    canvas->concat(skCanvasTranslation);
 
     /* ======== Rendering ======== */
 
-    /*canvas->save();
+    canvas->save();
 
     if (clipToCanvasSize) {
         canvas->clear(SK_ColorBLACK);
@@ -109,9 +112,9 @@ void ViewLayerPreview::repaint(SkCanvas * const canvas) {
 
     canvas->restore();
 
-    if (!enve_cast<Canvas*>(currentContainer)) {
+    /*if (!enve_cast<Canvas*>(currentContainer)) {
         currentContainer->drawBoundingRect(canvas, inverseZoom);
-    }
+        }*/
 
     if(CurrentMode == CanvasMode::boxTransform ||
        mCurrentMode == CanvasMode::pointTransform) {
@@ -195,5 +198,5 @@ void ViewLayerPreview::repaint(SkCanvas * const canvas) {
     canvas->resetMatrix();
 
     if(mTransMode != TransformMode::none || mValueInput.inputEnabled())
-        mValueInput.draw(canvas, drawRect.height() - eSizesUI::widget);*/
+        mValueInput.draw(canvas, drawRect.height() - eSizesUI::widget);
 };
