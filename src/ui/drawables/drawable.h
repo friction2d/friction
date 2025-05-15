@@ -37,7 +37,7 @@ public:
     Drawable() {};
     ~Drawable() = default;
 
-    virtual void drawToCanvas(SkCanvas * const canvas);
+    virtual void drawToCanvas(SkCanvas * const canvas) = 0;
 
     void setPosition(float x, float y) { _position = QPointF(x, y); };
     QPointF position() { return _position; };
