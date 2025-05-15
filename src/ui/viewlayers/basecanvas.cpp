@@ -31,6 +31,9 @@ void BaseCanvas::renderSk(SkCanvas * const canvas) {
     // (int index, T value). In this case T = ViewLayer
     for (auto& pair : _viewLayers) {
         auto& viewLayer = pair.second;
+
+        // Do not show ViewLayer if is not visible
+        if (!viewLayer.isVisible()) return;
         viewLayer.repaint(canvas);
     }
 };

@@ -42,8 +42,14 @@ public:
 public:
     std::string layerId() const { return _layerId; }
 
+    void show() { setVisible(true); };
+    void hide() { setVisible(false); };
+    void setVisible(bool isVisible) { _isVisible = isVisible; };
+    bool isVisible() { return _isVisible; };
+
 private:
     std::string const _layerId;
+    bool _isVisible;
 };
 
 #endif // VIEW_LAYER_H
