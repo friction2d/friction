@@ -96,6 +96,9 @@ MainWindow::MainWindow(Document& document,
     : QMainWindow(parent)
     , mShutdown(false)
     , mWelcomeDialog(nullptr)
+    , mViewLayerPreview(nullptr)
+    , mViewLayerRender(nullptr)
+    , mViewLayerSelection(nullptr)
     , mBaseCanvas(nullptr)
     , mStackWidget(nullptr)
     , mTabProperties(nullptr)
@@ -285,6 +288,14 @@ MainWindow::MainWindow(Document& document,
        this);
 
     mBaseCanvas = new BaseCanvas(this);
+
+    mViewLayerPreview = new ViewLayerPreview(mDocument, mBaseCanvas);
+    mViewLayerRender = new ViewLayerRender(mDocument, mBaseCanvas);
+    mViewLayerSelection = new ViewLayerSelection(mBaseCanvas);
+
+    mBaseCanvas->addViewLayer(*mViewLayerPreview);
+    mBaseCanvas->addViewLayer(*mViewLayerRender);
+    mBaseCanvas->addViewLayer(*mViewLayerSelection);
 
     mStackWidget = new QStackedWidget(this);
     mStackIndexScene = mStackWidget->addWidget(mBaseCanvas);

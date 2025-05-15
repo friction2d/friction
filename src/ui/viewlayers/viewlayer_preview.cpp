@@ -24,7 +24,7 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 
-#include "viewlayer_export.h"
+#include "viewlayer_preview.h"
 
 #include <QScreen>
 
@@ -32,12 +32,12 @@
 #include "../../core/efiltersettings.h"
 
 
-ViewLayerExport::ViewLayerExport(Document &document, BaseCanvas &canvas)
-    : ViewLayer("export_layer")
+ViewLayerPreview::ViewLayerPreview(Document &document, BaseCanvas *canvas)
+    : ViewLayer("preview_layer")
     , _baseCanvas(canvas)
     , _document(document) {};
 
-void ViewLayerExport::repaint(SkCanvas * const canvas) {
+void ViewLayerPreview::repaint(SkCanvas * const canvas) {
 
     /* ======== Setup ======== */
 
@@ -62,28 +62,6 @@ void ViewLayerExport::repaint(SkCanvas * const canvas) {
     canvas->concat(translation);*/
 
     /* ======== Rendering ======== */
-
-    // Render preview
-    /*if (isPreviewingOrRendering()) {
-        if (sceneFrame) {
-            canvas->clear(SK_ColorBLACK);
-            canvas->save();
-
-            // Undeclared identifier*/
-            /*if (qBackgroundColor.alpha() != 255)
-                drawTransparencyMesh(canvas, canvasRect);*/
-/*
-            const float reversedResolution = toSkScalar(1/sceneFrame->fResolution);
-            canvas->scale(reversedResolution, reversedResolution);
-
-            sceneFrame->drawImage(canvas, filter);
-            canvas->restore();
-        }
-
-        return;
-    }*/
-
-    // Else, render normal canvas mode
 
     /*canvas->save();
 
@@ -133,9 +111,8 @@ void ViewLayerExport::repaint(SkCanvas * const canvas) {
 
     if (!enve_cast<Canvas*>(currentContainer)) {
         currentContainer->drawBoundingRect(canvas, inverseZoom);
-    }*/
+    }
 
-    /*
     if(CurrentMode == CanvasMode::boxTransform ||
        mCurrentMode == CanvasMode::pointTransform) {
         if(mTransMode == TransformMode::rotate ||
@@ -218,6 +195,5 @@ void ViewLayerExport::repaint(SkCanvas * const canvas) {
     canvas->resetMatrix();
 
     if(mTransMode != TransformMode::none || mValueInput.inputEnabled())
-        mValueInput.draw(canvas, drawRect.height() - eSizesUI::widget);
-    */
+        mValueInput.draw(canvas, drawRect.height() - eSizesUI::widget);*/
 };

@@ -23,26 +23,44 @@
 
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
-#ifndef VIEW_LAYER_EXPORT_H
-#define VIEW_LAYER_EXPORT_H
+#ifndef FRICTION_UI_DRAWABLE_H
+#define FRICTION_UI_DRAWABLE_H
 
-#include "viewlayer.h"
+#include <QColor>
+#include <QPointF>
 
-#include "basecanvas.h"
-#include "../../core/Private/document.h"
 #include "../../core/skia/skiaincludes.h"
 
 
-class ViewLayerExport : public ViewLayer {
+class Drawable {
 public:
-    ViewLayerExport(Document &document, BaseCanvas &canvas);
-    ~ViewLayerExport() = default;
+    Drawable() {};
+    ~Drawable() = default;
 
-    void repaint(SkCanvas * const canvas) override;
+public:
+    void setPosition(float x, float y);
+    QPointF position();
+    void setSize(float width, float height);
+    QPointF size();
+    void setRotation(float rotation);
+    float rotation();
+
+    void setFillColor(QColor fillColor);
+    QColor fillColor();
+    void setStrokeColor(QColor strokeColor);
+    QColor strokeColor();
+
+    void setStrokeSize(float size);
+    float strokeSize();
 
 private:
-    BaseCanvas &_baseCanvas;
-    Document &_document;
+    QPointF _position;
+    QPointF _size;
+    float _rotation;
+
+    QColor _fillColor;
+    QColor _strokeColor;
+    float _strokeSize;
 };
 
-#endif // VIEW_LAYER_EXPORT_H
+#endif
