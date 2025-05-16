@@ -117,6 +117,7 @@ public:
     void graphRemoveViewedAnimator(GraphAnimator * const animator);
     void clearHoveredMovable();
     bool KFT_keyPressEvent(QKeyEvent *event);
+    void keyframeZoomHorizontalAction();
 protected:
     ValueInput mValueInput;
 
