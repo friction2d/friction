@@ -94,8 +94,12 @@ MainWindow::MainWindow(Document& document,
                        const QString &openProject,
                        QWidget * const parent)
     : QMainWindow(parent)
+    , mViewLayerRender(nullptr)
+    , mViewLayerPreview(nullptr)
+    , mViewLayerSelection(nullptr)
     , mShutdown(false)
     , mWelcomeDialog(nullptr)
+    , mBaseCanvas(nullptr)
     , mStackWidget(nullptr)
     , mTabProperties(nullptr)
     , mTimeline(nullptr)
@@ -283,8 +287,18 @@ MainWindow::MainWindow(Document& document,
        []() { MainWindow::sGetInstance()->openFile(); },
        this);
 
+    mBaseCanvas = new BaseCanvas(1920, 1080, nullptr, this);
+
+    mViewLayerPreview = new ViewLayerPreview(mDocument, mBaseCanvas);
+    mViewLayerRender = new ViewLayerRender(mDocument, mBaseCanvas);
+    mViewLayerSelection = new ViewLayerSelection(mBaseCanvas);
+
+    mBaseCanvas->addViewLayer(*mViewLayerPreview);
+    mBaseCanvas->addViewLayer(*mViewLayerRender);
+    mBaseCanvas->addViewLayer(*mViewLayerSelection);
+
     mStackWidget = new QStackedWidget(this);
-    mStackIndexScene = mStackWidget->addWidget(mLayoutHandler->sceneLayout());
+    mStackIndexScene = mStackWidget->addWidget(mBaseCanvas);
     mStackIndexWelcome = mStackWidget->addWidget(mWelcomeDialog);
 
     mColorToolBar = new Ui::ColorToolBar(mDocument, this);

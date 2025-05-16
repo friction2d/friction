@@ -64,6 +64,11 @@ set(
     optimalscrollarena/scrollwidget.cpp
     optimalscrollarena/scrollwidgetvisiblepart.cpp
     optimalscrollarena/singlewidget.cpp
+    viewlayers/basecanvas.cpp
+    viewlayers/utils.cpp
+    viewlayers/viewlayer_render.cpp
+    viewlayers/viewlayer_preview.cpp
+    viewlayers/viewlayer_selection.cpp
     widgets/aboutwidget.cpp
     widgets/actionbutton.cpp
     widgets/alignwidget.cpp
@@ -124,6 +129,8 @@ set(
     dialogs/qrealpointvaluedialog.h
     dialogs/renderoutputwidget.h
     dialogs/scenesettingsdialog.h
+    drawables/drawable.h
+    drawables/rectangle_drawable.h
     gradientwidgets/currentgradientwidget.h
     gradientwidgets/displayedgradientswidget.h
     gradientwidgets/gradientslistwidget.h
@@ -136,6 +143,12 @@ set(
     optimalscrollarena/scrollwidget.h
     optimalscrollarena/scrollwidgetvisiblepart.h
     optimalscrollarena/singlewidget.h
+    viewlayers/utils.h
+    viewlayers/basecanvas.h
+    viewlayers/viewlayer.h
+    viewlayers/viewlayer_render.h
+    viewlayers/viewlayer_preview.h
+    viewlayers/viewlayer_selection.h
     widgets/aboutwidget.h
     widgets/actionbutton.h
     widgets/alignwidget.h

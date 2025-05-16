@@ -49,6 +49,10 @@
 #include "fileshandler.h"
 #include "ekeyfilter.h"
 #include "GUI/RenderWidgets/renderwidget.h"
+#include "viewlayers/viewlayer_preview.h"
+#include "viewlayers/viewlayer_render.h"
+#include "viewlayers/viewlayer_selection.h"
+#include "viewlayers/basecanvas.h"
 #include "widgets/colortoolbar.h"
 #include "widgets/qdoubleslider.h"
 #include "widgets/canvastoolbar.h"
@@ -182,9 +186,17 @@ protected:
     void resizeEvent(QResizeEvent *e);
     void showEvent(QShowEvent *e);
 
+    ViewLayerRender *mViewLayerRender;
+    ViewLayerPreview *mViewLayerPreview;
+    ViewLayerSelection *mViewLayerSelection;
+
+public:
+    ViewLayerRender * viewLayerRender() { return mViewLayerRender; };
+
 private:
     bool mShutdown;
     QWidget *mWelcomeDialog;
+    BaseCanvas *mBaseCanvas;
     QStackedWidget *mStackWidget;
 
     QTabWidget *mTabProperties;
