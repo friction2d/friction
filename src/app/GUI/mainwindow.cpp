@@ -74,6 +74,7 @@
 #include "appsupport.h"
 #include "themesupport.h"
 
+#include "widgets/toolbutton.h"
 #include "widgets/assetswidget.h"
 #include "dialogs/adjustscenedialog.h"
 #include "dialogs/commandpalette.h"
@@ -259,7 +260,7 @@ MainWindow::MainWindow(Document& document,
     connect(mObjectSettingsScrollArea, &ScrollArea::widthChanged,
             mObjectSettingsWidget, &BoxScrollWidget::setWidth);
 
-    const auto assets = new AssetsWidget(this);
+    //const auto assets = new AssetsWidget(this);
 
     setupToolBox();
     setupToolBar();
@@ -328,9 +329,9 @@ MainWindow::MainWindow(Document& document,
     mTabPropertiesIndex = mTabProperties->addTab(propertiesWidget,
                                                  QIcon::fromTheme("drawPathAutoChecked"),
                                                  tr("Properties"));
-    mTabAssetsIndex = mTabProperties->addTab(assets,
+    /*mTabAssetsIndex = mTabProperties->addTab(assets,
                                              QIcon::fromTheme("asset_manager"),
-                                             tr("Assets"));
+                                             tr("Assets"));*/
     mTabQueueIndex = mTabProperties->addTab(mRenderWidget,
                                             QIcon::fromTheme("render_animation"),
                                             tr("Queue"));
@@ -1153,6 +1154,43 @@ void MainWindow::setupMenuBar()
     mToolbar->addAction(mImportAct);
     mToolbar->addAction(mLinkedAct);
 
+    // assets action
+    const auto assetsButton = new Ui::ToolButton(this, false);
+    assetsButton->setObjectName("ToolButton");
+    assetsButton->setIcon(QIcon::fromTheme("asset_manager"));
+    assetsButton->setText(tr("Assets"));
+    assetsButton->setFocusPolicy(Qt::NoFocus);
+    assetsButton->setPopupMode(QToolButton::ToolButtonPopupMode::InstantPopup);
+    assetsButton->setToolButtonStyle(mToolbar->toolButtonStyle());
+    assetsButton->setAcceptDrops(true);
+
+    const auto assetsWid = new AssetsWidget(this);
+
+    const auto pop = new QFrame(this);
+    pop->setObjectName("PopWidget");
+    pop->setMinimumSize({320, 256});
+    pop->setContentsMargins(0, 0, 0, 0);
+
+    const auto popLay = new QVBoxLayout(pop);
+    popLay->setMargin(0);
+    popLay->addWidget(assetsWid);
+
+    const auto assetsWA = new QWidgetAction(this);
+    assetsWA->setDefaultWidget(pop);
+
+    assetsButton->addAction(assetsWA);
+
+    connect(assetsButton, &Ui::ToolButton::droppedUrls,
+            assetsWid, &AssetsWidget::addAssets);
+
+    const auto assetsAct = mToolbar->addWidget(assetsButton);
+    assetsAct->setObjectName("AssetsAct");
+    assetsAct->setText(tr("Assets"));
+
+    connect(mToolbar, &QToolBar::toolButtonStyleChanged,
+            assetsButton, &QToolButton::setToolButtonStyle);
+
+    // render actions
     mRenderVideoAct = mToolbar->addAction(QIcon::fromTheme("render_animation"),
                                           tr("Render"),
                                           this, &MainWindow::openRendererWindow);
