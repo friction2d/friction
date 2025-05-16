@@ -79,5 +79,5 @@ void ViewLayerRender::repaint(SkCanvas * const canvas) {
         _sceneFrame->drawImage(canvas, filter);
 
         canvas->restore();
-        }
+    }
 };
