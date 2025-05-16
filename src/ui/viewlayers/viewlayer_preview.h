@@ -33,7 +33,7 @@
 #include "../../core/skia/skiaincludes.h"
 #include "../../core/CacheHandlers/usepointer.h"
 #include "../../core/CacheHandlers/sceneframecontainer.h"
-
+#include "../../core/conncontextobjlist.h"
 
 class ViewLayerPreview : public ViewLayer {
 public:
@@ -52,7 +52,21 @@ private:
     BaseCanvas *_baseCanvas;
     Document &_document;
 
+    // We draw the contained boxes (objects in the document) to the canvas
+    void drawContainedBoxesToCanvas(SkCanvas * const canvas,
+                                    const SkFilterQuality filter) const;
+    void drawContainedBoxesToCanvas(SkCanvas * const canvas,
+                                    const SkFilterQuality filter, int& drawId,
+                                    QList<BlendEffect::Delayed> &delayed) const;
+
+    void containedDetachedBlendSetup(
+            SkCanvas * const canvas,
+            const SkFilterQuality filter, int& drawId,
+            QList<BlendEffect::Delayed> &delayed) const;
+
     UseSharedPointer<SceneFrameContainer> _sceneFrame;
+    qsptr<QList<BoundingBox*>> _containedBoxesRef;
+    qsptr<ConnContextObjList<qsptr<eBoxOrSound>>> _contained;
 };
 
 #endif // VIEW_LAYER_PREVIEW_H

@@ -32,6 +32,8 @@
 
 #include "basecanvas.h"
 #include "utils.h"
+#include "../drawables/rectangle_drawable.h"
+#include "../../core/Boxes/containerbox.h"
 #include "../../core/efiltersettings.h"
 #include "../../core/GUI/global.h"
 
@@ -44,9 +46,6 @@ ViewLayerPreview::ViewLayerPreview(Document &document, BaseCanvas *canvas)
 void ViewLayerPreview::repaint(SkCanvas * const canvas) {
 
     /* ======== Setup ======== */
-
-    SkPaint paint;
-    paint.setStyle(SkPaint::kFill_Style);
 
     const qreal zoom = _baseCanvas->zoom();
     const QTransform translation = _baseCanvas->translation();
@@ -75,12 +74,12 @@ void ViewLayerPreview::repaint(SkCanvas * const canvas) {
     } else {
         canvas->clear(ThemeSupport::getThemeBaseSkColor());
 
-        paint.setColor(SK_ColorGRAY);
-        paint.setStyle(SkPaint::kStroke_Style);
-        paint.setPathEffect(dashPathEffect);
+        //paint.setColor(SK_ColorGRAY);
+        //paint.setStyle(SkPaint::kStroke_Style);
+        //paint.setPathEffect(dashPathEffect);
 
         auto currentBounds = toSkRect(bounds());
-        canvas->drawRect(currentBounds, paint);
+        canvas->drawRect(currentBounds, //paint);
     }
 */
 
@@ -92,100 +91,71 @@ void ViewLayerPreview::repaint(SkCanvas * const canvas) {
         //skCanvasTranslation.mapRect(translation).contains(toSkRect(drawRect))*/) {
         canvas->clear(toSkColor(backgroundColor));
     } else {
-        paint.setStyle(SkPaint::kFill_Style);
-        paint.setColor(toSkColor(backgroundColor));
+        auto canvasRectangle = RectangleDrawable();
 
-        canvas->drawRect(canvasRect, paint);
+        canvasRectangle.setSize(canvasRect.width(), canvasRect.height());
+        canvasRectangle.setFillColor(backgroundColor);
+
+        canvasRectangle.drawToCanvas(canvas);
     }
 
-    //drawContained(canvas, filter);
+    drawContainedBoxesToCanvas(canvas, filter);
     canvas->restore();
-
-    /*if (!enve_cast<Canvas*>(currentContainer)) {
-        currentContainer->drawBoundingRect(canvas, inverseZoom);
-        }*/
-
-    /*if(CurrentMode == CanvasMode::boxTransform ||
-       mCurrentMode == CanvasMode::pointTransform) {
-        if(mTransMode == TransformMode::rotate ||
-           mTransMode == TransformMode::scale) {
-            mRotPivot->drawTransforming(canvas, mCurrentMode, inverseZoom,
-                                        eSizesUI::widget*0.25f*inverseZoom);
-        } else if(!mouseGrabbing || mRotPivot->isSelected()) {
-            mRotPivot->drawSk(canvas, mCurrentMode, inverseZoom, false, false);
-        }
-    } else if(mCurrentMode == CanvasMode::drawPath) {
-        const SkScalar nodeSize = 0.15f*eSizesUI::widget*inverseZoom;
-        SkPaint paint;
-        paint.setStyle(SkPaint::kFill_Style);
-        paint.setAntiAlias(true);
-
-        const auto& pts = mDrawPath.smoothPts();
-        const auto drawColor = eSettings::instance().fLastUsedStrokeColor;
-        paint.setARGB(255,
-                      drawColor.red(),
-                      drawColor.green(),
-                      drawColor.blue());
-        const SkScalar ptSize = 0.25*nodeSize;
-        for(const auto& pt : pts) {
-            canvas->drawCircle(pt.x(), pt.y(), ptSize, paint);
-        }
-
-        const bool drawFitted = mDocument.fDrawPathManual &&
-                                mManualDrawPathState == ManualDrawPathState::drawn;
-        if(drawFitted) {
-            paint.setARGB(255, 255, 0, 0);
-            const auto& highlightPts = mDrawPath.forceSplits();
-            for(const int ptId : highlightPts) {
-                const auto& pt = pts.at(ptId);
-                canvas->drawCircle(pt.x(), pt.y(), nodeSize, paint);
-            }
-            const auto& fitted = mDrawPath.getFitted();
-            paint.setARGB(255, 255, 0, 0);
-            for(const auto& seg : fitted) {
-                const auto path = seg.toSkPath();
-                SkiaHelpers::drawOutlineOverlay(canvas, path, inverseZoom, SK_ColorWHITE);
-                const auto& p0 = seg.p0();
-                canvas->drawCircle(p0.x(), p0.y(), nodeSize, paint);
-            }
-            if(!mDrawPathTmp.isEmpty()) {
-                SkiaHelpers::drawOutlineOverlay(canvas, mDrawPathTmp,
-                                                inverseZoom, SK_ColorWHITE);
-            }
-        }
-
-        paint.setARGB(255, 0, 75, 155);
-        if(mHoveredPoint_d && mHoveredPoint_d->isSmartNodePoint()) {
-            const QPointF pos = mHoveredPoint_d->getAbsolutePos();
-            const qreal r = 0.5*qinverseZoom*mHoveredPoint_d->getRadius();
-            canvas->drawCircle(pos.x(), pos.y(), r, paint);
-        }
-        if(mDrawPathFirst) {
-            const QPointF pos = mDrawPathFirst->getAbsolutePos();
-            const qreal r = 0.5*qinverseZoom*mDrawPathFirst->getRadius();
-            canvas->drawCircle(pos.x(), pos.y(), r, paint);
-        }
-        }*/
-
-        /*if(mHoveredPoint_d) {
-            mHoveredPoint_d->drawHovered(canvas, inverseZoom);
-        } else if(mHoveredNormalSegment.isValid()) {
-            mHoveredNormalSegment.drawHoveredSk(canvas, inverseZoom);
-        } else if(mHoveredBox) {
-            if(!mCurrentNormalSegment.isValid()) {
-                mHoveredBox->drawHoveredSk(canvas, inverseZoom);
-            }
-            }*/
-    //}
-
-    paint.setStyle(SkPaint::kStroke_Style);
-    paint.setStrokeWidth(inverseZoom);
-    paint.setColor(SK_ColorGRAY);
-    paint.setPathEffect(nullptr);
-    //canvas->drawRect(canvasRect, paint);
-
-    canvas->resetMatrix();
-
-    /*if(mTransMode != TransformMode::none || mValueInput.inputEnabled())
-        mValueInput.draw(canvas, drawRect.height() - eSizesUI::widget);*/
 };
+
+// I put an underscore in the name to avoid naming conflicts lol
+void _handleDelayed(QList<BlendEffect::Delayed> &delayed,
+                   const int drawId,
+                   BoundingBox* const prevBox,
+                   BoundingBox* const nextBox) {
+    for(int i = 0; i < delayed.count(); i++) {
+        const auto& del = delayed.at(i);
+        if(del(drawId, prevBox, nextBox)) delayed.removeAt(i--);
+    }
+}
+
+void ViewLayerPreview::containedDetachedBlendSetup(
+        SkCanvas * const canvas,
+        const SkFilterQuality filter, int& drawId,
+        QList<BlendEffect::Delayed> &delayed) const {
+    for(int i = _containedBoxesRef->count() - 1; i >= 0; i--) {
+        const auto& box = _containedBoxesRef->at(i);
+        if(box->isVisibleAndInVisibleDurationRect()) {
+            if(box->isGroup()) {
+                const auto cBox = static_cast<ContainerBox*>(box);
+                cBox->containedDetachedBlendSetup(canvas, filter, drawId, delayed);
+            } else {
+                box->detachedBlendSetup(canvas, filter, drawId, delayed);
+                drawId++;
+            }
+        }
+    }
+}
+
+void ViewLayerPreview::drawContainedBoxesToCanvas(SkCanvas * const canvas,
+                                     const SkFilterQuality filter) const {
+    int drawId = 0;
+    QList<BlendEffect::Delayed> delayed;
+    containedDetachedBlendSetup(canvas, filter, drawId, delayed);
+    drawId = 0;
+    drawContainedBoxesToCanvas(canvas, filter, drawId, delayed);
+    _handleDelayed(delayed, INT_MAX, nullptr, nullptr);
+};
+
+void ViewLayerPreview::drawContainedBoxesToCanvas(SkCanvas * const canvas,
+                                     const SkFilterQuality filter, int& drawId,
+                                     QList<BlendEffect::Delayed> &delayed) const {
+    if(_containedBoxesRef->isEmpty()) return;
+    _handleDelayed(delayed, drawId, nullptr, _containedBoxesRef->last());
+
+    const auto count = _containedBoxesRef->count() - 1;
+    for(int i = count; i >= 0; i--) {
+        const auto& box = _containedBoxesRef->at(i);
+        const auto& nextBox = i == 0 ? nullptr : _containedBoxesRef->at(i - 1);
+        if(box->isVisibleAndInVisibleDurationRect()) {
+            box->drawPixmapSk(canvas, filter, drawId, delayed);
+            if(!box->isGroup()) drawId++;
+        }
+        _handleDelayed(delayed, drawId, box, nextBox);
+    }
+}
