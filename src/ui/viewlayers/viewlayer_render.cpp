@@ -81,3 +81,10 @@ void ViewLayerRender::repaint(SkCanvas * const canvas) {
         canvas->restore();
     }
 };
+
+void ViewLayerRender::setSceneFrame(const int relFrame) {};
+
+void ViewLayerRender::setSceneFrame(const stdsptr<SceneFrameContainer> &cont) {
+    _sceneFrame = cont;
+    //emit requestUpdate();
+};

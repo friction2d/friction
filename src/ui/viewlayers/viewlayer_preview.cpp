@@ -83,34 +83,22 @@ void ViewLayerPreview::repaint(SkCanvas * const canvas) {
         canvas->drawRect(currentBounds, paint);
     }
 */
-    const bool drawCanvas = _sceneFrame /*&& _sceneFrame->fBoxState == stateId*/;
 
-    if (backgroundColor.alpha() != 255)
-        drawTransparencyMesh(canvas, canvasRect);
+    if (backgroundColor.alpha() != 255) drawTransparencyMesh(canvas, canvasRect);
 
-    if (/*!clipToCanvasSize || */!drawCanvas) {
-        canvas->saveLayer(nullptr, nullptr);
+    canvas->saveLayer(nullptr, nullptr);
 
-        if (backgroundColor.alpha() == 255 /*&&
-            //skCanvasTranslation.mapRect(translation).contains(toSkRect(drawRect))*/) {
-            canvas->clear(toSkColor(backgroundColor));
-        } else {
-            paint.setStyle(SkPaint::kFill_Style);
-            paint.setColor(toSkColor(backgroundColor));
+    if (backgroundColor.alpha() == 255 /*&&
+        //skCanvasTranslation.mapRect(translation).contains(toSkRect(drawRect))*/) {
+        canvas->clear(toSkColor(backgroundColor));
+    } else {
+        paint.setStyle(SkPaint::kFill_Style);
+        paint.setColor(toSkColor(backgroundColor));
 
-            canvas->drawRect(canvasRect, paint);
-        }
-
-        //drawContained(canvas, filter);
-        canvas->restore();
-    } else if (drawCanvas) {
-        canvas->save();
-        const float reversedResolution = toSkScalar(1/_sceneFrame->fResolution);
-        canvas->scale(reversedResolution, reversedResolution);
-        _sceneFrame->drawImage(canvas, filter);
-        canvas->restore();
+        canvas->drawRect(canvasRect, paint);
     }
 
+    //drawContained(canvas, filter);
     canvas->restore();
 
     /*if (!enve_cast<Canvas*>(currentContainer)) {

@@ -190,6 +190,9 @@ protected:
     ViewLayerPreview *mViewLayerPreview;
     ViewLayerSelection *mViewLayerSelection;
 
+public:
+    ViewLayerRender * viewLayerRender() { return mViewLayerRender; };
+
 private:
     bool mShutdown;
     QWidget *mWelcomeDialog;
