@@ -82,7 +82,7 @@ void RenderHandler::renderFromSettings(RenderInstanceSettings * const settings) 
 
         const qreal resolutionFraction = renderSettings.fResolution;
         mMinRenderFrame = renderSettings.fMinFrame;
-        mMaxRenderFrame = renderSettings.fMaxFrame;
+        mMaxRenderFrame = renderSettings.fMaxFrame - 1;
         const qreal fps = mCurrentScene->getFps();
         mMaxSoundSec = qFloor(mMaxRenderFrame/fps);
 
@@ -138,6 +138,7 @@ void RenderHandler::nextCurrentRenderFrame() {
     auto& cacheHandler = mCurrentScene->getSceneFramesHandler();
     int newCurrentRenderFrame = cacheHandler.
             firstEmptyFrameAtOrAfter(mCurrentRenderFrame + 1);
+    // Importante: Verificar contra mMaxRenderFrame que ya no incluye el último frame
     const bool allDone = newCurrentRenderFrame > mMaxRenderFrame;
     newCurrentRenderFrame = qMin(mMaxRenderFrame, newCurrentRenderFrame);
     const FrameRange newSoundRange = {mCurrentRenderFrame, newCurrentRenderFrame};
