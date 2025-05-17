@@ -66,6 +66,11 @@ public:
 
     qreal getCurrentXRadius();
     qreal getCurrentYRadius();
+
+    QPointFAnimator* getCenterAnimator();
+    QPointFAnimator* getHRadiusAnimator();
+    QPointFAnimator* getVRadiusAnimator();
+
 protected:
     void getMotionBlurProperties(QList<Property*> &list) const;
 private:

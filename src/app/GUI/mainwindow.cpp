@@ -77,6 +77,7 @@
 #include "widgets/assetswidget.h"
 #include "dialogs/adjustscenedialog.h"
 #include "dialogs/commandpalette.h"
+#include "widgets/viewertoolbar.h"
 
 using namespace Friction;
 
@@ -150,6 +151,7 @@ MainWindow::MainWindow(Document& document,
     , mTabQueueIndex(0)
     , mColorToolBar(nullptr)
     , mCanvasToolBar(nullptr)
+    , mTransformToolBar(nullptr)
     , mBackupOnSave(false)
     , mAutoSave(false)
     , mAutoSaveTimeout(0)
@@ -163,6 +165,7 @@ MainWindow::MainWindow(Document& document,
     , mRenderWindow(nullptr)
     , mRenderWindowAct(nullptr)
     , mColorPickLabel(nullptr)
+    , mColorPickLabelAct(nullptr)
     , mToolBarMainAct(nullptr)
     , mToolBarColorAct(nullptr)
 {
@@ -261,6 +264,8 @@ MainWindow::MainWindow(Document& document,
 
     const auto assets = new AssetsWidget(this);
 
+    mTransformToolBar = new Ui::TransformToolBar(this);
+
     setupToolBox();
     setupToolBar();
     setupMenuBar();
@@ -294,6 +299,9 @@ MainWindow::MainWindow(Document& document,
     mCanvasToolBar = new Ui::CanvasToolBar(this);
     installNumericFilter(mCanvasToolBar->getResolutionComboBox());
 
+    addToolBar(mColorToolBar);
+    addToolBar(Qt::TopToolBarArea, mTransformToolBar);
+
     QMargins frictionMargins(0, 0, 0, 0);
     int frictionSpacing = 0;
 
@@ -302,6 +310,34 @@ MainWindow::MainWindow(Document& document,
     mObjectSettingsScrollArea->setPalette(darkPal);
 
     // setup "Properties", "Assets", "Queue" tab
+
+    {
+        const auto act = mViewMenu->addAction(tr("Align in Properties"));
+        act->setCheckable(true);
+        act->setChecked(AppSupport::getSettings("ui",
+                                                "PropertiesShowAlign",
+                                                true).toBool());
+        alignWidget->setVisible(act->isChecked());
+        connect(act, &QAction::triggered,
+                this, [alignWidget](bool checked) {
+            alignWidget->setVisible(checked);
+            AppSupport::setSettings("ui", "PropertiesShowAlign", checked);
+        });
+    }
+    {
+        const auto act = mViewMenu->addAction(tr("Align in Toolbar"));
+        act->setCheckable(true);
+        act->setChecked(AppSupport::getSettings("ui",
+                                                "ToolBarShowAlign",
+                                                true).toBool());
+        mTransformToolBar->setAlignEnabled(act->isChecked());
+        connect(act, &QAction::triggered,
+                this, [this](bool checked) {
+            mTransformToolBar->setAlignEnabled(checked);
+            AppSupport::setSettings("ui", "ToolBarShowAlign", checked);
+        });
+    }
+
     mTabProperties = new QTabWidget(this);
     mTabProperties->setObjectName("TabWidgetWide");
     mTabProperties->tabBar()->setFocusPolicy(Qt::NoFocus);
@@ -335,8 +371,6 @@ MainWindow::MainWindow(Document& document,
                                             QIcon::fromTheme("render_animation"),
                                             tr("Queue"));
 
-    addToolBar(mColorToolBar);
-
     mCanvasToolBar->addSeparator();
     mCanvasToolBar->addAction(QIcon::fromTheme("workspace"),
                               tr("Layout"));
@@ -347,8 +381,8 @@ MainWindow::MainWindow(Document& document,
     statusBar()->addPermanentWidget(mCanvasToolBar);
 
     mColorPickLabel = new QLabel(this);
-    mColorPickLabel->setVisible(false);
-    statusBar()->addWidget(mColorPickLabel);
+    mColorPickLabelAct = mTransformToolBar->addWidget(mColorPickLabel);
+    mColorPickLabelAct->setVisible(false);
 
     // final layout
     mUI = new UILayout(this);
@@ -541,6 +575,10 @@ void MainWindow::setupMenuBar()
     redoQAct->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_Z);
     mActions.redoAction->connect(redoQAct);
     cmdAddAction(redoQAct);
+
+    // add undo/redo to transform toolbar (left)
+    mTransformToolBar->getLeftToolBar()->addAction(undoQAct);
+    mTransformToolBar->getLeftToolBar()->addAction(redoQAct);
 
     mEditMenu->addSeparator();
 
@@ -1461,8 +1499,9 @@ void MainWindow::addCanvasToRenderQue()
 
 void MainWindow::updateSettingsForCurrentCanvas(Canvas* const scene)
 {
-    mColorToolBar->setCurrentCanvas(scene);
-    mCanvasToolBar->setCurrentCanvas(scene);
+    if (mColorToolBar) { mColorToolBar->setCurrentCanvas(scene); }
+    if (mCanvasToolBar) { mCanvasToolBar->setCurrentCanvas(scene); }
+    if (mTransformToolBar) { mTransformToolBar->setCurrentCanvas(scene); }
 
     mObjectSettingsWidget->setCurrentScene(scene);
 
@@ -1532,9 +1571,8 @@ void MainWindow::updateCanvasModeButtonsChecked()
     mLocalPivotAct->setEnabled(pointMode || boxMode);
 
     if (mColorPickLabel) {
-        mColorPickLabel->clear();
-        mColorPickLabel->setVisible(mode == CanvasMode::pickFillStroke ||
-                                    mode == CanvasMode::pickFillStrokeEvent);
+        mColorPickLabelAct->setVisible(mode == CanvasMode::pickFillStroke ||
+                                       mode == CanvasMode::pickFillStrokeEvent);
     }
 }
 
@@ -1807,6 +1845,9 @@ void MainWindow::readSettings(const QString &openProject)
     mRenderWindowAct->blockSignals(true);
     mRenderWindowAct->setChecked(isRenderWindow);
     mRenderWindowAct->blockSignals(false);
+
+    // force transform toolbar to own row
+    insertToolBarBreak(mTransformToolBar);
 
     if (isTimelineWindow) { openTimelineWindow(); }
     if (isRenderWindow) { openRenderQueueWindow(); }
@@ -2345,14 +2386,5 @@ void MainWindow::handleNewVideoClip(const VideoBox::VideoSpecs &specs)
 
 void MainWindow::handleCurrentPixelColor(const QColor &color)
 {
-    if (!color.isValid()) {
-        mColorPickLabel->clear();
-        return;
-    }
-    mColorPickLabel->setText(QString("&nbsp;&nbsp;<span style=\"background-color: %4;\">"
-                                     "&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;"
-                                     "<b>RGB</b> %1, %2, %3").arg(QString::number(color.redF()),
-                                                                  QString::number(color.greenF()),
-                                                                  QString::number(color.blueF()),
-                                                                  color.name()));
+    mTransformToolBar->updateColorPicker(color);
 }
