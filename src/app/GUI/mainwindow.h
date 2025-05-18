@@ -44,7 +44,6 @@
 #include "Private/document.h"
 #include "Sound/audiohandler.h"
 #include "actions.h"
-#include "layouthandler.h"
 #include "renderhandler.h"
 #include "fileshandler.h"
 #include "ekeyfilter.h"
@@ -173,7 +172,6 @@ public:
     void updateAutoSaveBackupState();
     void openRendererWindow();
     void cmdAddAction(QAction *act);
-    LayoutHandler* getLayoutHandler();
     TimelineDockWidget* getTimeLineWidget();
     void focusFontWidget(const bool focus = true);
     void focusColorWidget();
@@ -330,8 +328,6 @@ private:
     Actions& mActions;
     AudioHandler& mAudioHandler;
     RenderHandler& mRenderHandler;
-
-    LayoutHandler *mLayoutHandler = nullptr;
 
     FillStrokeSettingsWidget *mFillStrokeSettings;
 

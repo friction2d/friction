@@ -222,11 +222,7 @@ MainWindow::MainWindow(Document& document,
     mFontWidget = new Ui::FontsWidget(this);
     mFontWidget->setMaximumHeight(150);
 
-    mLayoutHandler = new LayoutHandler(mDocument,
-                                       mAudioHandler,
-                                       this);
     mTimeline = new TimelineDockWidget(mDocument,
-                                       mLayoutHandler,
                                        this);
     mRenderWidget = new RenderWidget(this);
 

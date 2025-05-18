@@ -42,17 +42,14 @@
 #include "timelinewidget.h"
 #include "widgets/framescrollbar.h"
 #include "renderinstancesettings.h"
-#include "layouthandler.h"
 #include "memoryhandler.h"
 #include "appsupport.h"
 
 TimelineDockWidget::TimelineDockWidget(Document& document,
-                                       LayoutHandler * const layoutH,
                                        MainWindow * const parent)
     : QWidget(parent)
     , mDocument(document)
     , mMainWindow(parent)
-    , mTimelineLayout(layoutH->timelineLayout())
     , mToolBar(nullptr)
     , mFrameStartSpin(nullptr)
     , mFrameEndSpin(nullptr)
@@ -303,7 +300,7 @@ TimelineDockWidget::TimelineDockWidget(Document& document,
         mStopButton->setEnabled(scene);
     });
 
-    mMainLayout->addWidget(mTimelineLayout);
+    //mMainLayout->addWidget(mTimelineLayout);
 
     previewFinished();
 
@@ -703,14 +700,14 @@ void TimelineDockWidget::splitClip()
 void TimelineDockWidget::jumpToIntermediateFrame(bool forward) {
     const auto scene = *mDocument.fActiveScene;
     if (!scene) { return; }
-    
+
     const auto range = scene->getFrameRange();
     const int currentFrame = scene->anim_getCurrentAbsFrame();
     const int totalFrames = range.fMax - range.fMin;
     const int quarterFrame = range.fMin + qRound(totalFrames * 0.25);
     const int middleFrame = range.fMin + qRound(totalFrames * 0.5);
     const int threeQuarterFrame = range.fMin + qRound(totalFrames * 0.75);
-    
+
     if (forward) {
         if (currentFrame < quarterFrame) {
             scene->anim_setAbsFrame(quarterFrame);
