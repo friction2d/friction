@@ -62,7 +62,7 @@ Canvas::Canvas(Document &document,
             this, &Canvas::setCanvasMode);
     std::function<bool(int)> changeFrameFunc =
     [this](const int undoRedoFrame) {
-        if (mDocument.fActiveScene != this) { return false; }
+        //if (mDocument.fActiveScene != this) { return false; }
         if (undoRedoFrame != anim_getCurrentAbsFrame()) {
             mDocument.setActiveSceneFrame(undoRedoFrame);
             return true;
@@ -1553,9 +1553,9 @@ SceneBoundGradient *Canvas::getGradientWithDocumentId(const int id) const
 SceneBoundGradient *Canvas::getGradientWithDocumentSceneId(const int id) const
 {
     for (const auto &scene : mDocument.fScenes) {
-        for (const auto &grad : scene->mGradients) {
+        /*for (const auto &grad : scene->mGradients) {
             if (grad->getDocumentId() == id) { return grad.get(); }
-        }
+            }*/
     }
     return nullptr;
 }

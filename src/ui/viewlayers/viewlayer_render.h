@@ -65,7 +65,6 @@ public:
         return _range;
     }
 
-    qreal getFps() const { return _fps; }
     qreal getResolution() const { return _resolution; };
     void setResolution(const qreal percent) { _resolution = percent; };
 
@@ -86,9 +85,6 @@ signals:
 private:
     BaseCanvas *_baseCanvas;
     Document &_document;
-
-    qreal _resolution = 0.5;
-    qreal _fps;
 
     bool _isRenderingOutput;
 

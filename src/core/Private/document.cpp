@@ -25,7 +25,6 @@
 
 #include "Private/document.h"
 #include "FileCacheHandlers/filecachehandler.h"
-#include "canvas.h"
 #include "simpletask.h"
 
 Document* Document::sInstance = nullptr;

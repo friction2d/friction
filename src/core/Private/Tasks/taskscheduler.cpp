@@ -25,11 +25,11 @@
 
 #include "taskscheduler.h"
 
-#include "canvas.h"
 #include "execcontroller.h"
 #include "gputaskexecutor.h"
 #include "taskexecutor.h"
 #include "complextask.h"
+#include "Private/scene.h"
 #include "Private/document.h"
 #include "Boxes/boxrenderdata.h"
 

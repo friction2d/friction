@@ -191,6 +191,7 @@ set(
     Private/documentrw.cpp
     Private/esettings.cpp
     Private/memorystructs.cpp
+    Private/scene.cpp
     Properties/boolpropertycontainer.cpp
     Properties/boxtargetproperty.cpp
     RasterEffects/blureffect.cpp
@@ -253,7 +254,6 @@ set(
     canvas.cpp
     canvashandlesmartpath.cpp
     canvasmouseevents.cpp
-    canvasmouseinteractions.cpp
     canvasselectedboxesactions.cpp
     canvasselectedpointsactions.cpp
     clipboardcontainer.cpp
@@ -502,6 +502,7 @@ set(
     Private/esettings.h
     Private/memorystructs.h
     Private/qatomiclist.h
+    Private/scene.h
     Properties/boolpropertycontainer.h
     Properties/boxtargetproperty.h
     Properties/emimedata.h

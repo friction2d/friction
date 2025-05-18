@@ -65,8 +65,6 @@ private:
             QList<BlendEffect::Delayed> &delayed) const;
 
     UseSharedPointer<SceneFrameContainer> _sceneFrame;
-    qsptr<QList<BoundingBox*>> _containedBoxesRef;
-    qsptr<ConnContextObjList<qsptr<eBoxOrSound>>> _contained;
 };
 
 #endif // VIEW_LAYER_PREVIEW_H

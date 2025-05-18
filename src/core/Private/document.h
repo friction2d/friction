@@ -34,6 +34,8 @@
 #include "paintsettings.h"
 #include "Paint/brushcontexedwrapper.h"
 #include "actions.h"
+#include "scene.h"
+#include "../../ui/viewlayers/viewlayer_preview.h"
 #include "Tasks/taskscheduler.h"
 #include "clipboardcontainer.h"
 #include "conncontextptr.h"
@@ -47,7 +49,6 @@
 
 class SceneBoundGradient;
 class FileDataCacheHandler;
-class Canvas;
 enum class CanvasMode : short;
 
 enum class NodeVisiblity {
@@ -100,9 +101,9 @@ public:
     bool fOnionVisible = false;
     PaintMode fPaintMode = PaintMode::normal;
 
-    QList<qsptr<Canvas>> fScenes;
-    std::map<Canvas*, int> fVisibleScenes;
-    ConnContextPtr<Canvas> fActiveScene;
+    qsptr<ViewLayerPreview> fCanvas;
+    QList<qsptr<Scene>> fScenes;
+    ConnContextPtr<Scene> fActiveScene;
     qptr<BoundingBox> fCurrentBox;
 
     void updateScenes();
@@ -120,14 +121,14 @@ public:
 
     void setCanvasMode(const CanvasMode mode);
 
-    Canvas * createNewScene(const bool emitCreated = true);
-    bool removeScene(const qsptr<Canvas>& scene);
+    Scene * createNewScene(const bool emitCreated = true);
+    bool removeScene(const qsptr<Scene>& scene);
     bool removeScene(const int id);
 
-    void addVisibleScene(Canvas * const scene);
-    bool removeVisibleScene(Canvas * const scene);
+    void addVisibleScene(Scene * const scene);
+    bool removeVisibleScene(Scene * const scene);
 
-    void setActiveScene(Canvas * const scene);
+    void setActiveScene(Scene * const scene);
     void clearActiveScene();
     int getActiveSceneFrame() const;
     void setActiveSceneFrame(const int frame);
@@ -164,10 +165,10 @@ public:
                         const RuntimeIdToWriteId& objListIdConv) const;
 
     void readDocumentXEV(ZipFileLoader& fileLoader,
-                         QList<Canvas*>& scenes);
+                         QList<Scene*>& scenes);
     void readScenesXEV(XevReadBoxesHandler& boxReadHandler,
                        ZipFileLoader& fileLoader,
-                       const QList<Canvas*>& scenes,
+                       const QList<Scene*>& scenes,
                        const RuntimeIdToWriteId& objListIdConv);
 
     void SWT_setupAbstraction(SWT_Abstraction * const abstraction,
@@ -175,7 +176,7 @@ public:
                               const int visiblePartWidgetId);
 private:
     void readDocumentXEV(const QDomDocument& doc,
-                         QList<Canvas*>& scenes);
+                         QList<Scene*>& scenes);
 
     Clipboard *getClipboard(const ClipboardType type) const;
 
@@ -186,11 +187,11 @@ private:
 signals:
     void canvasModeSet(CanvasMode);
 
-    void sceneCreated(Canvas*);
-    void sceneRemoved(Canvas*);
+    void sceneCreated(Scene*);
+    void sceneRemoved(Scene*);
     void sceneRemoved(int);
 //
-    void activeSceneSet(Canvas*);
+    void activeSceneSet(Scene*);
 
     void activeSceneFrameSet(int);
 //

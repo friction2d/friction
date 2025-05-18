@@ -34,6 +34,8 @@
 #include "canvas.h"
 #include "appsupport.h"
 
+/// In this file, we export the Document to XML and import it back.
+
 void Document::writeBookmarked(eWriteStream &dst) const {
     dst << fColors.count();
     for(const auto &col : fColors) {
@@ -92,7 +94,7 @@ void Document::readScenes(eReadStream& src) {
     int nScenes;
     src.read(&nScenes, sizeof(int));
     for(int i = 0; i < nScenes; i++) {
-        Canvas* scene;
+        Scene* scene;
         if(src.evFileVersion() < EvFormat::betterSWTAbsReadWrite) {
             scene = createNewScene();
         } else {
@@ -126,22 +128,25 @@ void Document::writeDoxumentXEV(QDomDocument& doc) const {
     document.appendChild(bBrushes);
 
     auto scenes = doc.createElement("Scenes");
-    for(const auto &s : fScenes) {
+
+    const qreal resolution = fCanvas->resolution();
+
+    for (const auto& s : fScenes) {
         auto scene = doc.createElement("Scene");
-        const qreal resolution = s->getResolution();
         scene.setAttribute("resolution", QString::number(resolution));
-        scene.setAttribute("name", s->prp_getName());
+        scene.setAttribute("clip", fCanvas->clipToCanvas() ? "true" : "false");
         scene.setAttribute("frame", s->getCurrentFrame());
-        scene.setAttribute("width", s->getCanvasWidth());
-        scene.setAttribute("height", s->getCanvasHeight());
-        scene.setAttribute("fps", s->getFps());
-        scene.setAttribute("clip", s->clipToCanvas() ? "true" : "false");
+        scene.setAttribute("name", s->name());
+        scene.setAttribute("width", s->canvasWidth());
+        scene.setAttribute("height", s->canvasHeight());
+        scene.setAttribute("fps", s->fps());
         const auto range = s->getFrameRange();
         const auto rangeStr = QString("%1 %2").arg(range.fMin).arg(range.fMax);
         scene.setAttribute("frameRange", rangeStr);
 
         scenes.appendChild(scene);
     }
+
     document.appendChild(scenes);
 
     doc.appendChild(document);
@@ -168,7 +173,7 @@ void Document::writeXEV(const std::shared_ptr<XevZipFileSaver>& xevFileSaver,
 }
 
 void Document::readDocumentXEV(ZipFileLoader& fileLoader,
-                               QList<Canvas*>& scenes) {
+                               QList<Scene*>& scenes) {
     fileLoader.process("document.xml", [&](QIODevice* const src) {
         QDomDocument document;
         document.setContent(src);
@@ -177,7 +182,7 @@ void Document::readDocumentXEV(ZipFileLoader& fileLoader,
 }
 
 void Document::readDocumentXEV(const QDomDocument& doc,
-                               QList<Canvas*>& scenes) {
+                               QList<Scene*>& scenes) {
     const auto document = doc.firstChildElement("Document");
     const QString versionStr = document.attribute("format-version", "");
     if(versionStr.isEmpty()) RuntimeThrow("No format version specified");
@@ -242,7 +247,7 @@ void Document::readDocumentXEV(const QDomDocument& doc,
 
 void Document::readScenesXEV(XevReadBoxesHandler& boxReadHandler,
                              ZipFileLoader& fileLoader,
-                             const QList<Canvas*>& scenes,
+                             const QList<Scene*>& scenes,
                              const RuntimeIdToWriteId& objListIdConv) {
     int id = 0;
     for(const auto& scene : scenes) {
