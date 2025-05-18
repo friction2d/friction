@@ -46,6 +46,8 @@ public:
 
     ContainerBox *getCurrentGroup() { return _currentGroup; };
 
+    // Properties (name, width, fps...)
+
     QString name() const { return _name; };
     qreal fps() const { return _fps; };
     qreal canvasWidth() const { return _canvasWidth; };
@@ -59,6 +61,26 @@ public:
     void setCanvasHeight(qreal height) { _canvasHeight = height; };
 
     void setCurrentFrame(int frame) { _currentFrame = frame; };
+
+    // Import / export
+
+    // TODO(kaixoo):
+    // Ideally these should form part of different interfaces (SVG, XEV...)
+    // That one can ask for without having to care of implementation details
+
+    void saveSVG(SvgExporter& exp, DomEleTask* const eleTask) const;
+
+    void writeBoxOrSoundXEV(const stdsptr<XevZipFileSaver>& xevFileSaver,
+                            const RuntimeIdToWriteId& objListIdConv,
+                            const QString& path) const;
+    void readBoxOrSoundXEV(XevReadBoxesHandler& boxReadHandler,
+                           ZipFileLoader& fileLoader, const QString& path,
+                           const RuntimeIdToWriteId& objListIdConv);
+
+    void writeAllContained(eWriteStream &dst) const;
+    void writeAllContainedXEV(const stdsptr<XevZipFileSaver>& fileSaver,
+                              const RuntimeIdToWriteId& objListIdConv,
+                              const QString& path) const;
 
 private:
     qptr<ContainerBox> _currentGroup;
