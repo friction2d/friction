@@ -30,7 +30,7 @@
 
 using namespace Friction::Ui;
 
-MarkerEditor::MarkerEditor(Canvas *scene,
+MarkerEditor::MarkerEditor(Scene *scene,
                            QWidget *parent)
     : QWidget{parent}
     , mScene(scene)
@@ -45,7 +45,7 @@ MarkerEditor::MarkerEditor(Canvas *scene,
     lay->addWidget(mTree);
     setup();
     populate();
-    
+
     if (mScene) {
         connect(mScene,&Canvas::markersChanged,
                 this, &MarkerEditor::populate);

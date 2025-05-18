@@ -49,7 +49,7 @@ class ColorAnimatorButton;
 class UI_EXPORT SceneSettingsDialog : public Friction::Ui::Dialog
 {
 public:
-    SceneSettingsDialog(Canvas * const canvas,
+    SceneSettingsDialog(Scene * const canvas,
                         QWidget * const parent = nullptr);
     SceneSettingsDialog(const QString &defName,
                         QWidget * const parent = nullptr);
@@ -71,7 +71,7 @@ public:
     void populateFpsPresets();
     void populateResPresets();
 
-    void applySettingsToCanvas(Canvas * const canvas) const;
+    void applySettingsToCanvas(Scene * const canvas) const;
 
     static void sNewSceneDialog(Document &document, QWidget * const parent);
 
@@ -79,7 +79,7 @@ private:
     bool validate();
     void updateDuration(int index);
 
-    Canvas * mTargetCanvas = nullptr;
+    Scene * mTargetCanvas = nullptr;
 
     QVBoxLayout *mMainLayout;
 

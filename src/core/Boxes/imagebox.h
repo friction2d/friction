@@ -55,7 +55,7 @@ public:
 
     void setupRenderData(const qreal relFrame, const QMatrix& parentM,
                          BoxRenderData * const data,
-                         Canvas * const scene);
+                         Scene * const scene);
     stdsptr<BoxRenderData> createRenderData();
 
     void writeBoundingBox(eWriteStream& dst) const;

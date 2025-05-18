@@ -24,7 +24,7 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "canvaswindow.h"
-#include "canvas.h"
+#include "Private/scene.h"
 
 #include <QComboBox>
 #include <QApplication>
@@ -70,7 +70,7 @@ CanvasWindow::~CanvasWindow()
     setCurrentCanvas(nullptr);
 }
 
-Canvas *CanvasWindow::getCurrentCanvas()
+Scene *CanvasWindow::getCurrentCanvas()
 {
     return mCurrentCanvas;
 }
@@ -84,7 +84,7 @@ void CanvasWindow::setCurrentCanvas(const int id)
     }
 }
 
-void CanvasWindow::setCurrentCanvas(Canvas * const canvas)
+void CanvasWindow::setCurrentCanvas(Scene * const canvas)
 {
     if (mCurrentCanvas == canvas) { return; }
     if (mCurrentCanvas) {
@@ -394,7 +394,7 @@ void CanvasWindow::readState(eReadStream &src)
             sceneBox = BoundingBox::sGetBoxByDocumentId(sceneDocumentId);
         }
 
-        setCurrentCanvas(enve_cast<Canvas*>(sceneBox));
+        setCurrentCanvas(enve_cast<Scene*>(sceneBox));
     });
 
     src >> mViewTransform;
@@ -410,7 +410,7 @@ void CanvasWindow::readStateXEV(XevReadBoxesHandler& boxReadHandler,
     boxReadHandler.addXevImporterDoneTask(
                 [this, sceneId](const XevReadBoxesHandler& imp) {
         const auto sceneBox = imp.getBoxByReadId(sceneId);
-        const auto scene = enve_cast<Canvas*>(sceneBox);
+        const auto scene = enve_cast<Scene*>(sceneBox);
         setCurrentCanvas(scene);
     });
 

@@ -64,7 +64,7 @@ ColorToolBar::ColorToolBar(Document &document,
             this, &ColorToolBar::adjustWidgets);
 }
 
-void ColorToolBar::setCurrentCanvas(Canvas * const target)
+void ColorToolBar::setCurrentCanvas(Scene * const target)
 {
     const bool enabled = target ? true : false;
     setEnabled(enabled);

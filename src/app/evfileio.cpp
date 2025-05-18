@@ -47,7 +47,7 @@
 #include "Boxes/internallinkbox.h"
 //#include "Boxes/paintbox.h"
 //#include "GUI/BrushWidgets/brushsettingswidget.h"
-#include "canvas.h"
+#include "Private/scene.h"
 #include "Timeline/durationrectangle.h"
 #include "Animators/gradientpoints.h"
 #include "MovablePoints/gradientpoint.h"
@@ -225,7 +225,7 @@ void MainWindow::loadXevFile(const QString &path) {
         ZipFileLoader fileLoader;
         fileLoader.setZipPath(path);
 
-        QList<Canvas*> scenes;
+        QList<Scene*> scenes;
         mDocument.readDocumentXEV(fileLoader, scenes);
 
         XevReadBoxesHandler boxReadHandler;

@@ -28,7 +28,7 @@
 #include <QRegularExpression>
 
 #include "Private/esettings.h"
-#include "canvas.h"
+#include "Private/scene.h"
 
 #define ITEM_ACTION_ROLE Qt::UserRole
 #define ITEM_CMD_ROLE Qt::UserRole + 1

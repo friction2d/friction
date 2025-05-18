@@ -116,9 +116,9 @@ public:
 
     void setResolution(qreal percent);
 
-    void updateSettingsForCurrentCanvas(Canvas * const scene);
+    void updateSettingsForCurrentCanvas(Scene * const scene);
 
-    void addCanvas(Canvas * const newCanvas);
+    void addCanvas(Scene * const newCanvas);
 
     SimpleBrushWrapper *getCurrentBrush() const;
 

@@ -32,7 +32,7 @@
 #include <QFontMetrics>
 
 #include "smartPointers/ememory.h"
-#include "canvas.h"
+#include "Private/scene.h"
 #include "themesupport.h"
 
 class HddCachableCacheHandler;
@@ -75,7 +75,7 @@ public:
         mHandleColor = col;
     }
 
-    void setCurrentCanvas(Canvas * const canvas);
+    void setCurrentCanvas(Scene * const canvas);
 
     void setDisplayedFrameRange(const FrameRange& range);
     void setViewedFrameRange(const FrameRange& range);

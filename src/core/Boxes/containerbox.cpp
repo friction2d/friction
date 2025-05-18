@@ -26,7 +26,7 @@
 #include "containerbox.h"
 #include "Timeline/durationrectangle.h"
 #include "Animators/transformanimator.h"
-#include "canvas.h"
+#include "Private/scene.h"
 #include "internallinkgroupbox.h"
 #include "PathEffects/patheffectcollection.h"
 #include "PathEffects/patheffect.h"
@@ -1015,7 +1015,7 @@ void processChildData(BoundingBox * const child,
 void ContainerBox::processChildrenData(const qreal relFrame,
                                        const QMatrix& thisM,
                                        BoxRenderData * const data,
-                                       Canvas* const scene) {
+                                       Scene* const scene) {
     Q_UNUSED(scene);
     const auto groupData = static_cast<ContainerBoxRenderData*>(data);
     groupData->fChildrenRenderData.clear();
@@ -1069,7 +1069,7 @@ stdsptr<BoxRenderData> ContainerBox::createRenderData() {
 void ContainerBox::setupRenderData(const qreal relFrame,
                                    const QMatrix& parentM,
                                    BoxRenderData * const data,
-                                   Canvas* const scene) {
+                                   Scene* const scene) {
     BoundingBox::setupRenderData(relFrame, parentM, data, scene);
     processChildrenData(relFrame, data->fTotalTransform, data, scene);
 }

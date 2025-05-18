@@ -41,21 +41,21 @@ public:
     SceneChooser(Document &document, const bool active,
                  QWidget * const parent = nullptr);
 
-    void setCurrentScene(Canvas * const scene);
-    Canvas* getCurrentScene() const { return mCurrentScene; }
+    void setCurrentScene(Scene * const scene);
+    Scene* getCurrentScene() const { return mCurrentScene; }
 
 signals:
-    void currentChanged(Canvas*);
+    void currentChanged(Scene*);
 
 private:
-    void addScene(Canvas * const scene);
-    void removeScene(Canvas * const scene);
+    void addScene(Scene * const scene);
+    void removeScene(Scene * const scene);
 
-    void setCurrentScene(Canvas * const scene, QAction * const act);
+    void setCurrentScene(Scene * const scene, QAction * const act);
 
     Document& mDocument;
-    Canvas * mCurrentScene = nullptr;
-    std::map<Canvas*, QAction*> mSceneToAct;
+    Scene * mCurrentScene = nullptr;
+    std::map<Scene*, QAction*> mSceneToAct;
 };
 
 #endif // SCENECHOOSER_H

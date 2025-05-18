@@ -35,7 +35,7 @@
 
 #include "mainwindow.h"
 #include "canvaswindow.h"
-#include "canvas.h"
+#include "Private/scene.h"
 #include "animationdockwidget.h"
 #include "widgets/widgetstack.h"
 #include "widgets/actionbutton.h"
@@ -294,7 +294,7 @@ TimelineDockWidget::TimelineDockWidget(Document& document,
     mStopButton->setEnabled(false);
 
     connect(&mDocument, &Document::activeSceneSet,
-            this, [this](Canvas* const scene) {
+            this, [this](Scene* const scene) {
         mPlayFromBeginningButton->setEnabled(scene);
         mPlayButton->setEnabled(scene);
         mStopButton->setEnabled(scene);
@@ -599,7 +599,7 @@ void TimelineDockWidget::interruptPreview()
     } else { setStepPreviewStop(); }
 }
 
-void TimelineDockWidget::updateSettingsForCurrentCanvas(Canvas* const canvas)
+void TimelineDockWidget::updateSettingsForCurrentCanvas(Scene* const canvas)
 {
     if (!canvas) { return; }
 

@@ -33,7 +33,7 @@ class CORE_EXPORT SvgExporter : public ComplexTask
 {
 public:
     SvgExporter(const QString& path,
-                Canvas* const scene,
+                Scene* const scene,
                 const FrameRange& frameRange,
                 const qreal fps,
                 const bool background,
@@ -48,7 +48,7 @@ public:
 
     void addNextTask(const stdsptr<eTask>& task);
 
-    Canvas* const fScene;
+    Scene* const fScene;
     const FrameRange fAbsRange;
     const qreal fFps;
     const bool fBackground;

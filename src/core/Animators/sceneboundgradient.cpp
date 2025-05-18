@@ -24,11 +24,11 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "sceneboundgradient.h"
-#include "canvas.h"
+#include "Private/scene.h"
 
 int SceneBoundGradient::sNextDocumentId = 0;
 
-SceneBoundGradient::SceneBoundGradient(Canvas * const scene) :
+SceneBoundGradient::SceneBoundGradient(Scene * const scene) :
     mDocumentId(sNextDocumentId++), mScene(scene) {
     connect(this, &Property::prp_ancestorChanged, this, [this]() {
         if(!getParentScene()) setParent(mScene);

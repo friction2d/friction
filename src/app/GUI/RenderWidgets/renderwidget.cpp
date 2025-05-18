@@ -24,7 +24,7 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "renderwidget.h"
-#include "canvas.h"
+#include "Private/scene.h"
 #include "GUI/global.h"
 #include "renderinstancewidget.h"
 #include "optimalscrollarena/scrollarea.h"
@@ -176,7 +176,7 @@ RenderWidget::RenderWidget(QWidget *parent)
             this, &RenderWidget::sendNextForRender);
 }
 
-void RenderWidget::createNewRenderInstanceWidgetForCanvas(Canvas *canvas)
+void RenderWidget::createNewRenderInstanceWidgetForCanvas(Scene *canvas)
 {
     const auto wid = new RenderInstanceWidget(canvas, this);
     addRenderInstanceWidget(wid);

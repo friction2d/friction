@@ -32,7 +32,7 @@
 #include "gradientpoints.h"
 #include "gradient.h"
 #include "Private/document.h"
-#include "canvas.h"
+#include "Private/scene.h"
 #include "transformanimator.h"
 #include "simpletask.h"
 #include "qpointfanimator.h"

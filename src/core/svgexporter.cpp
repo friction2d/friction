@@ -20,12 +20,12 @@
 */
 
 #include "svgexporter.h"
-#include "canvas.h"
+#include "Private/scene.h"
 
 #include "appsupport.h"
 
 SvgExporter::SvgExporter(const QString& path,
-                         Canvas* const scene,
+                         Scene* const scene,
                          const FrameRange& frameRange,
                          const qreal fps,
                          const bool background,

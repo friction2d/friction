@@ -24,7 +24,7 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "canvaswindow.h"
-#include "canvas.h"
+#include "Private/scene.h"
 #include "GUI/global.h"
 #include "Private/document.h"
 

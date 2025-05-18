@@ -48,14 +48,14 @@ enum class CORE_EXPORT RenderState {
 class CORE_EXPORT RenderInstanceSettings : public QObject {
     Q_OBJECT
 public:
-    RenderInstanceSettings(Canvas* canvas);
+    RenderInstanceSettings(Scene* canvas);
     RenderInstanceSettings(const RenderInstanceSettings& src);
 
     QString getName();
     void setOutputDestination(const QString &outputDestination);
     const QString &getOutputDestination() const;
-    void setTargetCanvas(Canvas *canvas, const bool copySceneSettings = true);
-    Canvas *getTargetCanvas() const;
+    void setTargetCanvas(Scene *canvas, const bool copySceneSettings = true);
+    Scene *getTargetCanvas() const;
     void setCurrentRenderFrame(const int currentRenderFrame);
     int currentRenderFrame();
     const OutputSettings &getOutputRenderSettings() const;

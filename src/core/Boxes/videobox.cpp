@@ -37,7 +37,7 @@ extern "C" {
 #include <QInputDialog>
 
 #include "Sound/evideosound.h"
-#include "canvas.h"
+#include "Private/scene.h"
 #include "Sound/soundcomposition.h"
 #include "filesourcescache.h"
 #include "fileshandler.h"

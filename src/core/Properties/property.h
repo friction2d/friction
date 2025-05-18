@@ -259,7 +259,7 @@ public:
     PointsHandler * getPointsHandler() const
     { return mPointsHandler.get(); }
 
-    Canvas* getParentScene() const
+    Scene* getParentScene() const
     { return mParentScene; }
 
     bool prp_isSelected() const { return prp_mSelected; }
@@ -284,7 +284,7 @@ protected:
 
     class SceneParentSelfAssign {
         friend class Canvas;
-        SceneParentSelfAssign(Canvas * const scene) {
+        SceneParentSelfAssign(Scene * const scene) {
             reinterpret_cast<Property*>(scene)->mParentScene = scene;
         }
     };
@@ -296,7 +296,7 @@ signals:
     void prp_parentChanged(ComplexAnimator*, QPrivateSignal);
     void prp_ancestorChanged(QPrivateSignal);
     void prp_pathChanged();
-    void prp_sceneChanged(Canvas*, Canvas*);
+    void prp_sceneChanged(Scene*, Scene*);
 private:
     bool prp_mSelected = false;
     bool mDrawOnCanvas = false;
@@ -304,7 +304,7 @@ private:
     QString prp_mName;
     ConnContextQPtr<Property> mParent_k;
     stdsptr<PointsHandler> mPointsHandler;
-    Canvas* mParentScene = nullptr;
+    Scene* mParentScene = nullptr;
 };
 
 #endif // PROPERTY_H

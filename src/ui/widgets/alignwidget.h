@@ -31,7 +31,7 @@
 #include <QWidget>
 #include <QComboBox>
 
-#include "canvas.h"
+#include "Private/scene.h"
 
 class UI_EXPORT AlignWidget : public QWidget
 {

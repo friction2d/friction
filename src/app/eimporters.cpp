@@ -30,19 +30,19 @@
 #include "svgimporter.h"
 //#include "Ora/oraimporter.h"
 
-qsptr<BoundingBox> eXevImporter::import(const QFileInfo &fileInfo, Canvas * const scene) const {
+qsptr<BoundingBox> eXevImporter::import(const QFileInfo &fileInfo, Scene * const scene) const {
     Q_UNUSED(scene);
     MainWindow::sGetInstance()->loadXevFile(fileInfo.absoluteFilePath());
     return nullptr;
 }
 
-qsptr<BoundingBox> evImporter::import(const QFileInfo &fileInfo, Canvas * const scene) const {
+qsptr<BoundingBox> evImporter::import(const QFileInfo &fileInfo, Scene * const scene) const {
     Q_UNUSED(scene);
     MainWindow::sGetInstance()->loadEVFile(fileInfo.absoluteFilePath());
     return nullptr;
 }
 
-qsptr<BoundingBox> eSvgImporter::import(const QFileInfo &fileInfo, Canvas * const scene) const {
+qsptr<BoundingBox> eSvgImporter::import(const QFileInfo &fileInfo, Scene * const scene) const {
     const auto gradientCreator = [scene]() {
         return scene->createNewGradient();
     };
@@ -50,7 +50,7 @@ qsptr<BoundingBox> eSvgImporter::import(const QFileInfo &fileInfo, Canvas * cons
                                   gradientCreator);
 }
 
-/*qsptr<BoundingBox> eOraImporter::import(const QFileInfo &fileInfo, Canvas * const scene) const {
+/*qsptr<BoundingBox> eOraImporter::import(const QFileInfo &fileInfo, Scene * const scene) const {
     const auto gradientCreator = [scene]() {
         return scene->createNewGradient();
     };

@@ -17,8 +17,8 @@ public:
                                   QWidget *parent = nullptr);
 
     RenderSettings getSettings() const;
-    Canvas* getCurrentScene() const
-    { return const_cast<Canvas*>(mCurrentScene); }
+    Scene* getCurrentScene() const
+    { return const_cast<Scene*>(mCurrentScene); }
 private:
     void addSeparator();
 
@@ -31,8 +31,8 @@ private:
 
     void restoreInitialSettings();
 
-    const Canvas* const mInitialScene;
-    const Canvas* mCurrentScene = nullptr;
+    const Scene* const mInitialScene;
+    const Scene* mCurrentScene = nullptr;
     const RenderSettings mInitialSettings;
 
     QLabel* mSceneLabel = nullptr;

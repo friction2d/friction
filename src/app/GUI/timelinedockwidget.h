@@ -79,7 +79,7 @@ public:
     bool setNextKeyframe();
     bool setPrevKeyframe();
 
-    void updateSettingsForCurrentCanvas(Canvas * const canvas);
+    void updateSettingsForCurrentCanvas(Scene * const canvas);
 
     void stopPreview();
 

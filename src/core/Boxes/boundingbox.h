@@ -208,7 +208,7 @@ public:
 
     virtual void setupRenderData(const qreal relFrame, const QMatrix& parentM,
                                  BoxRenderData * const data,
-                                 Canvas * const scene);
+                                 Scene * const scene);
     virtual void renderDataFinished(BoxRenderData *renderData);
     virtual void updateCurrentPreviewDataFromRenderData(
             BoxRenderData* renderData);
@@ -271,10 +271,10 @@ public:
     void setupWithoutRasterEffects(const qreal relFrame,
                                    const QMatrix& parentM,
                                    BoxRenderData * const data,
-                                   Canvas* const scene);
+                                   Scene* const scene);
     void setupRasterEffects(const qreal relFrame,
                             BoxRenderData * const data,
-                            Canvas* const scene);
+                            Scene* const scene);
 
     void drawAllCanvasControls(SkCanvas * const canvas,
                                const CanvasMode mode,

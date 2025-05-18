@@ -25,7 +25,7 @@
 
 #include "mainwindow.h"
 #include "GUI/Expressions/expressiondialog.h"
-#include "canvas.h"
+#include "Private/scene.h"
 #include <QKeyEvent>
 #include <QApplication>
 #include <QDebug>
@@ -1466,7 +1466,7 @@ void MainWindow::addCanvasToRenderQue()
     mRenderWidget->createNewRenderInstanceWidgetForCanvas(mDocument.fActiveScene);
 }
 
-void MainWindow::updateSettingsForCurrentCanvas(Canvas* const scene)
+void MainWindow::updateSettingsForCurrentCanvas(Scene* const scene)
 {
     mColorToolBar->setCurrentCanvas(scene);
     mCanvasToolBar->setCurrentCanvas(scene);

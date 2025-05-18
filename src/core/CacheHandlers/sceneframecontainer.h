@@ -30,7 +30,7 @@ struct BoxRenderData;
 
 class CORE_EXPORT SceneFrameContainer : public ImageCacheContainer {
 public:
-    SceneFrameContainer(Canvas * const scene,
+    SceneFrameContainer(Scene * const scene,
                         const BoxRenderData* const data,
                         const FrameRange &range,
                         HddCachableCacheHandler * const parent);

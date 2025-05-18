@@ -121,7 +121,7 @@ void DialogsInterfaceImpl::showDurationSettingsDialog(
                                          increment, parent);
 }*/
 
-void DialogsInterfaceImpl::showSceneSettingsDialog(Canvas* const scene) const {
+void DialogsInterfaceImpl::showSceneSettingsDialog(Scene* const scene) const {
     const auto parent = MainWindow::sGetInstance();
     const auto dialog = new SceneSettingsDialog(scene, parent);
     dialog->setAttribute(Qt::WA_DeleteOnClose);

@@ -34,7 +34,7 @@
 #include "singlewidgettarget.h"
 #include "misc/keyfocustarget.h"
 #include "smartPointers/ememory.h"
-#include "canvas.h"
+#include "Private/scene.h"
 
 class Brush;
 class WindowSingleWidgetTarget;
@@ -63,11 +63,11 @@ public:
     explicit CanvasWindow(Document& document,
                           QWidget * const parent = nullptr);
     ~CanvasWindow();
-    Canvas *getCurrentCanvas();
+    Scene *getCurrentCanvas();
     const QMatrix& getViewTransform() const
     { return mViewTransform; }
 
-    void setCurrentCanvas(Canvas * const canvas);
+    void setCurrentCanvas(Scene * const canvas);
     bool hasNoCanvas();
 
     void finishAction();
@@ -167,7 +167,7 @@ private:
 
 signals:
     void changeCanvasFrameRange(FrameRange);
-    void currentSceneChanged(Canvas* const scene);
+    void currentSceneChanged(Scene* const scene);
 
 public:
     void setCurrentCanvas(const int id);

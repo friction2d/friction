@@ -44,7 +44,7 @@ public:
                              ScrollArea * const parent = nullptr);
     ~BoxScrollWidget();
 
-    void setCurrentScene(Canvas* const scene);
+    void setCurrentScene(Scene* const scene);
     void setSiblingKeysView(KeysView* const keysView);
     TimelineHighlightWidget *requestHighlighter();
 private:

@@ -66,7 +66,7 @@ public:
     explicit KeysView(BoxScrollWidget *boxesListVisible,
                       QWidget *parent = nullptr);
 
-    void setCurrentScene(Canvas* const scene);
+    void setCurrentScene(Scene* const scene);
 
     void setGraphViewed(const bool bT);
 

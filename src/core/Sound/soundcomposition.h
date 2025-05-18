@@ -48,7 +48,7 @@ class SoundMerger;
 
 class CORE_EXPORT SoundComposition : public QIODevice {
 public:
-    SoundComposition(Canvas * const parent);
+    SoundComposition(Scene * const parent);
 
     void start(const int startFrame);
     void stop();
@@ -85,7 +85,7 @@ private:
 
     eSoundSettingsData mSettings;
     QList<int> mProcessingSeconds;
-    const Canvas * const mParent;
+    const Scene * const mParent;
     qint64 mPos;
     ConnContextObjList<qsptr<eSound>> mSounds;
     HddCachableCacheHandler mSecondsCache;

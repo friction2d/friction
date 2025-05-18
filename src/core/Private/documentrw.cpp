@@ -31,7 +31,7 @@
 #include "Animators/gradient.h"
 #include "Paint/brushescontext.h"
 #include "simpletask.h"
-#include "canvas.h"
+#include "Private/scene.h"
 #include "appsupport.h"
 
 /// In this file, we export the Document to XML and import it back.

@@ -41,7 +41,7 @@
 #include "canvaswindow.h"
 #include "animationdockwidget.h"
 #include "GUI/global.h"
-#include "canvas.h"
+#include "Private/scene.h"
 #include "widgets/scenechooser.h"
 #include "widgets/changewidthwidget.h"
 #include "timelinehighlightwidget.h"
@@ -311,7 +311,7 @@ TimelineWidget::~TimelineWidget()
     writeSettings();
 }
 
-void TimelineWidget::setCurrentScene(Canvas * const scene) {
+void TimelineWidget::setCurrentScene(Scene * const scene) {
     if(scene == mCurrentScene) return;
     if(mCurrentScene) {
         disconnect(mCurrentScene, nullptr, mFrameScrollBar, nullptr);
@@ -424,7 +424,7 @@ void TimelineWidget::readState(eReadStream &src) {
         if(!sceneBox && sceneDocumentId != -1)
             sceneBox = BoundingBox::sGetBoxByDocumentId(sceneDocumentId);
 
-        setCurrentScene(enve_cast<Canvas*>(sceneBox));
+        setCurrentScene(enve_cast<Scene*>(sceneBox));
     });
 
     mSearchLine->setText(search);
@@ -464,7 +464,7 @@ void TimelineWidget::readStateXEV(XevReadBoxesHandler& boxReadHandler,
     boxReadHandler.addXevImporterDoneTask(
                 [this, sceneId](const XevReadBoxesHandler& imp) {
         const auto sceneBox = imp.getBoxByReadId(sceneId);
-        const auto scene = enve_cast<Canvas*>(sceneBox);
+        const auto scene = enve_cast<Scene*>(sceneBox);
         setCurrentScene(scene);
     });
 

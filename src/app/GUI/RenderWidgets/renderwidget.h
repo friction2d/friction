@@ -46,7 +46,7 @@ class RenderWidget : public QWidget
 
 public:
     explicit RenderWidget(QWidget *parent = nullptr);
-    void createNewRenderInstanceWidgetForCanvas(Canvas *canvas);
+    void createNewRenderInstanceWidgetForCanvas(Scene *canvas);
     void setRenderedFrame(const int frame);
     void clearRenderQueue();
     void write(eWriteStream& dst) const;

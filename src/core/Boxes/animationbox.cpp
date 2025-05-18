@@ -28,7 +28,7 @@
 #include <QMenu>
 #include <QInputDialog>
 
-#include "canvas.h"
+#include "Private/scene.h"
 #include "FileCacheHandlers/animationcachehandler.h"
 #include "imagebox.h"
 #include "undoredo.h"
@@ -306,7 +306,7 @@ void AnimationBox::setupCanvasMenu(PropertyMenu * const menu)
 void AnimationBox::setupRenderData(const qreal relFrame,
                                    const QMatrix& parentM,
                                    BoxRenderData * const data,
-                                   Canvas* const scene) {
+                                   Scene* const scene) {
     BoundingBox::setupRenderData(relFrame, parentM, data, scene);
     if(!mSrcFramesCache) return;
     const auto imgData = static_cast<AnimationBoxRenderData*>(data);

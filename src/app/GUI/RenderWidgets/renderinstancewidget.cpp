@@ -26,7 +26,7 @@
 #include "renderinstancewidget.h"
 #include "GUI/global.h"
 #include <QMenu>
-#include "canvas.h"
+#include "Private/scene.h"
 #include "outputsettingsdialog.h"
 #include "outputsettingsprofilesdialog.h"
 #include "outputsettingsdisplaywidget.h"
@@ -40,7 +40,7 @@
 #include <QMessageBox>
 
 RenderInstanceWidget::RenderInstanceWidget(
-        Canvas *canvas, QWidget *parent) :
+        Scene *canvas, QWidget *parent) :
     ClosableContainer(parent), mSettings(canvas) {
     iniGUI();
     connect(&mSettings, &RenderInstanceSettings::stateChanged,

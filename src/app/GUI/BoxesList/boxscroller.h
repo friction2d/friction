@@ -53,10 +53,10 @@ public:
     KeysView *getKeysView() const
     { return mKeysView; }
 
-    Canvas* currentScene() const
+    Scene* currentScene() const
     { return mCurrentScene; }
 
-    void setCurrentScene(Canvas* const scene)
+    void setCurrentScene(Scene* const scene)
     { mCurrentScene = scene; }
 
     void setKeysView(KeysView *keysView)
@@ -96,7 +96,7 @@ private:
                         const int idInAbs, DropTarget &dropTarget);
 
     TimelineHighlightWidget* mHighlighter = nullptr;
-    Canvas* mCurrentScene = nullptr;
+    Scene* mCurrentScene = nullptr;
 
     QRect mCurrentDragRect;
     int mLastDragMoveY;

@@ -11,7 +11,7 @@ class RenderSettingsDisplayWidget : public QWidget {
 public:
     RenderSettingsDisplayWidget(QWidget* const parent);
 
-    void setRenderSettings(const Canvas* const scene,
+    void setRenderSettings(const Scene* const scene,
                            const RenderSettings &settings);
 private:
     QVBoxLayout *mMainLayout;

@@ -25,12 +25,12 @@
 
 #include "soundcomposition.h"
 #include "esound.h"
-#include "canvas.h"
+#include "Private/scene.h"
 #include "CacheHandlers/soundcachecontainer.h"
 #include "soundmerger.h"
 #include "FileCacheHandlers/soundreaderformerger.h"
 
-SoundComposition::SoundComposition(Canvas * const parent) :
+SoundComposition::SoundComposition(Scene * const parent) :
     QIODevice(parent), mParent(parent) {
     connect(eSoundSettings::sInstance, &eSoundSettings::settingsChanged,
             this, [this]() {

@@ -67,11 +67,11 @@ public:
                             QWidget *parent);
 
     ~TimelineWidget();
-    Canvas* getCurrrentScene() const {
+    Scene* getCurrrentScene() const {
         return mCurrentScene;
     }
 
-    void setCurrentScene(Canvas* const scene);
+    void setCurrentScene(Scene* const scene);
     void setBoxesListWidth(const int width);
     void setGraphEnabled(const bool enabled);
 
@@ -101,7 +101,7 @@ private:
     void setBoxRule(const SWT_BoxRule rule);
     void setTarget(const SWT_Target target);
 
-    Canvas* mCurrentScene = nullptr;
+    Scene* mCurrentScene = nullptr;
 
     Document& mDocument;
 

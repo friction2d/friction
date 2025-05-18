@@ -26,7 +26,7 @@
 #include "qrealanimatorvalueslider.h"
 #include "Animators/qpointfanimator.h"
 #include "themesupport.h"
-#include "canvas.h"
+#include "Private/scene.h"
 #include "Private/document.h"
 
 #include <QMenu>

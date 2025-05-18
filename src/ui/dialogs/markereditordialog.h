@@ -28,7 +28,7 @@
 
 #include <QDialog>
 
-#include "canvas.h"
+#include "Private/scene.h"
 #include "dialog.h"
 
 namespace Friction
@@ -39,7 +39,7 @@ namespace Friction
         {
             Q_OBJECT
         public:
-            explicit MarkerEditorDialog(Canvas *scene = nullptr,
+            explicit MarkerEditorDialog(Scene *scene = nullptr,
                                         QWidget *parent = nullptr);
         };
     }

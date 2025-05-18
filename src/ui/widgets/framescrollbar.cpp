@@ -61,7 +61,7 @@ qreal FrameScrollBar::posToFrame(int xPos) {
             (qreal(width()) - 2*eSizesUI::widget) + mFrameRange.fMin;
 }
 
-void FrameScrollBar::setCurrentCanvas(Canvas * const canvas)
+void FrameScrollBar::setCurrentCanvas(Scene * const canvas)
 {
     mCurrentCanvas = canvas;
     //if (mCurrentCanvas) { mDisplayTime = mCurrentCanvas->getDisplayTimecode(); }

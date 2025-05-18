@@ -29,7 +29,7 @@
 
 class CORE_EXPORT SceneBoundGradient : public Gradient {
 public:
-    SceneBoundGradient(Canvas* const scene);
+    SceneBoundGradient(Scene* const scene);
 
     void prp_setInheritedFrameShift(
             const int shift, ComplexAnimator* parentAnimator);
@@ -47,7 +47,7 @@ private:
     static int sNextDocumentId;
     const int mDocumentId;
     int mReadWriteId = -1;
-    Canvas* const mScene;
+    Scene* const mScene;
 };
 
 #endif // SCENEBOUNDGRADIENT_H

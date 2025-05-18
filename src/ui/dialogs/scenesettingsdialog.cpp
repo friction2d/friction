@@ -24,13 +24,13 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "scenesettingsdialog.h"
-#include "canvas.h"
+#include "Private/scene.h"
 #include "GUI/coloranimatorbutton.h"
 #include "appsupport.h"
 #include "Private/document.h"
 #include "Private/esettings.h"
 
-SceneSettingsDialog::SceneSettingsDialog(Canvas * const canvas,
+SceneSettingsDialog::SceneSettingsDialog(Scene * const canvas,
                                          QWidget * const parent)
     : SceneSettingsDialog(canvas->prp_getName(),
                           canvas->getCanvasWidth(),
@@ -313,7 +313,7 @@ void SceneSettingsDialog::populateResPresets()
     }
 }
 
-void SceneSettingsDialog::applySettingsToCanvas(Canvas * const canvas) const
+void SceneSettingsDialog::applySettingsToCanvas(Scene * const canvas) const
 {
     if (!canvas) { return; }
     canvas->prp_setNameAction(getCanvasName());

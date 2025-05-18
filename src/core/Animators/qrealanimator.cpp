@@ -690,7 +690,7 @@ void QrealAnimator::prp_startTransform() {
     startBaseValueTransform();
 }
 
-#include "canvas.h"
+#include "Private/scene.h"
 void QrealAnimator::prp_finishTransform() {
     if(const auto key = anim_getKeyOnCurrentFrame<QrealKey>()) {
         if(!mTransformed) return;
