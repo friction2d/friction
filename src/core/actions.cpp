@@ -26,7 +26,7 @@
 #include "actions.h"
 #include "Private/document.h"
 #include "Private/scene.h"
-#include "viewlayers/viewlayer_preview.h"
+#include "ViewLayers/viewlayer_preview.h"
 #include "Paint/simplebrushwrapper.h"
 #include "paintsettingsapplier.h"
 #include "Sound/eindependentsound.h"

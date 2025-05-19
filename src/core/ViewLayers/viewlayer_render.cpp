@@ -32,8 +32,8 @@
 
 #include "basecanvas.h"
 #include "utils.h"
-#include "../../core/efiltersettings.h"
-#include "../../core/GUI/global.h"
+#include "../efiltersettings.h"
+#include "../GUI/global.h"
 
 ViewLayerRender::ViewLayerRender(Document &document, BaseCanvas *canvas)
     : ViewLayer("render_layer")

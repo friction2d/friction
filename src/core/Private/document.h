@@ -35,7 +35,7 @@
 #include "Paint/brushcontexedwrapper.h"
 #include "actions.h"
 #include "scene.h"
-#include "../../ui/viewlayers/viewlayer_preview.h"
+#include "../ViewLayers/viewlayer_preview.h"
 #include "Tasks/taskscheduler.h"
 #include "clipboardcontainer.h"
 #include "conncontextptr.h"

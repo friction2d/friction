@@ -30,7 +30,7 @@
 #include <cstdio>
 
 #include "basecanvas.h"
-#include "../drawables/rectangle_drawable.h"
+#include "../Drawables/rectangle_drawable.h"
 
 
 ViewLayerSelection::ViewLayerSelection(BaseCanvas *canvas)

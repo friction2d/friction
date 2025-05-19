@@ -27,7 +27,7 @@
 #include "videoencoder.h"
 #include "memoryhandler.h"
 #include "Private/Tasks/taskscheduler.h"
-#include "../ui/viewlayers/viewlayer_render.h"
+#include "ViewLayers/viewlayer_render.h"
 #include "Sound/soundcomposition.h"
 #include "CacheHandlers/soundcachecontainer.h"
 #include "CacheHandlers/sceneframecontainer.h"

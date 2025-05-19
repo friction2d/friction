@@ -194,6 +194,11 @@ set(
     Private/scene.cpp
     Properties/boolpropertycontainer.cpp
     Properties/boxtargetproperty.cpp
+    ViewLayers/basecanvas.cpp
+    ViewLayers/utils.cpp
+    ViewLayers/viewlayer_render.cpp
+    ViewLayers/viewlayer_preview.cpp
+    ViewLayers/viewlayer_selection.cpp
     RasterEffects/blureffect.cpp
     RasterEffects/brightnesscontrasteffect.cpp
     RasterEffects/colorizeeffect.cpp
@@ -443,6 +448,8 @@ set(
     CacheHandlers/tmpsaver.h
     CacheHandlers/usedrange.h
     CacheHandlers/usepointer.h
+    Drawables/drawable.h
+    Drawables/rectangle_drawable.h
     Expressions/propertybindingbase.h
     Expressions/propertybindingparser.h
     Expressions/valuebinding.h
@@ -508,6 +515,12 @@ set(
     Properties/emimedata.h
     Properties/namedproperty.h
     Properties/newproperty.h
+    ViewLayers/utils.h
+    ViewLayers/basecanvas.h
+    ViewLayers/viewlayer.h
+    ViewLayers/viewlayer_render.h
+    ViewLayers/viewlayer_preview.h
+    ViewLayers/viewlayer_selection.h
     RasterEffects/blureffect.h
     RasterEffects/brightnesscontrasteffect.h
     RasterEffects/colorizeeffect.h
