@@ -29,7 +29,7 @@
 #include "skia/skiahelpers.h"
 #include "hddcachablerangecont.h"
 #include "imagedatahandler.h"
-class Canvas;
+class Scene;
 
 class CORE_EXPORT ImageCacheContainer : public HddCachableRangeCont,
                             public ImageDataHandler {

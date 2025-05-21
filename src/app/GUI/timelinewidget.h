@@ -49,7 +49,7 @@ class ScrollArea;
 class AnimationDockWidget;
 class BoxScrollWidget;
 class Document;
-class Canvas;
+class Scene;
 class SceneChooser;
 class StackWrapperCornerMenu;
 class BoxScroller;

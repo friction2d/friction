@@ -49,7 +49,7 @@ class RenderInstanceSettings;
 class eTask;
 class ImageBox;
 class VideoBox;
-class Canvas;
+class Scene;
 class PaintSettingsAnimator;
 class OutlineSettingsAnimator;
 class SimpleBrushWrapper;

@@ -56,7 +56,7 @@ class MainWindow;
 class AnimationDockWidget;
 class RenderWidget;
 class ActionButton;
-class Canvas;
+class Scene;
 class Document;
 class LayoutHandler;
 class BrushContexedWrapper;

@@ -29,7 +29,6 @@
 #include <QMenu>
 #include <typeindex>
 #include "smartPointers/ememory.h"
-#include "canvasbase.h"
 
 class Property;
 class MovablePoint;
@@ -46,10 +45,8 @@ public:
     template <class T> using AllOp = std::function<void(const QList<T*>&)>;
 
     TypeMenu(QMenu * const targetMenu,
-             CanvasBase * const targetCanvas,
              QWidget * const parent) :
         mQMenu(targetMenu),
-        mTargetCanvas(targetCanvas),
         mParentWidget(parent) {}
 
     QAction* addSection(const QString& name) {
@@ -105,7 +102,7 @@ public:
 
     TTypeMenu * addMenu(const QIcon &icon, const QString& title) {
         QMenu * const qMenu = mQMenu->addMenu(icon, title);
-        const auto child = std::make_shared<TTypeMenu>(qMenu, mTargetCanvas,
+        const auto child = std::make_shared<TTypeMenu>(qMenu,
                                                        mParentWidget);
         mChildMenus.append(child);
         return child.get();
@@ -185,43 +182,16 @@ private:
     template <typename U>
     void connectAction(BoundingBox * const, QAction * const qAction,
                        const U& op) {
-        const auto targetCanvas = mTargetCanvas;
-        const auto canvasOp = [op, targetCanvas]() {
-            try {
-                targetCanvas->execOpOnSelectedBoxes(op);
-            } catch(const std::exception& e) {
-                gPrintExceptionCritical(e);
-            }
-        };
-        QObject::connect(qAction, &QAction::triggered, canvasOp);
     }
 
     template <typename U>
     void connectAction(MovablePoint * const, QAction * const qAction,
                        const U& op) {
-        const auto targetCanvas = mTargetCanvas;
-        const auto canvasOp = [op, targetCanvas]() {
-            try {
-                targetCanvas->execOpOnSelectedPoints(op);
-            } catch(const std::exception& e) {
-                gPrintExceptionCritical(e);
-            }
-        };
-        QObject::connect(qAction, &QAction::triggered, canvasOp);
     }
 
     template <typename U>
     void connectAction(Property * const, QAction * const qAction,
                        const U& op) {
-        const auto targetCanvas = mTargetCanvas;
-        const auto canvasOp = [op, targetCanvas]() {
-            try {
-                targetCanvas->execOpOnSelectedProperties(op);
-            } catch(const std::exception& e) {
-                gPrintExceptionCritical(e);
-            }
-        };
-        QObject::connect(qAction, &QAction::triggered, canvasOp);
     }
 
     template <class T>
@@ -235,7 +205,6 @@ private:
     }
 
     QMenu * const mQMenu;
-    CanvasBase * const mTargetCanvas;
     QWidget * const mParentWidget;
 
     QList<stdsptr<TTypeMenu>> mChildMenus;

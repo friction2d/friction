@@ -51,7 +51,7 @@ class ComplexAnimator;
 class eBoxOrSound;
 class BoundingBox;
 class ContainerBox;
-class Canvas;
+class Scene;
 class InternalLinkBox;
 class PathBox;
 //class PaintBox;
@@ -110,7 +110,7 @@ public:
 
     virtual bool SWT_visibleOnlyIfParentDescendant() const {
         return true;
-    }    
+    }
 
     // Properties
     e_DECLARE_TYPE_FUNCTION(Property)

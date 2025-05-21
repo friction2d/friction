@@ -33,7 +33,7 @@ class BoxScroller;
 class ScrollArea;
 class WindowSingleWidgetTarget;
 class Document;
-class Canvas;
+class Scene;
 class KeysView;
 class TimelineHighlightWidget;
 

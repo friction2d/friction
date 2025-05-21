@@ -34,7 +34,7 @@
 #include "Private/esettings.h"
 #include "conncontextptr.h"
 
-class Canvas;
+class Scene;
 
 enum class CORE_EXPORT RenderState {
     none,

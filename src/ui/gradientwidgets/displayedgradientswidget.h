@@ -35,7 +35,7 @@
 
 class Gradient;
 class GradientWidget;
-class Canvas;
+class Scene;
 
 class UI_EXPORT DisplayedGradientsWidget : public GLWidget
 {

@@ -35,7 +35,7 @@ class BoxSingleWidget;
 class TimelineMovable;
 class Key;
 class KeysView;
-class Canvas;
+class Scene;
 class TimelineHighlightWidget;
 
 class BoxScroller : public ScrollWidgetVisiblePart {

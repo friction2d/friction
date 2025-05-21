@@ -27,7 +27,7 @@
 
 #include <QDomDocument>
 
-class Canvas;
+class Scene;
 
 class CORE_EXPORT SvgExporter : public ComplexTask
 {

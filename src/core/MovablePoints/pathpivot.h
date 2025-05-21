@@ -28,7 +28,7 @@
 #include "MovablePoints/nonanimatedmovablepoint.h"
 #include "smartPointers/ememory.h"
 
-class Canvas;
+class Scene;
 
 enum class CanvasMode : short;
 

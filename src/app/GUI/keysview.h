@@ -46,7 +46,7 @@ class QrealKey;
 class QrealAnimator;
 class GraphAnimator;
 class QrealPoint;
-class Canvas;
+class Scene;
 class MainWindow;
 class BoxScroller;
 class AnimationDockWidget;

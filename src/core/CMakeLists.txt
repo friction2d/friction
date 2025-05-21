@@ -256,11 +256,6 @@ set(
     XML/xmlexporthelpers.cpp
     action.cpp
     actions.cpp
-    canvas.cpp
-    canvashandlesmartpath.cpp
-    canvasmouseevents.cpp
-    canvasselectedboxesactions.cpp
-    canvasselectedpointsactions.cpp
     clipboardcontainer.cpp
     colorhelpers.cpp
     colorsetting.cpp
@@ -348,7 +343,6 @@ set(
     MovablePoints/smartctrlpoint.cpp
     MovablePoints/pointshandler.cpp
     MovablePoints/pathpointshandler.cpp
-    canvasbase.cpp
     typemenu.cpp
     themesupport.cpp
     wrappedint.cpp
@@ -589,7 +583,6 @@ set(
     XML/xmlexporthelpers.h
     action.h
     actions.h
-    canvas.h
     clipboardcontainer.h
     colorhelpers.h
     colorsetting.h
@@ -695,7 +688,6 @@ set(
     MovablePoints/smartctrlpoint.h
     MovablePoints/pointshandler.h
     MovablePoints/pathpointshandler.h
-    canvasbase.h
     typemenu.h
     themesupport.h
     pointtypemenu.h

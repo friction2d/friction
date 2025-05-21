@@ -43,7 +43,7 @@
 #include <QPushButton>
 #include <QSlider>
 #include <QTimer>
-class Canvas;
+class Scene;
 class SoundMerger;
 
 class CORE_EXPORT SoundComposition : public QIODevice {

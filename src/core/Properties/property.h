@@ -35,7 +35,7 @@
 
 #include <QJSEngine>
 
-class Canvas;
+class Scene;
 class ComplexAnimator;
 class Key;
 class QPainter;
@@ -283,7 +283,7 @@ protected:
     void setPointsHandler(const stdsptr<PointsHandler>& handler);
 
     class SceneParentSelfAssign {
-        friend class Canvas;
+        friend class Scene;
         SceneParentSelfAssign(Scene * const scene) {
             reinterpret_cast<Property*>(scene)->mParentScene = scene;
         }

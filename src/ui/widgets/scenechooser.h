@@ -30,7 +30,7 @@
 
 #include <QMenu>
 
-class Canvas;
+class Scene;
 class Document;
 
 class UI_EXPORT SceneChooser : public QMenu

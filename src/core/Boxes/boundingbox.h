@@ -38,7 +38,7 @@
 #include "TransformEffects/transformeffect.h"
 #include "Tasks/domeletask.h"
 
-class Canvas;
+class Scene;
 
 enum class AlignRelativeTo;
 

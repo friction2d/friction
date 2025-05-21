@@ -29,7 +29,7 @@
 #include "smartnodepoint.h"
 #include "pointshandler.h"
 #include "simpletask.h"
-class Canvas;
+class Scene;
 class SmartPathCollectionHandler;
 
 class CORE_EXPORT PathPointsHandler : public PointsHandler {

@@ -42,7 +42,7 @@
 #include "dialog.h"
 
 class Document;
-class Canvas;
+class Scene;
 class ColorAnimator;
 class ColorAnimatorButton;
 

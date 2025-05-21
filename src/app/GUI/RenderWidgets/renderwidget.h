@@ -34,7 +34,7 @@
 #include "renderinstancesettings.h"
 
 class ScrollArea;
-class Canvas;
+class Scene;
 class RenderInstanceWidget;
 class RenderInstanceSettings;
 class eWriteStream;

@@ -48,7 +48,7 @@ enum class UI_EXPORT WrapperNodeType {
 class SplitWrapperNode;
 class ParentWrapperNode;
 class WidgetWrapperNode;
-class Canvas;
+class Scene;
 class XevReadBoxesHandler;
 
 class UI_EXPORT WrapperNode {

@@ -33,7 +33,7 @@
 #include "../XML/xevzipfilesaver.h"
 
 class ContainerBox;
-class Canvas;
+class Scene;
 class DurationRectangle;
 class QMimeData;
 
