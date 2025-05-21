@@ -28,14 +28,14 @@
 
 #include <QDialog>
 
-#include "canvas.h"
+#include "Private/scene.h"
 #include "Boxes/videobox.h"
 #include "dialog.h"
 
 class UI_EXPORT AdjustSceneDialog : public Friction::Ui::Dialog
 {
 public:
-    AdjustSceneDialog(Canvas *scene,
+    AdjustSceneDialog(Scene *scene,
                       const VideoBox::VideoSpecs &specs,
                       QWidget *parent = nullptr);
 };

@@ -25,7 +25,6 @@
 
 #include "Private/document.h"
 #include "FileCacheHandlers/filecachehandler.h"
-#include "canvas.h"
 #include "simpletask.h"
 
 Document* Document::sInstance = nullptr;
@@ -113,7 +112,7 @@ void Document::setCanvasMode(const CanvasMode mode) {
     actionFinished();
 }
 
-Canvas *Document::createNewScene(const bool emitCreated) {
+Scene *Document::createNewScene(const bool emitCreated) {
     const auto newScene = enve::make_shared<Canvas>(*this);
     fScenes.append(newScene);
     SWT_addChild(newScene.get());
@@ -137,12 +136,12 @@ bool Document::removeScene(const int id) {
     return true;
 }
 
-void Document::addVisibleScene(Canvas * const scene) {
+void Document::addVisibleScene(Scene * const scene) {
     fVisibleScenes[scene]++;
     updateScenes();
 }
 
-bool Document::removeVisibleScene(Canvas * const scene) {
+bool Document::removeVisibleScene(Scene * const scene) {
     const auto it = fVisibleScenes.find(scene);
     if(it == fVisibleScenes.end()) return false;
     if(it->second == 1) fVisibleScenes.erase(it);
@@ -150,7 +149,7 @@ bool Document::removeVisibleScene(Canvas * const scene) {
     return true;
 }
 
-void Document::setActiveScene(Canvas * const scene) {
+void Document::setActiveScene(Scene * const scene) {
     if(scene == fActiveScene) return;
     auto& conn = fActiveScene.assign(scene);
     if(fActiveScene) {

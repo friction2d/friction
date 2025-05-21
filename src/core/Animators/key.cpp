@@ -27,7 +27,7 @@
 #include "qrealpoint.h"
 #include "animator.h"
 #include "pointhelpers.h"
-#include "canvas.h"
+#include "Private/scene.h"
 
 Key::Key(Animator * const parentAnimator) :
     Key(0, parentAnimator) {}
@@ -191,4 +191,3 @@ Key *Key::getPrevKey() const {
 void Key::afterKeyChanged() {
     mParentAnimator->anim_updateAfterChangedKey(this);
 }
-

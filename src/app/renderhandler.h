@@ -31,7 +31,7 @@
 #include "CacheHandlers/usepointer.h"
 #include "CacheHandlers/cachecontainer.h"
 
-class Canvas;
+class ViewLayerRender;
 class RenderInstanceSettings;
 class SoundComposition;
 class Document;
@@ -75,7 +75,7 @@ signals:
     void previewFinished();
 private:
     void setFrameAction(const int frame);
-    void setCurrentScene(Canvas * const scene);
+    void setCurrentViewLayer(ViewLayerRender * const viewLayer);
 
     void finishEncoding();
     void playPreviewAfterAllTasksCompleted();
@@ -103,7 +103,7 @@ private:
     qptr<SoundComposition> mCurrentSoundComposition;
     // AUDIO
 
-    Canvas* mCurrentScene = nullptr;
+    ViewLayerRender *mCurrentViewLayer = nullptr;
     QTimer *mPreviewFPSTimer = nullptr;
     RenderInstanceSettings *mCurrentRenderSettings = nullptr;
 

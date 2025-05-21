@@ -46,7 +46,7 @@ InternalLinkGroupBox::InternalLinkGroupBox(ContainerBox * const linkTarget,
 void InternalLinkGroupBox::setupRenderData(const qreal relFrame,
                                            const QMatrix& parentM,
                                            BoxRenderData * const data,
-                                           Canvas* const scene) {
+                                           Scene* const scene) {
     const auto linkTarget = getLinkTarget();
     if(linkTarget) linkTarget->BoundingBox::setupRenderData(
                 relFrame, parentM, data, scene);

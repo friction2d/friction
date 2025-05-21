@@ -87,7 +87,7 @@ void KeysView::dragMoveEvent(QDragMoveEvent *event) {
     }
 }
 
-void KeysView::setCurrentScene(Canvas * const scene)
+void KeysView::setCurrentScene(Scene * const scene)
 {
     if (mCurrentScene) {
         disconnect(mCurrentScene.data(), &Canvas::objectSelectionChanged,

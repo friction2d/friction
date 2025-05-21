@@ -26,7 +26,7 @@
 #include "textboxrenderdata.h"
 #include "textbox.h"
 #include "PathEffects/patheffectstask.h"
-#include "canvas.h"
+#include "Private/scene.h"
 
 qreal textLineX(const Qt::Alignment &alignment,
                 const qreal lineWidth,
@@ -99,7 +99,7 @@ void LetterRenderData::initialize(const qreal relFrame,
                                   const QString &letter,
                                   const SkFont &font,
                                   TextBox * const parent,
-                                  Canvas * const scene) {
+                                  Scene * const scene) {
     fOriginalPos = pos;
     fLetterPos = pos;
     const auto parentM = parent->getInheritedTransformAtFrame(relFrame);
@@ -138,7 +138,7 @@ void WordRenderData::initialize(const qreal relFrame,
                                 const SkFont &font,
                                 const qreal letterSpacing,
                                 TextBox * const parent,
-                                Canvas * const scene) {
+                                Scene * const scene) {
     const auto parentM = parent->getInheritedTransformAtFrame(relFrame);
     parent->BoundingBox::setupWithoutRasterEffects(
                 relFrame, parentM, this, scene);
@@ -190,7 +190,7 @@ void LineRenderData::initialize(const qreal relFrame,
                                 const qreal letterSpacing,
                                 const qreal wordSpacing,
                                 TextBox * const parent,
-                                Canvas * const scene) {
+                                Scene * const scene) {
     fOriginalPos = pos;
     fLinePos = pos;
     fString = line;
@@ -256,7 +256,7 @@ void TextBoxRenderData::initialize(const QString &text,
                                    const Qt::Alignment hAlignment,
                                    const Qt::Alignment vAlignment,
                                    TextBox * const parent,
-                                   Canvas* const scene) {
+                                   Scene* const scene) {
     const QStringList lines = text.split(QRegExp("\n|\r\n|\r"));
 
     qreal maxWidth = 0;

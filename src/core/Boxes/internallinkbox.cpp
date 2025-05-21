@@ -25,7 +25,7 @@
 
 #include "internallinkbox.h"
 #include "GUI/edialogs.h"
-#include "canvas.h"
+#include "Private/scene.h"
 #include "Timeline/durationrectangle.h"
 #include "Animators/transformanimator.h"
 #include "skia/skiahelpers.h"
@@ -57,7 +57,7 @@ void InternalLinkBox::setLinkTarget(BoundingBox * const linkTarget) {
 void InternalLinkBox::setupRenderData(const qreal relFrame,
                                       const QMatrix& parentM,
                                       BoxRenderData * const data,
-                                      Canvas* const scene) {
+                                      Scene* const scene) {
     const auto linkTarget = getLinkTarget();
     if(linkTarget) linkTarget->setupRenderData(relFrame, parentM, data, scene);
     BoundingBox::setupRenderData(relFrame, parentM, data, scene);

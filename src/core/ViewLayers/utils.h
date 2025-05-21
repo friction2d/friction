@@ -23,31 +23,14 @@
 
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
-#ifndef CANVASWRAPPERNODE_H
-#define CANVASWRAPPERNODE_H
-#include "widgets/widgetwrappernode.h"
-#include "canvaswindow.h"
+#ifndef FRICTION_UI_VIEW_LAYER_UTILITIES
+#define FRICTION_UI_VIEW_LAYER_UTILITIES
 
-class CanvasWrapperMenuBar;
+#include "../../core/skia/skiaincludes.h"
+#include "../../core/GUI/global.h"
 
-class CanvasWrapperNode : public WidgetWrapperNode {
-public:
-    CanvasWrapperNode(Canvas * const scene);
 
-protected:
-    void readData(eReadStream& src);
-    void writeData(eWriteStream& dst);
+void drawTransparencyMesh(SkCanvas* const canvas,
+                          const SkRect &drawRect);
 
-    void readDataXEV(XevReadBoxesHandler& boxReadHandler,
-                     const QDomElement& ele,
-                     RuntimeIdToWriteId& objListIdConv);
-    void writeDataXEV(QDomElement& ele, QDomDocument& doc,
-                      RuntimeIdToWriteId& objListIdConv);
-
-    QString tagNameXEV() const { return "Canvas"; }
-private:
-    CanvasWrapperMenuBar* mMenu;
-    CanvasWindow* mCanvasWindow;
-};
-
-#endif // CANVASWRAPPERNODE_H
+#endif // FRICTION_UI_VIEW_LAYER_UTILITIES

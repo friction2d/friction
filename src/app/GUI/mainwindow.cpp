@@ -25,7 +25,7 @@
 
 #include "mainwindow.h"
 #include "GUI/Expressions/expressiondialog.h"
-#include "canvas.h"
+#include "Private/scene.h"
 #include <QKeyEvent>
 #include <QApplication>
 #include <QDebug>
@@ -94,8 +94,12 @@ MainWindow::MainWindow(Document& document,
                        const QString &openProject,
                        QWidget * const parent)
     : QMainWindow(parent)
+    , mViewLayerRender(nullptr)
+    , mViewLayerPreview(nullptr)
+    , mViewLayerSelection(nullptr)
     , mShutdown(false)
     , mWelcomeDialog(nullptr)
+    , mBaseCanvas(nullptr)
     , mStackWidget(nullptr)
     , mTabProperties(nullptr)
     , mTimeline(nullptr)
@@ -218,11 +222,7 @@ MainWindow::MainWindow(Document& document,
     mFontWidget = new Ui::FontsWidget(this);
     mFontWidget->setMaximumHeight(150);
 
-    mLayoutHandler = new LayoutHandler(mDocument,
-                                       mAudioHandler,
-                                       this);
     mTimeline = new TimelineDockWidget(mDocument,
-                                       mLayoutHandler,
                                        this);
     mRenderWidget = new RenderWidget(this);
 
@@ -283,8 +283,18 @@ MainWindow::MainWindow(Document& document,
        []() { MainWindow::sGetInstance()->openFile(); },
        this);
 
+    mBaseCanvas = new BaseCanvas(1920, 1080, nullptr, this);
+
+    mViewLayerPreview = new ViewLayerPreview(mDocument, mBaseCanvas);
+    mViewLayerRender = new ViewLayerRender(mDocument, mBaseCanvas);
+    mViewLayerSelection = new ViewLayerSelection(mBaseCanvas);
+
+    mBaseCanvas->addViewLayer(*mViewLayerPreview);
+    mBaseCanvas->addViewLayer(*mViewLayerRender);
+    mBaseCanvas->addViewLayer(*mViewLayerSelection);
+
     mStackWidget = new QStackedWidget(this);
-    mStackIndexScene = mStackWidget->addWidget(mLayoutHandler->sceneLayout());
+    mStackIndexScene = mStackWidget->addWidget(mBaseCanvas);
     mStackIndexWelcome = mStackWidget->addWidget(mWelcomeDialog);
 
     mColorToolBar = new Ui::ColorToolBar(mDocument, this);
@@ -1459,7 +1469,7 @@ void MainWindow::addCanvasToRenderQue()
     mRenderWidget->createNewRenderInstanceWidgetForCanvas(mDocument.fActiveScene);
 }
 
-void MainWindow::updateSettingsForCurrentCanvas(Canvas* const scene)
+void MainWindow::updateSettingsForCurrentCanvas(Scene* const scene)
 {
     mColorToolBar->setCurrentCanvas(scene);
     mCanvasToolBar->setCurrentCanvas(scene);

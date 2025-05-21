@@ -53,7 +53,7 @@ public:
             int& firstAbsFrame, int& lastAbsFrame,
             int& increment) const = 0;*/
     virtual void showSceneSettingsDialog(
-            Canvas* const scene) const = 0;
+            Scene* const scene) const = 0;
     virtual void displayMessageToUser(
         const QString& message, const int ms) const = 0;
     virtual void showStatusMessage(

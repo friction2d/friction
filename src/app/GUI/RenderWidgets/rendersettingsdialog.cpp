@@ -2,7 +2,7 @@
 #include <QPushButton>
 #include "GUI/global.h"
 #include "Private/document.h"
-#include "canvas.h"
+#include "Private/scene.h"
 
 RenderSettingsDialog::RenderSettingsDialog(const RenderInstanceSettings &settings,
                                            QWidget *parent)

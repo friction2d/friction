@@ -29,7 +29,7 @@
 
 #include "Animators/gradient.h"
 #include "Private/document.h"
-#include "canvas.h"
+#include "Private/scene.h"
 
 DisplayedGradientsWidget::DisplayedGradientsWidget(QWidget *parent) :
     GLWidget(parent) {
@@ -43,7 +43,7 @@ DisplayedGradientsWidget::DisplayedGradientsWidget(QWidget *parent) :
     });
 }
 
-void DisplayedGradientsWidget::setScene(Canvas * const scene) {
+void DisplayedGradientsWidget::setScene(Scene * const scene) {
     if(scene == mScene) return;
     mGradients.clear();
     setSelectedGradient(nullptr);

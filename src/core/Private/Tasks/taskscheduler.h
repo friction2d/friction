@@ -32,7 +32,7 @@
 #include "taskquehandler.h"
 #include "Private/esettings.h"
 
-class Canvas;
+class Scene;
 class CpuExecController;
 class HddExecController;
 class GpuExecController;

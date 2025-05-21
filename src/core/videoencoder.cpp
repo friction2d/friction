@@ -27,7 +27,7 @@
 #include <QByteArray>
 #include "Boxes/boxrendercontainer.h"
 #include "CacheHandlers/sceneframecontainer.h"
-#include "canvas.h"
+#include "Private/scene.h"
 
 #define AV_RuntimeThrow(errId, message) \
 { \

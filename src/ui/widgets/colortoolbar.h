@@ -26,7 +26,7 @@
 
 #include "ui_global.h"
 
-#include "canvas.h"
+#include "Private/scene.h"
 #include "Private/document.h"
 #include "widgets/toolbar.h"
 #include "widgets/colortoolbutton.h"
@@ -44,7 +44,7 @@ namespace Friction
         public:
             explicit ColorToolBar(Document& document,
                                   QWidget *parent = nullptr);
-            void setCurrentCanvas(Canvas * const target);
+            void setCurrentCanvas(Scene * const target);
             void setCurrentBox(BoundingBox *target);
 
         signals:

@@ -39,7 +39,7 @@ public:
     /*bool execAnimationToPaint(const AnimationBox* const src,
                               int& firstAbsFrame, int& lastAbsFrame,
                               int& increment) const;*/
-    void showSceneSettingsDialog(Canvas* const scene) const;
+    void showSceneSettingsDialog(Scene* const scene) const;
     void displayMessageToUser(const QString& message, const int ms) const;
     void showStatusMessage(const QString& message, const int ms) const;
 };

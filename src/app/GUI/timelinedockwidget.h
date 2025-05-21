@@ -46,7 +46,6 @@
 
 #include "smartPointers/ememory.h"
 #include "framerange.h"
-#include "timelinebasewrappernode.h"
 #include "widgets/qdoubleslider.h"
 #include "renderhandler.h"
 #include "widgets/framespinbox.h"
@@ -57,7 +56,7 @@ class MainWindow;
 class AnimationDockWidget;
 class RenderWidget;
 class ActionButton;
-class Canvas;
+class Scene;
 class Document;
 class LayoutHandler;
 class BrushContexedWrapper;
@@ -68,7 +67,6 @@ class TimelineDockWidget : public QWidget
 {
 public:
     explicit TimelineDockWidget(Document &document,
-                                LayoutHandler* const layoutH,
                                 MainWindow * const parent);
     bool processKeyPress(QKeyEvent *event);
     void previewFinished();
@@ -81,7 +79,7 @@ public:
     bool setNextKeyframe();
     bool setPrevKeyframe();
 
-    void updateSettingsForCurrentCanvas(Canvas * const canvas);
+    void updateSettingsForCurrentCanvas(Scene * const canvas);
 
     void stopPreview();
 
@@ -114,7 +112,6 @@ private:
 
     Document& mDocument;
     MainWindow* const mMainWindow;
-    QStackedWidget* const mTimelineLayout;
 
     QToolBar *mToolBar;
 

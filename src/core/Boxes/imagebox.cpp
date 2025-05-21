@@ -134,7 +134,7 @@ void ImageBox::changeSourceFile() {
 
 void ImageBox::setupRenderData(const qreal relFrame, const QMatrix& parentM,
                                BoxRenderData * const data,
-                               Canvas* const scene)
+                               Scene* const scene)
 {
     if (!mFileHandler) { mFileHandler.assign(mPath); }
     BoundingBox::setupRenderData(relFrame, parentM, data, scene);

@@ -26,7 +26,7 @@
 #include "Boxes/boundingbox.h"
 #include "Boxes/containerbox.h"
 #include "TransformEffects/followpatheffect.h"
-#include "canvas.h"
+#include "Private/scene.h"
 #include "swt_abstraction.h"
 #include "Timeline/durationrectangle.h"
 #include "pointhelpers.h"
@@ -554,7 +554,7 @@ void BoundingBox::planUpdate(const UpdateReason reason) {
     if(!isVisibleAndInVisibleDurationRect()) return;
     const auto parent = getParentGroup();
     if(parent) parent->planUpdate(reason);
-    else if(!enve_cast<Canvas*>(this)) return;
+    else if(!enve_cast<Scene*>(this)) return;
     if(reason == UpdateReason::userChange) {
         mStateId++;
         mRenderDataHandler.clear();
@@ -874,7 +874,7 @@ void BoundingBox::alignPivotItself(const Qt::Alignment align,
     QPointF currentPivotAbsPos = getPivotAbsPos();
 
     QPointF lastSelectedPivotAbsPos = lastPivotAbsPos;
-    
+
     QPointF center = getRelCenterPosition();
 
     qreal currentScaleX = mTransformAnimator->xScale();
@@ -1043,7 +1043,7 @@ void BoundingBox::finishTransform() {
 void BoundingBox::setupRenderData(const qreal relFrame,
                                   const QMatrix& parentM,
                                   BoxRenderData * const data,
-                                  Canvas* const scene) {
+                                  Scene* const scene) {
     setupWithoutRasterEffects(relFrame, parentM, data, scene);
     setupRasterEffects(relFrame, data, scene);
 }
@@ -1051,7 +1051,7 @@ void BoundingBox::setupRenderData(const qreal relFrame,
 void BoundingBox::setupWithoutRasterEffects(const qreal relFrame,
                                             const QMatrix& parentM,
                                             BoxRenderData * const data,
-                                            Canvas* const scene) {
+                                            Scene* const scene) {
     //Q_ASSERT(scene);
     if(!scene) return;
 
@@ -1082,7 +1082,7 @@ void BoundingBox::setupWithoutRasterEffects(const qreal relFrame,
 
 void BoundingBox::setupRasterEffects(const qreal relFrame,
                                      BoxRenderData * const data,
-                                     Canvas* const scene) {
+                                     Scene* const scene) {
     //Q_ASSERT(scene);
     if(!scene) return;
     const bool effectsVisible = scene->getRasterEffectsVisible();

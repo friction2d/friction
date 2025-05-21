@@ -25,7 +25,7 @@
 
 #include "eboxorsound.h"
 
-#include "canvas.h"
+#include "Private/scene.h"
 #include "Timeline/durationrectangle.h"
 #include "Properties/emimedata.h"
 #include "Sound/esound.h"

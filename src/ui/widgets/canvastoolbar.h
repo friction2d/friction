@@ -26,7 +26,7 @@
 
 #include "ui_global.h"
 
-#include "canvas.h"
+#include "Private/scene.h"
 #include "widgets/colortoolbutton.h"
 
 #include <QToolBar>
@@ -42,19 +42,19 @@ namespace Friction
         {
         public:
             explicit CanvasToolBar(QWidget *parent = nullptr);
-            void setCurrentCanvas(Canvas * const target);
+            void setCurrentCanvas(Scene * const target);
             QComboBox* getResolutionComboBox();
 
         private:
             void setupDimensions();
             void setupResolution();
             void addSpacer();
-            void updateWidgets(Canvas * const target);
+            void updateWidgets(Scene * const target);
             void updateDimension(const QSize dim);
             void setResolution(QString text,
-                               Canvas * const target);
+                               Scene * const target);
             void setDimension(const QSize dim,
-                              Canvas * const target);
+                              Scene * const target);
             void showContextMenu(const QPoint &pos);
 
             QSpinBox *mSpinWidth;

@@ -77,7 +77,7 @@ BoxesClipboard::BoxesClipboard(const QList<BoundingBox*> &src) :
     BoundingBox::sClearWriteBoxes();
 }
 
-#include "canvas.h"
+#include "Private/scene.h"
 void BoxesClipboard::pasteTo(ContainerBox* const parent) {
     const int oldCount = parent->getContainedBoxesCount();
     const auto reader = [parent](eReadStream& readStream) {

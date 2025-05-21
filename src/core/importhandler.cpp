@@ -37,7 +37,7 @@ ImportHandler::ImportHandler() {
 }
 
 qsptr<BoundingBox> ImportHandler::import(const QString &path,
-                                         Canvas* const scene) const {
+                                         Scene* const scene) const {
     {
         const QFile file(path);
         if(!file.exists()) RuntimeThrow("File does not exist");

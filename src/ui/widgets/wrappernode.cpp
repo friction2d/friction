@@ -67,7 +67,7 @@ WrapperNode* WrapperNode::sReadXEV(XevReadBoxesHandler& boxReadHandler,
     return wid;
 }
 
-void BaseWrapperNode::reset(Canvas* const scene) {
+void BaseWrapperNode::reset(Scene* const scene) {
     if(fChild) delete fChild;
     fChild = fCreator(scene);
     fChild->fParent = this;

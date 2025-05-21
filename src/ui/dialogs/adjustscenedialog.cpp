@@ -30,7 +30,7 @@
 
 #include "Private/esettings.h"
 
-AdjustSceneDialog::AdjustSceneDialog(Canvas *scene,
+AdjustSceneDialog::AdjustSceneDialog(Scene *scene,
                                      const VideoBox::VideoSpecs &specs,
                                      QWidget *parent)
     : Friction::Ui::Dialog(parent)

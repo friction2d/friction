@@ -25,7 +25,7 @@
 
 #include "fillstrokesettings.h"
 #include "gradientwidgets/gradientwidget.h"
-#include "canvas.h"
+#include "Private/scene.h"
 #include "widgets/qrealanimatorvalueslider.h"
 #include "widgets/colorsettingswidget.h"
 #include "paintsettingsapplier.h"

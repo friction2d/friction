@@ -26,7 +26,7 @@
 #include "internallinkcanvas.h"
 #include "linkcanvasrenderdata.h"
 #include "Animators/transformanimator.h"
-#include "canvas.h"
+#include "Private/scene.h"
 
 InternalLinkCanvas::InternalLinkCanvas(ContainerBox * const linkTarget,
                                        const bool innerLink) :
@@ -38,7 +38,7 @@ InternalLinkCanvas::InternalLinkCanvas(ContainerBox * const linkTarget,
 }
 
 void InternalLinkCanvas::enableFrameRemappingAction() {
-    const auto finalTarget = static_cast<Canvas*>(getFinalTarget());
+    const auto finalTarget = static_cast<Scene*>(getFinalTarget());
     const int minFrame = finalTarget->getMinFrame();
     const int maxFrame = finalTarget->getMaxFrame();
     mFrameRemapping->enableAction(minFrame, maxFrame, minFrame);
@@ -66,7 +66,7 @@ void InternalLinkCanvas::prp_setupTreeViewMenu(PropertyMenu * const menu) {
 void InternalLinkCanvas::setupRenderData(const qreal relFrame,
                                          const QMatrix& parentM,
                                          BoxRenderData * const data,
-                                         Canvas* const scene) {
+                                         Scene* const scene) {
     {
         BoundingBox::setupRenderData(relFrame, parentM, data, scene);
         const qreal remapped = mFrameRemapping->frame(relFrame);
@@ -76,7 +76,7 @@ void InternalLinkCanvas::setupRenderData(const qreal relFrame,
 
     ContainerBox* finalTarget = getFinalTarget();
     auto canvasData = static_cast<LinkCanvasRenderData*>(data);
-    const auto canvasTarget = static_cast<Canvas*>(finalTarget);
+    const auto canvasTarget = static_cast<Scene*>(finalTarget);
     canvasData->fBgColor = toSkColor(canvasTarget->getBgColorAnimator()->
             getColor(relFrame));
     //qreal res = mParentScene->getResolution();
@@ -111,7 +111,7 @@ bool InternalLinkCanvas::relPointInsidePath(const QPointF &relPos) const {
 
 void InternalLinkCanvas::anim_setAbsFrame(const int frame) {
     InternalLinkGroupBox::anim_setAbsFrame(frame);
-    const auto canvasTarget = static_cast<Canvas*>(getFinalTarget());
+    const auto canvasTarget = static_cast<Scene*>(getFinalTarget());
     if(!canvasTarget) return;
     canvasTarget->anim_setAbsFrame(anim_getCurrentRelFrame());
 }

@@ -44,11 +44,14 @@
 #include "Private/document.h"
 #include "Sound/audiohandler.h"
 #include "actions.h"
-#include "layouthandler.h"
 #include "renderhandler.h"
 #include "fileshandler.h"
 #include "ekeyfilter.h"
 #include "GUI/RenderWidgets/renderwidget.h"
+#include "ViewLayers/viewlayer_preview.h"
+#include "ViewLayers/viewlayer_render.h"
+#include "ViewLayers/viewlayer_selection.h"
+#include "ViewLayers/basecanvas.h"
 #include "widgets/colortoolbar.h"
 #include "widgets/qdoubleslider.h"
 #include "widgets/canvastoolbar.h"
@@ -113,9 +116,9 @@ public:
 
     void setResolution(qreal percent);
 
-    void updateSettingsForCurrentCanvas(Canvas * const scene);
+    void updateSettingsForCurrentCanvas(Scene * const scene);
 
-    void addCanvas(Canvas * const newCanvas);
+    void addCanvas(Scene * const newCanvas);
 
     SimpleBrushWrapper *getCurrentBrush() const;
 
@@ -169,7 +172,6 @@ public:
     void updateAutoSaveBackupState();
     void openRendererWindow();
     void cmdAddAction(QAction *act);
-    LayoutHandler* getLayoutHandler();
     TimelineDockWidget* getTimeLineWidget();
     void focusFontWidget(const bool focus = true);
     void focusColorWidget();
@@ -182,9 +184,17 @@ protected:
     void resizeEvent(QResizeEvent *e);
     void showEvent(QShowEvent *e);
 
+    ViewLayerRender *mViewLayerRender;
+    ViewLayerPreview *mViewLayerPreview;
+    ViewLayerSelection *mViewLayerSelection;
+
+public:
+    ViewLayerRender * viewLayerRender() { return mViewLayerRender; };
+
 private:
     bool mShutdown;
     QWidget *mWelcomeDialog;
+    BaseCanvas *mBaseCanvas;
     QStackedWidget *mStackWidget;
 
     QTabWidget *mTabProperties;
@@ -318,8 +328,6 @@ private:
     Actions& mActions;
     AudioHandler& mAudioHandler;
     RenderHandler& mRenderHandler;
-
-    LayoutHandler *mLayoutHandler = nullptr;
 
     FillStrokeSettingsWidget *mFillStrokeSettings;
 

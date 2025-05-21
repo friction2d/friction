@@ -75,7 +75,13 @@ CORE_EXPORT
 extern QMatrix toQMatrix(const SkMatrix &matrix);
 
 CORE_EXPORT
+extern QTransform toQTransform(const SkMatrix &matrix);
+
+CORE_EXPORT
 extern SkMatrix toSkMatrix(const QMatrix &matrix);
+
+CORE_EXPORT
+extern SkMatrix toSkMatrix(const QTransform &transform);
 
 extern inline QPointF toQPointF(const SkPoint &point) {
     return QPointF(toQreal(point.x()),

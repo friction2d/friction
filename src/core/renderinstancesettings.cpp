@@ -24,10 +24,10 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "renderinstancesettings.h"
-#include "canvas.h"
+#include "Private/scene.h"
 #include "simpletask.h"
 
-RenderInstanceSettings::RenderInstanceSettings(Canvas* canvas) {
+RenderInstanceSettings::RenderInstanceSettings(Scene* canvas) {
     setTargetCanvas(canvas);
 }
 
@@ -54,7 +54,7 @@ const QString &RenderInstanceSettings::getOutputDestination() const {
 }
 
 void RenderInstanceSettings::setTargetCanvas(
-        Canvas *canvas, const bool copySceneSettings) {
+        Scene *canvas, const bool copySceneSettings) {
     const auto oldCanvas = *mTargetCanvas;
     auto& conn = mTargetCanvas.assign(canvas);
     if(canvas) {
@@ -88,7 +88,7 @@ void RenderInstanceSettings::setTargetCanvas(
     }
 }
 
-Canvas *RenderInstanceSettings::getTargetCanvas() const {
+Scene *RenderInstanceSettings::getTargetCanvas() const {
     return mTargetCanvas;
 }
 
@@ -206,7 +206,7 @@ void RenderInstanceSettings::read(eReadStream &src) {
                 box = src.getBoxByReadId(targetReadId);
              if(!box && targetDocumentId != -1)
                  box = BoundingBox::sGetBoxByDocumentId(targetDocumentId);
-             if(const auto scene = enve_cast<Canvas*>(box))
+             if(const auto scene = enve_cast<Scene*>(box))
                  setTargetCanvas(scene, false);
         });
     }

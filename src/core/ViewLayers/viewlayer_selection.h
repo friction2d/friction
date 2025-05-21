@@ -23,9 +23,38 @@
 
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
-#include "timelinebasewrappernode.h"
+#ifndef VIEW_LAYER_SELECTION_H
+#define VIEW_LAYER_SELECTION_H
 
-TimelineBaseWrapperNode::TimelineBaseWrapperNode() :
-    BaseWrapperNode("TimelineLayout", [](Canvas* const scene) {
-        return new TimelineWrapperNode(scene);
-    }) {}
+#include "viewlayer.h"
+
+#include <QRectF>
+
+#include "basecanvas.h"
+#include "../../core/Private/document.h"
+#include "../../core/skia/skiaincludes.h"
+
+
+class ViewLayerSelection : public ViewLayer {
+public:
+    ViewLayerSelection(BaseCanvas *canvas);
+    ~ViewLayerSelection() = default;
+
+    void repaint(SkCanvas * const canvas) override;
+
+    // Mouse events
+    void mousePressEvent(QMouseEvent *e) override;
+    void mouseReleaseEvent(QMouseEvent *e) override;
+    void mouseMoveEvent(QMouseEvent *e) override;
+    void mouseDoubleClickEvent(QMouseEvent *e) override;
+
+private:
+    BaseCanvas *_baseCanvas;
+
+    bool _isCurrentlySelecting;
+
+    QRectF _selectionRect;
+    QRectF _cursorPosition;
+};
+
+#endif // VIEW_LAYER_SELECTION_H

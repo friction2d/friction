@@ -65,7 +65,7 @@ public:
 
     void setupRenderData(const qreal relFrame, const QMatrix& parentM,
                          BoxRenderData * const data,
-                         Canvas * const scene);
+                         Scene * const scene);
     stdsptr<BoxRenderData> createRenderData() {
         return enve::make_shared<PathBoxRenderData>(this);
     }
@@ -74,7 +74,7 @@ public:
 
     typedef QList<stdsptr<PathEffectCaller>> PathEffectsCList;
     void addPathEffects(
-            const qreal relFrame, Canvas* const scene,
+            const qreal relFrame, Scene* const scene,
             PathEffectsCList &pathEffects,
             PathEffectsCList &fillEffects,
             PathEffectsCList &outlineBaseEffects,

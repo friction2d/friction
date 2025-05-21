@@ -32,7 +32,7 @@
 
 using namespace Friction::Ui;
 
-MarkerEditorDialog::MarkerEditorDialog(Canvas *scene,
+MarkerEditorDialog::MarkerEditorDialog(Scene *scene,
                                        QWidget *parent)
     : Dialog{parent}
 {

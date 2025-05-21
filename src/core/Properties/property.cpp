@@ -30,7 +30,7 @@
 #include "typemenu.h"
 #include "Private/document.h"
 #include "ReadWrite/evformat.h"
-#include "canvas.h"
+#include "Private/scene.h"
 
 Property::Property(const QString& name) :
     prp_mName(name) {
@@ -387,7 +387,7 @@ bool Property::prp_isParentBoxContained(BoundingBox *box,
     return false;
 }
 
-#include "canvas.h"
+#include "Private/scene.h"
 void Property::prp_selectionChangeTriggered(const bool shiftPressed) {
     if(!mParentScene) return;
     if(shiftPressed) {

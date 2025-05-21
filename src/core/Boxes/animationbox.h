@@ -51,7 +51,7 @@ public:
     void setupRenderData(const qreal relFrame,
                          const QMatrix& parentM,
                          BoxRenderData * const data,
-                         Canvas * const scene);
+                         Scene * const scene);
     stdsptr<BoxRenderData> createRenderData();
     bool shouldScheduleUpdate();
     void saveSVG(SvgExporter& exp, DomEleTask* const task) const;

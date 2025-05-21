@@ -71,7 +71,7 @@ CanvasToolBar::CanvasToolBar(QWidget *parent)
     setupResolution();
 }
 
-void CanvasToolBar::setCurrentCanvas(Canvas * const target)
+void CanvasToolBar::setCurrentCanvas(Scene * const target)
 {
     mCanvas.assign(target);
     if (target) {
@@ -158,7 +158,7 @@ void CanvasToolBar::addSpacer()
     addWidget(space);
 }
 
-void CanvasToolBar::updateWidgets(Canvas * const target)
+void CanvasToolBar::updateWidgets(Scene * const target)
 {
     if (!target) {
         setEnabled(false);
@@ -186,7 +186,7 @@ void CanvasToolBar::updateDimension(const QSize dim)
 }
 
 void CanvasToolBar::setResolution(QString text,
-                                  Canvas * const target)
+                                  Scene * const target)
 {
     if (!target) { return; }
 
@@ -198,7 +198,7 @@ void CanvasToolBar::setResolution(QString text,
 }
 
 void CanvasToolBar::setDimension(const QSize dim,
-                                 Canvas * const target)
+                                 Scene * const target)
 {
     if (!target) { return; }
 

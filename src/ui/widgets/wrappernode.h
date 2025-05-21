@@ -48,12 +48,12 @@ enum class UI_EXPORT WrapperNodeType {
 class SplitWrapperNode;
 class ParentWrapperNode;
 class WidgetWrapperNode;
-class Canvas;
+class Scene;
 class XevReadBoxesHandler;
 
 class UI_EXPORT WrapperNode {
 public:
-    typedef std::function<WidgetWrapperNode*(Canvas*)> WidgetCreator;
+    typedef std::function<WidgetWrapperNode*(Scene*)> WidgetCreator;
     WrapperNode(const WrapperNodeType type,
                 const WidgetCreator& creator) :
         fType(type), fCreator(creator) {}
@@ -128,7 +128,7 @@ public:
 
     QWidget* widget() { return this; }
 
-    void reset(Canvas * const scene = nullptr);
+    void reset(Scene * const scene = nullptr);
 
     void readData(eReadStream& src) {
         const auto newChild = sRead(src, fCreator);

@@ -37,7 +37,7 @@ public:
     }
 
     qsptr<BoundingBox> import(const QFileInfo& fileInfo,
-                              Canvas* const scene) const;
+                              Scene* const scene) const;
 };
 
 class evImporter : public eImporter {
@@ -47,7 +47,7 @@ public:
     }
 
     qsptr<BoundingBox> import(const QFileInfo& fileInfo,
-                              Canvas* const scene) const;
+                              Scene* const scene) const;
 };
 
 class eSvgImporter : public eImporter {
@@ -57,7 +57,7 @@ public:
     }
 
     qsptr<BoundingBox> import(const QFileInfo& fileInfo,
-                              Canvas* const scene) const;
+                              Scene* const scene) const;
 };
 
 /*class eOraImporter : public eImporter {
@@ -67,7 +67,7 @@ public:
     }
 
     qsptr<BoundingBox> import(const QFileInfo& fileInfo,
-                              Canvas* const scene) const;
+                              Scene* const scene) const;
 };*/
 
 #endif // EIMPORTER_H

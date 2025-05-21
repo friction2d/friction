@@ -191,8 +191,14 @@ set(
     Private/documentrw.cpp
     Private/esettings.cpp
     Private/memorystructs.cpp
+    Private/scene.cpp
     Properties/boolpropertycontainer.cpp
     Properties/boxtargetproperty.cpp
+    ViewLayers/basecanvas.cpp
+    ViewLayers/utils.cpp
+    ViewLayers/viewlayer_render.cpp
+    ViewLayers/viewlayer_preview.cpp
+    ViewLayers/viewlayer_selection.cpp
     RasterEffects/blureffect.cpp
     RasterEffects/brightnesscontrasteffect.cpp
     RasterEffects/colorizeeffect.cpp
@@ -250,12 +256,6 @@ set(
     XML/xmlexporthelpers.cpp
     action.cpp
     actions.cpp
-    canvas.cpp
-    canvashandlesmartpath.cpp
-    canvasmouseevents.cpp
-    canvasmouseinteractions.cpp
-    canvasselectedboxesactions.cpp
-    canvasselectedpointsactions.cpp
     clipboardcontainer.cpp
     colorhelpers.cpp
     colorsetting.cpp
@@ -343,7 +343,6 @@ set(
     MovablePoints/smartctrlpoint.cpp
     MovablePoints/pointshandler.cpp
     MovablePoints/pathpointshandler.cpp
-    canvasbase.cpp
     typemenu.cpp
     themesupport.cpp
     wrappedint.cpp
@@ -443,6 +442,8 @@ set(
     CacheHandlers/tmpsaver.h
     CacheHandlers/usedrange.h
     CacheHandlers/usepointer.h
+    Drawables/drawable.h
+    Drawables/rectangle_drawable.h
     Expressions/propertybindingbase.h
     Expressions/propertybindingparser.h
     Expressions/valuebinding.h
@@ -502,11 +503,18 @@ set(
     Private/esettings.h
     Private/memorystructs.h
     Private/qatomiclist.h
+    Private/scene.h
     Properties/boolpropertycontainer.h
     Properties/boxtargetproperty.h
     Properties/emimedata.h
     Properties/namedproperty.h
     Properties/newproperty.h
+    ViewLayers/utils.h
+    ViewLayers/basecanvas.h
+    ViewLayers/viewlayer.h
+    ViewLayers/viewlayer_render.h
+    ViewLayers/viewlayer_preview.h
+    ViewLayers/viewlayer_selection.h
     RasterEffects/blureffect.h
     RasterEffects/brightnesscontrasteffect.h
     RasterEffects/colorizeeffect.h
@@ -575,7 +583,6 @@ set(
     XML/xmlexporthelpers.h
     action.h
     actions.h
-    canvas.h
     clipboardcontainer.h
     colorhelpers.h
     colorsetting.h
@@ -681,7 +688,6 @@ set(
     MovablePoints/smartctrlpoint.h
     MovablePoints/pointshandler.h
     MovablePoints/pathpointshandler.h
-    canvasbase.h
     typemenu.h
     themesupport.h
     pointtypemenu.h
