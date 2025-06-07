@@ -47,6 +47,11 @@ public:
     void setBottomRightPos(const QPointF &pos);
     void setYRadius(const qreal radiusY);
     void setXRadius(const qreal radiusX);
+
+    QPointFAnimator* getTopLeftAnimator();
+    QPointFAnimator* getBottomRightAnimator();
+    QPointFAnimator* getRadiusAnimator();
+
 private:
     qsptr<QPointFAnimator> mTopLeftAnimator;
     qsptr<QPointFAnimator> mBottomRightAnimator;
