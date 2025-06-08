@@ -32,10 +32,10 @@
 
 #include "basecanvas.h"
 #include "utils.h"
-#include "../Drawables/rectangle_drawable.h"
-#include "../Boxes/containerbox.h"
-#include "../efiltersettings.h"
-#include "../GUI/global.h"
+#include "Drawables/rectangle_drawable.h"
+#include "Boxes/containerbox.h"
+#include "efiltersettings.h"
+#include "GUI/global.h"
 
 
 ViewLayerPreview::ViewLayerPreview(Document &document, BaseCanvas *canvas)

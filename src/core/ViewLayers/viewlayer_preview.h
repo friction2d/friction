@@ -29,11 +29,11 @@
 #include "viewlayer.h"
 
 #include "basecanvas.h"
-#include "../../core/Private/document.h"
-#include "../../core/skia/skiaincludes.h"
-#include "../../core/CacheHandlers/usepointer.h"
-#include "../../core/CacheHandlers/sceneframecontainer.h"
-#include "../../core/conncontextobjlist.h"
+#include "Private/document.h"
+#include "skia/skiaincludes.h"
+#include "CacheHandlers/usepointer.h"
+#include "CacheHandlers/sceneframecontainer.h"
+#include "conncontextobjlist.h"
 
 class ViewLayerPreview : public ViewLayer {
 public:

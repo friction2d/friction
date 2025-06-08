@@ -29,13 +29,13 @@
 #include "viewlayer.h"
 
 #include "basecanvas.h"
-#include "../../core/framerange.h"
-#include "../../core/Private/document.h"
-#include "../../core/skia/skiaincludes.h"
-#include "../../core/CacheHandlers/usepointer.h"
-#include "../../core/CacheHandlers/sceneframecontainer.h"
-#include "../../core/CacheHandlers/hddcachablecachehandler.h"
-#include "../../core/Sound/soundcomposition.h"
+#include "framerange.h"
+#include "Private/document.h"
+#include "skia/skiaincludes.h"
+#include "CacheHandlers/usepointer.h"
+#include "CacheHandlers/sceneframecontainer.h"
+#include "CacheHandlers/hddcachablecachehandler.h"
+#include "Sound/soundcomposition.h"
 
 
 class ViewLayerRender : public ViewLayer {

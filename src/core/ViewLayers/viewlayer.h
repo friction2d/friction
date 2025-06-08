@@ -28,8 +28,8 @@
 
 #include <string>
 
-#include "../../core/skia/skiaincludes.h"
-#include "../../core/eevent.h"
+#include "skia/skiaincludes.h"
+#include "eevent.h"
 
 
 class ViewLayer {
