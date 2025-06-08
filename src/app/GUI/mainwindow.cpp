@@ -284,6 +284,7 @@ MainWindow::MainWindow(Document& document,
        this);
 
     mBaseCanvas = new BaseCanvas(1920, 1080, nullptr, this);
+    mCanvasWidget = new CanvasWidget(mBaseCanvas);
 
     mViewLayerPreview = new ViewLayerPreview(mDocument, mBaseCanvas);
     mViewLayerRender = new ViewLayerRender(mDocument, mBaseCanvas);
@@ -294,7 +295,7 @@ MainWindow::MainWindow(Document& document,
     mBaseCanvas->addViewLayer(*mViewLayerSelection);
 
     mStackWidget = new QStackedWidget(this);
-    mStackIndexScene = mStackWidget->addWidget(mBaseCanvas);
+    mStackIndexScene = mStackWidget->addWidget(mCanvasWidget);
     mStackIndexWelcome = mStackWidget->addWidget(mWelcomeDialog);
 
     mColorToolBar = new Ui::ColorToolBar(mDocument, this);

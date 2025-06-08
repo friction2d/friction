@@ -33,31 +33,30 @@
 #include <QColor>
 
 #include "viewlayer.h"
-#include "../ui_global.h"
-#include "../widgets/glwindow.h"
-#include "../../core/skia/skiaincludes.h"
-#include "../../core/Private/document.h"
-#include "../../core/eevent.h"
+#include "skia/skiaincludes.h"
+#include "Private/document.h"
+#include "eevent.h"
 
 // CanvasBase
 //
 // ONLY ONE RESPONSIBILITY!!!
-// A widget which renders the ViewLayers content:
-// shapes, movable points, selection... to the CanvasWindow.
-class UI_EXPORT BaseCanvas : public GLWindow {
+// A widget which stores the ViewLayers
+//
+// Another class `CanvasWidget` then takes those and renders them to a GLWindow.
+class BaseCanvas {
 public:
     explicit BaseCanvas(
         int width,
         int height,
         QColor backgroundColor = QColor(0, 0, 0),
         QWidget * parent = nullptr)
-            : GLWindow(parent)
-            , _width(width)
+            : _width(width)
             , _height(height)
             , _backgroundColor(backgroundColor) {};
     ~BaseCanvas() = default;
 
-    void renderSk(SkCanvas * const canvas) override;
+    // Must be called by the GLWindow
+    void renderSk(SkCanvas * const canvas);
 
     void setBackgroundColor(QColor color) { _backgroundColor = color; };
     QColor backgroundColor() { return _backgroundColor; };
@@ -111,10 +110,10 @@ public:
     void setResolution(qreal resolution) { _resolution = resolution; };
 
     // Mouse events
-    void mousePressEvent(QMouseEvent *e) override;
-    void mouseReleaseEvent(QMouseEvent *e) override;
-    void mouseMoveEvent(QMouseEvent *e) override;
-    void mouseDoubleClickEvent(QMouseEvent *e) override;
+    void mousePressEvent(QMouseEvent *e);
+    void mouseReleaseEvent(QMouseEvent *e);
+    void mouseMoveEvent(QMouseEvent *e);
+    void mouseDoubleClickEvent(QMouseEvent *e);
 };
 
 #endif // BASE_CANVAS_H

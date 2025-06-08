@@ -55,6 +55,7 @@
 #include "widgets/colortoolbar.h"
 #include "widgets/qdoubleslider.h"
 #include "widgets/canvastoolbar.h"
+#include "widgets/canvaswidget.h"
 #include "window.h"
 #include "widgets/aboutwidget.h"
 #include "widgets/uilayout.h"
@@ -195,6 +196,7 @@ private:
     bool mShutdown;
     QWidget *mWelcomeDialog;
     BaseCanvas *mBaseCanvas;
+    CanvasWidget *mCanvasWidget;
     QStackedWidget *mStackWidget;
 
     QTabWidget *mTabProperties;
