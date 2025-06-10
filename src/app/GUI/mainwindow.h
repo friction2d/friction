@@ -190,7 +190,8 @@ protected:
     ViewLayerSelection *mViewLayerSelection;
 
 public:
-    ViewLayerRender * viewLayerRender() { return mViewLayerRender; };
+    BaseCanvas *baseCanvas() const { return mBaseCanvas; };
+    ViewLayerRender *viewLayerRender() { return mViewLayerRender; };
 
 private:
     bool mShutdown;

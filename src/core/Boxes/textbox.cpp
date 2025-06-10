@@ -213,12 +213,11 @@ stdsptr<BoxRenderData> TextBox::createRenderData() {
 }
 
 void TextBox::setupRenderData(const qreal relFrame, const QMatrix& parentM,
-                              BoxRenderData * const data,
-                              Scene * const scene) {
+                              BoxRenderData * const data) {
     if(!mTextEffects->hasEffects()) {
-        return PathBox::setupRenderData(relFrame, parentM, data, scene);
+        return PathBox::setupRenderData(relFrame, parentM, data);
     }
-    BoundingBox::setupRenderData(relFrame, parentM, data, scene);
+    BoundingBox::setupRenderData(relFrame, parentM, data);
 
     const QString textAtFrame = mText->getValueAtRelFrame(relFrame);
 

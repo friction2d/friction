@@ -38,8 +38,6 @@
 #include "TransformEffects/transformeffect.h"
 #include "Tasks/domeletask.h"
 
-class Scene;
-
 enum class AlignRelativeTo;
 
 class QrealAction;
@@ -207,8 +205,7 @@ public:
     virtual void setupCanvasMenu(PropertyMenu * const menu);
 
     virtual void setupRenderData(const qreal relFrame, const QMatrix& parentM,
-                                 BoxRenderData * const data,
-                                 Scene * const scene);
+                                 BoxRenderData * const data);
     virtual void renderDataFinished(BoxRenderData *renderData);
     virtual void updateCurrentPreviewDataFromRenderData(
             BoxRenderData* renderData);
@@ -270,11 +267,9 @@ public:
 
     void setupWithoutRasterEffects(const qreal relFrame,
                                    const QMatrix& parentM,
-                                   BoxRenderData * const data,
-                                   Scene* const scene);
+                                   BoxRenderData * const data);
     void setupRasterEffects(const qreal relFrame,
-                            BoxRenderData * const data,
-                            Scene* const scene);
+                            BoxRenderData * const data);
 
     void drawAllCanvasControls(SkCanvas * const canvas,
                                const CanvasMode mode,

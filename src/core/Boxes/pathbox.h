@@ -64,8 +64,7 @@ public:
     void drawHoveredSk(SkCanvas *canvas, const float invScale);
 
     void setupRenderData(const qreal relFrame, const QMatrix& parentM,
-                         BoxRenderData * const data,
-                         Scene * const scene);
+                         BoxRenderData * const data);
     stdsptr<BoxRenderData> createRenderData() {
         return enve::make_shared<PathBoxRenderData>(this);
     }

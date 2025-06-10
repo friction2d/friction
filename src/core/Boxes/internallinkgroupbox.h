@@ -53,8 +53,7 @@ public:
     { return BoundingBox::SWT_dropInto(index, data); }
 
     void setupRenderData(const qreal relFrame, const QMatrix& parentM,
-                         BoxRenderData * const data,
-                         Scene * const scene);
+                         BoxRenderData * const data);
 
     bool localDifferenceInPathBetweenFrames(
             const int frame1, const int frame2) const;

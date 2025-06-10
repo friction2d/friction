@@ -26,7 +26,7 @@
 #include "Boxes/boundingbox.h"
 #include "Boxes/containerbox.h"
 #include "TransformEffects/followpatheffect.h"
-#include "Private/scene.h"
+#include "ViewLayers/basecanvas.h"
 #include "swt_abstraction.h"
 #include "Timeline/durationrectangle.h"
 #include "pointhelpers.h"
@@ -540,8 +540,8 @@ void BoundingBox::prp_updateCanvasProps() {
         if(prop->prp_drawsOnCanvas()) mCanvasProps.append(prop);
     });
     if(prp_drawsOnCanvas()) mCanvasProps.append(this);
-    const auto parentScene = getParentScene();
-    if(parentScene) parentScene->requestUpdate();
+    //const auto parentScene = getParentScene();
+    //if(parentScene) parentScene->requestUpdate();
 }
 
 void BoundingBox::updateCurrentPreviewDataFromRenderData(
@@ -554,7 +554,7 @@ void BoundingBox::planUpdate(const UpdateReason reason) {
     if(!isVisibleAndInVisibleDurationRect()) return;
     const auto parent = getParentGroup();
     if(parent) parent->planUpdate(reason);
-    else if(!enve_cast<Scene*>(this)) return;
+    //else if(!enve_cast<Scene*>(this)) return;
     if(reason == UpdateReason::userChange) {
         mStateId++;
         mRenderDataHandler.clear();
@@ -577,7 +577,7 @@ stdsptr<BoxRenderData> BoundingBox::queExternalRender(
     renderData->fParentIsTarget = false;
     renderData->fForceRasterize = forceRasterize;
     const auto parentM = getInheritedTransformAtFrame(relFrame);
-    setupRenderData(relFrame, parentM, renderData.get(), getParentScene());
+    setupRenderData(relFrame, parentM, renderData.get());
     renderData->queTask();
     return renderData;
 }
@@ -586,7 +586,7 @@ stdsptr<BoxRenderData> BoundingBox::queRender(
         const qreal relFrame, const QMatrix& parentM) {
     const auto renderData = updateCurrentRenderData(relFrame);
     if(!renderData) return nullptr;
-    setupRenderData(relFrame, parentM, renderData, getParentScene());
+    setupRenderData(relFrame, parentM, renderData);
     const auto renderDataSPtr = enve::shared(renderData);
     renderDataSPtr->queTask();
     return renderDataSPtr;
@@ -791,45 +791,45 @@ void BoundingBox::setupCanvasMenu(PropertyMenu * const menu)
     if (menu->hasActionsForType<BoundingBox>()) { return; }
     menu->addedActionsForType<BoundingBox>();
 
-    const auto pScene = getParentScene();
-    Q_ASSERT(pScene);
+    //const auto pScene = getParentScene();
+    /*Q_ASSERT(pScene);
 
     menu->addPlainAction(QIcon::fromTheme("linked"), tr("Create Link"), [pScene]() {
-        pScene->createLinkBoxForSelected();
+        //pScene->createLinkBoxForSelected();
     });
     menu->addPlainAction(QIcon::fromTheme("pivot-align-center"), tr("Center Pivot"), [pScene]() {
-        pScene->centerPivotForSelected();
+        //pScene->centerPivotForSelected();
     });
 
     menu->addSeparator();
 
     menu->addPlainAction(QIcon::fromTheme("copy"), tr("Copy"), [pScene]() {
-        pScene->copyAction();
+        //pScene->copyAction();
     })->setShortcut(Qt::CTRL + Qt::Key_C);
 
     menu->addPlainAction(QIcon::fromTheme("cut"), tr("Cut"), [pScene]() {
-        pScene->cutAction();
+        //pScene->cutAction();
     })->setShortcut(Qt::CTRL + Qt::Key_X);
 
     menu->addPlainAction(QIcon::fromTheme("duplicate"), tr("Duplicate"), [pScene]() {
-        pScene->duplicateAction();
+        //pScene->duplicateAction();
     })->setShortcut(Qt::CTRL + Qt::Key_D);
 
     menu->addPlainAction(QIcon::fromTheme("trash"), tr("Delete"), [pScene]() {
-        pScene->removeSelectedBoxesAndClearList();
+        //pScene->removeSelectedBoxesAndClearList();
     })->setShortcut(Qt::Key_Delete);
 
     menu->addSeparator();
 
     menu->addPlainAction(QIcon::fromTheme("group"), tr("Group"), [pScene]() {
-        pScene->groupSelectedBoxes();
+        //pScene->groupSelectedBoxes();
     })->setShortcut(Qt::CTRL + Qt::Key_G);
 
     menu->addSeparator();
 
     const auto rasterEffectsMenu = menu->addMenu(QIcon::fromTheme("effect"), tr("Raster Effects"));
     RasterEffectMenuCreator::addEffects(
-                rasterEffectsMenu, &BoundingBox::addRasterEffect);
+                rasterEffectsMenu, &BoundingBox::addRasterEffect);*/
 }
 
 void BoundingBox::alignGeometry(const QRectF& geometry,
@@ -1042,16 +1042,16 @@ void BoundingBox::finishTransform() {
 
 void BoundingBox::setupRenderData(const qreal relFrame,
                                   const QMatrix& parentM,
-                                  BoxRenderData * const data,
-                                  Scene* const scene) {
+                                  BoxRenderData * const data) {
+    auto scene = getParentScene();
     setupWithoutRasterEffects(relFrame, parentM, data, scene);
     setupRasterEffects(relFrame, data, scene);
 }
 
 void BoundingBox::setupWithoutRasterEffects(const qreal relFrame,
                                             const QMatrix& parentM,
-                                            BoxRenderData * const data,
-                                            Scene* const scene) {
+                                            BoxRenderData * const data) {
+    auto scene = getParentScene();
     //Q_ASSERT(scene);
     if(!scene) return;
 
@@ -1063,7 +1063,7 @@ void BoundingBox::setupWithoutRasterEffects(const qreal relFrame,
     data->fInheritedTransform = parentM;
     data->fTotalTransform = thisRelM*parentM;
 
-    data->fResolution = scene->getResolution();
+    data->fResolution = 0.5; // TODO(kaixoo)
     data->fResolutionScale.reset();
     data->fResolutionScale.scale(data->fResolution, data->fResolution);
     data->fOpacity = getOpacity(relFrame);
@@ -1074,15 +1074,15 @@ void BoundingBox::setupWithoutRasterEffects(const qreal relFrame,
         const auto parent = getParentGroup();
         QRectF maxBoundsF;
         if(parent) maxBoundsF = parent->currentGlobalBounds();
-        else maxBoundsF = scene->getCurrentBounds();
+        /*else maxBoundsF = scene->getCurrentBounds();
         const QRectF scaledMaxBoundsF = data->fResolutionScale.mapRect(maxBoundsF);
-        data->fMaxBoundsRect = scaledMaxBoundsF.toAlignedRect();
+        data->fMaxBoundsRect = scaledMaxBoundsF.toAlignedRect();*/
     }
 }
 
 void BoundingBox::setupRasterEffects(const qreal relFrame,
-                                     BoxRenderData * const data,
-                                     Scene* const scene) {
+                                     BoxRenderData * const data) {
+    auto scene = getParentScene();
     //Q_ASSERT(scene);
     if(!scene) return;
     const bool effectsVisible = scene->getRasterEffectsVisible();
@@ -1291,16 +1291,16 @@ void BoundingBox::prp_setupTreeViewMenu(PropertyMenu * const menu)
         PropertyNameDialog::sRenameBox(this, parentWidget);
     });
 
-    const auto pScene = getParentScene();
+    /*const auto pScene = getParentScene();
     if (pScene) {
         menu->addPlainAction(QIcon::fromTheme("trash"), tr("Delete"), [pScene]() {
             /*const int ask = QMessageBox::question(nullptr,
                                                   tr("Delete?"),
                                                   tr("Are you sure you want to delete selected item(s)?"));
             if (ask != QMessageBox::Yes) { return; }*/
-            pScene->removeSelectedBoxesAndClearList();
-        })->setShortcut(Qt::Key_Delete);
-    }
+            //pScene->removeSelectedBoxesAndClearList();
+            /*})->setShortcut(Qt::Key_Delete);
+    }*/
 
     menu->addSeparator();
     {

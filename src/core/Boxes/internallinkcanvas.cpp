@@ -38,10 +38,10 @@ InternalLinkCanvas::InternalLinkCanvas(ContainerBox * const linkTarget,
 }
 
 void InternalLinkCanvas::enableFrameRemappingAction() {
-    const auto finalTarget = static_cast<Scene*>(getFinalTarget());
+    /*const auto finalTarget = static_cast<Scene*>(getFinalTarget());
     const int minFrame = finalTarget->getMinFrame();
     const int maxFrame = finalTarget->getMaxFrame();
-    mFrameRemapping->enableAction(minFrame, maxFrame, minFrame);
+    mFrameRemapping->enableAction(minFrame, maxFrame, minFrame);*/
 }
 
 void InternalLinkCanvas::disableFrameRemappingAction() {
@@ -65,10 +65,10 @@ void InternalLinkCanvas::prp_setupTreeViewMenu(PropertyMenu * const menu) {
 
 void InternalLinkCanvas::setupRenderData(const qreal relFrame,
                                          const QMatrix& parentM,
-                                         BoxRenderData * const data,
-                                         Scene* const scene) {
+                                         BoxRenderData * const data
+) {
     {
-        BoundingBox::setupRenderData(relFrame, parentM, data, scene);
+        BoundingBox::setupRenderData(relFrame, parentM, data);
         const qreal remapped = mFrameRemapping->frame(relFrame);
         const auto thisM = getTotalTransformAtFrame(relFrame);
         processChildrenData(remapped, thisM, data, scene);

@@ -62,6 +62,9 @@ public:
 
     void setCurrentFrame(int frame) { _currentFrame = frame; };
 
+public:
+    bool getRasterEffectsVisible() const { return _rasterEffectsVisible; };
+public:
     // Import / export
 
     // TODO(kaixoo):
@@ -86,13 +89,15 @@ private:
     qptr<ContainerBox> _currentGroup;
 
     QString _name;
-    qreal _resolution = 0.5;
 
     qreal _fps;
     qreal _canvasWidth;
     qreal _canvasHeight;
 
     int _currentFrame;
+
+private:
+    bool _rasterEffectsVisible;
 };
 
 #endif // FRICTION_CORE_BOXES_SCENE_H

@@ -199,12 +199,6 @@ NullObject::NullObject() : BoundingBox("null object", eBoxType::nullObject) {
     ca_addChild(mType);
     ca_addChild(mColor);
     ca_addChild(mSize);
-
-    connect(this, &BoundingBox::prp_sceneChanged,
-            this, [this](Scene* const oldS, Scene* const newS) {
-        if(oldS) oldS->removeNullObject(this);
-        if(newS) newS->addNullObject(this);
-    });
 }
 
 bool NullObject::relPointInsidePath(const QPointF &relPos) const {

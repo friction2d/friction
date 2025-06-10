@@ -36,8 +36,7 @@ protected:
                        const bool innerLink);
 public:
     void setupRenderData(const qreal relFrame, const QMatrix& parentM,
-                         BoxRenderData * const data,
-                         Scene * const scene);
+                         BoxRenderData * const data);
 
     qsptr<BoundingBox> createLink(const bool inner);
 

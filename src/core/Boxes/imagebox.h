@@ -54,8 +54,7 @@ public:
     void setupCanvasMenu(PropertyMenu * const menu);
 
     void setupRenderData(const qreal relFrame, const QMatrix& parentM,
-                         BoxRenderData * const data,
-                         Scene * const scene);
+                         BoxRenderData * const data);
     stdsptr<BoxRenderData> createRenderData();
 
     void writeBoundingBox(eWriteStream& dst) const;

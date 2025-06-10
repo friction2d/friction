@@ -40,7 +40,7 @@ public:
 protected:
     stdsptr<eHddTask> createTmpFileDataLoader();
 private:
-    const qptr<Canvas> mScene;
+    const qptr<Scene> mScene;
 };
 
 #endif // SCENEFRAMECONTAINER_H

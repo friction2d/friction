@@ -178,12 +178,12 @@ void VideoBox::soundDataChanged()
     const auto durRect = getDurationRectangle();
     if (soundHandler) {
         if (!mSound->SWT_isVisible()) {
-            if (pScene) { pScene->getSoundComposition()->addSound(mSound); }
+            //if (pScene) { pScene->getSoundComposition()->addSound(mSound); }
         }
         durRect->setSoundCacheHandler(&soundHandler->getCacheHandler());
     } else {
         if (mSound->SWT_isVisible()) {
-            if (pScene) { pScene->getSoundComposition()->removeSound(mSound); }
+            //if (pScene) { pScene->getSoundComposition()->removeSound(mSound); }
         }
         durRect->setSoundCacheHandler(nullptr);
     }
