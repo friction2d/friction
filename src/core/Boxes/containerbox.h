@@ -69,8 +69,7 @@ public:
     stdsptr<BoxRenderData> createRenderData();
     void setupRenderData(const qreal relFrame,
                          const QMatrix& parentM,
-                         BoxRenderData * const data,
-                         Scene * const scene);
+                         BoxRenderData * const data);
     void processChildrenData(const qreal relFrame,
                              const QMatrix& thisM,
                              BoxRenderData* const data,
