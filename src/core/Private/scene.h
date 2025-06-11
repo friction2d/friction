@@ -56,9 +56,18 @@ public:
     int currentFrame() const { return _currentFrame; };
 
     void setName(QString name) { _name = name; };
-    void setFps(qreal fps) { _fps = fps; }
-    void setCanvasWidth(qreal width) { _canvasWidth = width; };
-    void setCanvasHeight(qreal height) { _canvasHeight = height; };
+    void setFps(qreal fps) {
+        _fps = fps;
+        emit fpsChanged(_fps);
+    };
+    void setCanvasWidth(qreal width) {
+        _canvasWidth = width;
+        emit dimensionsChanged(_canvasWidth, _canvasHeight);
+    };
+    void setCanvasHeight(qreal height) {
+        _canvasHeight = height;
+        emit dimensionsChanged(_canvasWidth, _canvasHeight);
+    };
 
     void setCurrentFrame(int frame) { _currentFrame = frame; };
 
@@ -89,6 +98,10 @@ public:
             const QString& name, eBoxOrSound * const skip = nullptr);
     QString makeNameUniqueForContained(
             const QString& name, eBoxOrSound * const skip = nullptr);
+
+signals:
+    void dimensionsChanged(int, int);
+    void fpsChanged(qreal);
 
 private:
     qptr<ContainerBox> _currentGroup;

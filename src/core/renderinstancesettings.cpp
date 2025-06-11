@@ -27,13 +27,13 @@
 #include "Private/scene.h"
 #include "simpletask.h"
 
-RenderInstanceSettings::RenderInstanceSettings(Scene* canvas) {
-    setTargetCanvas(canvas);
+RenderInstanceSettings::RenderInstanceSettings(Scene* scene) {
+    setTargetScene(scene);
 }
 
 RenderInstanceSettings::RenderInstanceSettings(const RenderInstanceSettings &src) :
     QObject() {
-    setTargetCanvas(src.getTargetCanvas());
+    setTargetScene(src.getTargetScene());
     mOutputDestination = src.mOutputDestination;
     mOutputSettingsProfile = src.mOutputSettingsProfile;
     mRenderSettings = src.mRenderSettings;
@@ -41,7 +41,7 @@ RenderInstanceSettings::RenderInstanceSettings(const RenderInstanceSettings &src
 }
 
 QString RenderInstanceSettings::getName() {
-    return mTargetCanvas ? mTargetCanvas->prp_getName() : "-none-";
+    return mTargetScene ? mTargetScene->name() : "-none-";
 }
 
 void RenderInstanceSettings::setOutputDestination(
@@ -53,25 +53,25 @@ const QString &RenderInstanceSettings::getOutputDestination() const {
     return mOutputDestination;
 }
 
-void RenderInstanceSettings::setTargetCanvas(
-        Scene *canvas, const bool copySceneSettings) {
-    const auto oldCanvas = *mTargetCanvas;
-    auto& conn = mTargetCanvas.assign(canvas);
-    if(canvas) {
-        if(!oldCanvas && copySceneSettings) {
-            const auto frameRange = canvas->getFrameRange();
+void RenderInstanceSettings::setTargetScene(
+        Scene *scene, const bool copySceneSettings) {
+    const auto oldScene = *mTargetScene;
+    auto& conn = mTargetScene.assign(scene);
+    if(scene) {
+        if(!oldScene && copySceneSettings) {
+            const auto frameRange = scene->getFrameRange();
             mRenderSettings.fMinFrame = frameRange.fMin;
             mRenderSettings.fMaxFrame = frameRange.fMax;
-            mRenderSettings.fBaseWidth = canvas->getCanvasWidth();
-            mRenderSettings.fBaseHeight = canvas->getCanvasHeight();
+            mRenderSettings.fBaseWidth = scene->canvasWidth();
+            mRenderSettings.fBaseHeight = scene->canvasHeight();
             mRenderSettings.fVideoWidth = qRound(mRenderSettings.fBaseWidth*
                                                  mRenderSettings.fResolution);
             mRenderSettings.fVideoHeight = qRound(mRenderSettings.fBaseHeight*
                                                   mRenderSettings.fResolution);
-            mRenderSettings.fBaseFps = canvas->getFps();
+            mRenderSettings.fBaseFps = scene->fps();
             mRenderSettings.fFps = mRenderSettings.fBaseFps;
         }
-        conn << connect(canvas, &Canvas::dimensionsChanged,
+        conn << connect(scene, &Scene::dimensionsChanged,
                         this, [this](const int width, const int height) {
             mRenderSettings.fBaseWidth = width;
             mRenderSettings.fBaseHeight = height;
@@ -80,7 +80,7 @@ void RenderInstanceSettings::setTargetCanvas(
             mRenderSettings.fVideoHeight = qRound(mRenderSettings.fBaseHeight*
                                                   mRenderSettings.fResolution);
         });
-        conn << connect(canvas, &Canvas::fpsChanged,
+        conn << connect(scene, &Scene::fpsChanged,
                         this, [this](const qreal fps) {
             mRenderSettings.fBaseFps = fps;
             mRenderSettings.fFps = mRenderSettings.fBaseFps;
@@ -88,8 +88,8 @@ void RenderInstanceSettings::setTargetCanvas(
     }
 }
 
-Scene *RenderInstanceSettings::getTargetCanvas() const {
-    return mTargetCanvas;
+Scene *RenderInstanceSettings::getTargetScene() const {
+    return mTargetScene;
 }
 
 void RenderInstanceSettings::setCurrentRenderFrame(
@@ -171,9 +171,9 @@ void RenderInstanceSettings::write(eWriteStream &dst) const {
     int targetWriteId = -1;
     int targetDocumentId = -1;
 
-    if(mTargetCanvas) {
-        targetWriteId = mTargetCanvas->getWriteId();
-        targetDocumentId = mTargetCanvas->getDocumentId();
+    if(mTargetScene) {
+        targetWriteId = mTargetScene->getWriteId();
+        targetDocumentId = mTargetScene->getDocumentId();
     }
     dst << targetWriteId;
     dst << targetDocumentId;
@@ -198,7 +198,7 @@ void RenderInstanceSettings::read(eReadStream &src) {
     int targetDocumentId;
     src >> targetDocumentId;
     if(targetReadId != -1 && targetDocumentId != -1) {
-        mTargetCanvas.assign(nullptr);
+        mTargetScene.assign(nullptr);
         src.addReadStreamDoneTask([this, targetReadId, targetDocumentId]
                                   (eReadStream& src) {
             BoundingBox* box = nullptr;
@@ -207,7 +207,7 @@ void RenderInstanceSettings::read(eReadStream &src) {
              if(!box && targetDocumentId != -1)
                  box = BoundingBox::sGetBoxByDocumentId(targetDocumentId);
              if(const auto scene = enve_cast<Scene*>(box))
-                 setTargetCanvas(scene, false);
+                 setTargetScene(scene, false);
         });
     }
 
