@@ -51,7 +51,6 @@ class ComplexAnimator;
 class eBoxOrSound;
 class BoundingBox;
 class ContainerBox;
-class Scene;
 class InternalLinkBox;
 class PathBox;
 //class PaintBox;
