@@ -24,12 +24,12 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "pathpivot.h"
-#include "canvas.h"
+#include "Private/scene.h"
 #include "pointhelpers.h"
 #include "Animators/transformanimator.h"
 #include "themesupport.h"
 
-PathPivot::PathPivot(const Canvas * const parent) :
+PathPivot::PathPivot(const Scene * const parent) :
     NonAnimatedMovablePoint(parent->getTransformAnimator(),
                             TYPE_PIVOT_POINT),
     mCanvas(parent) {

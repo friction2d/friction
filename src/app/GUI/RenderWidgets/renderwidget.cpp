@@ -24,7 +24,7 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "renderwidget.h"
-#include "canvas.h"
+#include "Private/scene.h"
 #include "GUI/global.h"
 #include "renderinstancewidget.h"
 #include "optimalscrollarena/scrollarea.h"
@@ -176,9 +176,9 @@ RenderWidget::RenderWidget(QWidget *parent)
             this, &RenderWidget::sendNextForRender);
 }
 
-void RenderWidget::createNewRenderInstanceWidgetForCanvas(Canvas *canvas)
+void RenderWidget::createNewRenderInstanceWidgetForCanvas(Scene *scene)
 {
-    const auto wid = new RenderInstanceWidget(canvas, this);
+    const auto wid = new RenderInstanceWidget(scene, this);
     addRenderInstanceWidget(wid);
 }
 
@@ -313,7 +313,7 @@ void RenderWidget::render(RenderInstanceSettings &settings)
     mCurrentRenderedSettings = &settings;
 
     // the scene we want to render MUST be current if multiple scenes are in queue
-    const auto scene = mCurrentRenderedSettings->getTargetCanvas();
+    const auto scene = mCurrentRenderedSettings->getTargetScene();
     if (scene) {
         const auto handler = MainWindow::sGetInstance()->getLayoutHandler();
         const int index = handler->getSceneId(scene);
@@ -366,7 +366,7 @@ void RenderWidget::sendNextForRender()
 {
     if (mAwaitingSettings.isEmpty()) { return; }
     const auto wid = mAwaitingSettings.takeFirst();
-    if (wid->isChecked() && wid->getSettings().getTargetCanvas()) {
+    if (wid->isChecked() && wid->getSettings().getTargetScene()) {
         //disableButtons();
         wid->setDisabled(true);
         render(wid->getSettings());

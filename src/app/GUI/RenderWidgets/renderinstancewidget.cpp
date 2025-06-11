@@ -26,7 +26,7 @@
 #include "renderinstancewidget.h"
 #include "GUI/global.h"
 #include <QMenu>
-#include "canvas.h"
+#include "Private/scene.h"
 #include "outputsettingsdialog.h"
 #include "outputsettingsprofilesdialog.h"
 #include "outputsettingsdisplaywidget.h"
@@ -40,8 +40,8 @@
 #include <QMessageBox>
 
 RenderInstanceWidget::RenderInstanceWidget(
-        Canvas *canvas, QWidget *parent) :
-    ClosableContainer(parent), mSettings(canvas) {
+        Scene *scene, QWidget *parent) :
+    ClosableContainer(parent), mSettings(scene) {
     iniGUI();
     connect(&mSettings, &RenderInstanceSettings::stateChanged,
             this, &RenderInstanceWidget::updateFromSettings);
@@ -261,7 +261,7 @@ void RenderInstanceWidget::updateFromSettings() {
     mOutputSettingsDisplayWidget->setOutputSettings(outputSettings);
 
     const RenderSettings &renderSettings = mSettings.getRenderSettings();
-    mRenderSettingsDisplayWidget->setRenderSettings(mSettings.getTargetCanvas(),
+    mRenderSettingsDisplayWidget->setRenderSettings(mSettings.getTargetScene(),
                                                     renderSettings);
 }
 
@@ -434,7 +434,7 @@ void RenderInstanceWidget::openRenderSettingsDialog() {
     if(dialog->exec()) {
         const RenderSettings sett = dialog->getSettings();
         mSettings.setRenderSettings(sett);
-        mSettings.setTargetCanvas(dialog->getCurrentScene());
+        mSettings.setTargetScene(dialog->getCurrentScene());
         updateFromSettings();
     }
     delete dialog;
@@ -476,10 +476,10 @@ void RenderInstanceWidget::read(eReadStream &src) {
 void RenderInstanceWidget::updateRenderSettings()
 {
     const RenderSettings &renderSettings = mSettings.getRenderSettings();
-    mRenderSettingsDisplayWidget->setRenderSettings(mSettings.getTargetCanvas(),
+    mRenderSettingsDisplayWidget->setRenderSettings(mSettings.getTargetScene(),
                                                     renderSettings);
-    if (mSettings.getTargetCanvas()) {
-        const auto label = mSettings.getTargetCanvas()->prp_getName();
+    if (mSettings.getTargetScene()) {
+        const auto label = mSettings.getTargetScene()->name();
         if (!label.isEmpty()) { mNameLabel->setText(label); }
     }
     updateFromSettings();

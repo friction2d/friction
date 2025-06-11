@@ -28,7 +28,7 @@
 #include "../canvas.h"
 
 SceneFrameContainer::SceneFrameContainer(
-        Canvas * const scene,
+        Scene * const scene,
         const BoxRenderData * const data,
         const FrameRange &range,
         HddCachableCacheHandler * const parent) :

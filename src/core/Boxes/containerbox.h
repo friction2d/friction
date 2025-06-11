@@ -69,12 +69,11 @@ public:
     stdsptr<BoxRenderData> createRenderData();
     void setupRenderData(const qreal relFrame,
                          const QMatrix& parentM,
-                         BoxRenderData * const data,
-                         Canvas * const scene);
+                         BoxRenderData * const data);
     void processChildrenData(const qreal relFrame,
                              const QMatrix& thisM,
                              BoxRenderData* const data,
-                             Canvas* const scene);
+                             Scene* const scene);
 
     virtual BoundingBox *getBoxAt(const QPointF &absPos);
 
@@ -287,7 +286,7 @@ private:
     void removeContained(const qsptr<eBoxOrSound> &child);
 
     QMargins mForcedMargin;
-    
+
     bool mIsLayer = false;
     bool mIsCurrentGroup = false;
     bool mIsDescendantCurrentGroup = false;

@@ -35,7 +35,7 @@
 
 class Gradient;
 class GradientWidget;
-class Canvas;
+class Scene;
 
 class UI_EXPORT DisplayedGradientsWidget : public GLWidget
 {
@@ -44,7 +44,7 @@ class UI_EXPORT DisplayedGradientsWidget : public GLWidget
 public:
     explicit DisplayedGradientsWidget(QWidget *parent = nullptr);
 
-    void setScene(Canvas* const scene);
+    void setScene(Scene* const scene);
 
     void incTop(const int inc);
     void setTop(const int top);

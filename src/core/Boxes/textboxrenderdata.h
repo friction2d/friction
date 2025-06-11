@@ -53,7 +53,7 @@ public:
                     const QString &letter,
                     const SkFont &font,
                     TextBox * const parent,
-                    Canvas * const scene);
+                    Scene * const scene);
 
     void applyTransform(const QMatrix& transform);
 
@@ -77,7 +77,7 @@ public:
                     const SkFont &font,
                     const qreal letterSpacing,
                     TextBox * const parent,
-                    Canvas * const scene);
+                    Scene * const scene);
 
     void applyTransform(const QMatrix &transform);
     void queAllLetters();
@@ -99,7 +99,7 @@ public:
                     const qreal letterSpacing,
                     const qreal wordSpacing,
                     TextBox * const parent,
-                    Canvas * const scene);
+                    Scene * const scene);
 
     void applyTransform(const QMatrix &transform);
     void queAllWords();
@@ -122,7 +122,7 @@ public:
                     const Qt::Alignment hAlignment,
                     const Qt::Alignment vAlignment,
                     TextBox * const parent,
-                    Canvas * const scene);
+                    Scene * const scene);
 
     void queAllLines();
 

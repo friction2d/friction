@@ -31,7 +31,7 @@
 #include "appsupport.h"
 #include "Private/esettings.h"
 #include "Private/document.h"
-#include "canvas.h"
+#include "Private/scene.h"
 
 #include <QResizeEvent>
 #include <QWindow>

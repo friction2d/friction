@@ -30,7 +30,7 @@
 #include "skia/skiaincludes.h"
 #include "PathEffects/patheffect.h"
 #include "PathEffects/patheffectcollection.h"
-#include "canvas.h"
+#include "Private/scene.h"
 #include "Animators/transformanimator.h"
 #include "paintsettingsapplier.h"
 #include "Animators/gradient.h"
@@ -147,10 +147,9 @@ HardwareSupport PathBox::hardwareSupport() const {
 }
 
 void PathBox::setupRenderData(const qreal relFrame, const QMatrix& parentM,
-                              BoxRenderData * const data,
-                              Canvas* const scene) {
+                              BoxRenderData * const data) {
     if(!scene) return;
-    BoundingBox::setupRenderData(relFrame, parentM, data, scene);
+    BoundingBox::setupRenderData(relFrame, parentM, data);
 
     bool currentEditPathCompatible = false;
     bool currentPathCompatible = false;
@@ -241,7 +240,7 @@ void PathBox::setupRenderData(const qreal relFrame, const QMatrix& parentM,
 }
 
 void PathBox::addPathEffects(
-        const qreal relFrame, Canvas* const scene,
+        const qreal relFrame, Scene* const scene,
         PathEffectsCList& pathEffects,
         PathEffectsCList& fillEffects,
         PathEffectsCList& outlineBaseEffects,

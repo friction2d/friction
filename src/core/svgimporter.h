@@ -30,7 +30,7 @@
 
 class BoundingBox;
 class Gradient;
-class Canvas;
+class Scene;
 class QDomDocument;
 
 using GradientCreator = std::function<Gradient*()>;

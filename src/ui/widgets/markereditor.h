@@ -30,7 +30,7 @@
 #include <QWidget>
 #include <QTreeWidget>
 
-#include "canvas.h"
+#include "Private/scene.h"
 
 namespace Friction
 {
@@ -40,14 +40,14 @@ namespace Friction
         {
             Q_OBJECT
         public:
-            explicit MarkerEditor(Canvas *scene = nullptr,
+            explicit MarkerEditor(Scene *scene = nullptr,
                                   QWidget *parent = nullptr);
             void addMarker();
             void removeMarker();
-            void clearMarkers(); 
+            void clearMarkers();
 
         private:
-            Canvas *mScene;
+            Scene *mScene;
             QTreeWidget *mTree;
 
             void setup();

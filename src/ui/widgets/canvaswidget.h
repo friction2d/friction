@@ -23,9 +23,29 @@
 
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
-#include "timelinebasewrappernode.h"
+#ifndef CANVAS_WIDGET_H
+#define CANVAS_WIDGET_H
 
-TimelineBaseWrapperNode::TimelineBaseWrapperNode() :
-    BaseWrapperNode("TimelineLayout", [](Canvas* const scene) {
-        return new TimelineWrapperNode(scene);
-    }) {}
+#include "ui_global.h"
+#include "ViewLayers/basecanvas.h"
+#include "glwindow.h"
+
+class UI_EXPORT CanvasWidget : public GLWindow {
+public:
+    CanvasWidget(BaseCanvas *baseCanvas)
+        : _baseCanvas(baseCanvas) {};
+
+    // Mouse events
+    void mousePressEvent(QMouseEvent *e);
+    void mouseReleaseEvent(QMouseEvent *e);
+    void mouseMoveEvent(QMouseEvent *e);
+    void mouseDoubleClickEvent(QMouseEvent *e);
+
+protected:
+    void renderSk(SkCanvas* canvas);
+
+private:
+    BaseCanvas* _baseCanvas;
+}
+
+#endif // CANVAS_WIDGET_H

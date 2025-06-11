@@ -26,7 +26,7 @@
 #include "Boxes/textbox.h"
 #include <QInputDialog>
 #include <QMenu>
-#include "canvas.h"
+#include "Private/scene.h"
 #include "Animators/gradientpoints.h"
 #include "Animators/qstringanimator.h"
 #include "RasterEffects/rastereffectcollection.h"
@@ -213,12 +213,11 @@ stdsptr<BoxRenderData> TextBox::createRenderData() {
 }
 
 void TextBox::setupRenderData(const qreal relFrame, const QMatrix& parentM,
-                              BoxRenderData * const data,
-                              Canvas * const scene) {
+                              BoxRenderData * const data) {
     if(!mTextEffects->hasEffects()) {
-        return PathBox::setupRenderData(relFrame, parentM, data, scene);
+        return PathBox::setupRenderData(relFrame, parentM, data);
     }
-    BoundingBox::setupRenderData(relFrame, parentM, data, scene);
+    BoundingBox::setupRenderData(relFrame, parentM, data);
 
     const QString textAtFrame = mText->getValueAtRelFrame(relFrame);
 

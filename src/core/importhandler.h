@@ -36,7 +36,7 @@ public:
     virtual bool supports(const QFileInfo& fileInfo) const = 0;
     //! @brief Can return nullptr.
     virtual qsptr<BoundingBox> import(const QFileInfo& fileInfo,
-                                      Canvas* const scene) const = 0;
+                                      Scene* const scene) const = 0;
 private:
 };
 
@@ -51,7 +51,7 @@ public:
         mImporters << std::make_shared<T>();
     }
 
-    qsptr<BoundingBox> import(const QString& path, Canvas* const scene) const;
+    qsptr<BoundingBox> import(const QString& path, Scene* const scene) const;
 private:
     QList<std::shared_ptr<eImporter>> mImporters;
 };

@@ -25,7 +25,7 @@
 
 #include "imagecachecontainer.h"
 #include "tmpdeleter.h"
-#include "canvas.h"
+#include "Private/scene.h"
 #include "skia/skiahelpers.h"
 
 ImageCacheContainer::ImageCacheContainer(const FrameRange &range,

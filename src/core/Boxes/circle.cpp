@@ -24,7 +24,7 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "Boxes/circle.h"
-#include "canvas.h"
+#include "Private/scene.h"
 #include "MovablePoints/movablepoint.h"
 #include "Animators/gradientpoints.h"
 #include "Animators/transformanimator.h"

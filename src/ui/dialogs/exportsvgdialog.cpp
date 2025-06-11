@@ -24,7 +24,7 @@
 #include "Private/document.h"
 #include "widgets/scenechooser.h"
 #include "GUI/global.h"
-#include "canvas.h"
+#include "Private/scene.h"
 #include "svgexporter.h"
 #include "GUI/edialogs.h"
 #include "widgets/twocolumnlayout.h"
@@ -292,7 +292,7 @@ ExportSvgDialog::ExportSvgDialog(QWidget* const parent,
     mPreviewButton->setEnabled(scene);
     buttonExport->setEnabled(scene);
     connect(mScene, &SceneChooser::currentChanged,
-            this, [this, sceneButton, buttonExport](Canvas* const scene) {
+            this, [this, sceneButton, buttonExport](Scene* const scene) {
         buttonExport->setEnabled(scene);
         mPreviewButton->setEnabled(scene);
         sceneButton->setText(mScene->title());

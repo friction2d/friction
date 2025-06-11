@@ -25,7 +25,7 @@
 
 #include "scenechooser.h"
 #include "Private/document.h"
-#include "canvas.h"
+#include "Private/scene.h"
 
 SceneChooser::SceneChooser(Document& document, const bool active,
                            QWidget* const parent) :
@@ -38,18 +38,18 @@ SceneChooser::SceneChooser(Document& document, const bool active,
                 this, [this](const bool active) {
             if(active) {
                 connect(&mDocument, &Document::activeSceneSet,
-                        this, qOverload<Canvas*>(&SceneChooser::setCurrentScene));
+                        this, qOverload<Scene*>(&SceneChooser::setCurrentScene));
                 setCurrentScene(mDocument.fActiveScene);
             } else {
                 disconnect(&mDocument, &Document::activeSceneSet,
-                           this, qOverload<Canvas*>(&SceneChooser::setCurrentScene));
+                           this, qOverload<Scene*>(&SceneChooser::setCurrentScene));
             }
         });
     }
     for(const auto& scene : mDocument.fScenes)
         addScene(scene.get());
 
-    connect(&mDocument, qOverload<Canvas*>(&Document::sceneRemoved),
+    connect(&mDocument, qOverload<Scene*>(&Document::sceneRemoved),
             this, &SceneChooser::removeScene);
     connect(&mDocument, &Document::sceneCreated,
             this, &SceneChooser::addScene);
@@ -57,7 +57,7 @@ SceneChooser::SceneChooser(Document& document, const bool active,
     if(isEmpty()) setDisabled(true);
 }
 
-void SceneChooser::addScene(Canvas * const scene) {
+void SceneChooser::addScene(Scene * const scene) {
     if(!scene) return;
     if(isEmpty()) setEnabled(true);
     const auto act = addAction(scene->prp_getName());
@@ -76,7 +76,7 @@ void SceneChooser::addScene(Canvas * const scene) {
     //if(!mCurrentScene) setCurrentScene(scene, act);
 }
 
-void SceneChooser::removeScene(Canvas * const scene) {
+void SceneChooser::removeScene(Scene * const scene) {
     const auto removeIt = mSceneToAct.find(scene);
     if(removeIt == mSceneToAct.end()) return;
     removeAction(removeIt->second);
@@ -90,7 +90,7 @@ void SceneChooser::removeScene(Canvas * const scene) {
     if(isEmpty()) setDisabled(true);
 }
 
-void SceneChooser::setCurrentScene(Canvas * const scene) {
+void SceneChooser::setCurrentScene(Scene * const scene) {
     if(scene == mCurrentScene) return;
     if(!scene) return setCurrentScene(nullptr, nullptr);
     const auto it = mSceneToAct.find(scene);
@@ -98,7 +98,7 @@ void SceneChooser::setCurrentScene(Canvas * const scene) {
     setCurrentScene(scene, it->second);
 }
 
-void SceneChooser::setCurrentScene(Canvas * const scene, QAction * const act) {
+void SceneChooser::setCurrentScene(Scene * const scene, QAction * const act) {
     if(scene == mCurrentScene) return;
     if(act) {
         act->setChecked(true);

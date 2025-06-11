@@ -30,7 +30,7 @@
 
 #include "Private/esettings.h"
 
-AdjustSceneDialog::AdjustSceneDialog(Canvas *scene,
+AdjustSceneDialog::AdjustSceneDialog(Scene *scene,
                                      const VideoBox::VideoSpecs &specs,
                                      QWidget *parent)
     : Friction::Ui::Dialog(parent)
@@ -74,9 +74,9 @@ AdjustSceneDialog::AdjustSceneDialog(Canvas *scene,
                                 QString::number(specs.dim.height()),
                                 QString::number(specs.fps),
                                 QString::number(specs.range.fMax),
-                                QString::number(scene->getCanvasWidth()),
-                                QString::number(scene->getCanvasHeight()),
-                                QString::number(scene->getFps()),
+                                QString::number(scene->canvasWidth()),
+                                QString::number(scene->canvasHeight()),
+                                QString::number(scene->fps()),
                                 QString::number(scene->getFrameRange().fMax),
                                 tr("Adjust scene to clip?"),
                                 tr("Dimension"),

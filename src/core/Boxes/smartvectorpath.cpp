@@ -25,7 +25,7 @@
 
 #include "smartvectorpath.h"
 #include <QPainter>
-#include "canvas.h"
+#include "Private/scene.h"
 #include <QDebug>
 #include "undoredo.h"
 #include "MovablePoints/pathpivot.h"

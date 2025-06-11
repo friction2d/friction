@@ -26,7 +26,7 @@
 #include "nullobject.h"
 
 #include "Animators/transformanimator.h"
-#include "canvas.h"
+#include "Private/scene.h"
 
 class NullObjectType : public ComboBoxProperty {
     enum class Type {
@@ -199,12 +199,6 @@ NullObject::NullObject() : BoundingBox("null object", eBoxType::nullObject) {
     ca_addChild(mType);
     ca_addChild(mColor);
     ca_addChild(mSize);
-
-    connect(this, &BoundingBox::prp_sceneChanged,
-            this, [this](Canvas* const oldS, Canvas* const newS) {
-        if(oldS) oldS->removeNullObject(this);
-        if(newS) newS->addNullObject(this);
-    });
 }
 
 bool NullObject::relPointInsidePath(const QPointF &relPos) const {

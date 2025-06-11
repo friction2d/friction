@@ -37,7 +37,8 @@ class QDropEvent;
 
 class PaintSettingsApplier;
 class Document;
-class Canvas;
+class Scene;
+class ViewLayerPreview;
 class QrealAction;
 class eBoxOrSound;
 class ContainerBox;
@@ -162,12 +163,14 @@ public:
     Action* undoAction;
     Action* redoAction;
 private:
-    void connectToActiveScene(Canvas* const scene);
+    void connectToActiveScene(Scene* const scene);
+    void setViewLayerPreview(ViewLayerPreview* const viewLayer);
     void afterAction() const;
 
     bool mSmoothChange = false;
     Document& mDocument;
-    ConnContextPtr<Canvas> mActiveScene;
+    ConnContextPtr<ViewLayerPreview> mActiveCanvas;
+    ConnContextPtr<Scene> mActiveScene;
 };
 
 #endif // ACTIONS_H

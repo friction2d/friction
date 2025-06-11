@@ -166,17 +166,12 @@ set(
     GUI/Settings/settingsdialog.cpp
     GUI/Settings/timelinesettingswidget.cpp
     GUI/Settings/pluginssettingswidget.cpp
-    GUI/canvasbasewrappernode.cpp
     GUI/canvaswindowevents.cpp
-    GUI/canvaswrappernode.cpp
     GUI/ekeyfilter.cpp
     GUI/ewidgetsimpl.cpp
-    GUI/layouthandler.cpp
-    GUI/timelinebasewrappernode.cpp
     GUI/timelinedockwidget.cpp
     GUI/timelinehighlightwidget.cpp
     GUI/timelinewidget.cpp
-    GUI/timelinewrappernode.cpp
     GUI/window.cpp
     effectsloader.cpp
     eimporters.cpp
@@ -218,16 +213,11 @@ set(
     GUI/Settings/settingsdialog.h
     GUI/Settings/timelinesettingswidget.h
     GUI/Settings/pluginssettingswidget.h
-    GUI/canvasbasewrappernode.h
-    GUI/canvaswrappernode.h
     GUI/ekeyfilter.h
     GUI/ewidgetsimpl.h
-    GUI/layouthandler.h
-    GUI/timelinebasewrappernode.h
     GUI/timelinedockwidget.h
     GUI/timelinehighlightwidget.h
     GUI/timelinewidget.h
-    GUI/timelinewrappernode.h
     effectsloader.h
     eimporters.h
     renderhandler.h

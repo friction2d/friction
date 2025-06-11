@@ -30,7 +30,7 @@
 
 #include "widgets/twocolumnlayout.h"
 #include "GUI/global.h"
-#include "canvas.h"
+#include "Private/scene.h"
 #include "Private/document.h"
 
 ApplyExpressionDialog::ApplyExpressionDialog(QrealAnimator* const target,

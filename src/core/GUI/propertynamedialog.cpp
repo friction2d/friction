@@ -5,7 +5,7 @@
 
 #include "Properties/property.h"
 #include "Boxes/boundingbox.h"
-#include "canvas.h"
+#include "Private/scene.h"
 
 PropertyNameDialog::PropertyNameDialog(
         const QString &initialValue,

@@ -28,14 +28,14 @@
 #include "MovablePoints/nonanimatedmovablepoint.h"
 #include "smartPointers/ememory.h"
 
-class Canvas;
+class Scene;
 
 enum class CanvasMode : short;
 
 class CORE_EXPORT PathPivot : public NonAnimatedMovablePoint {
     e_OBJECT
 protected:
-    PathPivot(const Canvas* const parent);
+    PathPivot(const Scene* const parent);
 public:
     void drawSk(SkCanvas * const canvas, const CanvasMode mode,
                 const float invScale, const bool keyOnCurrent,
@@ -48,7 +48,7 @@ public:
 
     void setMousePos(const QPointF& pos) { mMousePos = pos; }
 private:
-    const Canvas * const mCanvas = nullptr;
+    const Scene * const mCanvas = nullptr;
     QPointF mMousePos;
 };
 

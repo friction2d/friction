@@ -64,8 +64,7 @@ public:
     void drawHoveredSk(SkCanvas *canvas, const float invScale);
 
     void setupRenderData(const qreal relFrame, const QMatrix& parentM,
-                         BoxRenderData * const data,
-                         Canvas * const scene);
+                         BoxRenderData * const data);
     stdsptr<BoxRenderData> createRenderData() {
         return enve::make_shared<PathBoxRenderData>(this);
     }
@@ -74,7 +73,7 @@ public:
 
     typedef QList<stdsptr<PathEffectCaller>> PathEffectsCList;
     void addPathEffects(
-            const qreal relFrame, Canvas* const scene,
+            const qreal relFrame, Scene* const scene,
             PathEffectsCList &pathEffects,
             PathEffectsCList &fillEffects,
             PathEffectsCList &outlineBaseEffects,

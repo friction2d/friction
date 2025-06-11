@@ -1,5 +1,5 @@
 #include "rendersettingsdisplaywidget.h"
-#include "canvas.h"
+#include "Private/scene.h"
 #include "GUI/global.h"
 
 RenderSettingsDisplayWidget::RenderSettingsDisplayWidget(QWidget * const parent) :
@@ -34,7 +34,7 @@ RenderSettingsDisplayWidget::RenderSettingsDisplayWidget(QWidget * const parent)
 }
 
 void RenderSettingsDisplayWidget::setRenderSettings(
-        const Canvas * const scene,
+        const Scene * const scene,
         const RenderSettings &settings) {
     mSceneLabel->setText("<b>Scene:</b><br>" +
                          (scene ? scene->prp_getName() : "-none-"));
