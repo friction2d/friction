@@ -26,7 +26,8 @@
 #include "scene.h"
 
 
-Scene::Scene(QString sceneName, qreal canvasWidth, qreal canvasHeight, qreal fps) : _currentGroup(new ContainerBox(sceneName))
+Scene::Scene(QString sceneName, qreal canvasWidth, qreal canvasHeight, qreal fps)
+           : _currentGroup(new ContainerBox(sceneName))
            , _name(sceneName)
            , _canvasWidth(canvasWidth)
            , _canvasHeight(canvasHeight)
@@ -57,3 +58,19 @@ void Scene::writeAllContainedXEV(const stdsptr<XevZipFileSaver>& fileSaver,
                           const QString& path) const {
     _currentGroup.writeAllContainedXEV(fileSaver, objListIdConv, path);
 };
+
+QString Scene::makeNameUniqueForDescendants(
+        const QString &name, eBoxOrSound * const skip) {
+    return NameFixer::makeNameUnique(
+                name, [this, skip](const QString& name) {
+        return allDescendantsNamesStartingWith(name, skip);
+    });
+}
+
+QString ContainerBox::makeNameUniqueForContained(
+        const QString &name, eBoxOrSound * const skip) {
+    return NameFixer::makeNameUnique(
+                name, [this, skip](const QString& name) {
+        return allContainedNamesStartingWith(name, skip);
+    });
+}

@@ -85,6 +85,11 @@ public:
                               const RuntimeIdToWriteId& objListIdConv,
                               const QString& path) const;
 
+    QString makeNameUniqueForDescendants(
+            const QString& name, eBoxOrSound * const skip = nullptr);
+    QString makeNameUniqueForContained(
+            const QString& name, eBoxOrSound * const skip = nullptr);
+
 private:
     qptr<ContainerBox> _currentGroup;
 

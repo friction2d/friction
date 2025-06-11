@@ -114,6 +114,7 @@ public:
     void select();
     void deselect();
     bool isSelected() const { return mSelected; }
+    [[deprecated("This function previously handled selection in the canvas. It is now handled separately by `ViewLayers/ViewLayerSelection`.")]]
     void selectionChangeTriggered(const bool shiftPressed);
 
     void hide();

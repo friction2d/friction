@@ -199,7 +199,7 @@ void eBoxOrSound::drawDurationRectangle(
         const int width = qCeil(absFrameRange.span()*pixelsPerFrame);
         const QRect drawRect(0, 0, width, rowHeight);
         const auto pScene = getParentScene();
-        const qreal fps = pScene ? pScene->getFps() : 1;
+        const qreal fps = pScene ? pScene->fps() : 1;
         mDurationRectangle->draw(p, drawRect, fps,
                                  pixelsPerFrame, absFrameRange);
         p->restore();
@@ -367,8 +367,6 @@ DurationRectangle *eBoxOrSound::getDurationRectangle() const {
 
 void eBoxOrSound::createDurationRectangle() {
     const auto durRect = enve::make_shared<DurationRectangle>(*this);
-//    durRect->setMinFrame(0);
-//    if(mParentScene) durRect->setFramesDuration(mParentScene->getFrameCount());
     durRect->setMinRelFrame(anim_getCurrentRelFrame() - 5);
     durRect->setFramesDuration(10);
     setDurationRectangle(durRect);
@@ -390,20 +388,7 @@ void eBoxOrSound::deselect() {
 }
 
 void eBoxOrSound::selectionChangeTriggered(const bool shiftPressed) {
-    const auto pScene = getParentScene();
-    if(!pScene) return;
-    const auto bb = enve_cast<BoundingBox*>(this);
-    if(!bb) return;
-    if(shiftPressed) {
-        if(mSelected) {
-            pScene->removeBoxFromSelection(bb);
-        } else {
-            pScene->addBoxToSelection(bb);
-        }
-    } else {
-        pScene->clearBoxesSelection();
-        pScene->addBoxToSelection(bb);
-    }
+    // This code is deprecated.
 }
 
 void eBoxOrSound::setVisible(const bool visible) {
@@ -474,12 +459,6 @@ void eBoxOrSound::unlock() {
 
 void eBoxOrSound::setLocked(const bool locked) {
     if(locked == mLocked) return;
-    const auto pScene = getParentScene();
-    if(pScene && mSelected) {
-        if(const auto bb = enve_cast<BoundingBox*>(this)) {
-            pScene->removeBoxFromSelection(bb);
-        }
-    }
     mLocked = locked;
     SWT_scheduleContentUpdate(SWT_BoxRule::locked);
     SWT_scheduleContentUpdate(SWT_BoxRule::unlocked);
@@ -509,7 +488,7 @@ void eBoxOrSound::rename(const QString &newName) {
     if(parentScene) {
         const QString uniqueName = parentScene->
                 makeNameUniqueForDescendants(fixedName, this);
-        return prp_setNameAction(uniqueName);
+        return prp_setNameAction(fixedName);
     }
     prp_setNameAction(fixedName);
 }
