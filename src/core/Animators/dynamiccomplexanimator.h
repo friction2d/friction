@@ -30,6 +30,7 @@
 #include "typemenu.h"
 #include "Properties/emimedata.h"
 #include "namefixer.h"
+#include "clipboardcontainer.h"
 
 template <class T>
 class DynamicComplexAnimatorBase : public ComplexAnimator {
