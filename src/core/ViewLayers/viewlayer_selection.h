@@ -40,6 +40,8 @@ public:
     ViewLayerSelection(BaseCanvas *canvas);
     ~ViewLayerSelection() = default;
 
+    static ViewLayerSelection *sGetInstance() { return sInstance; }
+
     void repaint(SkCanvas * const canvas) override;
 
     // Mouse events
@@ -50,6 +52,8 @@ public:
 
 private:
     BaseCanvas *_baseCanvas;
+
+    static ViewLayerSelection *sInstance;
 
     bool _isCurrentlySelecting;
 

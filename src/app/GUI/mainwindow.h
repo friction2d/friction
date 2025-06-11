@@ -189,10 +189,6 @@ protected:
     ViewLayerPreview *mViewLayerPreview;
     ViewLayerSelection *mViewLayerSelection;
 
-public:
-    BaseCanvas *baseCanvas() const { return mBaseCanvas; };
-    ViewLayerRender *viewLayerRender() { return mViewLayerRender; };
-
 private:
     bool mShutdown;
     QWidget *mWelcomeDialog;

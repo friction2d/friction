@@ -40,7 +40,10 @@
 ViewLayerPreview::ViewLayerPreview(Document &document, BaseCanvas *canvas)
     : ViewLayer("preview_layer")
     , _baseCanvas(canvas)
-    , _document(document) {};
+    , _document(document) {
+    Q_ASSERT(!sInstance);
+    sInstance = this;
+};
 
 void ViewLayerPreview::repaint(SkCanvas * const canvas) {
 

@@ -38,7 +38,10 @@
 ViewLayerRender::ViewLayerRender(Document &document, BaseCanvas *canvas)
     : ViewLayer("render_layer")
     , _baseCanvas(canvas)
-    , _document(document) {};
+    , _document(document) {
+    Q_ASSERT(!sInstance);
+    sInstance = this;
+};
 
 void ViewLayerRender::repaint(SkCanvas * const canvas) {
 

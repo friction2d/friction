@@ -35,7 +35,10 @@
 
 ViewLayerSelection::ViewLayerSelection(BaseCanvas *canvas)
     : ViewLayer("selection_layer")
-    , _baseCanvas(canvas) {};
+    , _baseCanvas(canvas) {
+    Q_ASSERT(!sInstance);
+    sInstance = this;
+};
 
 void ViewLayerSelection::repaint(SkCanvas * const canvas) {
     canvas->restore();

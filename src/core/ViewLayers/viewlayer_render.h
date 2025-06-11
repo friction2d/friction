@@ -43,6 +43,8 @@ public:
     ViewLayerRender(Document &document, BaseCanvas *canvas);
     ~ViewLayerRender() = default;
 
+    static ViewLayerRender* sGetInstance() { return sInstance; };
+
     void repaint(SkCanvas * const canvas) override;
 
     void setSceneFrame(const int relFrame);
@@ -85,6 +87,7 @@ signals:
 private:
     BaseCanvas *_baseCanvas;
     Document &_document;
+    ViewLayerRender *sInstance;
 
     bool _isRenderingOutput;
 

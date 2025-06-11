@@ -40,6 +40,8 @@ public:
     ViewLayerPreview(Document &document, BaseCanvas *canvas);
     ~ViewLayerPreview() = default;
 
+    static ViewLayerPreview* sGetInstance() { return sInstance; };
+
     void repaint(SkCanvas * const canvas) override;
 
     // Mouse events
@@ -51,6 +53,8 @@ public:
 private:
     BaseCanvas *_baseCanvas;
     Document &_document;
+
+    static ViewLayerPreview *sInstance;
 
     // We draw the contained boxes (objects in the document) to the canvas
     void drawContainedBoxesToCanvas(SkCanvas * const canvas,
