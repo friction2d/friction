@@ -66,14 +66,14 @@ public:
     FrameRange getFrameRange() const { return _range; };
     int getMinFrame() const
     {
-        return mRange.fMin;
+        return _range.fMin;
     }
     int getMaxFrame() const
     {
-        return mRange.fMax;
+        return _range.fMax;
     }
 
-    const QList<BoundingBox*> &getContainedBoxes() const { return getCurrentGroup().getContainedBoxes(); };
+    const QList<BoundingBox*> &getContainedBoxes() { return getCurrentGroup().getContainedBoxes(); };
 
     // Setters
 
