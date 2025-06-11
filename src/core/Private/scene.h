@@ -29,9 +29,15 @@
 #include <string>
 #include <QThread>
 #include <QString>
+#include <QList>
+#include <QSize>
 
 #include "smartPointers/selfref.h"
 #include "Boxes/containerbox.h"
+#include "Boxes/boundingbox.h"
+// Selected properties
+#include "conncontextobjlist.h"
+#include "Properties/property.h"
 
 
 // Represents a scene in a Document (what Canvas used to be)
@@ -67,6 +73,8 @@ public:
         return mRange.fMax;
     }
 
+    const QList<BoundingBox*> &getContainedBoxes() const { return getCurrentGroup().getContainedBoxes(); };
+
     // Setters
 
     void setName(QString name) { _name = name; };
@@ -90,6 +98,28 @@ public:
     };
 
     void setCurrentFrame(int frame) { _currentFrame = frame; };
+
+    // Selected properties
+    // This is MAGIC, DO NOT TOUCH
+
+    void addToSelectedProps(Property* const prop) {
+        auto& conn = mSelectedProps.addObj(prop);
+        conn << connect(prop, &Property::prp_parentChanged,
+                        this, [this, prop]() { removeFromSelectedProps(prop); });
+        prop->prp_setSelected(true);
+    }
+
+    void removeFromSelectedProps(Property* const prop) {
+        mSelectedProps.removeObj(prop);
+        prop->prp_setSelected(false);
+    }
+
+    void clearSelectedProps() {
+        const auto selected = mSelectedProps.getList();
+        for(const auto prop : selected) {
+            removeFromSelectedProps(prop);
+        }
+    }
 
 public:
     bool getRasterEffectsVisible() const { return _rasterEffectsVisible; };
@@ -139,6 +169,9 @@ private:
 
 private:
     bool _rasterEffectsVisible;
+
+    // Selected properties
+    ConnContextObjList<Property*> mSelectedProps;
 };
 
 #endif // FRICTION_CORE_BOXES_SCENE_H

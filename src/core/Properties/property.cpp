@@ -404,14 +404,14 @@ void Property::prp_selectionChangeTriggered(const bool shiftPressed) {
 
 qreal Property::prp_getSceneFPS() const {
     if (mParentScene) {
-        return mParentScene->getFps();
+        return mParentScene->fps();
     }
     return 0.0;
 }
 
 int Property::prp_getSceneWidth() const {
     if (mParentScene) {
-        return mParentScene->getCanvasWidth();
+        return mParentScene->canvasWidth();
     }
     return 0;
 }
