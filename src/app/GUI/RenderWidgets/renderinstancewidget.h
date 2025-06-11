@@ -53,8 +53,8 @@ protected:
 class RenderInstanceWidget : public ClosableContainer {
     Q_OBJECT
 public:
-    RenderInstanceWidget(Scene *canvas, QWidget *parent = nullptr);
-    RenderInstanceWidget(const RenderInstanceSettings& canvas,
+    RenderInstanceWidget(Scene *scene, QWidget *parent = nullptr);
+    RenderInstanceWidget(const RenderInstanceSettings& scene,
                          QWidget *parent);
     RenderInstanceSettings &getSettings();
 

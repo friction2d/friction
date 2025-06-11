@@ -71,7 +71,7 @@ RenderHandler::RenderHandler(Document &document,
 }
 
 void RenderHandler::renderFromSettings(RenderInstanceSettings * const settings) {
-    //setCurrentScene(settings->getTargetCanvas());
+    //setCurrentScene(settings->getTargetScene());
     if(VideoEncoder::sStartEncoding(settings)) {
         mSavedCurrentFrame = mCurrentViewLayer->getCurrentFrame();
         mSavedResolutionFraction = mCurrentViewLayer->getResolution();

@@ -516,7 +516,7 @@ void VideoEncoder::startEncodingNow() {
                          "Could not guess AVOutputFormat from file extension");
         }
     }
-    const auto scene = mRenderInstanceSettings->getTargetCanvas();
+    const auto scene = mRenderInstanceSettings->getTargetScene();
     mFormatContext = avformat_alloc_context();
     if(!mFormatContext) RuntimeThrow("Error allocating AVFormatContext");
 
@@ -783,11 +783,11 @@ void VideoEncoder::beforeProcessing(const Hardware) {
 }
 
 void VideoEncoder::afterProcessing() {
-    const auto currCanvas = mRenderInstanceSettings->getTargetCanvas();
+    const auto currScene = mRenderInstanceSettings->getTargetScene();
     if(_mCurrentContainerId != 0) {
         const auto lastEncoded = _mContainers.at(_mCurrentContainerId - 1);
-        currCanvas->setSceneFrame(lastEncoded);
-        currCanvas->setMinFrameUseRange(lastEncoded->getRange().fMax + 1);
+        currScene->setSceneFrame(lastEncoded);
+        currScene->setMinFrameUseRange(lastEncoded->getRange().fMax + 1);
     }
 
     for(int i = _mContainers.count() - 1; i >= _mCurrentContainerId; i--) {

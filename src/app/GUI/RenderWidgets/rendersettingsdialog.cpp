@@ -7,7 +7,7 @@
 RenderSettingsDialog::RenderSettingsDialog(const RenderInstanceSettings &settings,
                                            QWidget *parent)
     : QDialog(parent)
-    , mInitialScene(settings.getTargetCanvas())
+    , mInitialScene(settings.getTargetScene())
     , mCurrentScene(mInitialScene)
     , mInitialSettings(settings.getRenderSettings())
     , mFrameRangeButton(nullptr)
@@ -20,8 +20,8 @@ RenderSettingsDialog::RenderSettingsDialog(const RenderInstanceSettings &setting
     const auto sceneLay = new QHBoxLayout;
     mSceneLabel = new QLabel(tr("Scene"));
     mSceneCombo = new QComboBox();
-    for (const auto& canvas : Document::sInstance->fScenes) {
-        mSceneCombo->addItem(canvas->prp_getName());
+    for (const auto& scene : Document::sInstance->fScenes) {
+        mSceneCombo->addItem(scene->name());
     }
     if (mCurrentScene) {  mSceneCombo->setCurrentText(mCurrentScene->prp_getName()); }
     connect(mSceneCombo, qOverload<int>(&QComboBox::currentIndexChanged),
@@ -190,8 +190,8 @@ void RenderSettingsDialog::updateValuesFromRes() {
     disconnectDims();
     const qreal res = mResolutionSpin->value()/100;
     if(mCurrentScene) {
-        mWidthSpin->setValue(qRound(mCurrentScene->getCanvasWidth()*res));
-        mHeightSpin->setValue(qRound(mCurrentScene->getCanvasHeight()*res));
+        mWidthSpin->setValue(qRound(mCurrentScene->canvasWidth()*res));
+        mHeightSpin->setValue(qRound(mCurrentScene->canvasHeight()*res));
     } else {
         mWidthSpin->setValue(qRound(mInitialSettings.fBaseWidth*res));
         mHeightSpin->setValue(qRound(mInitialSettings.fBaseHeight*res));
@@ -204,7 +204,7 @@ void RenderSettingsDialog::updateValuesFromWidth() {
     qreal res;
     if(mCurrentScene) {
         res = qreal(mWidthSpin->value())/
-                    mCurrentScene->getCanvasWidth();
+                    mCurrentScene->canvasWidth();
     } else {
         res = qreal(mWidthSpin->value())/
                     mInitialSettings.fBaseWidth;
@@ -219,7 +219,7 @@ void RenderSettingsDialog::updateValuesFromHeight() {
     qreal res;
     if(mCurrentScene) {
         res = qreal(mHeightSpin->value())/
-                    mCurrentScene->getCanvasHeight();
+                    mCurrentScene->canvasHeight();
     } else {
         res = qreal(mHeightSpin->value())/
                     mInitialSettings.fBaseHeight;
