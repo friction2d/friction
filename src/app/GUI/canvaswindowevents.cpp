@@ -39,14 +39,14 @@ QPointF CanvasWindow::mapToCanvasCoord(const QPointF& windowCoord)
 
 void CanvasWindow::translateView(const QPointF &trans)
 {
-    if (!mCurrentCanvas) { return; }
+    if (!mCurrentScene) { return; }
     mViewTransform.translate(trans.x(), trans.y());
 }
 
 void CanvasWindow::zoomView(const qreal scaleBy,
                             const QPointF &absOrigin)
 {
-    if (!mCurrentCanvas) { return; }
+    if (!mCurrentScene) { return; }
     const QPointF transPoint = -mapToCanvasCoord(absOrigin);
 
     mViewTransform.translate(-transPoint.x(), -transPoint.y());
@@ -75,10 +75,10 @@ void CanvasWindow::fitCanvasToSize(const bool &fitWidth)
         mFitToSizeBlocked = false;
         return;
     }
-    if (!mCurrentCanvas) { return; }
+    if (!mCurrentScene) { return; }
     mViewTransform.reset();
     qreal pixelRatio = devicePixelRatioF();
-    const auto canvasSize = mCurrentCanvas->getCanvasSize();
+    const auto canvasSize = mCurrentScene->canvasSize();
     const qreal widWidth = width() * pixelRatio;
     const qreal widHeight = height() * pixelRatio;
     const qreal widthScale = (widWidth - eSizesUI::widget) / canvasSize.width();
@@ -92,8 +92,8 @@ void CanvasWindow::fitCanvasToSize(const bool &fitWidth)
 
 void CanvasWindow::zoomInView()
 {
-    if (!mCurrentCanvas) { return; }
-    const auto canvasSize = mCurrentCanvas->getCanvasSize();
+    if (!mCurrentScene) { return; }
+    const auto canvasSize = mCurrentScene->canvasSize();
     mViewTransform.translate(canvasSize.width() * 0.5, canvasSize.height() * 0.5);
     mViewTransform.scale(1.1, 1.1);
     mViewTransform.translate(-canvasSize.width() * 0.5, -canvasSize.height() * 0.5);
@@ -101,8 +101,8 @@ void CanvasWindow::zoomInView()
 
 void CanvasWindow::zoomOutView()
 {
-    if (!mCurrentCanvas) { return; }
-    const auto canvasSize = mCurrentCanvas->getCanvasSize();
+    if (!mCurrentScene) { return; }
+    const auto canvasSize = mCurrentScene->canvasSize();
     mViewTransform.translate(canvasSize.width() * 0.5, canvasSize.height() * 0.5);
     mViewTransform.scale(0.9, 0.9);
     mViewTransform.translate(-canvasSize.width() * 0.5, -canvasSize.height() * 0.5);
@@ -128,23 +128,23 @@ bool CanvasWindow::event(QEvent *e)
 void CanvasWindow::hideEvent(QHideEvent *e)
 {
     GLWindow::hideEvent(e);
-    if (mCurrentCanvas) {
-        mDocument.removeVisibleScene(mCurrentCanvas);
+    if (mCurrentScene) {
+        mDocument.removeVisibleScene(mCurrentScene);
     }
 }
 
 void CanvasWindow::showEvent(QShowEvent *e)
 {
     GLWindow::showEvent(e);
-    if (mCurrentCanvas) {
-        mDocument.addVisibleScene(mCurrentCanvas);
+    if (mCurrentScene) {
+        mDocument.addVisibleScene(mCurrentScene);
     }
 }
 
 void CanvasWindow::resetTransformation()
 {
-    if (!mCurrentCanvas) { return; }
+    if (!mCurrentScene) { return; }
     mViewTransform.reset();
-    translateView({(width() - mCurrentCanvas->getCanvasWidth()) * 0.5,
-                   (height() - mCurrentCanvas->getCanvasHeight()) * 0.5});
+    translateView({(width() - mCurrentScene->canvasWidth()) * 0.5,
+                   (height() - mCurrentScene->canvasHeight()) * 0.5});
 }

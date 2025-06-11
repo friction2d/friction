@@ -42,7 +42,7 @@
 class Scene {
 public:
     Scene(QString sceneName, qreal canvasWidth, qreal canvasHeight, qreal fps);
-    ~Scene() = default;
+    ~Scene();
 
     ContainerBox *getCurrentGroup() { return _currentGroup; };
 
@@ -52,8 +52,22 @@ public:
     qreal fps() const { return _fps; };
     qreal canvasWidth() const { return _canvasWidth; };
     qreal canvasHeight() const { return _canvasHeight; };
+    QSize canvasSize() { return QSize(canvasWidth(), canvasHeight()); };
+
+    // Frames of the timeline
 
     int currentFrame() const { return _currentFrame; };
+    FrameRange getFrameRange() const { return _range; };
+    int getMinFrame() const
+    {
+        return mRange.fMin;
+    }
+    int getMaxFrame() const
+    {
+        return mRange.fMax;
+    }
+
+    // Setters
 
     void setName(QString name) { _name = name; };
     void setFps(qreal fps) {
@@ -65,6 +79,12 @@ public:
         emit dimensionsChanged(_canvasWidth, _canvasHeight);
     };
     void setCanvasHeight(qreal height) {
+        _canvasHeight = height;
+        emit dimensionsChanged(_canvasWidth, _canvasHeight);
+    };
+
+    void setCanvasSize(qreal width, qreal height) {
+        _canvasWidth = width;
         _canvasHeight = height;
         emit dimensionsChanged(_canvasWidth, _canvasHeight);
     };
@@ -100,6 +120,8 @@ public:
             const QString& name, eBoxOrSound * const skip = nullptr);
 
 signals:
+    void requestUpdate();
+    void destroyed();
     void dimensionsChanged(int, int);
     void fpsChanged(qreal);
 
@@ -113,6 +135,7 @@ private:
     qreal _canvasHeight;
 
     int _currentFrame;
+    FrameRange _range{0, 200};
 
 private:
     bool _rasterEffectsVisible;

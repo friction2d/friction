@@ -30,18 +30,18 @@
 #include "Private/document.h"
 #include "Private/esettings.h"
 
-SceneSettingsDialog::SceneSettingsDialog(Scene * const canvas,
+SceneSettingsDialog::SceneSettingsDialog(Scene * const scene,
                                          QWidget * const parent)
-    : SceneSettingsDialog(canvas->prp_getName(),
-                          canvas->getCanvasWidth(),
-                          canvas->getCanvasHeight(),
-                          canvas->getFrameRange(),
-                          canvas->getFps(),
-                          canvas->getBgColorAnimator(),
+    : SceneSettingsDialog(scene->name(),
+                          scene->canvasWidth(),
+                          scene->canvasHeight(),
+                          scene->getFrameRange(),
+                          scene->fps(),
+                          scene->getBgColorAnimator(), // TODO(kaixoo)
                           parent,
                           false)
 {
-    mTargetCanvas = canvas;
+    mTargetScene = scene;
 }
 
 SceneSettingsDialog::SceneSettingsDialog(const QString &defName,
@@ -313,13 +313,12 @@ void SceneSettingsDialog::populateResPresets()
     }
 }
 
-void SceneSettingsDialog::applySettingsToCanvas(Scene * const canvas) const
+void SceneSettingsDialog::applySettingsToCanvas(Scene * const scene) const
 {
-    if (!canvas) { return; }
-    canvas->prp_setNameAction(getCanvasName());
-    canvas->setCanvasSize(getCanvasWidth(), getCanvasHeight());
-    canvas->setFps(getFps());
-    canvas->setFrameRange(getFrameRange());
+    if (!scene) { return; }
+    scene->setCanvasSize(getCanvasWidth(), getCanvasHeight());
+    scene->setFps(getFps());
+    scene->setFrameRange(getFrameRange());
 
     if (mSaveAsDefault) {
         const bool saveDef = mSaveAsDefault->isChecked();
@@ -338,8 +337,8 @@ void SceneSettingsDialog::applySettingsToCanvas(Scene * const canvas) const
     if (mEnableResolutionPresets &&
         mEnableResolutionPresetsAuto) { AppSupport::saveResolutionPreset(getCanvasWidth(),
                                                                          getCanvasHeight()); }
-    if (canvas != mTargetCanvas) {
-        canvas->getBgColorAnimator()->setColor(mBgColorButton->color());
+    if (scene != mTargetScene) {
+        scene->getBgColorAnimator()->setColor(mBgColorButton->color()); // TODO(kaixoo)
 
         // Adjust default fill/stroke color to background color
         auto settings = eSettings::sInstance;
@@ -359,9 +358,9 @@ void SceneSettingsDialog::sNewSceneDialog(Document& document,
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     const auto docPtr = &document;
     connect(dialog, &QDialog::accepted, dialog, [dialog, docPtr]() {
-        const auto newCanvas = docPtr->createNewScene();
-        const auto block = newCanvas->blockUndoRedo();
-        dialog->applySettingsToCanvas(newCanvas);
+        const auto newScene = docPtr->createNewScene();
+        const auto block = newScene->blockUndoRedo(); // TODO(kaixoo)
+        dialog->applySettingsToCanvas(newScene);
         dialog->close();
         docPtr->actionFinished();
     });

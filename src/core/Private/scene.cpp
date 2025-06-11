@@ -33,6 +33,10 @@ Scene::Scene(QString sceneName, qreal canvasWidth, qreal canvasHeight, qreal fps
            , _canvasHeight(canvasHeight)
            , _fps(fps) {};
 
+Scene::~Scene() {
+    emit destroyed();
+};
+
 void Scene::saveSVG(SvgExporter& exp, DomEleTask* const eleTask) const {
     _currentGroup.saveSVG(exp, eleTask);
 };
