@@ -166,7 +166,6 @@ set(
     GUI/Settings/settingsdialog.cpp
     GUI/Settings/timelinesettingswidget.cpp
     GUI/Settings/pluginssettingswidget.cpp
-    GUI/canvaswindowevents.cpp
     GUI/ekeyfilter.cpp
     GUI/ewidgetsimpl.cpp
     GUI/timelinedockwidget.cpp
@@ -190,7 +189,6 @@ set(
     GUI/RenderWidgets/outputsettingsprofilesdialog.cpp
     GUI/RenderWidgets/outputsettingsdisplaywidget.cpp
     GUI/animationdockwidget.cpp
-    GUI/canvaswindow.cpp
     GUI/graphboxeslist.cpp
     GUI/keysview.cpp
     GUI/mainwindow.cpp
@@ -234,7 +232,6 @@ set(
     GUI/RenderWidgets/outputsettingsprofilesdialog.h
     GUI/RenderWidgets/outputsettingsdisplaywidget.h
     GUI/animationdockwidget.h
-    GUI/canvaswindow.h
     GUI/keysview.h
     GUI/mainwindow.h
     GUI/window.h

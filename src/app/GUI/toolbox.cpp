@@ -36,7 +36,7 @@ void MainWindow::setupToolBox()
     setupToolBoxDraw();
 
     // set default
-    mDocument.setCanvasMode(CanvasMode::boxTransform);
+    mDocument.setSceneMode(CanvasMode::boxTransform);
 }
 
 void MainWindow::setupToolBoxMain()
@@ -524,4 +524,3 @@ void MainWindow::setEnableToolBoxDraw(const bool &enable)
     if (mToolBoxDrawActSmooth) { mToolBoxDrawActSmooth->setVisible(enable); }
     if (mDrawPathAuto) { mDrawPathAuto->setVisible(enable); }
 }
-

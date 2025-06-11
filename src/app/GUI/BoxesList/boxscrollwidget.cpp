@@ -27,7 +27,6 @@
 #include "optimalscrollarena/scrollarea.h"
 #include "Boxes/boundingbox.h"
 #include "boxscroller.h"
-#include "GUI/canvaswindow.h"
 #include "GUI/mainwindow.h"
 #include "Private/document.h"
 

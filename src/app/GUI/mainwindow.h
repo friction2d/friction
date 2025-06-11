@@ -70,7 +70,6 @@ class AnimationDockWidget;
 class ColorSettingsWidget;
 class FillStrokeSettingsWidget;
 class TimelineDockWidget;
-class CanvasWindow;
 class MemoryHandler;
 
 class ObjectSettingsWidget;

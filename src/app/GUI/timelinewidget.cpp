@@ -38,7 +38,6 @@
 #include "keysview.h"
 #include "GUI/BoxesList/boxscrollarea.h"
 #include "GUI/BoxesList/boxscroller.h"
-#include "canvaswindow.h"
 #include "animationdockwidget.h"
 #include "GUI/global.h"
 #include "Private/scene.h"

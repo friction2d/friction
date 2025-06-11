@@ -119,7 +119,7 @@ public:
     void setPath(const QString& path);
     QString projectDirectory() const;
 
-    void setCanvasMode(const CanvasMode mode);
+    void setSceneMode(const CanvasMode mode);
 
     Scene * createNewScene(const bool emitCreated = true);
     bool removeScene(const qsptr<Scene>& scene);

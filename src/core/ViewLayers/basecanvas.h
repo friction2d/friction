@@ -52,8 +52,13 @@ public:
         QWidget * parent = nullptr)
             : _width(width)
             , _height(height)
-            , _backgroundColor(backgroundColor) {};
+            , _backgroundColor(backgroundColor) {
+            Q_ASSERT(!sInstance);
+            sInstance = this;
+        };
     ~BaseCanvas() = default;
+
+    static BaseCanvas *sGetInstance();
 
     // Must be called by the GLWindow
     void renderSk(SkCanvas * const canvas);
@@ -71,8 +76,16 @@ public:
     int getWriteId() { return -1; };
     int getDocumentId() { return -1; };
 
+    void zoomOutView();
+    void zoomInView();
+    void fitCanvasToSize();
+
+    void resetTransformation();
+
 private:
     std::map<std::string, ViewLayer&> _viewLayers;
+
+    static BaseCanvas *sInstance;
 
     int _width;
     int _height;
@@ -109,11 +122,40 @@ public:
     int resolution() { return _resolution; };
     void setResolution(qreal resolution) { _resolution = resolution; };
 
-    // Mouse events
-    void mousePressEvent(QMouseEvent *e);
-    void mouseReleaseEvent(QMouseEvent *e);
-    void mouseMoveEvent(QMouseEvent *e);
-    void mouseDoubleClickEvent(QMouseEvent *e);
+protected: // Key input & Qt events
+    bool event(QEvent *e);
+
+    void hideEvent(QHideEvent* e);
+    void showEvent(QShowEvent* e);
+    void resizeEvent(QResizeEvent* e);
+
+    void dropEvent(QDropEvent *event);
+    void dragEnterEvent(QDragEnterEvent *event);
+    void dragMoveEvent(QDragMoveEvent *event);
+
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void keyReleaseEvent(QKeyEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void wheelEvent(QWheelEvent *event);
+    void mouseDoubleClickEvent(QMouseEvent *event);
+private:
+    void tabletEvent(QTabletEvent *e);
+
+    bool handleSceneModeChangeKeyPress(QKeyEvent *event);
+    bool handleCutCopyPasteKeyPress(QKeyEvent *event);
+    bool handleTransformationKeyPress(QKeyEvent *event);
+    bool handleZValueKeyPress(QKeyEvent *event);
+    bool handleParentChangeKeyPress(QKeyEvent *event);
+    bool handleGroupChangeKeyPress(QKeyEvent *event);
+    bool handleResetTransformKeyPress(QKeyEvent *event);
+    bool handleRevertPathKeyPress(QKeyEvent *event);
+    bool handleStartTransformKeyPress(const eKeyEvent &e);
+    bool handleSelectAllKeyPress(QKeyEvent *event);
+    //bool handleShiftKeysKeyPress(QKeyEvent *event);
+#ifdef Q_OS_MAC
+    bool handleNativeGestures(QNativeGestureEvent *event);
+#endif
 };
 
 #endif // BASE_CANVAS_H

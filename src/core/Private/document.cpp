@@ -106,7 +106,7 @@ QString Document::projectDirectory() const {
     }
 }
 
-void Document::setCanvasMode(const CanvasMode mode) {
+void Document::setSceneMode(const CanvasMode mode) {
     fCanvasMode = mode;
     emit canvasModeSet(mode);
     actionFinished();

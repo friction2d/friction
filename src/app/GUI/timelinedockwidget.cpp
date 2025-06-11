@@ -34,7 +34,6 @@
 #include "GUI/BoxesList/boxsinglewidget.h"
 
 #include "mainwindow.h"
-#include "canvaswindow.h"
 #include "Private/scene.h"
 #include "animationdockwidget.h"
 #include "widgets/widgetstack.h"

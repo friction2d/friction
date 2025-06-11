@@ -854,43 +854,43 @@ eBoxOrSound* Actions::linkFile(const QString &path)
 }
 
 void Actions::setMovePathMode() {
-    mDocument.setCanvasMode(CanvasMode::boxTransform);
+    mDocument.setSceneMode(CanvasMode::boxTransform);
 }
 
 void Actions::setMovePointMode() {
-    mDocument.setCanvasMode(CanvasMode::pointTransform);
+    mDocument.setSceneMode(CanvasMode::pointTransform);
 }
 
 void Actions::setAddPointMode() {
-    mDocument.setCanvasMode(CanvasMode::pathCreate);
+    mDocument.setSceneMode(CanvasMode::pathCreate);
 }
 
 void Actions::setDrawPathMode() {
-    mDocument.setCanvasMode(CanvasMode::drawPath);
+    mDocument.setSceneMode(CanvasMode::drawPath);
 }
 
 void Actions::setRectangleMode() {
-    mDocument.setCanvasMode(CanvasMode::rectCreate);
+    mDocument.setSceneMode(CanvasMode::rectCreate);
 }
 
 void Actions::setPickPaintSettingsMode() {
-    mDocument.setCanvasMode(CanvasMode::pickFillStroke);
+    mDocument.setSceneMode(CanvasMode::pickFillStroke);
 }
 
 void Actions::setCircleMode() {
-    mDocument.setCanvasMode(CanvasMode::circleCreate);
+    mDocument.setSceneMode(CanvasMode::circleCreate);
 }
 
 void Actions::setTextMode() {
-    mDocument.setCanvasMode(CanvasMode::textCreate);
+    mDocument.setSceneMode(CanvasMode::textCreate);
 }
 
 void Actions::setPaintMode() {
-    mDocument.setCanvasMode(CanvasMode::paint);
+    mDocument.setSceneMode(CanvasMode::paint);
 }
 
 void Actions::setNullMode() {
-    mDocument.setCanvasMode(CanvasMode::nullCreate);
+    mDocument.setSceneMode(CanvasMode::nullCreate);
 }
 
 void Actions::finishSmoothChange() {

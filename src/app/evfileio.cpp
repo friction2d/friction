@@ -53,7 +53,6 @@
 #include "MovablePoints/gradientpoint.h"
 #include "Animators/qrealkey.h"
 #include "GUI/mainwindow.h"
-#include "GUI/canvaswindow.h"
 #include "gradientwidgets/gradientwidget.h"
 #include <QMessageBox>
 #include "PathEffects/patheffectsinclude.h"

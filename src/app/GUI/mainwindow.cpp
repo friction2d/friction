@@ -46,7 +46,6 @@
 #include "dialogs/applyexpressiondialog.h"
 #include "dialogs/markereditordialog.h"
 #include "timelinedockwidget.h"
-#include "canvaswindow.h"
 #include "GUI/BoxesList/boxscrollwidget.h"
 #include "clipboardcontainer.h"
 #include "optimalscrollarena/scrollarea.h"
@@ -872,10 +871,7 @@ void MainWindow::setupMenuBar()
     cmdAddAction(mZoomInAction);
     connect(mZoomInAction, &QAction::triggered,
             this, [](){
-        const auto target = KeyFocusTarget::KFT_getCurrentTarget();
-        const auto cwTarget = dynamic_cast<CanvasWindow*>(target);
-        if (!cwTarget) { return; }
-        cwTarget->zoomInView();
+        mBaseCanvas->zoomInView();
     });
 
     mZoomOutAction = zoomMenu->addAction(tr("Zoom Out", "MenuBar_View_Zoom"));
@@ -884,10 +880,7 @@ void MainWindow::setupMenuBar()
     cmdAddAction(mZoomOutAction);
     connect(mZoomOutAction, &QAction::triggered,
             this, [](){
-        const auto target = KeyFocusTarget::KFT_getCurrentTarget();
-        const auto cwTarget = dynamic_cast<CanvasWindow*>(target);
-        if (!cwTarget) { return; }
-        cwTarget->zoomOutView();
+        mBaseCanvas.zoomOutView();
     });
 
     mFitViewAction = zoomMenu->addAction(tr("Fit to Canvas", "MenuBar_View_Zoom"));
@@ -895,10 +888,7 @@ void MainWindow::setupMenuBar()
     mFitViewAction->setShortcut(QKeySequence("Ctrl+0"));
     connect(mFitViewAction, &QAction::triggered,
             this, [](){
-        const auto target = KeyFocusTarget::KFT_getCurrentTarget();
-        const auto cwTarget = dynamic_cast<CanvasWindow*>(target);
-        if (!cwTarget) { return; }
-        cwTarget->fitCanvasToSize();
+        mBaseCanvas->fitCanvasToSize();
     });
     cmdAddAction(mFitViewAction);
 
@@ -907,10 +897,7 @@ void MainWindow::setupMenuBar()
     fitViewWidth->setShortcut(QKeySequence("Ctrl+9"));
     connect(fitViewWidth, &QAction::triggered,
             this, []() {
-        const auto target = KeyFocusTarget::KFT_getCurrentTarget();
-        const auto cwTarget = dynamic_cast<CanvasWindow*>(target);
-        if (!cwTarget) { return; }
-        cwTarget->fitCanvasToSize(true);
+        mBaseCanvas->fitCanvasToSize(true);
     });
     cmdAddAction(fitViewWidth);
 
@@ -918,10 +905,7 @@ void MainWindow::setupMenuBar()
     mResetZoomAction->setShortcut(QKeySequence("Ctrl+1"));
     connect(mResetZoomAction, &QAction::triggered,
             this, [](){
-        const auto target = KeyFocusTarget::KFT_getCurrentTarget();
-        const auto cwTarget = dynamic_cast<CanvasWindow*>(target);
-        if (!cwTarget) { return; }
-        cwTarget->resetTransformation();
+        mBaseCanvas->resetTransformation();
     });
     cmdAddAction(mResetZoomAction);
 
