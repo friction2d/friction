@@ -35,7 +35,8 @@
 #include "Paint/brushcontexedwrapper.h"
 #include "actions.h"
 #include "scene.h"
-#include "../ViewLayers/viewlayer_preview.h"
+#include "ViewLayers/viewlayer_preview.h"
+#include "ViewLayers/viewlayer_render.h"
 #include "Tasks/taskscheduler.h"
 #include "clipboardcontainer.h"
 #include "conncontextptr.h"
@@ -101,7 +102,8 @@ public:
     bool fOnionVisible = false;
     PaintMode fPaintMode = PaintMode::normal;
 
-    qsptr<ViewLayerPreview> fCanvas;
+    qsptr<ViewLayerPreview> fViewLayerPreview;
+    qsptr<ViewLayerRender> fViewLayerRender;
     QList<qsptr<Scene>> fScenes;
     ConnContextPtr<Scene> fActiveScene;
     qptr<BoundingBox> fCurrentBox;

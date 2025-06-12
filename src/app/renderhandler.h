@@ -25,11 +25,13 @@
 
 #ifndef RENDERHANDLER_H
 #define RENDERHANDLER_H
+
 #include "framerange.h"
 #include "Sound/audiohandler.h"
 #include "smartPointers/ememory.h"
 #include "CacheHandlers/usepointer.h"
 #include "CacheHandlers/cachecontainer.h"
+#include "Private/scene.h"
 
 class ViewLayerRender;
 class RenderInstanceSettings;
@@ -85,8 +87,11 @@ private:
     void nextPreviewFrame();
     void nextCurrentRenderFrame();
 
+    [[deprecated]]
     void setPreviewState(const PreviewState state);
+    [[deprecated]]
     void setRenderingPreview(const bool rendering);
+    [[deprecated]]
     void setPreviewing(const bool previewing);
 
     void startAudio();
@@ -103,7 +108,7 @@ private:
     qptr<SoundComposition> mCurrentSoundComposition;
     // AUDIO
 
-    ViewLayerRender *mCurrentViewLayer = nullptr;
+    ViewLayerRender *mViewLayerRender = nullptr;
     QTimer *mPreviewFPSTimer = nullptr;
     RenderInstanceSettings *mCurrentRenderSettings = nullptr;
 

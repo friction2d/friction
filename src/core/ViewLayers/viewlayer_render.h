@@ -66,6 +66,18 @@ public:
     {
         return _range;
     }
+    void setMinFrameUseRange(const int min)
+    {
+        mSceneFramesHandler.setMinUseRange(min);
+    }
+    void setMaxFrameUseRange(const int max)
+    {
+        mSceneFramesHandler.setMaxUseRange(max);
+    }
+    void clearUseRange()
+    {
+        mSceneFramesHandler.clearUseRange();
+    }
 
     qreal getResolution() const { return _resolution; };
     void setResolution(const qreal percent) { _resolution = percent; };

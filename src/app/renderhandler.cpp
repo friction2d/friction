@@ -73,8 +73,8 @@ RenderHandler::RenderHandler(Document &document,
 void RenderHandler::renderFromSettings(RenderInstanceSettings * const settings) {
     //setCurrentScene(settings->getTargetScene());
     if(VideoEncoder::sStartEncoding(settings)) {
-        mSavedCurrentFrame = mCurrentViewLayer->getCurrentFrame();
-        mSavedResolutionFraction = mCurrentViewLayer->getResolution();
+        mSavedCurrentFrame = mViewLayerRender->getCurrentFrame();
+        mSavedResolutionFraction = mViewLayerRender->getResolution();
 
         mCurrentRenderSettings = settings;
         const auto &renderSettings = settings->getRenderSettings();
@@ -83,7 +83,7 @@ void RenderHandler::renderFromSettings(RenderInstanceSettings * const settings) 
         const qreal resolutionFraction = renderSettings.fResolution;
         mMinRenderFrame = renderSettings.fMinFrame;
         mMaxRenderFrame = renderSettings.fMaxFrame;
-        const qreal fps = mCurrentViewLayer->getFps();
+        const qreal fps = mDocument->fActiveScene->fps();
         mMaxSoundSec = qFloor(mMaxRenderFrame/fps);
 
         const auto nextFrameFunc = [this]() {
@@ -100,16 +100,16 @@ void RenderHandler::renderFromSettings(RenderInstanceSettings * const settings) 
         mCurrentEncodeSoundSecond = mFirstEncodeSoundSecond;
         if(!VideoEncoder::sEncodeAudio())
             mMaxSoundSec = mCurrentEncodeSoundSecond - 1;
-        //mCurrentViewLayer->setMinFrameUseRange(mCurrentRenderFrame);
+        mViewLayerRender->setMinFrameUseRange(mCurrentRenderFrame);
         mCurrentSoundComposition->setMinFrameUseRange(mCurrentRenderFrame);
         mCurrentSoundComposition->scheduleFrameRange({mCurrentRenderFrame,
                                                       mCurrentRenderFrame});
-        //mCurrentViewLayer->anim_setAbsFrame(mCurrentRenderFrame);
-        mCurrentViewLayer->setIsRenderingToOutput(true);
+        //mViewLayerRender->anim_setAbsFrame(mCurrentRenderFrame);
+        mViewLayerRender->setIsRenderingToOutput(true);
         TaskScheduler::instance()->setAlwaysQue(true);
         //fitSceneToSize();
         if(!isZero6Dec(mSavedResolutionFraction - resolutionFraction)) {
-            mCurrentViewLayer->setResolution(resolutionFraction);
+            mViewLayerRender->setResolution(resolutionFraction);
             mDocument.actionFinished();
         } else {
             nextCurrentRenderFrame();
@@ -125,17 +125,17 @@ void RenderHandler::setLoop(const bool loop) {
 }
 
 void RenderHandler::setFrameAction(const int frame) {
-    //if(mCurrentViewLayer) mCurrentViewLayer->anim_setAbsFrame(frame);
+    //if(mViewLayerRender) mViewLayerRender->anim_setAbsFrame(frame);
     mDocument.actionFinished();
 }
 
 void RenderHandler::setCurrentViewLayer(ViewLayerRender * const viewLayer) {
-    mCurrentViewLayer = viewLayer;
+    mViewLayerRender = viewLayer;
     mCurrentSoundComposition = viewLayer ? viewLayer->getSoundComposition() : nullptr;
 }
 
 void RenderHandler::nextCurrentRenderFrame() {
-    auto& cacheHandler = mCurrentViewLayer->getSceneFramesHandler();
+    auto& cacheHandler = mViewLayerRender->getSceneFramesHandler();
     int newCurrentRenderFrame = cacheHandler.
             firstEmptyFrameAtOrAfter(mCurrentRenderFrame + 1);
     const bool allDone = newCurrentRenderFrame > mMaxRenderFrame;
@@ -143,7 +143,7 @@ void RenderHandler::nextCurrentRenderFrame() {
     const FrameRange newSoundRange = {mCurrentRenderFrame, newCurrentRenderFrame};
     mCurrentSoundComposition->scheduleFrameRange(newSoundRange);
     mCurrentSoundComposition->setMaxFrameUseRange(newCurrentRenderFrame);
-    //mCurrentViewLayer->setMaxFrameUseRange(newCurrentRenderFrame);
+    mViewLayerRender->setMaxFrameUseRange(newCurrentRenderFrame);
 
     mCurrentRenderFrame = newCurrentRenderFrame;
     mCurrRenderRange.fMax = mCurrentRenderFrame;
@@ -166,27 +166,27 @@ void RenderHandler::setPreviewState(const PreviewState state)
 }
 
 void RenderHandler::renderPreview() {
-    //setCurrentViewLayer(mDocument.fActiveScene);
-    if(!mCurrentViewLayer) return;
+    setCurrentViewLayer(mDocument.fViewLayerRender);
+    if(!mViewLayerRender) return;
     const auto nextFrameFunc = [this]() {
         nextPreviewRenderFrame();
     };
     TaskScheduler::sSetTaskUnderflowFunc(nextFrameFunc);
     TaskScheduler::sSetAllTasksFinishedFunc(nextFrameFunc);
 
-    mSavedCurrentFrame = mCurrentViewLayer->getCurrentFrame();
+    mSavedCurrentFrame = mViewLayerRender->getCurrentFrame();
 
-    const auto fIn = mCurrentViewLayer->getFrameIn();
-    const auto fOut = mCurrentViewLayer->getFrameOut();
+    const auto fIn = mViewLayerRender->getFrameIn();
+    const auto fOut = mViewLayerRender->getFrameOut();
 
-    mMinRenderFrame = mLoop ? (fIn.enabled? fIn.frame : mCurrentViewLayer->getMinFrame()) - 1:
+    mMinRenderFrame = mLoop ? (fIn.enabled? fIn.frame : mViewLayerRender->getMinFrame()) - 1:
                           (fIn.enabled ? fIn.frame : mSavedCurrentFrame);
 
-    mMaxRenderFrame = fOut.enabled ? fOut.frame : mCurrentViewLayer->getMaxFrame();
+    mMaxRenderFrame = fOut.enabled ? fOut.frame : mViewLayerRender->getMaxFrame();
 
     mCurrentRenderFrame = mMinRenderFrame;
     mCurrRenderRange = {mCurrentRenderFrame, mCurrentRenderFrame};
-    //mCurrentViewLayer->setMinFrameUseRange(mCurrentRenderFrame);
+    mViewLayerRender->setMinFrameUseRange(mCurrentRenderFrame);
     mCurrentSoundComposition->setMinFrameUseRange(mCurrentRenderFrame);
 
     setPreviewState(PreviewState::rendering);
@@ -211,13 +211,10 @@ void RenderHandler::outOfMemory() {
 
 void RenderHandler::setRenderingPreview(const bool rendering) {
     mRenderingPreview = rendering;
-    //if(mCurrentViewLayer) mCurrentViewLayer->setRenderingPreview(rendering);
-    TaskScheduler::instance()->setAlwaysQue(rendering);
 }
 
 void RenderHandler::setPreviewing(const bool previewing) {
     mPreviewing = previewing;
-    //if(mCurrentViewLayer) mCurrentViewLayer->setPreviewing(previewing);
 }
 
 void RenderHandler::interruptPreviewRendering() {
@@ -226,19 +223,19 @@ void RenderHandler::interruptPreviewRendering() {
 }
 
 void RenderHandler::interruptOutputRendering() {
-    //if(mCurrentViewLayer) mCurrentViewLayer->setIsRenderingToOutput(false);
+    if(mViewLayerRender) mViewLayerRender->setIsRenderingToOutput(false);
     TaskScheduler::instance()->setAlwaysQue(false);
     TaskScheduler::sClearAllFinishedFuncs();
     stopPreview();
 }
 
 void RenderHandler::stopPreview() {
-    if(mCurrentViewLayer) {
-        //mCurrentViewLayer->clearUseRange();
+    if(mViewLayerRender) {
+        mViewLayerRender->clearUseRange();
         setFrameAction(mSavedCurrentFrame);
-        mCurrentViewLayer->setSceneFrame(mSavedCurrentFrame);
-        //emit mCurrentViewLayer->currentFrameChanged(mSavedCurrentFrame);
-        //emit mCurrentViewLayer->requestUpdate();
+        mViewLayerRender->setSceneFrame(mSavedCurrentFrame);
+        emit mViewLayerRender->currentFrameChanged(mSavedCurrentFrame);
+        emit mViewLayerRender->requestUpdate();
     }
 
     mPreviewFPSTimer->stop();
@@ -280,28 +277,28 @@ void RenderHandler::playPreviewAfterAllTasksCompleted() {
 }
 
 void RenderHandler::playPreview() {
-    if(!mCurrentViewLayer) return;
+    if(!mViewLayerRender) return;
     //setFrameAction(mSavedCurrentFrame);
     TaskScheduler::sClearAllFinishedFuncs();
-    const auto fIn = mCurrentViewLayer->getFrameIn();
-    const auto fOut = mCurrentViewLayer->getFrameOut();
+    const auto fIn = mViewLayerRender->getFrameIn();
+    const auto fOut = mViewLayerRender->getFrameOut();
     const int minPreviewFrame = fIn.enabled? (fIn.frame < mSavedCurrentFrame && mSavedCurrentFrame < mCurrentRenderFrame ? mSavedCurrentFrame : fIn.frame) : mSavedCurrentFrame;
     const int maxPreviewFrame = qMin(mMaxRenderFrame, mCurrentRenderFrame);
     if(minPreviewFrame >= maxPreviewFrame) return;
-    mMinPreviewFrame = mLoop ? (fIn.enabled? fIn.frame : mCurrentViewLayer->getMinFrame()) : (fIn.enabled? (fIn.frame < minPreviewFrame && minPreviewFrame < mCurrentRenderFrame ? minPreviewFrame : fIn.frame) : minPreviewFrame);
+    mMinPreviewFrame = mLoop ? (fIn.enabled? fIn.frame : mViewLayerRender->getMinFrame()) : (fIn.enabled? (fIn.frame < minPreviewFrame && minPreviewFrame < mCurrentRenderFrame ? minPreviewFrame : fIn.frame) : minPreviewFrame);
     mMaxPreviewFrame = fOut.enabled ? fOut.frame : maxPreviewFrame;
     mCurrentPreviewFrame = minPreviewFrame;
-    mCurrentViewLayer->setSceneFrame(mCurrentPreviewFrame);
+    mViewLayerRender->setSceneFrame(mCurrentPreviewFrame);
 
     setPreviewState(PreviewState::playing);
 
     startAudio();
 
-    const int mSecInterval = qRound(1000/mCurrentViewLayer->getFps());
+    const int mSecInterval = qRound(1000/mDocument->fActiveScene->fps());
     mPreviewFPSTimer->setInterval(mSecInterval);
     mPreviewFPSTimer->start();
     emit previewBeingPlayed();
-    //emit mCurrentViewLayer->requestUpdate();
+    emit mViewLayerRender->requestUpdate();
 }
 
 void RenderHandler::nextPreviewRenderFrame() {
@@ -317,7 +314,7 @@ void RenderHandler::nextPreviewRenderFrame() {
 }
 
 void RenderHandler::nextPreviewFrame() {
-    if(!mCurrentViewLayer) return;
+    if(!mViewLayerRender) return;
     mCurrentPreviewFrame++;
     if(mCurrentPreviewFrame > mMaxPreviewFrame) {
         if(mLoop) {
@@ -327,29 +324,29 @@ void RenderHandler::nextPreviewFrame() {
             startAudio();
         } else stopPreview();
     } else {
-        mCurrentViewLayer->setSceneFrame(mCurrentPreviewFrame);
-        //if(!mLoop) mCurrentViewLayer->setMinFrameUseRange(mCurrentPreviewFrame);
-        //emit mCurrentViewLayer->currentFrameChanged(mCurrentPreviewFrame);
+        mViewLayerRender->setSceneFrame(mCurrentPreviewFrame);
+        if(!mLoop) mViewLayerRender->setMinFrameUseRange(mCurrentPreviewFrame);
+        emit mViewLayerRender->currentFrameChanged(mCurrentPreviewFrame);
     }
-    //emit mCurrentViewLayer->requestUpdate();
+    emit mViewLayerRender->requestUpdate();
 }
 
 void RenderHandler::finishEncoding() {
     TaskScheduler::sClearAllFinishedFuncs();
     mCurrentRenderSettings = nullptr;
-    //mCurrentViewLayer->setIsRenderingToOutput(false);
+    mViewLayerRender->setIsRenderingToOutput(false);
     TaskScheduler::instance()->setAlwaysQue(false);
     setFrameAction(mSavedCurrentFrame);
-    /*if(!isZero4Dec(mSavedResolutionFraction - mCurrentViewLayer->getResolution())) {
-        mCurrentViewLayer->setResolution(mSavedResolutionFraction);
-        }*/
+    if(!isZero4Dec(mSavedResolutionFraction - mViewLayerRender->getResolution())) {
+        mViewLayerRender->setResolution(mSavedResolutionFraction);
+    }
     mCurrentSoundComposition->clearUseRange();
     VideoEncoder::sFinishEncoding();
 }
 
 void RenderHandler::nextSaveOutputFrame() {
     const auto& sCacheHandler = mCurrentSoundComposition->getCacheHandler();
-    const qreal fps = /*mCurrentViewLayer->getFps()*/60;
+    const qreal fps = mDocument->fActiveScene->fps();
     const int sampleRate = eSoundSettings::sSampleRate();
     while(mCurrentEncodeSoundSecond <= mMaxSoundSec) {
         const auto cont = sCacheHandler.atFrame(mCurrentEncodeSoundSecond);
@@ -369,7 +366,7 @@ void RenderHandler::nextSaveOutputFrame() {
     }
     if(mCurrentEncodeSoundSecond > mMaxSoundSec) VideoEncoder::sAllAudioProvided();
 
-    const auto& cacheHandler = mCurrentViewLayer->getSceneFramesHandler();
+    const auto& cacheHandler = mViewLayerRender->getSceneFramesHandler();
     while(mCurrentEncodeFrame <= mMaxRenderFrame) {
         const auto cont = cacheHandler.atFrame(mCurrentEncodeFrame);
         if(!cont) break;
@@ -377,7 +374,7 @@ void RenderHandler::nextSaveOutputFrame() {
         mCurrentEncodeFrame = cont->getRangeMax() + 1;
     }
 
-    //mCurrentViewLayer->renderCurrentFrameToOutput(*mCurrentRenderSettings);
+    //mViewLayerRender->renderCurrentFrameToOutput(*mCurrentRenderSettings);
     if(mCurrentRenderFrame >= mMaxRenderFrame) {
         if(mCurrentEncodeSoundSecond <= mMaxSoundSec) return;
         if(mCurrentEncodeFrame <= mMaxRenderFrame) return;

@@ -36,8 +36,9 @@
 #include "Boxes/containerbox.h"
 #include "Boxes/boundingbox.h"
 // Selected properties
-#include "conncontextobjlist.h"
+#include "conncontextptr.h"
 #include "Properties/property.h"
+#include "conncontextobjlist.h"
 
 
 // Represents a scene in a Document (what Canvas used to be)
@@ -60,6 +61,9 @@ public:
     qreal canvasHeight() const { return _canvasHeight; };
     QSize canvasSize() { return QSize(canvasWidth(), canvasHeight()); };
 
+    bool clipToCanvas() { return _clipToCanvas; };
+    void setClipToCanvas(bool clipToCanvas) { _clipToCanvas = clipToCanvas; };
+
     // Frames of the timeline
 
     int currentFrame() const { return _currentFrame; };
@@ -73,7 +77,7 @@ public:
         return _range.fMax;
     }
 
-    const QList<BoundingBox*> &getContainedBoxes() { return getCurrentGroup().getContainedBoxes(); };
+    const QList<BoundingBox*> &getContainedBoxes() { return getCurrentGroup()->getContainedBoxes(); };
 
     // Setters
 
@@ -159,6 +163,7 @@ private:
     qptr<ContainerBox> _currentGroup;
 
     QString _name;
+    bool _clipToCanvas;
 
     qreal _fps;
     qreal _canvasWidth;
