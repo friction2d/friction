@@ -488,7 +488,7 @@ void eBoxOrSound::rename(const QString &newName) {
     if(parentScene) {
         const QString uniqueName = parentScene->
                 makeNameUniqueForDescendants(fixedName, this);
-        return prp_setNameAction(fixedName);
+        return prp_setNameAction(uniqueName);
     }
     prp_setNameAction(fixedName);
 }
