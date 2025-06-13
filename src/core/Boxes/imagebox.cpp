@@ -133,10 +133,10 @@ void ImageBox::changeSourceFile() {
 }
 
 void ImageBox::setupRenderData(const qreal relFrame, const QMatrix& parentM,
-                               BoxRenderData * const data)
+                               BoxRenderData * const data, Scene * scene)
 {
     if (!mFileHandler) { mFileHandler.assign(mPath); }
-    BoundingBox::setupRenderData(relFrame, parentM, data);
+    BoundingBox::setupRenderData(relFrame, parentM, data, scene);
     const auto imgData = static_cast<ImageBoxRenderData*>(data);
     if (mFileHandler->hasImage()) {
         imgData->setContainer(mFileHandler->getImageContainer());

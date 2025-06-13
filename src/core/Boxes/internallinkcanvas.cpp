@@ -65,10 +65,11 @@ void InternalLinkCanvas::prp_setupTreeViewMenu(PropertyMenu * const menu) {
 
 void InternalLinkCanvas::setupRenderData(const qreal relFrame,
                                          const QMatrix& parentM,
-                                         BoxRenderData * const data
+                                         BoxRenderData * const data,
+                                         Scene * scene
 ) {
     {
-        BoundingBox::setupRenderData(relFrame, parentM, data);
+        BoundingBox::setupRenderData(relFrame, parentM, data, scene);
         const qreal remapped = mFrameRemapping->frame(relFrame);
         const auto thisM = getTotalTransformAtFrame(relFrame);
         processChildrenData(remapped, thisM, data, scene);
@@ -80,8 +81,8 @@ void InternalLinkCanvas::setupRenderData(const qreal relFrame,
     canvasData->fBgColor = toSkColor(canvasTarget->getBgColorAnimator()->
             getColor(relFrame));
     //qreal res = mParentScene->getResolution();
-    canvasData->fCanvasHeight = canvasTarget->getCanvasHeight();//*res;
-    canvasData->fCanvasWidth = canvasTarget->getCanvasWidth();//*res;
+    canvasData->fCanvasHeight = canvasTarget->canvasHeight();//*res;
+    canvasData->fCanvasWidth = canvasTarget->canvasWidth();//*res;
     if(getParentGroup()->isLink()) {
         const auto ilc = static_cast<InternalLinkCanvas*>(getLinkTarget());
         canvasData->fClipToCanvas = ilc->clipToCanvas();

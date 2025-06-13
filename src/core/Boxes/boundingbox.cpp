@@ -577,7 +577,7 @@ stdsptr<BoxRenderData> BoundingBox::queExternalRender(
     renderData->fParentIsTarget = false;
     renderData->fForceRasterize = forceRasterize;
     const auto parentM = getInheritedTransformAtFrame(relFrame);
-    setupRenderData(relFrame, parentM, renderData.get());
+    setupRenderData(relFrame, parentM, renderData.get(), getParentScene());
     renderData->queTask();
     return renderData;
 }
@@ -586,7 +586,7 @@ stdsptr<BoxRenderData> BoundingBox::queRender(
         const qreal relFrame, const QMatrix& parentM) {
     const auto renderData = updateCurrentRenderData(relFrame);
     if(!renderData) return nullptr;
-    setupRenderData(relFrame, parentM, renderData);
+    setupRenderData(relFrame, parentM, renderData, getParentScene());
     const auto renderDataSPtr = enve::shared(renderData);
     renderDataSPtr->queTask();
     return renderDataSPtr;
@@ -1001,7 +1001,8 @@ void BoundingBox::finishTransform() {
 
 void BoundingBox::setupRenderData(const qreal relFrame,
                                   const QMatrix& parentM,
-                                  BoxRenderData * const data) {
+                                  BoxRenderData * const data,
+                                  Scene * scene) {
     auto scene = getParentScene();
     setupWithoutRasterEffects(relFrame, parentM, data, scene);
     setupRasterEffects(relFrame, data, scene);

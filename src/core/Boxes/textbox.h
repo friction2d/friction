@@ -61,7 +61,7 @@ public:
 
     stdsptr<BoxRenderData> createRenderData();
     void setupRenderData(const qreal relFrame, const QMatrix& parentM,
-                         BoxRenderData * const data);
+                         BoxRenderData * const data, Scene * scene);
 
     SkScalar getFontSize() const;
     const QString& getFontFamily() const;

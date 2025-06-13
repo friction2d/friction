@@ -305,8 +305,9 @@ void AnimationBox::setupCanvasMenu(PropertyMenu * const menu)
 
 void AnimationBox::setupRenderData(const qreal relFrame,
                                    const QMatrix& parentM,
-                                   BoxRenderData * const data) {
-    BoundingBox::setupRenderData(relFrame, parentM, data);
+                                   BoxRenderData * const data,
+                                   Scene * scene) {
+    BoundingBox::setupRenderData(relFrame, parentM, data, scene);
     if(!mSrcFramesCache) return;
     const auto imgData = static_cast<AnimationBoxRenderData*>(data);
     const int animFrame = getAnimationFrameForRelFrame(relFrame);

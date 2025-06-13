@@ -25,9 +25,11 @@
 
 #ifndef INTERNALLINKCANVAS_H
 #define INTERNALLINKCANVAS_H
+
 #include "internallinkgroupbox.h"
 #include "Properties/boolproperty.h"
 #include "Boxes/frameremapping.h"
+
 
 class CORE_EXPORT InternalLinkCanvas : public InternalLinkGroupBox {
     e_OBJECT
@@ -36,7 +38,7 @@ protected:
                        const bool innerLink);
 public:
     void setupRenderData(const qreal relFrame, const QMatrix& parentM,
-                         BoxRenderData * const data);
+                         BoxRenderData * const data, Scene * scene);
 
     qsptr<BoundingBox> createLink(const bool inner);
 

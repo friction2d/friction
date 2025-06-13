@@ -1060,8 +1060,9 @@ stdsptr<BoxRenderData> ContainerBox::createRenderData() {
 
 void ContainerBox::setupRenderData(const qreal relFrame,
                                    const QMatrix& parentM,
-                                   BoxRenderData * const data) {
-    BoundingBox::setupRenderData(relFrame, parentM, data);
+                                   BoxRenderData * const data,
+                                   Scene * scene) {
+    BoundingBox::setupRenderData(relFrame, parentM, data, scene);
     processChildrenData(relFrame, data->fTotalTransform, data, scene);
 }
 

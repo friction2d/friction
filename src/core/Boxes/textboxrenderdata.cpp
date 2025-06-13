@@ -195,7 +195,7 @@ void LineRenderData::initialize(const qreal relFrame,
     fLinePos = pos;
     fString = line;
     const auto parentM = parent->getInheritedTransformAtFrame(relFrame);
-    parent->BoundingBox::setupRenderData(relFrame, parentM, this);
+    parent->BoundingBox::setupRenderData(relFrame, parentM, this, getParentScene());
 
     qreal xPos = pos.x();
     const qreal spaceX = horizontalAdvance(font, " ")*wordSpacing;

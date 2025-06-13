@@ -39,7 +39,7 @@ protected:
                     const bool innerLink);
 public:
     void setupRenderData(const qreal relFrame, const QMatrix& parentM,
-                         BoxRenderData * const data);
+                         BoxRenderData * const data, Scene * scene);
 
     void setLinkTarget(BoundingBox * const linkTarget);
 protected:

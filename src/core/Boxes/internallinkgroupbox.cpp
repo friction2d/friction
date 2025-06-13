@@ -45,12 +45,13 @@ InternalLinkGroupBox::InternalLinkGroupBox(ContainerBox * const linkTarget,
 
 void InternalLinkGroupBox::setupRenderData(const qreal relFrame,
                                            const QMatrix& parentM,
-                                           BoxRenderData * const data
+                                           BoxRenderData * const data,
+                                           Scene * scene
 ) {
     const auto linkTarget = getLinkTarget();
     if(linkTarget) linkTarget->BoundingBox::setupRenderData(
-                relFrame, parentM, data);
-    ContainerBox::setupRenderData(relFrame, parentM, data);
+                relFrame, parentM, data, scene);
+    ContainerBox::setupRenderData(relFrame, parentM, data, scene);
 }
 
 bool InternalLinkGroupBox::localDifferenceInPathBetweenFrames(
