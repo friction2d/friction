@@ -26,6 +26,7 @@
 #include "boxwithpatheffects.h"
 #include "../PathEffects/patheffectcollection.h"
 #include "../PathEffects/patheffectstask.h"
+#include "containerbox.h"
 
 BoxWithPathEffects::BoxWithPathEffects(
         const QString &name, const eBoxType type) :
