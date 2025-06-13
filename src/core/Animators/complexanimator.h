@@ -25,12 +25,16 @@
 
 #ifndef COMPLEXANIMATOR_H
 #define COMPLEXANIMATOR_H
+
 #include "animator.h"
 #include "key.h"
+
+#include <QList>
 
 class ComplexKey;
 class KeysClipboard;
 class QrealAnimator;
+
 
 class CORE_EXPORT ComplexAnimator : public Animator {
     Q_OBJECT
@@ -38,7 +42,7 @@ class CORE_EXPORT ComplexAnimator : public Animator {
     e_DECLARE_TYPE(ComplexAnimator)
 protected:
     ComplexAnimator(const QString& name);
-public:    
+public:
     virtual void ca_childIsRecordingChanged();
     virtual void ca_removeAllChildren();
 

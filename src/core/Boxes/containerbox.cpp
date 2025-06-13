@@ -371,15 +371,7 @@ void ContainerBox::forcedMarginMeaningfulChange() {
     }
 }
 
-QRect ContainerBox::currentGlobalBounds() const {
-    const auto pScene = getParentScene();
-    if(!pScene) return QRect();
-    const auto sceneBounds = pScene->getCurrentBounds();
-    return sceneBounds.adjusted(-mForcedMargin.left(),
-                                -mForcedMargin.top(),
-                                mForcedMargin.right(),
-                                mForcedMargin.bottom());
-}
+QRect ContainerBox::currentGlobalBounds() const {}
 
 void ContainerBox::queChildrenTasks() {
     for(const auto &child : mContainedBoxes)

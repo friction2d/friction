@@ -39,6 +39,10 @@
 #include "conncontextptr.h"
 #include "Properties/property.h"
 #include "conncontextobjlist.h"
+// Undo/redo
+#include "undoredo.h"
+
+class UndoRedoStack;
 
 
 // Represents a scene in a Document (what Canvas used to be)
@@ -46,6 +50,8 @@
 //  - Keys + FrameRange
 //  - Objects (_currentGroup)
 //  - read/write
+//
+// I don't like some things (undoRedoStack, gradients, selectedProperties...)
 class Scene {
 public:
     Scene(QString sceneName, qreal canvasWidth, qreal canvasHeight, qreal fps);
@@ -78,6 +84,31 @@ public:
     }
 
     const QList<BoundingBox*> &getContainedBoxes() { return getCurrentGroup()->getContainedBoxes(); };
+
+    // Gradients
+
+    SceneBoundGradient * getGradientWithRWId(const int rwId) const;
+    SceneBoundGradient * getGradientWithDocumentId(const int id) const;
+    SceneBoundGradient * getGradientWithDocumentSceneId(const int id) const;
+
+    // Undo/redo
+    bool newUndoRedoSet();
+
+    void undo();
+    void redo();
+
+    UndoRedoStack::StackBlock blockUndoRedo();
+    void unblockUndoRedo();
+
+    void addUndoRedo(const QString &name,
+                     const stdfunc<void ()> &undo,
+                     const stdfunc<void ()> &redo);
+    void pushUndoRedoName(const QString &name) const;
+
+    UndoRedoStack* undoRedoStack() const
+    {
+        return mUndoRedoStack.get();
+    }
 
     // Setters
 
@@ -158,6 +189,9 @@ signals:
     void destroyed();
     void dimensionsChanged(int, int);
     void fpsChanged(qreal);
+
+protected:
+    qsptr<UndoRedoStack> mUndoRedoStack;
 
 private:
     qptr<ContainerBox> _currentGroup;

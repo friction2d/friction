@@ -540,8 +540,8 @@ void BoundingBox::prp_updateCanvasProps() {
         if(prop->prp_drawsOnCanvas()) mCanvasProps.append(prop);
     });
     if(prp_drawsOnCanvas()) mCanvasProps.append(this);
-    //const auto parentScene = getParentScene();
-    //if(parentScene) parentScene->requestUpdate();
+    const auto parentScene = getParentScene();
+    if(parentScene) parentScene->requestUpdate();
 }
 
 void BoundingBox::updateCurrentPreviewDataFromRenderData(
@@ -554,7 +554,7 @@ void BoundingBox::planUpdate(const UpdateReason reason) {
     if(!isVisibleAndInVisibleDurationRect()) return;
     const auto parent = getParentGroup();
     if(parent) parent->planUpdate(reason);
-    //else if(!enve_cast<Scene*>(this)) return;
+    else if(!enve_cast<ContainerBox*>(this)) return;
     if(reason == UpdateReason::userChange) {
         mStateId++;
         mRenderDataHandler.clear();
@@ -788,48 +788,7 @@ QPointF BoundingBox::mapRelPosToAbs(const QPointF &relPos) const {
 
 void BoundingBox::setupCanvasMenu(PropertyMenu * const menu)
 {
-    if (menu->hasActionsForType<BoundingBox>()) { return; }
-    menu->addedActionsForType<BoundingBox>();
-
-    //const auto pScene = getParentScene();
-    /*Q_ASSERT(pScene);
-
-    menu->addPlainAction(QIcon::fromTheme("linked"), tr("Create Link"), [pScene]() {
-        //pScene->createLinkBoxForSelected();
-    });
-    menu->addPlainAction(QIcon::fromTheme("pivot-align-center"), tr("Center Pivot"), [pScene]() {
-        //pScene->centerPivotForSelected();
-    });
-
-    menu->addSeparator();
-
-    menu->addPlainAction(QIcon::fromTheme("copy"), tr("Copy"), [pScene]() {
-        //pScene->copyAction();
-    })->setShortcut(Qt::CTRL + Qt::Key_C);
-
-    menu->addPlainAction(QIcon::fromTheme("cut"), tr("Cut"), [pScene]() {
-        //pScene->cutAction();
-    })->setShortcut(Qt::CTRL + Qt::Key_X);
-
-    menu->addPlainAction(QIcon::fromTheme("duplicate"), tr("Duplicate"), [pScene]() {
-        //pScene->duplicateAction();
-    })->setShortcut(Qt::CTRL + Qt::Key_D);
-
-    menu->addPlainAction(QIcon::fromTheme("trash"), tr("Delete"), [pScene]() {
-        //pScene->removeSelectedBoxesAndClearList();
-    })->setShortcut(Qt::Key_Delete);
-
-    menu->addSeparator();
-
-    menu->addPlainAction(QIcon::fromTheme("group"), tr("Group"), [pScene]() {
-        //pScene->groupSelectedBoxes();
-    })->setShortcut(Qt::CTRL + Qt::Key_G);
-
-    menu->addSeparator();
-
-    const auto rasterEffectsMenu = menu->addMenu(QIcon::fromTheme("effect"), tr("Raster Effects"));
-    RasterEffectMenuCreator::addEffects(
-                rasterEffectsMenu, &BoundingBox::addRasterEffect);*/
+    // Deprecated function.
 }
 
 void BoundingBox::alignGeometry(const QRectF& geometry,
@@ -1051,6 +1010,7 @@ void BoundingBox::setupRenderData(const qreal relFrame,
 void BoundingBox::setupWithoutRasterEffects(const qreal relFrame,
                                             const QMatrix& parentM,
                                             BoxRenderData * const data) {
+    auto baseCanvas = BaseCanvas::sGetInstance();
     auto scene = getParentScene();
     //Q_ASSERT(scene);
     if(!scene) return;
@@ -1063,7 +1023,7 @@ void BoundingBox::setupWithoutRasterEffects(const qreal relFrame,
     data->fInheritedTransform = parentM;
     data->fTotalTransform = thisRelM*parentM;
 
-    data->fResolution = 0.5; // TODO(kaixoo)
+    data->fResolution = baseCanvas->resolution();
     data->fResolutionScale.reset();
     data->fResolutionScale.scale(data->fResolution, data->fResolution);
     data->fOpacity = getOpacity(relFrame);
@@ -1074,9 +1034,9 @@ void BoundingBox::setupWithoutRasterEffects(const qreal relFrame,
         const auto parent = getParentGroup();
         QRectF maxBoundsF;
         if(parent) maxBoundsF = parent->currentGlobalBounds();
-        /*else maxBoundsF = scene->getCurrentBounds();
+        else maxBoundsF = baseCanvas->currentBounds();
         const QRectF scaledMaxBoundsF = data->fResolutionScale.mapRect(maxBoundsF);
-        data->fMaxBoundsRect = scaledMaxBoundsF.toAlignedRect();*/
+        data->fMaxBoundsRect = scaledMaxBoundsF.toAlignedRect();
     }
 }
 

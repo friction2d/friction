@@ -122,6 +122,21 @@ public:
     int resolution() { return _resolution; };
     void setResolution(qreal resolution) { _resolution = resolution; };
 
+    QRect canvasBounds() const
+    {
+        return QRect(0, 0, _width, _height);
+    }
+
+    QRect maxBounds() const
+    {
+        return QRect(-_width/2, - _height/2, 2*_width, 2*_height);
+    }
+
+    QRect currentBounds() const
+    {
+        return getMaxBounds();
+    }
+
 protected: // Key input & Qt events
     bool event(QEvent *e);
 

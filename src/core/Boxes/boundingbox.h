@@ -202,6 +202,7 @@ public:
     virtual void addOutlinePathEffect(const qsptr<PathEffect>& effect)
     { Q_UNUSED(effect) }
 
+    [[deprecated]]
     virtual void setupCanvasMenu(PropertyMenu * const menu);
 
     virtual void setupRenderData(const qreal relFrame, const QMatrix& parentM,

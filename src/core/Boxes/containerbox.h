@@ -167,6 +167,7 @@ public:
     const auto &getContained() const { return mContained; }
 
     void forcedMarginMeaningfulChange();
+    [[deprecated]]
     QRect currentGlobalBounds() const;
 
     bool diffsAffectingContainedBoxes(const int relFrame1,
