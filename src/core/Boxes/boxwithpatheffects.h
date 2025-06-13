@@ -26,7 +26,6 @@
 #ifndef BOXWITHPATHEFFECTS_H
 #define BOXWITHPATHEFFECTS_H
 #include "boundingbox.h"
-#include "containerbox.h"
 
 class PathEffectCollection;
 class PathEffectsTask;
