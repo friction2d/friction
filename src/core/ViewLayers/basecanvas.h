@@ -134,7 +134,7 @@ public:
 
     QRect currentBounds() const
     {
-        return getMaxBounds();
+        return maxBounds();
     }
 
 protected: // Key input & Qt events

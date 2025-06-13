@@ -33,6 +33,7 @@
 #include <QSize>
 
 #include "smartPointers/selfref.h"
+#include "Animators/sceneboundgradient.h"
 #include "Boxes/containerbox.h"
 #include "Boxes/boundingbox.h"
 // Selected properties
