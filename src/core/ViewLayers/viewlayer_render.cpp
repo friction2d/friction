@@ -91,3 +91,11 @@ void ViewLayerRender::setSceneFrame(const stdsptr<SceneFrameContainer> &cont) {
     _sceneFrame = cont;
     //emit requestUpdate();
 };
+
+void ViewLayerRender::setResolution(const qreal percent) {
+    _baseCanvas->setResolution(percent);
+};
+
+qreal ViewLayerRender::getResolution() const {
+    return _baseCanvas->resolution();
+};

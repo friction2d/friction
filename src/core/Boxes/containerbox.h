@@ -174,8 +174,11 @@ public:
     bool diffsAffectingContainedBoxes(const int relFrame1,
                                       const int relFrame2);
 
+    [[deprecated]]
     void deselectAllBoxesFromBoxesGroup();
+    [[deprecated]]
     void selectAllBoxesFromBoxesGroup();
+    [[deprecated]]
     void addContainedBoxesToSelection(const QRectF &rect);
 
     void setIsCurrentGroup_k(const bool bT);

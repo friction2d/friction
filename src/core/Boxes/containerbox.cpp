@@ -1066,22 +1066,9 @@ void ContainerBox::setupRenderData(const qreal relFrame,
     processChildrenData(relFrame, data->fTotalTransform, data, scene);
 }
 
-void ContainerBox::selectAllBoxesFromBoxesGroup() {
-    const auto pScene = getParentScene();
-    for(const auto& box : mContainedBoxes) {
-        if(box->isSelected()) continue;
-        pScene->addBoxToSelection(box);
-    }
-}
+void ContainerBox::selectAllBoxesFromBoxesGroup() {}
 
-void ContainerBox::deselectAllBoxesFromBoxesGroup() {
-    const auto pScene = getParentScene();
-    for(const auto& box : mContainedBoxes) {
-        if(box->isSelected()) {
-            pScene->removeBoxFromSelection(box);
-        }
-    }
-}
+void ContainerBox::deselectAllBoxesFromBoxesGroup() {}
 
 bool ContainerBox::diffsAffectingContainedBoxes(
         const int relFrame1, const int relFrame2) {
@@ -1126,19 +1113,7 @@ void ContainerBox::anim_setAbsFrame(const int frame) {
         cont->anim_setAbsFrame(frame);
 }
 
-void ContainerBox::addContainedBoxesToSelection(const QRectF &rect) {
-    const auto pScene = getParentScene();
-    const auto minMax = getContainedMinMax();
-    for(int i = minMax.fMin; i <= minMax.fMax; i++) {
-        const auto& box = mContainedBoxes.at(i);
-        if(box->isVisibleAndUnlocked() &&
-                box->isVisibleAndInVisibleDurationRect()) {
-            if(box->isContainedIn(rect)) {
-                pScene->addBoxToSelection(box);
-            }
-        }
-    }
-}
+void ContainerBox::addContainedBoxesToSelection(const QRectF &rect) {}
 
 void ContainerBox::addContained(const qsptr<eBoxOrSound>& child) {
     insertContained(0, child);
@@ -1158,8 +1133,9 @@ void ContainerBox::insertContained(
     if(!isBoxShadow) {
         const QString oldName = child->prp_getName();
         const auto parentScene = getParentScene();
-        const auto nameCtxt = parentScene ? parentScene : this;
-        const QString newName = nameCtxt->makeNameUniqueForDescendants(oldName);
+        Q_ASSERT(!parentScene);
+        if (!parentScene) return;
+        const QString newName = parentScene->makeNameUniqueForDescendants(oldName);
         child->prp_setName(newName);
     }
 

@@ -38,6 +38,7 @@ extern "C" {
 
 #include "Sound/evideosound.h"
 #include "Private/scene.h"
+#include "ViewLayers/viewlayer_render.h"
 #include "Sound/soundcomposition.h"
 #include "filesourcescache.h"
 #include "fileshandler.h"

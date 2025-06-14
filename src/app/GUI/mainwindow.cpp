@@ -1487,11 +1487,11 @@ void MainWindow::updateSettingsForCurrentCanvas(Scene* const scene)
     mClipViewToCanvas->blockSignals(false);
 
     mRasterEffectsVisible->blockSignals(true);
-    mRasterEffectsVisible->setChecked(scene->getRasterEffectsVisible());
+    mRasterEffectsVisible->setChecked(mViewLayerPreview->getRasterEffectsVisible());
     mRasterEffectsVisible->blockSignals(false);
 
     mPathEffectsVisible->blockSignals(true);
-    mPathEffectsVisible->setChecked(scene->getPathEffectsVisible());
+    mPathEffectsVisible->setChecked(mViewLayerPreview->getPathEffectsVisible());
     mPathEffectsVisible->blockSignals(false);
 
     mTimeline->updateSettingsForCurrentCanvas(scene);

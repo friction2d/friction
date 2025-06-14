@@ -268,9 +268,11 @@ public:
 
     void setupWithoutRasterEffects(const qreal relFrame,
                                    const QMatrix& parentM,
-                                   BoxRenderData * const data);
+                                   BoxRenderData * const data,
+                                   Scene * scene);
     void setupRasterEffects(const qreal relFrame,
-                            BoxRenderData * const data);
+                            BoxRenderData * const data,
+                            Scene * scene);
 
     void drawAllCanvasControls(SkCanvas * const canvas,
                                const CanvasMode mode,

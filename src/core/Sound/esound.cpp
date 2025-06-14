@@ -24,7 +24,6 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "esound.h"
-#include "../canvas.h"
 #include "soundcomposition.h"
 
 eSound::eSound() : eBoxOrSound("sound") {

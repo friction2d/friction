@@ -92,6 +92,9 @@ public:
 
     // Gradients
 
+    SceneBoundGradient * createNewGradient();
+    bool removeGradient(const qsptr<SceneBoundGradient> &gradient);
+
     SceneBoundGradient * getGradientWithRWId(const int rwId) const;
     SceneBoundGradient * getGradientWithDocumentId(const int id) const;
     SceneBoundGradient * getGradientWithDocumentSceneId(const int id) const;
@@ -183,8 +186,6 @@ public:
     }
 
 public:
-    bool getRasterEffectsVisible() const { return _rasterEffectsVisible; };
-public:
     // Import / export
 
     // TODO(kaixoo):
@@ -234,8 +235,6 @@ private:
     FrameRange _range{0, 200};
 
 private:
-    bool _rasterEffectsVisible;
-
     // Selected properties
     ConnContextObjList<Property*> _selectedProperties;
 };

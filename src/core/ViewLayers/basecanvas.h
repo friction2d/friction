@@ -157,6 +157,7 @@ protected: // Key input & Qt events
 private:
     void tabletEvent(QTabletEvent *e);
 
+    // TODO: This should be delegated to ViewLayers
     bool handleSceneModeChangeKeyPress(QKeyEvent *event);
     bool handleCutCopyPasteKeyPress(QKeyEvent *event);
     bool handleTransformationKeyPress(QKeyEvent *event);

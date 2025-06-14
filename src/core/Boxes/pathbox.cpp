@@ -186,7 +186,8 @@ void PathBox::setupRenderData(const qreal relFrame, const QMatrix& parentM,
     if(currentPathCompatible) {
         pathData->fPath = mPathSk;
     } else {
-        if(scene->getPathEffectsVisible())
+        auto viewLayerPreview = ViewLayerPreview::sGetInstance();
+        if(viewLayerPreview->getPathEffectsVisible())
             addBasePathEffects(relFrame, pathEffects);
         pathData->fPath = pathData->fEditPath;
     }
@@ -195,7 +196,8 @@ void PathBox::setupRenderData(const qreal relFrame, const QMatrix& parentM,
     if(currentFillPathCompatible) {
         pathData->fFillPath = mFillPathSk;
     } else {
-        if(scene->getPathEffectsVisible()) {
+        auto viewLayerPreview = ViewLayerPreview::sGetInstance();
+        if(viewLayerPreview->getPathEffectsVisible()) {
             addFillEffects(relFrame, fillEffects);
         }
         if(pathEffects.isEmpty() && fillEffects.isEmpty()) {
@@ -211,7 +213,9 @@ void PathBox::setupRenderData(const qreal relFrame, const QMatrix& parentM,
     } else {
         setupStrokerSettings(pathData, relFrame);
 
-        if(scene->getPathEffectsVisible()) {
+        auto viewLayerPreview = ViewLayerPreview::sGetInstance();
+
+        if(viewLayerPreview->getPathEffectsVisible()) {
             addOutlineBaseEffects(relFrame, outlineBaseEffects);
             addOutlineEffects(relFrame, outlineEffects);
         }
@@ -246,7 +250,8 @@ void PathBox::addPathEffects(
         PathEffectsCList& fillEffects,
         PathEffectsCList& outlineBaseEffects,
         PathEffectsCList& outlineEffects) {
-    if(scene->getPathEffectsVisible()) {
+    auto viewLayerPreview = ViewLayerPreview::sGetInstance();
+    if(viewLayerPreview->getPathEffectsVisible()) {
         addBasePathEffects(relFrame, pathEffects);
         addFillEffects(relFrame, fillEffects);
         addOutlineBaseEffects(relFrame, outlineBaseEffects);

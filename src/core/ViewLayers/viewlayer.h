@@ -59,10 +59,22 @@ public:
     bool isVisible() { return _isVisible; };
 
     // Mouse events
-    virtual void mousePressEvent(QMouseEvent *e) = 0;
-    virtual void mouseReleaseEvent(QMouseEvent *e) = 0;
-    virtual void mouseMoveEvent(QMouseEvent *e) = 0;
-    virtual void mouseDoubleClickEvent(QMouseEvent *e) = 0;
+    virtual bool event(QEvent *e);
+
+    virtual void hideEvent(QHideEvent* e);
+    virtual void showEvent(QShowEvent* e);
+    virtual void resizeEvent(QResizeEvent* e);
+
+    virtual void dropEvent(QDropEvent *event);
+    virtual void dragEnterEvent(QDragEnterEvent *event);
+    virtual void dragMoveEvent(QDragMoveEvent *event);
+
+    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void mouseReleaseEvent(QMouseEvent *event);
+    virtual void keyReleaseEvent(QKeyEvent *event);
+    virtual void mouseMoveEvent(QMouseEvent *event);
+    virtual void wheelEvent(QWheelEvent *event);
+    virtual void mouseDoubleClickEvent(QMouseEvent *event);
 
 private:
     std::string const _layerId;

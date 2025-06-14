@@ -30,9 +30,10 @@
 
 #include <QRectF>
 
-#include "basecanvas.h"
 #include "Private/document.h"
 #include "skia/skiaincludes.h"
+
+class BaseCanvas;
 
 
 class ViewLayerSelection : public ViewLayer {

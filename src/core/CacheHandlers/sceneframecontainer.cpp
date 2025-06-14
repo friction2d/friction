@@ -24,8 +24,9 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "sceneframecontainer.h"
+#include "Private/scene.h"
 #include "../Boxes/boxrenderdata.h"
-#include "../canvas.h"
+
 
 SceneFrameContainer::SceneFrameContainer(
         Scene * const scene,

@@ -28,7 +28,6 @@
 
 #include "viewlayer.h"
 
-#include "basecanvas.h"
 #include "framerange.h"
 #include "Private/document.h"
 #include "skia/skiaincludes.h"
@@ -36,6 +35,9 @@
 #include "CacheHandlers/sceneframecontainer.h"
 #include "CacheHandlers/hddcachablecachehandler.h"
 #include "Sound/soundcomposition.h"
+
+class BaseCanvas;
+
 
 // This is the class that renders canvas' objects when in render mode
 // When ViewLayerRender is shown, ViewLayerPreview and ViewLayerSelection are disabled
@@ -70,19 +72,19 @@ public:
     }
     void setMinFrameUseRange(const int min)
     {
-        mSceneFramesHandler.setMinUseRange(min);
+        _sceneFramesHandler.setMinUseRange(min);
     }
     void setMaxFrameUseRange(const int max)
     {
-        mSceneFramesHandler.setMaxUseRange(max);
+        _sceneFramesHandler.setMaxUseRange(max);
     }
     void clearUseRange()
     {
-        mSceneFramesHandler.clearUseRange();
+        _sceneFramesHandler.clearUseRange();
     }
 
-    qreal getResolution() const { return _resolution; };
-    void setResolution(const qreal percent) { _resolution = percent; };
+    qreal getResolution() const;
+    void setResolution(const qreal percent);
 
     void setIsRenderingToOutput(const bool bT) { _isRenderingOutput = bT; };
 
@@ -101,7 +103,7 @@ signals:
 private:
     BaseCanvas *_baseCanvas;
     Document &_document;
-    ViewLayerRender *sInstance;
+    static ViewLayerRender *sInstance;
 
     bool _isRenderingOutput;
 

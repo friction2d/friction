@@ -52,6 +52,7 @@
 #include "BlendEffects/blendeffectcollection.h"
 #include "TransformEffects/transformeffectcollection.h"
 #include "GUI/dialogsinterface.h"
+#include "ViewLayers/viewlayer_preview.h"
 #include "svgexporter.h"
 #include "svgexporthelpers.h"
 #include "internallinkcanvas.h"
@@ -1003,16 +1004,15 @@ void BoundingBox::setupRenderData(const qreal relFrame,
                                   const QMatrix& parentM,
                                   BoxRenderData * const data,
                                   Scene * scene) {
-    auto scene = getParentScene();
     setupWithoutRasterEffects(relFrame, parentM, data, scene);
     setupRasterEffects(relFrame, data, scene);
 }
 
 void BoundingBox::setupWithoutRasterEffects(const qreal relFrame,
                                             const QMatrix& parentM,
-                                            BoxRenderData * const data) {
+                                            BoxRenderData * const data,
+                                            Scene * scene) {
     auto baseCanvas = BaseCanvas::sGetInstance();
-    auto scene = getParentScene();
     //Q_ASSERT(scene);
     if(!scene) return;
 
@@ -1042,11 +1042,10 @@ void BoundingBox::setupWithoutRasterEffects(const qreal relFrame,
 }
 
 void BoundingBox::setupRasterEffects(const qreal relFrame,
-                                     BoxRenderData * const data) {
-    auto scene = getParentScene();
-    //Q_ASSERT(scene);
-    if(!scene) return;
-    const bool effectsVisible = scene->getRasterEffectsVisible();
+                                     BoxRenderData * const data,
+                                     Scene * scene) {
+    auto viewLayerPreview = ViewLayerPreview::sGetInstance();
+    const bool effectsVisible = viewLayerPreview->getRasterEffectsVisible();
     if(data->fOpacity > 0.001 && effectsVisible) {
         mRasterEffectsAnimators->addEffects(relFrame, data);
     }

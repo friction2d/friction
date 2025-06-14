@@ -30,6 +30,7 @@
 #include <QScreen>
 #include <QTransform>
 
+#include "basecanvas.h"
 #include "utils.h"
 #include "Drawables/rectangle_drawable.h"
 #include "Boxes/containerbox.h"

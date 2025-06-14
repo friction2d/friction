@@ -28,12 +28,14 @@
 
 #include "viewlayer.h"
 
-#include "basecanvas.h"
 #include "Private/document.h"
 #include "skia/skiaincludes.h"
 #include "CacheHandlers/usepointer.h"
 #include "CacheHandlers/sceneframecontainer.h"
 #include "conncontextobjlist.h"
+
+class BaseCanvas;
+
 
 // This is the class that renders the Canvas' objects when in preview mode
 // This plays with ViewLayerSelection to let the user move objects around
@@ -45,6 +47,25 @@ public:
     static ViewLayerPreview* sGetInstance() { return sInstance; };
 
     void repaint(SkCanvas * const canvas) override;
+
+    bool getRasterEffectsVisible() const
+    {
+        return _rasterEffectsVisible;
+    }
+
+    bool getPathEffectsVisible() const
+    {
+        return _pathEffectsVisible;
+    }
+
+    void setRasterEffectsVisible(const bool isVisible)
+    {
+        _rasterEffectsVisible = isVisible;
+    }
+    void setPathEffectsVisible(const bool isVisible)
+    {
+        _pathEffectsVisible = isVisible;
+    }
 
     // Mouse events
     void mousePressEvent(QMouseEvent *e) override {};
@@ -75,6 +96,9 @@ private:
             QList<BlendEffect::Delayed> &delayed) const;
 
     UseSharedPointer<SceneFrameContainer> _sceneFrame;
+
+    bool _rasterEffectsVisible = true;
+    bool _pathEffectsVisible = true;
 };
 
 #endif // VIEW_LAYER_PREVIEW_H
