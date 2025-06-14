@@ -136,25 +136,54 @@ public:
 
     void setCurrentFrame(int frame) { _currentFrame = frame; };
 
-    // Selected properties
+    // Selected Propertys
     // This is MAGIC, DO NOT TOUCH
 
-    void addToSelectedProps(Property* const prop) {
-        auto& conn = mSelectedProps.addObj(prop);
-        conn << connect(prop, &Property::prp_parentChanged,
-                        this, [this, prop]() { removeFromSelectedProps(prop); });
-        prop->prp_setSelected(true);
+    template <class T = MovablePoint>
+    void executeOperationOnSelectedPoints(const std::function<void(T*)> &op) {
+        if(mPressedPoint) {
+            if(!mPressedPoint->selectionEnabled()) {
+                const auto ptT = enve_cast<T*>(mPressedPoint.data());
+                if(ptT) {
+                    op(ptT);
+                    //if(ptT->selectionEnabled()) addPointToSelection(ptT);
+                    return;
+                }
+            }
+        }
+        for(const auto& pt : mSelectedPoints_d) {
+            const auto ptT = enve_cast<T*>(pt);
+            if(ptT) {
+                op(ptT);
+                //if(!ptT->selectionEnabled()) removePointFromSelection(ptT);
+            }
+        }
     }
 
-    void removeFromSelectedProps(Property* const prop) {
-        mSelectedProps.removeObj(prop);
-        prop->prp_setSelected(false);
+    template <class T = Property>
+    void executeOperationOnSelectedProperties(const std::function<void(T*)> &operation) {
+        for(const auto prop : mSelectedProps) {
+            const auto t = enve_cast<T*>(prop);
+            if(t) operation(t);
+        }
     }
 
-    void clearSelectedProps() {
+    void addToSelectedProperties(Property* const property) {
+        auto& conn = mSelectedProps.addObj(property);
+        conn << connect(property, &Property::prp_parentChanged,
+                        this, [this, prop]() { removeFromSelectedProperties(property); });
+        property->prp_setSelected(true);
+    }
+
+    void removeFromSelectedProperties(Property* const property) {
+        mSelectedProps.removeObj(property);
+        property->prp_setSelected(false);
+    }
+
+    void clearSelectedProperties() {
         const auto selected = mSelectedProps.getList();
-        for(const auto prop : selected) {
-            removeFromSelectedProps(prop);
+        for(const auto property : selected) {
+            removeFromSelectedProperties(property);
         }
     }
 

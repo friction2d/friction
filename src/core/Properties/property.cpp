@@ -392,13 +392,13 @@ void Property::prp_selectionChangeTriggered(const bool shiftPressed) {
     if(!mParentScene) return;
     if(shiftPressed) {
         if(prp_mSelected) {
-            mParentScene->removeFromSelectedProps(this);
+            mParentScene->removeFromSelectedProperties(this);
         } else {
-            mParentScene->addToSelectedProps(this);
+            mParentScene->addToSelectedProperties(this);
         }
     } else {
-        mParentScene->clearSelectedProps();
-        mParentScene->addToSelectedProps(this);
+        mParentScene->clearSelectedProperties();
+        mParentScene->addToSelectedProperties(this);
     }
 }
 
