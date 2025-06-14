@@ -27,6 +27,7 @@
 #include "Private/document.h"
 #include "Private/scene.h"
 #include "ViewLayers/viewlayer_preview.h"
+#include "ViewLayers/viewlayer_selection.h"
 #include "Paint/simplebrushwrapper.h"
 #include "paintsettingsapplier.h"
 #include "Sound/eindependentsound.h"
@@ -39,9 +40,15 @@
 
 Actions* Actions::sInstance = nullptr;
 
-Actions::Actions(Document &document) : mDocument(document) {
+Actions::Actions(Document &document)
+    : mDocument(document)
+    , mActiveCanvas(ViewLayerPreview::sGetInstance())
+    , mActiveCanvasSelection(ViewLayerSelection::sGetInstance()) {
     Q_ASSERT(!sInstance);
     sInstance = this;
+
+    // Call once!!
+    connectToViewLayerSelection();
 
     connect(&document, &Document::activeSceneSet,
             this, &Actions::connectToActiveScene);
@@ -56,19 +63,19 @@ Actions::Actions(Document &document) : mDocument(document) {
             return static_cast<bool>(mActiveCanvas);
         };
         const auto deleteSceneActionExec = [this]() {
-            if(!mActiveCanvas) return false;
-            const auto sceneName = mActiveCanvas->prp_getName();
+            if(!mActiveScene) return false;
+            const auto sceneName = mActiveScene->name();
             const int buttonId = QMessageBox::question(
                         nullptr, "Delete " + sceneName,
                         QString("Are you sure you want to delete "
                         "%1? This action cannot be undone.").arg(sceneName),
                         "Cancel", "Delete");
             if(buttonId == 0) return false;
-            return mDocument.removeScene(mActiveCanvas->ref<Scene>());
+            return mDocument.removeScene(mActiveScene->ref<Scene>());
         };
         const auto deleteSceneActionText = [this]() {
-            if(!mActiveCanvas) return QStringLiteral("Delete Scene");
-            return "Delete " + mActiveCanvas->prp_getName();
+            if(!mActiveScene) return QStringLiteral("Delete Scene");
+            return "Delete " + mActiveScene->name();
         };
         deleteSceneAction = new Action(deleteSceneActionCan,
                                        deleteSceneActionExec,
@@ -78,12 +85,12 @@ Actions::Actions(Document &document) : mDocument(document) {
 
     { // sceneSettingsAction
         const auto sceneSettingsActionCan = [this]() {
-            return static_cast<bool>(mActiveCanvas);
+            return static_cast<bool>(mActiveScene);
         };
         const auto sceneSettingsActionExec = [this]() {
-            if(!mActiveCanvas) return;
+            if(!mActiveScene) return;
             const auto& intr = DialogsInterface::instance();
-            intr.showSceneSettingsDialog(mActiveCanvas);
+            intr.showSceneSettingsDialog(mActiveScene);
         };
 
         sceneSettingsAction = new Action(sceneSettingsActionCan,
@@ -94,16 +101,16 @@ Actions::Actions(Document &document) : mDocument(document) {
 
     { // undoAction
         const auto undoActionCan = [this]() {
-            if(!mActiveCanvas) return false;
-            return mActiveCanvas->undoRedoStack()->canUndo();
+            if(!mActiveScene) return false;
+            return mActiveScene->undoRedoStack()->canUndo();
         };
         const auto undoActionExec = [this]() {
-            mActiveCanvas->undo();
+            mActiveScene->undo();
             afterAction();
         };
         const auto undoActionText = [this]() {
-            if(!mActiveCanvas) return QStringLiteral("Undo");
-            return mActiveCanvas->undoRedoStack()->undoText();
+            if(!mActiveScene) return QStringLiteral("Undo");
+            return mActiveScene->undoRedoStack()->undoText();
         };
         undoAction = new Action(undoActionCan, undoActionExec,
                                 undoActionText, this);
@@ -111,16 +118,16 @@ Actions::Actions(Document &document) : mDocument(document) {
 
     { // redoAction
         const auto redoActionCan = [this]() {
-            if(!mActiveCanvas) return false;
-            return mActiveCanvas->undoRedoStack()->canRedo();
+            if(!mActiveScene) return false;
+            return mActiveScene->undoRedoStack()->canRedo();
         };
         const auto redoActionExec = [this]() {
-            mActiveCanvas->redo();
+            mActiveScene->redo();
             afterAction();
         };
         const auto redoActionText = [this]() {
-            if(!mActiveCanvas) return QStringLiteral("Redo");
-            return mActiveCanvas->undoRedoStack()->redoText();
+            if(!mActiveScene) return QStringLiteral("Redo");
+            return mActiveScene->undoRedoStack()->redoText();
         };
         redoAction = new Action(redoActionCan, redoActionExec,
                                 redoActionText, this);
@@ -128,11 +135,11 @@ Actions::Actions(Document &document) : mDocument(document) {
 
     { // raiseAction
         const auto raiseActionCan = [this]() {
-            if(!mActiveCanvas) return false;
-            return !mActiveCanvas->isBoxSelectionEmpty();
+            if(!mActiveCanvasSelection) return false;
+            return !mActiveCanvasSelection->isBoxSelectionEmpty();
         };
         const auto raiseActionExec = [this]() {
-            mActiveCanvas->raiseSelectedBoxes();
+            mActiveCanvasSelection->raiseSelectedBoxes();
             afterAction();
         };
         raiseAction = new UndoableAction(raiseActionCan, raiseActionExec,
@@ -141,11 +148,11 @@ Actions::Actions(Document &document) : mDocument(document) {
 
     { // lowerAction
         const auto lowerActionCan = [this]() {
-            if(!mActiveCanvas) return false;
-            return !mActiveCanvas->isBoxSelectionEmpty();
+            if(!mActiveCanvasSelection) return false;
+            return !mActiveCanvasSelection->isBoxSelectionEmpty();
         };
         const auto lowerActionExec = [this]() {
-            mActiveCanvas->lowerSelectedBoxes();
+            mActiveCanvasSelection->lowerSelectedBoxes();
             afterAction();
         };
         lowerAction = new UndoableAction(lowerActionCan, lowerActionExec,
@@ -154,11 +161,11 @@ Actions::Actions(Document &document) : mDocument(document) {
 
     { // raiseToTopAction
         const auto raiseToTopActionCan = [this]() {
-            if(!mActiveCanvas) return false;
-            return !mActiveCanvas->isBoxSelectionEmpty();
+            if(!mActiveCanvasSelection) return false;
+            return !mActiveCanvasSelection->isBoxSelectionEmpty();
         };
         const auto raiseToTopActionExec = [this]() {
-            mActiveCanvas->raiseSelectedBoxesToTop();
+            mActiveCanvasSelection->raiseSelectedBoxesToTop();
             afterAction();
         };
         raiseToTopAction = new UndoableAction(raiseToTopActionCan,
@@ -170,11 +177,11 @@ Actions::Actions(Document &document) : mDocument(document) {
 
     { // lowerToBottomAction
         const auto lowerToBottomActionCan = [this]() {
-            if(!mActiveCanvas) return false;
-            return !mActiveCanvas->isBoxSelectionEmpty();
+            if(!mActiveCanvasSelection) return false;
+            return !mActiveCanvasSelection->isBoxSelectionEmpty();
         };
         const auto lowerToBottomActionExec = [this]() {
-            mActiveCanvas->lowerSelectedBoxesToBottom();
+            mActiveCanvasSelection->lowerSelectedBoxesToBottom();
             afterAction();
         };
         lowerToBottomAction = new UndoableAction(lowerToBottomActionCan,
@@ -185,11 +192,11 @@ Actions::Actions(Document &document) : mDocument(document) {
 
     { // objectsToPathAction
         const auto objectsToPathActionCan = [this]() {
-            if(!mActiveCanvas) return false;
-            return !mActiveCanvas->isBoxSelectionEmpty();
+            if(!mActiveCanvasSelection) return false;
+            return !mActiveCanvasSelection->isBoxSelectionEmpty();
         };
         const auto objectsToPathActionExec = [this]() {
-            mActiveCanvas->convertSelectedBoxesToPath();
+            mActiveCanvasSelection->convertSelectedBoxesToPath();
             afterAction();
         };
         objectsToPathAction = new UndoableAction(objectsToPathActionCan,
@@ -200,11 +207,11 @@ Actions::Actions(Document &document) : mDocument(document) {
 
     { // strokeToPathAction
         const auto strokeToPathActionCan = [this]() {
-            if(!mActiveCanvas) return false;
-            return !mActiveCanvas->isBoxSelectionEmpty();
+            if(!mActiveCanvasSelection) return false;
+            return !mActiveCanvasSelection->isBoxSelectionEmpty();
         };
         const auto strokeToPathActionExec = [this]() {
-            mActiveCanvas->convertSelectedPathStrokesToPath();
+            mActiveCanvasSelection->convertSelectedPathStrokesToPath();
             afterAction();
         };
         strokeToPathAction = new UndoableAction(strokeToPathActionCan,
@@ -215,11 +222,11 @@ Actions::Actions(Document &document) : mDocument(document) {
 
     { // groupAction
         const auto groupActionCan = [this]() {
-            if(!mActiveCanvas) return false;
-            return !mActiveCanvas->isBoxSelectionEmpty();
+            if(!mActiveCanvasSelection) return false;
+            return !mActiveCanvasSelection->isBoxSelectionEmpty();
         };
         const auto groupActionExec = [this]() {
-            mActiveCanvas->groupSelectedBoxes();
+            mActiveCanvasSelection->groupSelectedBoxes();
             afterAction();
         };
         groupAction = new UndoableAction(groupActionCan,
@@ -230,11 +237,11 @@ Actions::Actions(Document &document) : mDocument(document) {
 
     { // ungroupAction
         const auto ungroupActionCan = [this]() {
-            if(!mActiveCanvas) return false;
-            return !mActiveCanvas->isBoxSelectionEmpty();
+            if(!mActiveCanvasSelection) return false;
+            return !mActiveCanvasSelection->isBoxSelectionEmpty();
         };
         const auto ungroupActionExec = [this]() {
-            mActiveCanvas->ungroupSelectedBoxes();
+            mActiveCanvasSelection->ungroupSelectedBoxes();
             afterAction();
         };
         ungroupAction = new UndoableAction(ungroupActionCan,
@@ -245,11 +252,11 @@ Actions::Actions(Document &document) : mDocument(document) {
 
     { // pathsUnionAction
         const auto actionCan = [this]() {
-            if(!mActiveCanvas) return false;
-            return !mActiveCanvas->isBoxSelectionEmpty();
+            if(!mActiveCanvasSelection) return false;
+            return !mActiveCanvasSelection->isBoxSelectionEmpty();
         };
         const auto actionExec = [this]() {
-            mActiveCanvas->selectedPathsUnion();
+            mActiveCanvasSelection->selectedPathsUnion();
             afterAction();
         };
         pathsUnionAction = new UndoableAction(actionCan, actionExec,
@@ -258,11 +265,11 @@ Actions::Actions(Document &document) : mDocument(document) {
 
     { // pathsDifferenceAction
         const auto actionCan = [this]() {
-            if(!mActiveCanvas) return false;
-            return !mActiveCanvas->isBoxSelectionEmpty();
+            if(!mActiveCanvasSelection) return false;
+            return !mActiveCanvasSelection->isBoxSelectionEmpty();
         };
         const auto actionExec = [this]() {
-            mActiveCanvas->selectedPathsDifference();
+            mActiveCanvasSelection->selectedPathsDifference();
             afterAction();
         };
         pathsDifferenceAction = new UndoableAction(actionCan, actionExec,
@@ -271,11 +278,11 @@ Actions::Actions(Document &document) : mDocument(document) {
 
     { // pathsIntersectionAction
         const auto actionCan = [this]() {
-            if(!mActiveCanvas) return false;
-            return !mActiveCanvas->isBoxSelectionEmpty();
+            if(!mActiveCanvasSelection) return false;
+            return !mActiveCanvasSelection->isBoxSelectionEmpty();
         };
         const auto actionExec = [this]() {
-            mActiveCanvas->selectedPathsIntersection();
+            mActiveCanvasSelection->selectedPathsIntersection();
             afterAction();
         };
         pathsIntersectionAction = new UndoableAction(actionCan, actionExec,
@@ -284,11 +291,11 @@ Actions::Actions(Document &document) : mDocument(document) {
 
     { // pathsDivisionAction
         const auto actionCan = [this]() {
-            if(!mActiveCanvas) return false;
-            return !mActiveCanvas->isBoxSelectionEmpty();
+            if(!mActiveCanvasSelection) return false;
+            return !mActiveCanvasSelection->isBoxSelectionEmpty();
         };
         const auto actionExec = [this]() {
-            mActiveCanvas->selectedPathsDivision();
+            mActiveCanvasSelection->selectedPathsDivision();
             afterAction();
         };
         pathsDivisionAction = new UndoableAction(actionCan, actionExec,
@@ -297,11 +304,11 @@ Actions::Actions(Document &document) : mDocument(document) {
 
     { // pathsExclusionAction
         const auto actionCan = [this]() {
-            if(!mActiveCanvas) return false;
-            return !mActiveCanvas->isBoxSelectionEmpty();
+            if(!mActiveCanvasSelection) return false;
+            return !mActiveCanvasSelection->isBoxSelectionEmpty();
         };
         const auto actionExec = [this]() {
-            mActiveCanvas->selectedPathsExclusion();
+            mActiveCanvasSelection->selectedPathsExclusion();
             afterAction();
         };
         pathsExclusionAction = new UndoableAction(actionCan, actionExec,
@@ -310,11 +317,11 @@ Actions::Actions(Document &document) : mDocument(document) {
 
     { // pathsCombineAction
         const auto actionCan = [this]() {
-            if(!mActiveCanvas) return false;
-            return !mActiveCanvas->isBoxSelectionEmpty();
+            if(!mActiveCanvasSelection) return false;
+            return !mActiveCanvasSelection->isBoxSelectionEmpty();
         };
         const auto actionExec = [this]() {
-            mActiveCanvas->selectedPathsCombine();
+            mActiveCanvasSelection->selectedPathsCombine();
             afterAction();
         };
         pathsCombineAction = new UndoableAction(actionCan, actionExec,
@@ -323,11 +330,11 @@ Actions::Actions(Document &document) : mDocument(document) {
 
     { // pathsBreakApartAction
         const auto actionCan = [this]() {
-            if(!mActiveCanvas) return false;
-            return !mActiveCanvas->isBoxSelectionEmpty();
+            if(!mActiveCanvasSelection) return false;
+            return !mActiveCanvasSelection->isBoxSelectionEmpty();
         };
         const auto actionExec = [this]() {
-            mActiveCanvas->selectedPathsBreakApart();
+            mActiveCanvasSelection->selectedPathsBreakApart();
             afterAction();
         };
         pathsBreakApartAction = new UndoableAction(actionCan, actionExec,
@@ -336,12 +343,12 @@ Actions::Actions(Document &document) : mDocument(document) {
 
     { // deleteAction
         const auto actionCan = [this]() {
-            if(!mActiveCanvas) return false;
-            return !mActiveCanvas->isBoxSelectionEmpty() ||
-                   !mActiveCanvas->isPointSelectionEmpty();
+            if(!mActiveCanvasSelection) return false;
+            return !mActiveCanvasSelection->isBoxSelectionEmpty() ||
+                   !mActiveCanvasSelection->isPointSelectionEmpty();
         };
         const auto actionExec = [this]() {
-            mActiveCanvas->deleteAction();
+            mActiveCanvasSelection->deleteAction();
             afterAction();
         };
         deleteAction = new UndoableAction(actionCan, actionExec,
@@ -350,11 +357,11 @@ Actions::Actions(Document &document) : mDocument(document) {
 
     { // copyAction
         const auto actionCan = [this]() {
-            if(!mActiveCanvas) return false;
-            return !mActiveCanvas->isBoxSelectionEmpty();
+            if(!mActiveCanvasSelection) return false;
+            return !mActiveCanvasSelection->isBoxSelectionEmpty();
         };
         const auto actionExec = [this]() {
-            mActiveCanvas->copyAction();
+            mActiveCanvasSelection->copyAction();
             afterAction();
         };
         copyAction = new UndoableAction(actionCan, actionExec,
@@ -363,10 +370,10 @@ Actions::Actions(Document &document) : mDocument(document) {
 
     { // pasteAction
         const auto actionCan = [this]() {
-            return !!mActiveCanvas;
+            return !!mActiveCanvasSelection;
         };
         const auto actionExec = [this]() {
-            mActiveCanvas->pasteAction();
+            mActiveCanvasSelection->pasteAction();
             afterAction();
         };
         pasteAction = new UndoableAction(actionCan, actionExec,
@@ -375,11 +382,11 @@ Actions::Actions(Document &document) : mDocument(document) {
 
     { // cutAction
         const auto actionCan = [this]() {
-            if(!mActiveCanvas) return false;
-            return !mActiveCanvas->isBoxSelectionEmpty();
+            if(!mActiveCanvasSelection) return false;
+            return !mActiveCanvasSelection->isBoxSelectionEmpty();
         };
         const auto actionExec = [this]() {
-            mActiveCanvas->cutAction();
+            mActiveCanvasSelection->cutAction();
             afterAction();
         };
         cutAction = new UndoableAction(actionCan, actionExec,
@@ -388,11 +395,11 @@ Actions::Actions(Document &document) : mDocument(document) {
 
     { // duplicateAction
         const auto actionCan = [this]() {
-            if(!mActiveCanvas) return false;
-            return !mActiveCanvas->isBoxSelectionEmpty();
+            if(!mActiveCanvasSelection) return false;
+            return !mActiveCanvasSelection->isBoxSelectionEmpty();
         };
         const auto actionExec = [this]() {
-            mActiveCanvas->duplicateAction();
+            mActiveCanvasSelection->duplicateAction();
             afterAction();
         };
         duplicateAction = new UndoableAction(actionCan, actionExec,
@@ -401,11 +408,11 @@ Actions::Actions(Document &document) : mDocument(document) {
 
     { // rotate90CWAction
         const auto actionCan = [this]() {
-            if(!mActiveCanvas) return false;
-            return !mActiveCanvas->isBoxSelectionEmpty();
+            if(!mActiveCanvasSelection) return false;
+            return !mActiveCanvasSelection->isBoxSelectionEmpty();
         };
         const auto actionExec = [this]() {
-            mActiveCanvas->rotateSelectedBoxesStartAndFinish(90);
+            mActiveCanvasSelection->rotateSelectedBoxesStartAndFinish(90);
             afterAction();
         };
         rotate90CWAction = new UndoableAction(actionCan, actionExec,
@@ -414,11 +421,11 @@ Actions::Actions(Document &document) : mDocument(document) {
 
     { // rotate90CCWAction
         const auto actionCan = [this]() {
-            if(!mActiveCanvas) return false;
-            return !mActiveCanvas->isBoxSelectionEmpty();
+            if(!mActiveCanvasSelection) return false;
+            return !mActiveCanvasSelection->isBoxSelectionEmpty();
         };
         const auto actionExec = [this]() {
-            mActiveCanvas->rotateSelectedBoxesStartAndFinish(-90);
+            mActiveCanvasSelection->rotateSelectedBoxesStartAndFinish(-90);
             afterAction();
         };
         rotate90CCWAction = new UndoableAction(actionCan, actionExec,
@@ -427,11 +434,11 @@ Actions::Actions(Document &document) : mDocument(document) {
 
     { // flipHorizontalAction
         const auto actionCan = [this]() {
-            if(!mActiveCanvas) return false;
-            return !mActiveCanvas->isBoxSelectionEmpty();
+            if(!mActiveCanvasSelection) return false;
+            return !mActiveCanvasSelection->isBoxSelectionEmpty();
         };
         const auto actionExec = [this]() {
-            mActiveCanvas->flipSelectedBoxesHorizontally();
+            mActiveCanvasSelection->flipSelectedBoxesHorizontally();
             afterAction();
         };
         flipHorizontalAction = new UndoableAction(actionCan, actionExec,
@@ -440,11 +447,11 @@ Actions::Actions(Document &document) : mDocument(document) {
 
     { // flipVerticalAction
         const auto actionCan = [this]() {
-            if(!mActiveCanvas) return false;
-            return !mActiveCanvas->isBoxSelectionEmpty();
+            if(!mActiveCanvasSelection) return false;
+            return !mActiveCanvasSelection->isBoxSelectionEmpty();
         };
         const auto actionExec = [this]() {
-            mActiveCanvas->flipSelectedBoxesVertically();
+            mActiveCanvasSelection->flipSelectedBoxesVertically();
             afterAction();
         };
         flipVerticalAction = new UndoableAction(actionCan, actionExec,
@@ -453,200 +460,200 @@ Actions::Actions(Document &document) : mDocument(document) {
 }
 
 void Actions::setTextAlignment(const Qt::Alignment alignment) const {
-    if(!mActiveCanvas) return;
+    if(!mActiveCanvasSelection) return;
     mDocument.fTextAlignment = alignment;
-    mActiveCanvas->setSelectedTextAlignment(alignment);
+    mActiveCanvasSelection->setSelectedTextAlignment(alignment);
     afterAction();
 }
 
 void Actions::setTextVAlignment(const Qt::Alignment alignment) const {
-    if(!mActiveCanvas) return;
+    if(!mActiveCanvasSelection) return;
     mDocument.fTextVAlignment = alignment;
-    mActiveCanvas->setSelectedTextVAlignment(alignment);
+    mActiveCanvasSelection->setSelectedTextVAlignment(alignment);
     afterAction();
 }
 
 void Actions::setFontFamilyAndStyle(const QString& family,
                                     const SkFontStyle& style) const {
-    if(!mActiveCanvas) return;
+    if(!mActiveCanvasSelection) return;
     mDocument.fFontFamily = family;
     mDocument.fFontStyle = style;
-    mActiveCanvas->setSelectedFontFamilyAndStyle(family, style);
+    mActiveCanvasSelection->setSelectedFontFamilyAndStyle(family, style);
     afterAction();
 }
 
 void Actions::setFontSize(const qreal size) const {
-    if(!mActiveCanvas) return;
+    if(!mActiveCanvasSelection) return;
     mDocument.fFontSize = size;
-    mActiveCanvas->setSelectedFontSize(size);
+    mActiveCanvasSelection->setSelectedFontSize(size);
     afterAction();
 }
 
 void Actions::setFontText(const QString &text)
 {
-    if (!mActiveCanvas) { return; }
-    mActiveCanvas->setSelectedFontText(text);
+    if (!mActiveCanvasSelection) { return; }
+    mActiveCanvasSelection->setSelectedFontText(text);
     afterAction();
 }
 
 void Actions::connectPointsSlot() const
 {
     qDebug() << "connectPointsSlot";
-    if (!mActiveCanvas) { return; }
-    mActiveCanvas->connectPoints();
+    if (!mActiveCanvasSelection) { return; }
+    mActiveCanvasSelection->connectPoints();
     afterAction();
 }
 
 void Actions::disconnectPointsSlot() const
 {
     qDebug() << "disconnectPointsSlot";
-    if (!mActiveCanvas) { return; }
-    mActiveCanvas->disconnectPoints();
+    if (!mActiveCanvasSelection) { return; }
+    mActiveCanvasSelection->disconnectPoints();
     afterAction();
 }
 
 void Actions::mergePointsSlot() const
 {
     qDebug() << "mergePointsSlot";
-    if (!mActiveCanvas) { return; }
-    mActiveCanvas->mergePoints();
+    if (!mActiveCanvasSelection) { return; }
+    mActiveCanvasSelection->mergePoints();
     afterAction();
 }
 
 void Actions::subdivideSegments() const
 {
     qDebug() << "subdivideSegments";
-    if (!mActiveCanvas) { return; }
-    mActiveCanvas->subdivideSegments();
+    if (!mActiveCanvasSelection) { return; }
+    mActiveCanvasSelection->subdivideSegments();
     afterAction();
 }
 
 void Actions::makePointCtrlsSymmetric() const
 {
     qDebug() << "makePointCtrlsSymmetric";
-    if (!mActiveCanvas) { return; }
-    mActiveCanvas->makePointCtrlsSymmetric();
+    if (!mActiveCanvasSelection) { return; }
+    mActiveCanvasSelection->makePointCtrlsSymmetric();
     afterAction();
 }
 
 void Actions::makePointCtrlsSmooth() const
 {
     qDebug() << "makePointCtrlsSmooth";
-    if (!mActiveCanvas) { return; }
-    mActiveCanvas->makePointCtrlsSmooth();
+    if (!mActiveCanvasSelection) { return; }
+    mActiveCanvasSelection->makePointCtrlsSmooth();
     afterAction();
 }
 
 void Actions::makePointCtrlsCorner() const
 {
     qDebug() << "makePointCtrlsCorner";
-    if (!mActiveCanvas) { return; }
-    mActiveCanvas->makePointCtrlsCorner();
+    if (!mActiveCanvasSelection) { return; }
+    mActiveCanvasSelection->makePointCtrlsCorner();
     afterAction();
 }
 
 void Actions::makeSegmentLine() const
 {
     qDebug() << "makeSegmentLine";
-    if (!mActiveCanvas) { return; }
-    mActiveCanvas->makeSegmentLine();
+    if (!mActiveCanvasSelection) { return; }
+    mActiveCanvasSelection->makeSegmentLine();
     afterAction();
 }
 
 void Actions::makeSegmentCurve() const
 {
     qDebug() << "makeSegmentCurve";
-    if (!mActiveCanvas) { return; }
-    mActiveCanvas->makeSegmentCurve();
+    if (!mActiveCanvasSelection) { return; }
+    mActiveCanvasSelection->makeSegmentCurve();
     afterAction();
 }
 
 void Actions::newEmptyPaintFrame() const
 {
     qDebug()<< "newEmptyPaintFrame";
-    if (!mActiveCanvas) { return; }
-    mActiveCanvas->newEmptyPaintFrameAction();
+    if (!mActiveCanvasSelection) { return; }
+    mActiveCanvasSelection->newEmptyPaintFrameAction();
     afterAction();
 }
 
 void Actions::selectAllAction() const {
-    if(!mActiveCanvas) return;
-    mActiveCanvas->selectAllAction();
+    if(!mActiveCanvasSelection) return;
+    mActiveCanvasSelection->selectAllAction();
 }
 
 void Actions::invertSelectionAction() const {
-    if(!mActiveCanvas) return;
-    mActiveCanvas->invertSelectionAction();
+    if(!mActiveCanvasSelection) return;
+    mActiveCanvasSelection->invertSelectionAction();
 }
 
 void Actions::clearSelectionAction() const {
-    if(!mActiveCanvas) return;
-    mActiveCanvas->clearSelectionAction();
+    if(!mActiveCanvasSelection) return;
+    mActiveCanvasSelection->clearSelectionAction();
 }
 
 void Actions::startSelectedStrokeColorTransform() const {
-    if(!mActiveCanvas) return;
-    mActiveCanvas->startSelectedStrokeColorTransform();
+    if(!mActiveCanvasSelection) return;
+    mActiveCanvasSelection->startSelectedStrokeColorTransform();
     afterAction();
 }
 
 void Actions::startSelectedFillColorTransform() const {
-    if(!mActiveCanvas) return;
-    mActiveCanvas->startSelectedFillColorTransform();
+    if(!mActiveCanvasSelection) return;
+    mActiveCanvasSelection->startSelectedFillColorTransform();
     afterAction();
 }
 
 void Actions::strokeCapStyleChanged(const SkPaint::Cap capStyle) const {
-    if(!mActiveCanvas) return;
-    mActiveCanvas->setSelectedCapStyle(capStyle);
+    if(!mActiveCanvasSelection) return;
+    mActiveCanvasSelection->setSelectedCapStyle(capStyle);
     afterAction();
 }
 
 void Actions::strokeJoinStyleChanged(const SkPaint::Join joinStyle) const {
-    if(!mActiveCanvas) return;
-    mActiveCanvas->setSelectedJoinStyle(joinStyle);
+    if(!mActiveCanvasSelection) return;
+    mActiveCanvasSelection->setSelectedJoinStyle(joinStyle);
     afterAction();
 }
 
 void Actions::strokeWidthAction(const QrealAction &action) const {
-    if(!mActiveCanvas) return;
-    mActiveCanvas->strokeWidthAction(action);
+    if(!mActiveCanvasSelection) return;
+    mActiveCanvasSelection->strokeWidthAction(action);
     afterAction();
 }
 
 void Actions::applyPaintSettingToSelected(
         const PaintSettingsApplier &setting) const {
-    if(!mActiveCanvas) return;
-    mActiveCanvas->applyPaintSettingToSelected(setting);
+    if(!mActiveCanvasSelection) return;
+    mActiveCanvasSelection->applyPaintSettingToSelected(setting);
     afterAction();
 }
 
 void Actions::updateAfterFrameChanged(const int currentFrame) const {
     if(!mActiveScene) return;
-    mActiveScene->anim_setAbsFrame(currentFrame);
+    mActiveScene->getCurrentGroup()->anim_setAbsFrame(currentFrame);
     afterAction();
 }
 
 void Actions::setClipToCanvas(const bool clip) {
-    if(!mActiveCanvas || !mActiveScene) return;
-    if(mActiveCanvas->clipToCanvas() == clip) return;
-    mActiveCanvas->setClipToCanvas(clip);
+    if(!mActiveScene) return;
+    if(mActiveScene->clipToCanvas() == clip) return;
+    mActiveScene->setClipToCanvas(clip);
     mActiveScene->updateAllBoxes(UpdateReason::userChange);
-    mActiveCanvas->sceneFramesUpToDate();
+    mActiveScene->sceneFramesUpToDate();
     afterAction();
 }
 
 void Actions::setRasterEffectsVisible(const bool bT) {
-    if(!mActiveCanvas) return;
-    mActiveCanvas->setRasterEffectsVisible(bT);
-    mActiveCanvas->updateAllBoxes(UpdateReason::userChange);
+    if(!mActiveScene) return;
+    mActiveScene->setRasterEffectsVisible(bT);
+    mActiveScene->updateAllBoxes(UpdateReason::userChange);
     afterAction();
 }
 
 void Actions::setPathEffectsVisible(const bool bT) {
-    if(!mActiveCanvas) return;
-    mActiveCanvas->setPathEffectsVisible(bT);
-    mActiveCanvas->updateAllBoxes(UpdateReason::userChange);
+    if(!mActiveScene) return;
+    mActiveScene->setPathEffectsVisible(bT);
+    mActiveScene->updateAllBoxes(UpdateReason::userChange);
     afterAction();
 }
 
@@ -898,27 +905,23 @@ void Actions::finishSmoothChange() {
     //    mDocument.actionFinished();
 }
 
-void Actions::setViewLayerPreview(ViewLayerPreview* const viewLayer) {
-    auto& conn = mActiveCanvas.assign(viewLayer);
-};
-
 void Actions::connectToActiveScene(Scene* const scene) {
     auto& conn = mActiveScene.assign(scene);
 
     deleteSceneAction->raiseCanExecuteChanged();
     deleteSceneAction->raiseTextChanged();
-    /*if(mActiveScene) {
-        conn << connect(mActiveScene, &Canvas::prp_nameChanged,
+    if(mActiveScene) {
+        conn << connect(mActiveScene, &Scene::nameChanged,
                         deleteSceneAction, &Action::raiseTextChanged);
-                        }*/
+                        }
     sceneSettingsAction->raiseCanExecuteChanged();
 
     undoAction->raiseCanExecuteChanged();
     undoAction->raiseTextChanged();
     redoAction->raiseCanExecuteChanged();
     redoAction->raiseTextChanged();
-    /*if(mActiveCanvas) {
-        const auto urStack = mActiveCanvas->undoRedoStack();
+    if(mActiveScene) {
+        const auto urStack = mActiveScene->undoRedoStack();
         conn << connect(urStack, &UndoRedoStack::canUndoChanged,
                         undoAction, &Action::raiseCanExecuteChanged);
         conn << connect(urStack, &UndoRedoStack::undoTextChanged,
@@ -928,38 +931,41 @@ void Actions::connectToActiveScene(Scene* const scene) {
                         redoAction, &Action::raiseCanExecuteChanged);
         conn << connect(urStack, &UndoRedoStack::redoTextChanged,
                         redoAction, &Action::raiseTextChanged);
-                        }*/
+                        }
+}
 
+// Call once!!
+void Actions::connectToViewLayerSelection() {
     raiseAction->raiseCanExecuteChanged();
     lowerAction->raiseCanExecuteChanged();
     raiseToTopAction->raiseCanExecuteChanged();
     lowerToBottomAction->raiseCanExecuteChanged();
-    /*if(mActiveCanvas) {
-        conn << connect(mActiveCanvas, &Canvas::objectSelectionChanged,
+    if(mActiveCanvasSelection) {
+        conn << connect(mActiveCanvasSelection, &ViewLayerPreview::objectSelectionChanged,
                         raiseAction, &Action::raiseCanExecuteChanged);
-        conn << connect(mActiveCanvas, &Canvas::objectSelectionChanged,
-                        lowerAction, &Action::raiseCanExecuteChanged);
-        conn << connect(mActiveCanvas, &Canvas::objectSelectionChanged,
+        conn << connect(mActiveCanvasSelection, &ViewLayerPreview::objectSelectionChanged,
+                        lowerAction, &Scene::raiseCanExecuteChanged);
+        conn << connect(mActiveCanvasSelection, &ViewLayerPreview::objectSelectionChanged,
                         raiseToTopAction, &Action::raiseCanExecuteChanged);
-        conn << connect(mActiveCanvas, &Canvas::objectSelectionChanged,
+        conn << connect(mActiveCanvasSelection, &ViewLayerPreview::objectSelectionChanged,
                         lowerToBottomAction, &Action::raiseCanExecuteChanged);
-                        }*/
+                        }
 
     objectsToPathAction->raiseCanExecuteChanged();
     strokeToPathAction->raiseCanExecuteChanged();
-    /*if(mActiveCanvas) {
-        conn << connect(mActiveCanvas, &Canvas::objectSelectionChanged,
+    if(mActiveCanvasSelection) {
+        conn << connect(mActiveCanvasSelection, &ViewLayerPreview::objectSelectionChanged,
                         objectsToPathAction, &Action::raiseCanExecuteChanged);
-        conn << connect(mActiveCanvas, &Canvas::objectSelectionChanged,
+        conn << connect(mActiveCanvasSelection, &ViewLayerPreview::objectSelectionChanged,
                         strokeToPathAction, &Action::raiseCanExecuteChanged);
-                        }*/
+                        }
 
     groupAction->raiseCanExecuteChanged();
     ungroupAction->raiseCanExecuteChanged();
-    if(mActiveCanvas) {
-        conn << connect(mActiveCanvas, &Canvas::objectSelectionChanged,
+    if(mActiveCanvasSelection) {
+        conn << connect(mActiveCanvasSelection, &ViewLayerPreview::objectSelectionChanged,
                         groupAction, &Action::raiseCanExecuteChanged);
-        conn << connect(mActiveCanvas, &Canvas::objectSelectionChanged,
+        conn << connect(mActiveCanvasSelection, &ViewLayerPreview::objectSelectionChanged,
                         ungroupAction, &Action::raiseCanExecuteChanged);
     }
 
@@ -971,57 +977,57 @@ void Actions::connectToActiveScene(Scene* const scene) {
     pathsExclusionAction->raiseCanExecuteChanged();
     pathsCombineAction->raiseCanExecuteChanged();
     pathsBreakApartAction->raiseCanExecuteChanged();
-    /*if(mActiveCanvas) {
-        conn << connect(mActiveCanvas, &Canvas::objectSelectionChanged,
+    if(mActiveCanvasSelection) {
+        conn << connect(mActiveCanvasSelection, &ViewLayerPreview::objectSelectionChanged,
                         pathsUnionAction, &Action::raiseCanExecuteChanged);
-        conn << connect(mActiveCanvas, &Canvas::objectSelectionChanged,
+        conn << connect(mActiveCanvasSelection, &ViewLayerPreview::objectSelectionChanged,
                         pathsDifferenceAction, &Action::raiseCanExecuteChanged);
-        conn << connect(mActiveCanvas, &Canvas::objectSelectionChanged,
+        conn << connect(mActiveCanvasSelection, &ViewLayerPreview::objectSelectionChanged,
                         pathsIntersectionAction, &Action::raiseCanExecuteChanged);
-        conn << connect(mActiveCanvas, &Canvas::objectSelectionChanged,
+        conn << connect(mActiveCanvasSelection, &ViewLayerPreview::objectSelectionChanged,
                         pathsDivisionAction, &Action::raiseCanExecuteChanged);
-        conn << connect(mActiveCanvas, &Canvas::objectSelectionChanged,
+        conn << connect(mActiveCanvasSelection, &ViewLayerPreview::objectSelectionChanged,
                         pathsExclusionAction, &Action::raiseCanExecuteChanged);
-        conn << connect(mActiveCanvas, &Canvas::objectSelectionChanged,
+        conn << connect(mActiveCanvasSelection, &ViewLayerPreview::objectSelectionChanged,
                         pathsCombineAction, &Action::raiseCanExecuteChanged);
-        conn << connect(mActiveCanvas, &Canvas::objectSelectionChanged,
+        conn << connect(mActiveCanvasSelection, &ViewLayerPreview::objectSelectionChanged,
                         pathsBreakApartAction, &Action::raiseCanExecuteChanged);
-                        }*/
+                        }
 
     deleteAction->raiseCanExecuteChanged();
     copyAction->raiseCanExecuteChanged();
     pasteAction->raiseCanExecuteChanged();
     cutAction->raiseCanExecuteChanged();
     duplicateAction->raiseCanExecuteChanged();
-    /*if(mActiveCanvas) {
-        conn << connect(mActiveCanvas, &Canvas::objectSelectionChanged,
+    if(mActiveCanvasSelection) {
+        conn << connect(mActiveCanvasSelection, &ViewLayerPreview::objectSelectionChanged,
                         deleteAction, &Action::raiseCanExecuteChanged);
-        conn << connect(mActiveCanvas, &Canvas::pointSelectionChanged,
+        conn << connect(mActiveCanvasSelection, &ViewLayerSelection::pointSelectionChanged,
                         deleteAction, &Action::raiseCanExecuteChanged);
-        conn << connect(mActiveCanvas, &Canvas::objectSelectionChanged,
+        conn << connect(mActiveCanvasSelection, &ViewLayerPreview::objectSelectionChanged,
                         copyAction, &Action::raiseCanExecuteChanged);
-        conn << connect(mActiveCanvas, &Canvas::objectSelectionChanged,
+        conn << connect(mActiveCanvasSelection, &ViewLayerPreview::objectSelectionChanged,
                         pasteAction, &Action::raiseCanExecuteChanged);
-        conn << connect(mActiveCanvas, &Canvas::objectSelectionChanged,
+        conn << connect(mActiveCanvasSelection, &ViewLayerPreview::objectSelectionChanged,
                         cutAction, &Action::raiseCanExecuteChanged);
-        conn << connect(mActiveCanvas, &Canvas::objectSelectionChanged,
+        conn << connect(mActiveCanvasSelection, &ViewLayerPreview::objectSelectionChanged,
                         duplicateAction, &Action::raiseCanExecuteChanged);
-                        }*/
+                        }
 
     rotate90CWAction->raiseCanExecuteChanged();
     rotate90CCWAction->raiseCanExecuteChanged();
     flipHorizontalAction->raiseCanExecuteChanged();
     flipVerticalAction->raiseCanExecuteChanged();
-    /*if(mActiveCanvas) {
-        conn << connect(mActiveCanvas, &Canvas::objectSelectionChanged,
+    if(mActiveCanvasSelection) {
+        conn << connect(mActiveCanvasSelection, &ViewLayerPreview::objectSelectionChanged,
                         rotate90CWAction, &Action::raiseCanExecuteChanged);
-        conn << connect(mActiveCanvas, &Canvas::objectSelectionChanged,
+        conn << connect(mActiveCanvasSelection, &ViewLayerPreview::objectSelectionChanged,
                         rotate90CCWAction, &Action::raiseCanExecuteChanged);
-        conn << connect(mActiveCanvas, &Canvas::objectSelectionChanged,
+        conn << connect(mActiveCanvasSelection, &ViewLayerPreview::objectSelectionChanged,
                         flipHorizontalAction, &Action::raiseCanExecuteChanged);
-        conn << connect(mActiveCanvas, &Canvas::objectSelectionChanged,
+        conn << connect(mActiveCanvasSelection, &ViewLayerPreview::objectSelectionChanged,
                         flipVerticalAction, &Action::raiseCanExecuteChanged);
-                        }*/
+    }
 }
 
 void Actions::afterAction() const {

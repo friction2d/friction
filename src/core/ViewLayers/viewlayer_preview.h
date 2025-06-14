@@ -35,6 +35,8 @@
 #include "CacheHandlers/sceneframecontainer.h"
 #include "conncontextobjlist.h"
 
+// This is the class that renders the Canvas' objects when in preview mode
+// This plays with ViewLayerSelection to let the user move objects around
 class ViewLayerPreview : public ViewLayer {
 public:
     ViewLayerPreview(Document &document, BaseCanvas *canvas);
@@ -49,6 +51,10 @@ public:
     void mouseReleaseEvent(QMouseEvent *e) override {};
     void mouseMoveEvent(QMouseEvent *e) override {};
     void mouseDoubleClickEvent(QMouseEvent *e) override {};
+
+signals:
+    void objectSelectionChanged();
+    void pointSelectionChanged();
 
 private:
     BaseCanvas *_baseCanvas;

@@ -37,7 +37,9 @@
 #include "CacheHandlers/hddcachablecachehandler.h"
 #include "Sound/soundcomposition.h"
 
-
+// This is the class that renders canvas' objects when in render mode
+// When ViewLayerRender is shown, ViewLayerPreview and ViewLayerSelection are disabled
+// (you're not supposed to be able to move things around when in render mode)
 class ViewLayerRender : public ViewLayer {
 public:
     ViewLayerRender(Document &document, BaseCanvas *canvas);

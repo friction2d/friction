@@ -39,11 +39,18 @@ class PaintSettingsApplier;
 class Document;
 class Scene;
 class ViewLayerPreview;
+class ViewLayerSelection;
 class QrealAction;
 class eBoxOrSound;
 class ContainerBox;
 class ExternalLinkBox;
 
+// This is a class that allows you to interface directly with Scene or ViewLayers
+// So instead of calling actions on them directly, you call them through this class
+//
+// auto actions = Actions::sGetInstance();
+// actions->setTextAlignment();
+// actions->selectAllAction();
 class CORE_EXPORT Actions : public QObject {
 public:
     Actions(Document& document);
@@ -164,11 +171,13 @@ public:
     Action* redoAction;
 private:
     void connectToActiveScene(Scene* const scene);
-    void setViewLayerPreview(ViewLayerPreview* const viewLayer);
+    // Call once!!
+    void connectToViewLayerSelection();
     void afterAction() const;
 
     bool mSmoothChange = false;
     Document& mDocument;
+    ConnContextPtr<ViewLayerSelection> mActiveCanvasSelection;
     ConnContextPtr<ViewLayerPreview> mActiveCanvas;
     ConnContextPtr<Scene> mActiveScene;
 };

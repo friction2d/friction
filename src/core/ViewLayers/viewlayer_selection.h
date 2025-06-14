@@ -44,6 +44,33 @@ public:
 
     void repaint(SkCanvas * const canvas) override;
 
+    void isBoxSelectionEmpty();
+    void isPointSelectionEmpty();
+
+    void selectAllAction();
+    void invertSelectionAction();
+    void clearSelectionAction();
+
+    void selectedPathsBreakApart();
+    void startSelectedStrokeColorTransform();
+    void startSelectedFillColorTransform();
+
+    void cutAction();
+    void pasteAction();
+    void copyAction();
+    void deleteAction();
+    void duplicateAction();
+
+    void setSelectedFontText(text);
+    void setSelectedFontSize(size);
+    void setSelectedFontFamilyAndStyle(family, style);
+    void setSelectedTextVAlignment(alignment);
+    void setSelectedTextAlignment(alignment);
+
+    void flipSelectedBoxesVertically();
+    void flipSelectedBoxesHorizontally();
+    void rotateSelectedBoxesStartAndFinish();
+
     // Mouse events
     void mousePressEvent(QMouseEvent *e) override;
     void mouseReleaseEvent(QMouseEvent *e) override;

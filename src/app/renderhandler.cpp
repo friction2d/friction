@@ -104,7 +104,7 @@ void RenderHandler::renderFromSettings(RenderInstanceSettings * const settings) 
         mCurrentSoundComposition->setMinFrameUseRange(mCurrentRenderFrame);
         mCurrentSoundComposition->scheduleFrameRange({mCurrentRenderFrame,
                                                       mCurrentRenderFrame});
-        //mViewLayerRender->anim_setAbsFrame(mCurrentRenderFrame);
+        mViewLayerRender->getCurrentGroup()->anim_setAbsFrame(mCurrentRenderFrame);
         mViewLayerRender->setIsRenderingToOutput(true);
         TaskScheduler::instance()->setAlwaysQue(true);
         //fitSceneToSize();
@@ -125,7 +125,7 @@ void RenderHandler::setLoop(const bool loop) {
 }
 
 void RenderHandler::setFrameAction(const int frame) {
-    //if(mViewLayerRender) mViewLayerRender->anim_setAbsFrame(frame);
+    if(mViewLayerRender) mViewLayerRender->getCurrentGroup()->anim_setAbsFrame(frame);
     mDocument.actionFinished();
 }
 

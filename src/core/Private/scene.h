@@ -29,6 +29,7 @@
 #include <string>
 #include <QThread>
 #include <QString>
+#include <QPrivateSignal>
 #include <QList>
 #include <QSize>
 
@@ -190,6 +191,7 @@ signals:
     void destroyed();
     void dimensionsChanged(int, int);
     void fpsChanged(qreal);
+    void nameChanged(const QString&, QPrivateSignal);
 
 protected:
     qsptr<UndoRedoStack> mUndoRedoStack;
