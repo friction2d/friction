@@ -31,6 +31,7 @@
 #include "smartPointers/ememory.h"
 #include "CacheHandlers/usepointer.h"
 #include "CacheHandlers/cachecontainer.h"
+#include "ViewLayers/viewlayer_render.h"
 #include "Private/scene.h"
 
 class ViewLayerRender;
@@ -39,6 +40,7 @@ class SoundComposition;
 class Document;
 class VideoEncoder;
 class MemoryHandler;
+
 
 enum class PreviewState {
     stopped, rendering, playing, paused

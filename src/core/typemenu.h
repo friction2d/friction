@@ -57,22 +57,22 @@ public:
     }
 
     QAction* addCheckableAction(const QString& text, const bool checked,
-                                const CheckTriggeredOp& op) {
+                                const CheckTriggeredOp& operation) {
         QAction * const qAction = mQMenu->addAction(text);
         qAction->setCheckable(true);
         qAction->setChecked(checked);
-        QObject::connect(qAction, &QAction::triggered, op);
+        QObject::connect(qAction, &QAction::triggered, operation);
         return qAction;
     }
 
     template <class T>
     QAction* addCheckableAction(const QString& text, const bool checked,
-                                const CheckSelectedOp<T>& op) {
+                                const CheckSelectedOp<T>& operation) {
         QAction * const qAction = mQMenu->addAction(text);
         qAction->setCheckable(true);
         qAction->setChecked(checked);
-        const PlainSelectedOp<T> plainOp = [op, checked](T* pt) {
-            op(pt, !checked);
+        const PlainSelectedOp<T> plainOp = [operation, checked](T* pt) {
+            operation(pt, !checked);
         };
         connectAction(qAction, plainOp);
         return qAction;
@@ -80,26 +80,26 @@ public:
 
     QAction* addPlainAction(const QIcon &icon,
                             const QString& text,
-                            const PlainTriggeredOp& op)
+                            const PlainTriggeredOp& operation)
     {
         QAction * const qAction = mQMenu->addAction(icon, text);
-        QObject::connect(qAction, &QAction::triggered, op);
+        QObject::connect(qAction, &QAction::triggered, operation);
         return qAction;
     }
 
     template <class T>
     QAction* addPlainAction(const QIcon &icon,
                             const QString& text,
-                            const PlainSelectedOp<T>& op) {
+                            const PlainSelectedOp<T>& operation) {
         QAction * const qAction = mQMenu->addAction(icon, text);
-        connectAction(qAction, op);
+        connectAction(qAction, operation);
         return qAction;
     }
 
     template <class T>
-    QAction* addPlainAction(const QIcon &icon, const QString& text, const AllOp<T>& op) {
+    QAction* addPlainAction(const QIcon &icon, const QString& text, const AllOp<T>& operation) {
         QAction * const qAction = mQMenu->addAction(icon, text);
-        connectAction(qAction, op);
+        connectAction(qAction, operation);
         return qAction;
     }
 
@@ -212,26 +212,26 @@ private:
 
     template <typename U>
     void connectAction(Property * const, QAction * const qAction,
-                       const U& op) {
+                       const U& operation) {
         const auto targetScene = mTargetScene;
         const auto canvasOperation = [operation, targetScene]() {
             try {
-                targetScene->executeOperationOnSelectedProperties(op);
+                targetScene->executeOperationOnSelectedProperties(operation);
             } catch(const std::exception& e) {
                 gPrintExceptionCritical(e);
             }
         };
-        QObject::connect(qAction, &QAction::triggered, canvasOp);
+        QObject::connect(qAction, &QAction::triggered, canvasOperation);
     }
 
     template <class T>
-    void connectAction(QAction * const qAction, const PlainSelectedOp<T>& op) {
-        connectAction(static_cast<T*>(nullptr), qAction, op);
+    void connectAction(QAction * const qAction, const PlainSelectedOp<T>& operation) {
+        connectAction(static_cast<T*>(nullptr), qAction, operation);
     }
 
     template <class T>
-    void connectAction(QAction * const qAction, const AllOp<T>& op) {
-        connectAction(static_cast<T*>(nullptr), qAction, op);
+    void connectAction(QAction * const qAction, const AllOp<T>& operation) {
+        connectAction(static_cast<T*>(nullptr), qAction, operation);
     }
 
     QMenu * const mQMenu;

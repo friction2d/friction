@@ -24,14 +24,15 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "renderhandler.h"
+
 #include "videoencoder.h"
 #include "memoryhandler.h"
 #include "Private/Tasks/taskscheduler.h"
-#include "ViewLayers/viewlayer_render.h"
+#include "Private/document.h"
 #include "Sound/soundcomposition.h"
 #include "CacheHandlers/soundcachecontainer.h"
 #include "CacheHandlers/sceneframecontainer.h"
-#include "Private/document.h"
+
 
 RenderHandler* RenderHandler::sInstance = nullptr;
 
