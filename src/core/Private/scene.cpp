@@ -25,9 +25,12 @@
 
 #include "scene.h"
 
+#include "Animators/sceneboundgradient.h"
+
 
 Scene::Scene(QString sceneName, qreal canvasWidth, qreal canvasHeight, qreal fps)
-           : _currentGroup(new ContainerBox(sceneName))
+           : QObject(),
+           , _currentGroup(new ContainerBox(sceneName))
            , _name(sceneName)
            , _canvasWidth(canvasWidth)
            , _canvasHeight(canvasHeight)

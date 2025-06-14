@@ -27,15 +27,24 @@
 #define VIEW_LAYER_H
 
 #include <string>
+#include <QObject>
 
 #include "skia/skiaincludes.h"
 #include "eevent.h"
 
-
-class ViewLayer {
+// A ViewLayer is an abstract class that can receive input from the user
+//
+// (mouse clicks, keyboard...) and draw to a 2d canvas.
+// We do this in order to separate the pieces of code logically
+// (one view layer for rendering objects, one for selection...)
+//
+// We inherit from QObject because that allows us to do signals
+class ViewLayer : public QObject {
+    Q_OBJECT
 public:
     ViewLayer(std::string layerId)
-        : _layerId(layerId)
+        : QObject()
+        , _layerId(layerId)
         , _isVisible(true) {};
     ~ViewLayer() = default;
 

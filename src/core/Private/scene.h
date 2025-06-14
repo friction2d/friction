@@ -27,14 +27,13 @@
 #define FRICTION_CORE_BOXES_SCENE_H
 
 #include <string>
+#include <QObject>
 #include <QThread>
 #include <QString>
-#include <QPrivateSignal>
 #include <QList>
 #include <QSize>
 
 #include "smartPointers/selfref.h"
-#include "Animators/sceneboundgradient.h"
 #include "Boxes/containerbox.h"
 #include "Boxes/boundingbox.h"
 // Selected properties
@@ -45,6 +44,7 @@
 #include "undoredo.h"
 
 class UndoRedoStack;
+class SceneBoundGradient;
 
 
 // Represents a scene in a Document (what Canvas used to be)
@@ -54,7 +54,10 @@ class UndoRedoStack;
 //  - read/write
 //
 // I don't like some things (undoRedoStack, gradients, selectedProperties...)
-class Scene {
+//
+// We inherit from QObject because that allows us to do signals
+class Scene : public QObject {
+    Q_OBJECT
 public:
     Scene(QString sceneName, qreal canvasWidth, qreal canvasHeight, qreal fps);
     ~Scene();
@@ -109,7 +112,7 @@ public:
 
     UndoRedoStack* undoRedoStack() const
     {
-        return mUndoRedoStack.get();
+        return _undoRedoStack.get();
     }
 
     // Setters
@@ -140,48 +143,40 @@ public:
     // This is MAGIC, DO NOT TOUCH
 
     template <class T = MovablePoint>
-    void executeOperationOnSelectedPoints(const std::function<void(T*)> &op) {
-        if(mPressedPoint) {
-            if(!mPressedPoint->selectionEnabled()) {
-                const auto ptT = enve_cast<T*>(mPressedPoint.data());
-                if(ptT) {
-                    op(ptT);
-                    //if(ptT->selectionEnabled()) addPointToSelection(ptT);
-                    return;
-                }
-            }
-        }
-        for(const auto& pt : mSelectedPoints_d) {
-            const auto ptT = enve_cast<T*>(pt);
-            if(ptT) {
-                op(ptT);
-                //if(!ptT->selectionEnabled()) removePointFromSelection(ptT);
-            }
-        }
-    }
+    [[deprecated]]
+    void executeOperationOnSelectedPoints(const std::function<void(T*)> &op) {}
 
     template <class T = Property>
     void executeOperationOnSelectedProperties(const std::function<void(T*)> &operation) {
-        for(const auto prop : mSelectedProps) {
-            const auto t = enve_cast<T*>(prop);
+        for(const auto property : _selectedProperties) {
+            const auto t = enve_cast<T*>(property);
             if(t) operation(t);
         }
     }
 
+    template <class T = BoundingBox>
+    [[deprecated]]
+    void executeOperationOnSelectedBoxes(const std::function<void(const QList<T*>&)> &operation) {}
+
+    template <class T = BoundingBox>
+    [[deprecated]]
+    void executeOperationOnSelectedBoxes(const std::function<void(T*)> &operation) {}
+
+
     void addToSelectedProperties(Property* const property) {
-        auto& conn = mSelectedProps.addObj(property);
+        auto& conn = _selectedProperties.addObj(property);
         conn << connect(property, &Property::prp_parentChanged,
-                        this, [this, prop]() { removeFromSelectedProperties(property); });
+                        this, [this, property]() { removeFromSelectedProperties(property); });
         property->prp_setSelected(true);
     }
 
     void removeFromSelectedProperties(Property* const property) {
-        mSelectedProps.removeObj(property);
+        _selectedProperties.removeObj(property);
         property->prp_setSelected(false);
     }
 
     void clearSelectedProperties() {
-        const auto selected = mSelectedProps.getList();
+        const auto selected = _selectedProperties.getList();
         for(const auto property : selected) {
             removeFromSelectedProperties(property);
         }
@@ -223,7 +218,7 @@ signals:
     void nameChanged(const QString&, QPrivateSignal);
 
 protected:
-    qsptr<UndoRedoStack> mUndoRedoStack;
+    qsptr<UndoRedoStack> _undoRedoStack;
 
 private:
     qptr<ContainerBox> _currentGroup;
@@ -242,7 +237,7 @@ private:
     bool _rasterEffectsVisible;
 
     // Selected properties
-    ConnContextObjList<Property*> mSelectedProps;
+    ConnContextObjList<Property*> _selectedProperties;
 };
 
 #endif // FRICTION_CORE_BOXES_SCENE_H
