@@ -25,15 +25,20 @@
 
 #ifndef SELFREF_H
 #define SELFREF_H
+
 #include <QPointer>
 #include <QSharedPointer>
 #include <QObject>
+
 #include "../exceptions.h"
 #include "eobject.h"
+
 
 template <class T> using qsptr = QSharedPointer<T>;
 template <class T> using qptr = QPointer<T>;
 
+// Basically everywhere you see enve::make_shared requires this object or StdSelfRef
+// The difference being that SelfRef is a QObject (has signals, etc...) while StdSelfRef is more pure.
 class CORE_EXPORT SelfRef : public QObject {
     e_PROHIBIT_HEAP
 public:
