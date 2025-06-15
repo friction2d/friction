@@ -40,6 +40,13 @@ Scene::~Scene() {
     emit destroyed();
 };
 
+void Scene::setCurrentGroupParentAsCurrentGroup()
+{
+    auto currentGroup = getCurrentGroup();
+
+    currentGroup->setCurrentBoxesGroup(currentGroup->getParentGroup());
+}
+
 void Scene::saveSVG(SvgExporter& exp, DomEleTask* const eleTask) const {
     _currentGroup.saveSVG(exp, eleTask);
 };

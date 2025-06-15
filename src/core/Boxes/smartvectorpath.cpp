@@ -24,20 +24,24 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "smartvectorpath.h"
+
 #include <QPainter>
-#include "Private/scene.h"
 #include <QDebug>
-#include "undoredo.h"
-#include "MovablePoints/pathpivot.h"
-#include "pointhelpers.h"
+
 #include "Animators/SmartPath/smartpathcollection.h"
-#include "Animators/gradientpoints.h"
-#include "Animators/transformanimator.h"
-#include "MovablePoints/segment.h"
-#include "Animators/SmartPath/smartpathanimator.h"
-#include "PathEffects/patheffectcollection.h"
 #include "Animators/qpointfanimator.h"
+#include "Animators/gradientpoints.h"
+#include "Animators/outlinesettingsanimator.h"
+#include "Animators/transformanimator.h"
+#include "Animators/SmartPath/smartpathanimator.h"
+#include "Private/scene.h"
+#include "PathEffects/patheffectcollection.h"
+#include "MovablePoints/segment.h"
+#include "MovablePoints/pathpivot.h"
+#include "undoredo.h"
+#include "pointhelpers.h"
 #include "svgexporter.h"
+
 
 SmartVectorPath::SmartVectorPath() :
     PathBox("Path", eBoxType::vectorPath) {

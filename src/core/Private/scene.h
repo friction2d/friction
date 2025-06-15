@@ -63,6 +63,7 @@ public:
     ~Scene();
 
     ContainerBox *getCurrentGroup() { return _currentGroup; };
+    void setCurrentGroupParentAsCurrentGroup();
 
     // Properties (name, width, fps...)
 

@@ -48,7 +48,7 @@ public:
 
     void setMousePos(const QPointF& pos) { mMousePos = pos; }
 private:
-    const Scene * const mCanvas = nullptr;
+    const Scene * const mScene = nullptr;
     QPointF mMousePos;
 };
 

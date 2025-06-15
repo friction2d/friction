@@ -32,16 +32,18 @@
 #include "PathEffects/patheffectcollection.h"
 #include "Private/scene.h"
 #include "Animators/transformanimator.h"
-#include "paintsettingsapplier.h"
 #include "Animators/gradient.h"
 #include "RasterEffects/rastereffectcollection.h"
 #include "Animators/outlinesettingsanimator.h"
 #include "PathEffects/patheffectstask.h"
 #include "Private/Tasks/taskscheduler.h"
+#include "Boxes/smartvectorpath.h"
+#include "ViewLayers/viewlayer_preview.h"
+#include "paintsettingsapplier.h"
 #include "clipboardcontainer.h"
 #include "circle.h"
-#include "Boxes/smartvectorpath.h"
 #include "themesupport.h"
+
 
 PathBox::PathBox(const QString &name,
                  const eBoxType type)

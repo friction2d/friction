@@ -38,8 +38,6 @@
 #include "TransformEffects/transformeffect.h"
 #include "Tasks/domeletask.h"
 
-enum class AlignRelativeTo;
-
 class QrealAction;
 class MovablePoint;
 
@@ -66,6 +64,16 @@ struct ChildRenderData;
 enum class CanvasMode : short;
 
 class SimpleBrushWrapper;
+
+enum class CtrlsMode : short;
+
+enum class AlignPivot {
+    geometry, pivot, pivotItself
+};
+
+enum class AlignRelativeTo {
+    scene, lastSelected, lastSelectedPivot, boundingBox
+};
 
 enum class eBoxType {
     vectorPath,

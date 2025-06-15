@@ -24,15 +24,18 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "pathpivot.h"
-#include "Private/scene.h"
-#include "pointhelpers.h"
-#include "Animators/transformanimator.h"
-#include "themesupport.h"
 
-PathPivot::PathPivot(const Scene * const parent) :
-    NonAnimatedMovablePoint(parent->getTransformAnimator(),
+#include "pointhelpers.h"
+#include "themesupport.h"
+#include "Private/scene.h"
+#include "ViewLayers/viewlayer_selection.h"
+#include "Animators/transformanimator.h"
+
+
+PathPivot::PathPivot(const Scene * const scene) :
+    NonAnimatedMovablePoint(scene->getCurrentGroup()->getTransformAnimator(),
                             TYPE_PIVOT_POINT),
-    mCanvas(parent) {
+    mScene(scene) {
     setRadius(7);
 }
 
@@ -89,8 +92,12 @@ void PathPivot::drawTransforming(SkCanvas * const canvas,
 }
 
 bool PathPivot::isVisible(const CanvasMode mode) const {
-    if(mCanvas->getPivotLocal()) return false;
-    if(mode == CanvasMode::pointTransform) return !mCanvas->isPointSelectionEmpty();
-    else if(mode == CanvasMode::boxTransform) return !mCanvas->isBoxSelectionEmpty();
+    auto viewLayerSelection = ViewLayerSelection::sGetInstance();
+
+    if(viewLayerSelection->getPivotLocal()) return false;
+
+    if(mode == CanvasMode::pointTransform) return !viewLayerSelection->isPointSelectionEmpty();
+    else if(mode == CanvasMode::boxTransform) return !viewLayerSelection->isBoxSelectionEmpty();
+
     return false;
 }

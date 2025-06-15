@@ -29,9 +29,12 @@
 #include "viewlayer.h"
 
 #include <QRectF>
+#include <QPointF>
 
 #include "Private/document.h"
 #include "skia/skiaincludes.h"
+#include "MovablePoints/segment.h"
+#include "MovablePoints/movablepoint.h"
 
 class BaseCanvas;
 
@@ -44,6 +47,8 @@ public:
     static ViewLayerSelection *sGetInstance() { return sInstance; }
 
     void repaint(SkCanvas * const canvas) override;
+
+    bool getPivotLocal() const;
 
     void isBoxSelectionEmpty();
     void isPointSelectionEmpty();
@@ -72,11 +77,64 @@ public:
     void flipSelectedBoxesHorizontally();
     void rotateSelectedBoxesStartAndFinish();
 
+    void scaleSelectedBy(const qreal scaleXBy,
+                         const qreal scaleYBy,
+                         const QPointF &absOrigin,
+                         const bool startTrans);
+
+    void raiseSelectedBoxesToTop();
+    void lowerSelectedBoxesToBottom();
+    void raiseSelectedBoxes();
+    void lowerSelectedBoxes();
+
+    void alignSelectedBoxes(const Qt::Alignment align,
+                            const AlignPivot pivot,
+                            const AlignRelativeTo relativeTo);
+    void applyCurrentTransformToSelected();
+
+    // Movable points
+    void addPointToSelection(MovablePoint * const point);
+    void removePointFromSelection(MovablePoint * const point);
+
+    int getPointsSelectionCount() const;
+    void clearPointsSelectionOrDeselect();
+
+    void clearPointsSelection();
+    void mergePoints();
+    void disconnectPoints();
+    bool connectPoints();
+    void subdivideSegments();
+
+    QPointF getSelectedPointsAbsPivotPos();
+    bool isPointSelectionEmpty() const;
+    void scaleSelectedPointsBy(const qreal scaleXBy,
+                               const qreal scaleYBy,
+                               const QPointF &absOrigin,
+                               const bool startTrans);
+    void rotateSelectedPointsBy(const qreal rotBy,
+                                const QPointF &absOrigin,
+                                const bool startTrans);
+    int getPointsSelectionCount() const;
+
+    void moveSelectedPointsByAbs(const QPointF &by,
+                                 const bool startTransform);
+    void finishSelectedPointsTransform();
+
+    void shiftAllPointsForAllKeys(const int by);
+    void revertAllPointsForAllKeys();
+    void shiftAllPoints(const int by);
+    void revertAllPoints();
+
+    void selectAllPointsAction();
+
     // Mouse events
     void mousePressEvent(QMouseEvent *e) override;
     void mouseReleaseEvent(QMouseEvent *e) override;
     void mouseMoveEvent(QMouseEvent *e) override;
     void mouseDoubleClickEvent(QMouseEvent *e) override;
+
+signals:
+    void pointSelectionChanged();
 
 private:
     BaseCanvas *_baseCanvas;
