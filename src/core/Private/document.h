@@ -107,6 +107,7 @@ public:
     qsptr<ViewLayerPreview> fViewLayerPreview;
     qsptr<ViewLayerRender> fViewLayerRender;
     QList<qsptr<Scene>> fScenes;
+    std::map<Scene*, int> fVisibleScenes;
     ConnContextPtr<Scene> fActiveScene;
     qptr<BoundingBox> fCurrentBox;
 

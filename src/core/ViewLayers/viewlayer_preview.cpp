@@ -148,8 +148,8 @@ void ViewLayerPreview::drawContainedBoxesToCanvas(SkCanvas * const canvas,
 void ViewLayerPreview::drawContainedBoxesToCanvas(SkCanvas * const canvas,
                                      const SkFilterQuality filter, int& drawId,
                                      QList<BlendEffect::Delayed> &delayed) const {
-    Scene activeScene = _document.fActiveScene;
-    auto containedBoxes = activeScene.getCurrentGroup();
+    auto activeScene = _document->fActiveScene;
+    auto containedBoxes = activeScene->getCurrentGroup();
 
     if(containedBoxes->isEmpty()) return;
     _handleDelayed(delayed, drawId, nullptr, containedBoxes->last());

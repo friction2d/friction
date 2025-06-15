@@ -83,6 +83,8 @@ public:
     bool clipToCanvas() const { return _clipToCanvas; };
     void setClipToCanvas(bool clipToCanvas) { _clipToCanvas = clipToCanvas; };
 
+    void queTasks();
+
     // Frames of the timeline
 
     void setSceneFrame(const int relFrame);

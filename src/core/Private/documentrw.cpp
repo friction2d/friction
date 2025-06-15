@@ -29,9 +29,11 @@
 #include "ReadWrite/evformat.h"
 #include "XML/xmlexporthelpers.h"
 #include "Animators/gradient.h"
+#include "Animators/sceneboundgradient.h"
 #include "Paint/brushescontext.h"
-#include "simpletask.h"
 #include "Private/scene.h"
+#include "ViewLayers/basecanvas.h"
+#include "simpletask.h"
 #include "appsupport.h"
 
 /// In this file, we export the Document to XML and import it back.
@@ -129,7 +131,8 @@ void Document::writeDoxumentXEV(QDomDocument& doc) const {
 
     auto scenes = doc.createElement("Scenes");
 
-    const qreal resolution = fViewLayerPreview->resolution();
+    const auto baseCanvas = BaseCanvas::sGetInstance();
+    const qreal resolution = baseCanvas->resolution();
 
     for (const auto& s : fScenes) {
         auto scene = doc.createElement("Scene");
@@ -233,7 +236,6 @@ void Document::readDocumentXEV(const QDomDocument& doc,
         const int rangeMax = XmlExportHelpers::stringToInt(rangeStrs[1]);
 
         const auto newScene = createNewScene();
-        newScene->setResolution(res);
         newScene->setName(sceneEle.attribute("name"));
         newScene->getCurrentGroup()->anim_setAbsFrame(frame);
         newScene->setCanvasSize(width, height);

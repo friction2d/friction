@@ -156,28 +156,8 @@ void Document::setActiveScene(Scene * const scene) {
     if(scene == fActiveScene) return;
     auto& conn = fActiveScene.assign(scene);
     if(fActiveScene) {
-        conn << connect(fActiveScene, &Canvas::currentBoxChanged,
-                        this, &Document::currentBoxChanged);
-        conn << connect(fActiveScene, &Canvas::selectedPaintSettingsChanged,
-                        this, &Document::selectedPaintSettingsChanged);
-        conn << connect(fActiveScene, &Canvas::destroyed,
+        conn << connect(fActiveScene, &Scene::destroyed,
                         this, &Document::clearActiveScene);
-        conn << connect(fActiveScene, &Canvas::openTextEditor,
-                        this, [this] () { emit openTextEditor(); });
-        conn << connect(fActiveScene, &Canvas::openMarkerEditor,
-                        this, [this] () { emit openMarkerEditor(); });
-        conn << connect(fActiveScene, &Canvas::openExpressionDialog,
-                        this, [this](QrealAnimator* const target) {
-            emit openExpressionDialog(target);
-        });
-        conn << connect(fActiveScene, &Canvas::openApplyExpressionDialog,
-                        this, [this](QrealAnimator* const target) {
-            emit openApplyExpressionDialog(target);
-        });
-        conn << connect(fActiveScene, &Canvas::currentHoverColor,
-                        this, [this](const QColor &color) {
-            emit currentPixelColor(color);
-        });
         emit currentBoxChanged(fActiveScene->getCurrentBox());
         emit selectedPaintSettingsChanged();
     }

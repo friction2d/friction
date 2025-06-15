@@ -66,29 +66,29 @@ void Scene::setCurrentGroupParentAsCurrentGroup()
 }
 
 void Scene::saveSVG(SvgExporter& exp, DomEleTask* const eleTask) const {
-    _currentGroup.saveSVG(exp, eleTask);
+    _currentGroup->saveSVG(exp, eleTask);
 };
 
 void Scene::writeBoxOrSoundXEV(const stdsptr<XevZipFileSaver>& xevFileSaver,
                         const RuntimeIdToWriteId& objListIdConv,
                         const QString& path) const {
-    _currentGroup.writeBoxOrSoundXEV(xevFileSaver, objListIdConv, path);
+    _currentGroup->writeBoxOrSoundXEV(xevFileSaver, objListIdConv, path);
 };
 
 void Scene::readBoxOrSoundXEV(XevReadBoxesHandler& boxReadHandler,
                        ZipFileLoader& fileLoader, const QString& path,
                        const RuntimeIdToWriteId& objListIdConv) {
-    _currentGroup.readBoxOrSoundXEV(boxReadHandler, fileLoader, path, objListIdConv);
+    _currentGroup->readBoxOrSoundXEV(boxReadHandler, fileLoader, path, objListIdConv);
 };
 
 void Scene::writeAllContained(eWriteStream &dst) const {
-    return _currentGroup.writeAllContained(dst);
+    return _currentGroup->writeAllContained(dst);
 };
 
 void Scene::writeAllContainedXEV(const stdsptr<XevZipFileSaver>& fileSaver,
                           const RuntimeIdToWriteId& objListIdConv,
                           const QString& path) const {
-    _currentGroup.writeAllContainedXEV(fileSaver, objListIdConv, path);
+    _currentGroup->writeAllContainedXEV(fileSaver, objListIdConv, path);
 };
 
 QString Scene::makeNameUniqueForDescendants(
