@@ -63,7 +63,11 @@ public:
     Scene(QString sceneName, qreal canvasWidth, qreal canvasHeight, qreal fps);
     ~Scene();
 
-    static Scene* fromContainerBox(ContainerBox *containerBox);
+    static Scene* fromContainerBox(QString sceneName,
+                                   qreal canvasWidth,
+                                   qreal canvasHeight,
+                                   qreal fps,
+                                   ContainerBox *containerBox);
 
     // We contain all Scene objects in an object called "ContainerBox"
     // This is basically an object that can contain other objects.

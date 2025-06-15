@@ -39,7 +39,7 @@ Scene::Scene(QString sceneName, qreal canvasWidth, qreal canvasHeight, qreal fps
            , _canvasHeight(canvasHeight)
            , _fps(fps) {};
 
-Scene* Scene::fromContainerBox(QString sceneName,
+Scene Scene::fromContainerBox(QString sceneName,
                                       qreal canvasWidth,
                                       qreal canvasHeight,
                                       qreal fps,
@@ -49,7 +49,7 @@ Scene* Scene::fromContainerBox(QString sceneName,
                        canvasHeight,
                        fps);
 
-    scene->setCurrentGroup(containerBox);
+    scene.setCurrentGroup(containerBox);
 
     return scene;
 };

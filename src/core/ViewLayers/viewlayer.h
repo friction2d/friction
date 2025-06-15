@@ -27,8 +27,8 @@
 #define VIEW_LAYER_H
 
 #include <string>
-#include <QObject>
 
+#include "smartPointers/selfref.h"
 #include "skia/skiaincludes.h"
 #include "eevent.h"
 
@@ -39,12 +39,11 @@
 // (one view layer for rendering objects, one for selection...)
 //
 // We inherit from QObject because that allows us to do signals
-class ViewLayer : public QObject {
+class ViewLayer : public SelfRef {
     Q_OBJECT
 public:
     ViewLayer(std::string layerId)
-        : QObject()
-        , _layerId(layerId)
+        : _layerId(layerId)
         , _isVisible(true) {};
     ~ViewLayer() = default;
 
