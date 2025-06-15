@@ -28,14 +28,15 @@
 
 #include "viewlayer.h"
 
-#include <QRectF>
-#include <QPointF>
-
 #include "Private/document.h"
 #include "skia/skiaincludes.h"
 #include "MovablePoints/segment.h"
 #include "MovablePoints/movablepoint.h"
 
+class QString;
+class QPointF;
+class QRectF;
+class SkFontStyle;
 class BaseCanvas;
 
 
@@ -67,11 +68,12 @@ public:
     void deleteAction();
     void duplicateAction();
 
-    void setSelectedFontText(text);
-    void setSelectedFontSize(size);
-    void setSelectedFontFamilyAndStyle(family, style);
-    void setSelectedTextVAlignment(alignment);
-    void setSelectedTextAlignment(alignment);
+    void setSelectedFontText(const QString &text);
+    void setSelectedFontSize(const qreal size);
+    void setSelectedFontFamilyAndStyle(const QString &family,
+                                       const SkFontStyle &style);
+    void setSelectedTextVAlignment(const Qt::Alignment alignment);
+    void setSelectedTextAlignment(const Qt::Alignment alignment);
 
     void flipSelectedBoxesVertically();
     void flipSelectedBoxesHorizontally();
@@ -107,6 +109,7 @@ public:
 
     QPointF getSelectedPointsAbsPivotPos();
     bool isPointSelectionEmpty() const;
+
     void scaleSelectedPointsBy(const qreal scaleXBy,
                                const qreal scaleYBy,
                                const QPointF &absOrigin,
@@ -114,8 +117,6 @@ public:
     void rotateSelectedPointsBy(const qreal rotBy,
                                 const QPointF &absOrigin,
                                 const bool startTrans);
-    int getPointsSelectionCount() const;
-
     void moveSelectedPointsByAbs(const QPointF &by,
                                  const bool startTransform);
     void finishSelectedPointsTransform();

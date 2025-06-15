@@ -96,8 +96,11 @@ bool PathPivot::isVisible(const CanvasMode mode) const {
 
     if(viewLayerSelection->getPivotLocal()) return false;
 
-    if(mode == CanvasMode::pointTransform) return !viewLayerSelection->isPointSelectionEmpty();
-    else if(mode == CanvasMode::boxTransform) return !viewLayerSelection->isBoxSelectionEmpty();
+    if(mode == CanvasMode::pointTransform) {
+        return !viewLayerSelection->isPointSelectionEmpty();
+    } else if(mode == CanvasMode::boxTransform) {
+        return !viewLayerSelection->isBoxSelectionEmpty();
+    };
 
     return false;
 }

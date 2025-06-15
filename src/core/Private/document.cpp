@@ -24,8 +24,11 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "Private/document.h"
+#include "ViewLayers/viewlayer_preview.h"
+#include "ViewLayers/viewlayer_render.h"
 #include "FileCacheHandlers/filecachehandler.h"
 #include "simpletask.h"
+
 
 Document* Document::sInstance = nullptr;
 

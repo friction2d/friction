@@ -27,9 +27,12 @@
 #include "viewlayer_selection.h"
 
 #include <QColor>
-#include <cstdio>
+#include <QString>
+#include <QRectF>
+#include <QPointF>
 
 #include "basecanvas.h"
+#include "skia/skiaincludes.h"
 #include "Drawables/rectangle_drawable.h"
 
 

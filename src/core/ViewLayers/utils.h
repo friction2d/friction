@@ -26,8 +26,8 @@
 #ifndef FRICTION_UI_VIEW_LAYER_UTILITIES
 #define FRICTION_UI_VIEW_LAYER_UTILITIES
 
-#include "core/skia/skiaincludes.h"
-#include "core/GUI/global.h"
+#include "skia/skiaincludes.h"
+#include "GUI/global.h"
 
 
 void drawTransparencyMesh(SkCanvas* const canvas,

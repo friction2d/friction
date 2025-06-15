@@ -35,8 +35,6 @@
 #include "Paint/brushcontexedwrapper.h"
 #include "actions.h"
 #include "scene.h"
-#include "ViewLayers/viewlayer_preview.h"
-#include "ViewLayers/viewlayer_render.h"
 #include "Tasks/taskscheduler.h"
 #include "clipboardcontainer.h"
 #include "conncontextptr.h"
@@ -50,6 +48,10 @@
 
 class SceneBoundGradient;
 class FileDataCacheHandler;
+class ViewLayerRender;
+class ViewLayerPreview;
+
+
 enum class CanvasMode : short;
 
 enum class NodeVisiblity {

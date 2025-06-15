@@ -37,14 +37,17 @@
 #include "Boxes/containerbox.h"
 #include "Boxes/boundingbox.h"
 // Selected properties
-#include "conncontextptr.h"
 #include "Properties/property.h"
 #include "conncontextobjlist.h"
+#include "conncontextptr.h"
 // Undo/redo
 #include "undoredo.h"
 
 class UndoRedoStack;
+class SceneFrameContainer;
 class SceneBoundGradient;
+class eWriteStream;
+class eReadStream;
 
 
 // Represents a scene in a Document (what Canvas used to be)
@@ -62,7 +65,11 @@ public:
     Scene(QString sceneName, qreal canvasWidth, qreal canvasHeight, qreal fps);
     ~Scene();
 
-    ContainerBox *getCurrentGroup() { return _currentGroup; };
+    static Scene* fromContainerBox(ContainerBox *containerBox);
+
+    ContainerBox *getCurrentGroup() const { return _currentGroup; };
+    void setCurrentGroup(ContainerBox* containerBox) { _currentGroup = containerBox; };
+
     void setCurrentGroupParentAsCurrentGroup();
 
     // Properties (name, width, fps...)
@@ -73,13 +80,19 @@ public:
     qreal canvasHeight() const { return _canvasHeight; };
     QSize canvasSize() { return QSize(canvasWidth(), canvasHeight()); };
 
-    bool clipToCanvas() { return _clipToCanvas; };
+    bool clipToCanvas() const { return _clipToCanvas; };
     void setClipToCanvas(bool clipToCanvas) { _clipToCanvas = clipToCanvas; };
 
     // Frames of the timeline
 
-    int currentFrame() const { return _currentFrame; };
+    void setSceneFrame(const int relFrame);
+    void setSceneFrame(const stdsptr<SceneFrameContainer> &cont);
+    void setLoadingSceneFrame(const stdsptr<SceneFrameContainer> &cont);
+
     FrameRange getFrameRange() const { return _range; };
+    void setFrameRange(const FrameRange& range);
+
+    int currentFrame() const { return _currentFrame; };
     int getMinFrame() const
     {
         return _range.fMin;
@@ -89,7 +102,7 @@ public:
         return _range.fMax;
     }
 
-    const QList<BoundingBox*> &getContainedBoxes() { return getCurrentGroup()->getContainedBoxes(); };
+    const QList<BoundingBox*> &getContainedBoxes() const { return getCurrentGroup()->getContainedBoxes(); };
 
     // Gradients
 
@@ -194,6 +207,13 @@ public:
     // That one can ask for without having to care of implementation details
 
     void saveSVG(SvgExporter& exp, DomEleTask* const eleTask) const;
+
+    void writeSettings(eWriteStream &dst) const;
+    void readSettings(eReadStream &src);
+    void writeBoundingBox(eWriteStream& dst) const;
+    void readBoundingBox(eReadStream& src);
+    void writeMarkers(eWriteStream &dst) const;
+    void readMarkers(eReadStream &src);
 
     void writeBoxOrSoundXEV(const stdsptr<XevZipFileSaver>& xevFileSaver,
                             const RuntimeIdToWriteId& objListIdConv,

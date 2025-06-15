@@ -25,16 +25,34 @@
 
 #include "scene.h"
 
+#include "CacheHandlers/sceneframecontainer.h"
 #include "Animators/sceneboundgradient.h"
+#include "ReadWrite/ereadstream.h"
+#include "ReadWrite/ewritestream.h"
 
 
 Scene::Scene(QString sceneName, qreal canvasWidth, qreal canvasHeight, qreal fps)
-           : QObject(),
+           : QObject()
            , _currentGroup(new ContainerBox(sceneName))
            , _name(sceneName)
            , _canvasWidth(canvasWidth)
            , _canvasHeight(canvasHeight)
            , _fps(fps) {};
+
+Scene* Scene::fromContainerBox(QString sceneName,
+                                      qreal canvasWidth,
+                                      qreal canvasHeight,
+                                      qreal fps,
+                                      ContainerBox *containerBox) {
+    auto scene = Scene(sceneName,
+                       canvasWidth,
+                       canvasHeight,
+                       fps);
+
+    scene->setCurrentGroup(containerBox);
+
+    return scene;
+};
 
 Scene::~Scene() {
     emit destroyed();

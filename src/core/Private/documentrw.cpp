@@ -135,7 +135,7 @@ void Document::writeDoxumentXEV(QDomDocument& doc) const {
         auto scene = doc.createElement("Scene");
         scene.setAttribute("resolution", QString::number(resolution));
         scene.setAttribute("clip", fActiveScene->clipToCanvas() ? "true" : "false");
-        scene.setAttribute("frame", s->getCurrentFrame());
+        scene.setAttribute("frame", s->currentFrame());
         scene.setAttribute("name", s->name());
         scene.setAttribute("width", s->canvasWidth());
         scene.setAttribute("height", s->canvasHeight());
@@ -234,8 +234,8 @@ void Document::readDocumentXEV(const QDomDocument& doc,
 
         const auto newScene = createNewScene();
         newScene->setResolution(res);
-        newScene->prp_setName(sceneEle.attribute("name"));
-        newScene->anim_setAbsFrame(frame);
+        newScene->setName(sceneEle.attribute("name"));
+        newScene->getCurrentGroup()->anim_setAbsFrame(frame);
         newScene->setCanvasSize(width, height);
         newScene->setFps(fps);
         newScene->setClipToCanvas(clip);
