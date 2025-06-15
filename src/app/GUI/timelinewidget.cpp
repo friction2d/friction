@@ -329,9 +329,9 @@ void TimelineWidget::setCurrentScene(Scene * const scene) {
         mFrameRangeScrollBar->setFirstViewedFrame(scene->getCurrentFrame());
         setViewedFrameRange(mFrameRangeScrollBar->getViewedRange());
 
-        connect(scene, &Canvas::currentFrameChanged,
+        connect(scene, &Scene::currentFrameChanged,
                 mFrameScrollBar, &FrameScrollBar::setFirstViewedFrame);
-        connect(scene, &Canvas::newFrameRange,
+        connect(scene, &Scene::newFrameRange,
                 this, &TimelineWidget::setCanvasFrameRange);
 
 
@@ -343,12 +343,12 @@ void TimelineWidget::setCurrentScene(Scene * const scene) {
             mBoxesListWidget->scheduleContentUpdateIfIsCurrentTarget(
                         scene->getCurrentGroup(), SWT_Target::group);
         }
-        connect(scene, &Canvas::currentContainerSet, this,
+        connect(scene, &Scene::currentContainerSet, this,
                 [this](ContainerBox* const container) {
             mBoxesListWidget->scheduleContentUpdateIfIsCurrentTarget(
                         container, SWT_Target::group);
         });
-        connect(scene, &Canvas::requestUpdate, this, [this]() {
+        connect(scene, &Scene::requestUpdate, this, [this]() {
             mFrameScrollBar->update();
             mBoxesListWidget->updateVisible();
             update();

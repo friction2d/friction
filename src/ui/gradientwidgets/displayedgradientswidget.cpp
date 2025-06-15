@@ -49,11 +49,11 @@ void DisplayedGradientsWidget::setScene(Scene * const scene) {
     setSelectedGradient(nullptr);
     auto& conn = mScene.assign(scene);
     if(scene) {
-        conn << connect(scene, &Canvas::gradientCreated,
+        conn << connect(scene, &Scene::gradientCreated,
                 this, [this](SceneBoundGradient* const gradient) {
             addGradient(gradient);
         });
-        conn << connect(scene, &Canvas::gradientRemoved,
+        conn << connect(scene, &Scene::gradientRemoved,
                 this, [this](SceneBoundGradient* const gradient) {
             removeGradient(gradient);
         });

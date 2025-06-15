@@ -24,23 +24,28 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "keysview.h"
-#include "Animators/qrealkey.h"
-#include "clipboardcontainer.h"
+
+#include <QApplication>
 #include <QPainter>
 #include <QMenu>
-#include "mainwindow.h"
+
+#include "Animators/qrealkey.h"
+#include "Animators/qrealpoint.h"
 #include "GUI/BoxesList/boxscrollwidget.h"
 #include "GUI/BoxesList/boxscroller.h"
 #include "GUI/BoxesList/boxsinglewidget.h"
-#include "Timeline/durationrectangle.h"
 #include "GUI/global.h"
-#include "pointhelpers.h"
-#include <QApplication>
-#include "clipboardcontainer.h"
-#include "Animators/qrealpoint.h"
-#include "timelinehighlightwidget.h"
 #include "GUI/dialogsinterface.h"
+#include "Private/scene.h"
+#include "Timeline/durationrectangle.h"
+#include "ViewLayers/viewlayer_selection.h"
+#include "clipboardcontainer.h"
+#include "timelinehighlightwidget.h"
+#include "pointhelpers.h"
+#include "mainwindow.h"
+#include "clipboardcontainer.h"
 #include "themesupport.h"
+
 
 KeysView::KeysView(BoxScrollWidget *boxesListVisible,
                    QWidget *parent) :
@@ -89,16 +94,12 @@ void KeysView::dragMoveEvent(QDragMoveEvent *event) {
 void KeysView::setCurrentScene(Scene * const scene)
 {
     if (mCurrentScene) {
-        disconnect(mCurrentScene.data(), &Canvas::objectSelectionChanged,
-                   this, &KeysView::graphUpdateVisible);
-        disconnect(mCurrentScene.data(), &Canvas::requestEasingAction,
+        disconnect(mCurrentScene.data(), &Scene::requestEasingAction,
                    this, &KeysView::graphEasingAction);
     }
     mCurrentScene = scene;
     if (mCurrentScene) {
-        connect(mCurrentScene.data(), &Canvas::objectSelectionChanged,
-                this, &KeysView::graphUpdateVisible);
-        connect(mCurrentScene.data(), &Canvas::requestEasingAction,
+        connect(mCurrentScene.data(), &Scene::requestEasingAction,
                 this, &KeysView::graphEasingAction);
     }
     graphUpdateVisible();

@@ -51,8 +51,8 @@ public:
 
     bool getPivotLocal() const;
 
-    void isBoxSelectionEmpty();
-    void isPointSelectionEmpty();
+    bool isBoxSelectionEmpty();
+    bool isPointSelectionEmpty();
 
     void selectAllAction();
     void invertSelectionAction();
@@ -136,6 +136,7 @@ public:
 
 signals:
     void pointSelectionChanged();
+    void objectSelectionChanged();
 
 private:
     BaseCanvas *_baseCanvas;

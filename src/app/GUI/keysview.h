@@ -29,11 +29,13 @@
 #include <QWidget>
 #include <QPointer>
 #include <QApplication>
+
 #include "misc/keyfocustarget.h"
 #include "smartPointers/ememory.h"
 #include "framerange.h"
 #include "conncontextobjlist.h"
 #include "themesupport.h"
+
 
 const QList<QColor> ANIMATOR_COLORS = {ThemeSupport::getThemeColorRed(),
                                        ThemeSupport::getThemeColorBlue(),
@@ -267,7 +269,7 @@ private:
     bool mMoveAllSelected = false;
     bool mPressedCtrlPoint = false;
 
-    qptr<Canvas> mCurrentScene;
+    qptr<Scene> mCurrentScene;
     QList<Animator*> mSelectedKeysAnimators;
     ConnContextObjList<GraphAnimator*> mGraphAnimators;
 

@@ -75,7 +75,7 @@ private:
     void gradientContextMenuReq(const int gradId, const QPoint &globalPos);
     void gradientLeftPressed(const int gradId);
 
-    ConnContextQPtr<Canvas> mScene;
+    ConnContextQPtr<Scene> mScene;
 
     int mContextMenuGradientId = -1;
     int mDisplayedTop = 0;

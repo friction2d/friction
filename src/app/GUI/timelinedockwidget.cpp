@@ -598,23 +598,24 @@ void TimelineDockWidget::interruptPreview()
     } else { setStepPreviewStop(); }
 }
 
-void TimelineDockWidget::updateSettingsForCurrentCanvas(Scene* const canvas)
+void TimelineDockWidget::updateSettingsForCurrentCanvas(Scene* const scene)
 {
-    if (!canvas) { return; }
+    if (!scene) { return; }
+    auto containerBox = scene->getCurrentGroup();
 
-    const auto range = canvas->getFrameRange();
+    const auto range = scene->getFrameRange();
     updateFrameRange(range);
-    handleCurrentFrameChanged(canvas->anim_getCurrentAbsFrame());
+    handleCurrentFrameChanged(containerBox->anim_getCurrentAbsFrame());
 
-    mCurrentFrameSpin->setDisplayTimeCode(canvas->getDisplayTimecode());
-    mFrameStartSpin->setDisplayTimeCode(canvas->getDisplayTimecode());
-    mFrameEndSpin->setDisplayTimeCode(canvas->getDisplayTimecode());
+    mCurrentFrameSpin->setDisplayTimeCode(scene->getDisplayTimecode());
+    mFrameStartSpin->setDisplayTimeCode(scene->getDisplayTimecode());
+    mFrameEndSpin->setDisplayTimeCode(scene->getDisplayTimecode());
 
-    mCurrentFrameSpin->updateFps(canvas->getFps());
-    mFrameStartSpin->updateFps(canvas->getFps());
-    mFrameEndSpin->updateFps(canvas->getFps());
+    mCurrentFrameSpin->updateFps(scene->fps());
+    mFrameStartSpin->updateFps(scene->fps());
+    mFrameEndSpin->updateFps(scene->fps());
 
-    connect(canvas, &Canvas::fpsChanged,
+    connect(scene, &Scene::fpsChanged,
             this, [this](const qreal fps) {
         mCurrentFrameSpin->updateFps(fps);
         mFrameStartSpin->updateFps(fps);
@@ -623,19 +624,19 @@ void TimelineDockWidget::updateSettingsForCurrentCanvas(Scene* const canvas)
             mStepPreviewTimer->setInterval(1000 / fps);
         }
     });
-    connect(canvas, &Canvas::displayTimeCodeChanged,
+    connect(scene, &Scene::displayTimeCodeChanged,
             this, [this](const bool enabled) {
         mCurrentFrameSpin->setDisplayTimeCode(enabled);
         mFrameStartSpin->setDisplayTimeCode(enabled);
         mFrameEndSpin->setDisplayTimeCode(enabled);
     });
 
-    connect(canvas,
-            &Canvas::newFrameRange,
+    connect(scene,
+            &Scene::newFrameRange,
             this, [this](const FrameRange range) {
             updateFrameRange(range);
     });
-    connect(canvas, &Canvas::currentFrameChanged,
+    connect(scene, &Scene::currentFrameChanged,
             this, &TimelineDockWidget::handleCurrentFrameChanged);
 
     update(); // needed for loaded markers

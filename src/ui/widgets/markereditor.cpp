@@ -47,7 +47,7 @@ MarkerEditor::MarkerEditor(Scene *scene,
     populate();
 
     if (mScene) {
-        connect(mScene,&Canvas::markersChanged,
+        connect(mScene,&Scene::markersChanged,
                 this, &MarkerEditor::populate);
     }
 }

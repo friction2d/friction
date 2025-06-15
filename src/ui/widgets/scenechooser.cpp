@@ -67,7 +67,7 @@ void SceneChooser::addScene(Scene * const scene) {
         setCurrentScene(scene, act);
         Document::sInstance->actionFinished();
     });
-    connect(scene, &Canvas::prp_nameChanged, act,
+    connect(scene, &Scene::nameChanged, act,
             [this, scene, act](const QString& name) {
         if(scene == mCurrentScene) setTitle(name);
         act->setText(name);

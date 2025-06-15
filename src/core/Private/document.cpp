@@ -116,7 +116,7 @@ void Document::setSceneMode(const CanvasMode mode) {
 }
 
 Scene *Document::createNewScene(const bool emitCreated) {
-    const auto newScene = enve::make_shared<Canvas>(*this);
+    const auto newScene = enve::make_shared<Scene>(*this);
     fScenes.append(newScene);
     SWT_addChild(newScene.get());
     if (emitCreated) {
@@ -125,7 +125,7 @@ Scene *Document::createNewScene(const bool emitCreated) {
     return newScene.get();
 }
 
-bool Document::removeScene(const qsptr<Canvas>& scene) {
+bool Document::removeScene(const qsptr<Scene>& scene) {
     const int id = fScenes.indexOf(scene);
     return removeScene(id);
 }
@@ -158,7 +158,7 @@ void Document::setActiveScene(Scene * const scene) {
     if(fActiveScene) {
         conn << connect(fActiveScene, &Scene::destroyed,
                         this, &Document::clearActiveScene);
-        emit currentBoxChanged(fActiveScene->getCurrentBox());
+        emit currentBoxChanged(fActiveScene->getCurrentGroup());
         emit selectedPaintSettingsChanged();
     }
     emit activeSceneSet(scene);

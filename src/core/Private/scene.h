@@ -27,7 +27,6 @@
 #define FRICTION_CORE_BOXES_SCENE_H
 
 #include <string>
-#include <QObject>
 #include <QThread>
 #include <QString>
 #include <QList>
@@ -43,7 +42,6 @@
 // Undo/redo
 #include "undoredo.h"
 
-class UndoRedoStack;
 class SceneFrameContainer;
 class SceneBoundGradient;
 class eWriteStream;
@@ -59,7 +57,7 @@ class eReadStream;
 // I don't like some things (undoRedoStack, gradients, selectedProperties...)
 //
 // We inherit from QObject because that allows us to do signals
-class Scene : public QObject {
+class Scene : public SelfRef {
     Q_OBJECT
 public:
     Scene(QString sceneName, qreal canvasWidth, qreal canvasHeight, qreal fps);
@@ -67,26 +65,35 @@ public:
 
     static Scene* fromContainerBox(ContainerBox *containerBox);
 
+    // We contain all Scene objects in an object called "ContainerBox"
+    // This is basically an object that can contain other objects.
     ContainerBox *getCurrentGroup() const { return _currentGroup; };
     void setCurrentGroup(ContainerBox* containerBox) { _currentGroup = containerBox; };
 
+    // Access the objects that the ContainerBox has
+    const QList<BoundingBox*> &getContainedBoxes() const { return getCurrentGroup()->getContainedBoxes(); };
     void setCurrentGroupParentAsCurrentGroup();
 
-    // Properties (name, width, fps...)
+    // Scene properties (name, width, fps...)
 
     QString name() const { return _name; };
     qreal fps() const { return _fps; };
     qreal canvasWidth() const { return _canvasWidth; };
     qreal canvasHeight() const { return _canvasHeight; };
     QSize canvasSize() { return QSize(canvasWidth(), canvasHeight()); };
-
     bool clipToCanvas() const { return _clipToCanvas; };
     void setClipToCanvas(bool clipToCanvas) { _clipToCanvas = clipToCanvas; };
 
+    // Performs tasks in the children objects
+    // What kind of tasks? Is it QUEUE tasks?
+    //
+    // TODO(kaixoo): I don't like these kind of mutability in Scene
+    // Scene should only contain data.
     void queTasks();
 
     // Frames of the timeline
 
+    // Sets which frame is currently selected in the timeline
     void setSceneFrame(const int relFrame);
     void setSceneFrame(const stdsptr<SceneFrameContainer> &cont);
     void setLoadingSceneFrame(const stdsptr<SceneFrameContainer> &cont);
@@ -104,9 +111,8 @@ public:
         return _range.fMax;
     }
 
-    const QList<BoundingBox*> &getContainedBoxes() const { return getCurrentGroup()->getContainedBoxes(); };
-
     // Gradients
+    // What is a "Scene Bound Gradient"?
 
     SceneBoundGradient * createNewGradient();
     bool removeGradient(const qsptr<SceneBoundGradient> &gradient);
@@ -118,9 +124,12 @@ public:
     // Undo/redo
     bool newUndoRedoSet();
 
+    // Performs an undo action in the current scene
     void undo();
+    // Performs a redo action in the current scene
     void redo();
 
+    // Blocks the ability to perform undo/redo
     UndoRedoStack::StackBlock blockUndoRedo();
     void unblockUndoRedo();
 
@@ -129,6 +138,8 @@ public:
                      const stdfunc<void ()> &redo);
     void pushUndoRedoName(const QString &name) const;
 
+    // UndoRedoStack is an object that allows us to keep track of all undo/redos that have been done in a scene
+    // And go back / forward between them.
     UndoRedoStack* undoRedoStack() const
     {
         return _undoRedoStack.get();
@@ -158,8 +169,8 @@ public:
 
     void setCurrentFrame(int frame) { _currentFrame = frame; };
 
-    // Selected Propertys
-    // This is MAGIC, DO NOT TOUCH
+    // Selected `Properties/property.h`
+    // What are "Selected Properties"? These are not classical key-value "properties", this is a base class for objects that provides basic things like prp_getName()...
 
     template <class T = MovablePoint>
     [[deprecated]]
@@ -208,12 +219,20 @@ public:
     // Ideally these should form part of different interfaces (SVG, XEV...)
     // That one can ask for without having to care of implementation details
 
+    // Converts Scene objects to SVG and saves them to a SvgExporter.
     void saveSVG(SvgExporter& exp, DomEleTask* const eleTask) const;
 
+    // Writes user data to an eWriteStream (such as last tool used, last fill color used...)
     void writeSettings(eWriteStream &dst) const;
     void readSettings(eReadStream &src);
+
+    // What does "writeBoundingBox" mean?
+    // Does it mean "import these files as bounding boxes in the scene?"
     void writeBoundingBox(eWriteStream& dst) const;
     void readBoundingBox(eReadStream& src);
+
+    // What are markers?
+    // As in "tags" or "labels" in the timeline?
     void writeMarkers(eWriteStream &dst) const;
     void readMarkers(eReadStream &src);
 
@@ -224,22 +243,54 @@ public:
                            ZipFileLoader& fileLoader, const QString& path,
                            const RuntimeIdToWriteId& objListIdConv);
 
+    // Writes contained objects to an eWriteStream
     void writeAllContained(eWriteStream &dst) const;
+    // Writes contained objects to XEV file format
     void writeAllContainedXEV(const stdsptr<XevZipFileSaver>& fileSaver,
                               const RuntimeIdToWriteId& objListIdConv,
                               const QString& path) const;
 
+    // Checks if the object name is being used elsewhere, and gives it a unique name if necessary
+    // We do this to avoid two objects having the same name
     QString makeNameUniqueForDescendants(
             const QString& name, eBoxOrSound * const skip = nullptr);
+    // Checks if the object name is being used elsewhere, and gives it a unique name if necessary
+    // We do this to avoid two objects having the same name
     QString makeNameUniqueForContained(
             const QString& name, eBoxOrSound * const skip = nullptr);
 
+    // What is a "display time code?"
+    // Is it some kind of per-region hour format thing?
+    bool getDisplayTimecode() { return _displayTimeCode; }
+    void setDisplayTimecode(bool timecode)
+    {
+        _displayTimeCode = timecode;
+        emit displayTimeCodeChanged(timecode);
+    }
+
 signals:
+    // "Intrinsic" signals
     void requestUpdate();
     void destroyed();
+
+    // Scene properties changed
     void dimensionsChanged(int, int);
     void fpsChanged(qreal);
     void nameChanged(const QString&, QPrivateSignal);
+
+    // Frames
+    void newFrameRange(FrameRange);
+    void currentFrameChanged(int);
+
+    // Others
+    void displayTimeCodeChanged(bool displayTimeCode);
+    void markersChanged();
+    void gradientCreated(SceneBoundGradient*);
+    void gradientRemoved(SceneBoundGradient*);
+    // TODO(kaixoo) ???
+    void currentPickedColor(const QColor &color);
+    void currentHoverColor(const QColor &color);
+    void requestEasingAction(const QString &easing);
 
 protected:
     qsptr<UndoRedoStack> _undoRedoStack;
@@ -256,6 +307,8 @@ private:
 
     int _currentFrame;
     FrameRange _range{0, 200};
+
+    bool _displayTimeCode;
 
 private:
     // Selected properties
