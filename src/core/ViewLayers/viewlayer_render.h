@@ -34,7 +34,6 @@
 #include "CacheHandlers/usepointer.h"
 #include "CacheHandlers/sceneframecontainer.h"
 #include "CacheHandlers/hddcachablecachehandler.h"
-#include "Sound/soundcomposition.h"
 
 class BaseCanvas;
 
@@ -88,8 +87,6 @@ public:
 
     void setIsRenderingToOutput(const bool bT) { _isRenderingOutput = bT; };
 
-    SoundComposition *getSoundComposition() { return _soundComposition.get(); };
-
     // Mouse events
     void mousePressEvent(QMouseEvent *e) override {};
     void mouseReleaseEvent(QMouseEvent *e) override {};
@@ -109,8 +106,6 @@ private:
 
     // This code works, but I don't know why
     // Do not touch please
-
-    qsptr<SoundComposition> _soundComposition;
 
     UseSharedPointer<SceneFrameContainer> _sceneFrame;
     HddCachableCacheHandler _sceneFramesHandler;

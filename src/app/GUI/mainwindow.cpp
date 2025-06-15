@@ -2310,8 +2310,8 @@ void MainWindow::handleNewVideoClip(const VideoBox::VideoSpecs &specs)
     if (scene->getContainedBoxes().count() != 1) { return; }
 
     // is identical?
-    if (scene->getCanvasSize() == specs.dim &&
-        scene->getFps() == specs.fps &&
+    if (scene->canvasSize() == specs.dim &&
+        scene->fps() == specs.fps &&
         scene->getFrameRange().fMax == specs.range.fMax) { return; }
 
     // always apply?

@@ -559,7 +559,7 @@ void TimelineDockWidget::setStepPreviewStart()
         RenderHandler::sInstance->interruptPreview();
     }
 
-    int fps = scene->getFps();
+    int fps = scene->fps();
     mStepPreviewTimer->setInterval(1000 / fps);
     mStepPreviewTimer->start();
     previewBeingPlayed();

@@ -250,8 +250,8 @@ void CommandPalette::parseCmd(const QString &input)
         int value = frame.toInt();
         const auto scene = *mDocument.fActiveScene;
         if (!scene) { return; }
-        if (hasSec) { value *= scene->getFps(); }
-        else if (hasMin) { value = (value * 60) * scene->getFps(); }
+        if (hasSec) { value *= scene->fps(); }
+        else if (hasMin) { value = (value * 60) * scene->fps(); }
 
         if (!goToFrame) { value = skipToNextFrame ? scene->getCurrentFrame() + value : scene->getCurrentFrame() - value; }
         qDebug() << "go to or skip to frame" << value;
@@ -318,8 +318,8 @@ void CommandPalette::parseCmd(const QString &input)
             if (hasSec && hasMin) { continue; }
             if (!isIntOrDouble(mark.replace("m", "").replace("s", ""))) { continue; }
             int value = mark.toInt();
-            if (hasSec) { value *= scene->getFps(); }
-            else if (hasMin) { value = (value * 60) * scene->getFps(); }
+            if (hasSec) { value *= scene->fps(); }
+            else if (hasMin) { value = (value * 60) * scene->fps(); }
             qDebug() << "do marker" << value;
             if (hasTitle) { scene->setMarker(args.mid(1).join(" "), value); }
             else { scene->setMarker(value); }
@@ -339,8 +339,8 @@ void CommandPalette::parseCmd(const QString &input)
         int value = frame.toInt();
         const auto scene = *mDocument.fActiveScene;
         if (!scene) { return; }
-        if (hasSec) { value *= scene->getFps(); }
-        else if (hasMin) { value = (value * 60) * scene->getFps(); }
+        if (hasSec) { value *= scene->fps(); }
+        else if (hasMin) { value = (value * 60) * scene->fps(); }
         qDebug() << "do frame in/out" << value;
         if (doFrameIn) { scene->setFrameIn(true, value); }
         else if (doFrameOut) { scene->setFrameOut(true, value); }

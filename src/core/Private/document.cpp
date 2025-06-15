@@ -118,7 +118,9 @@ void Document::setSceneMode(const CanvasMode mode) {
 Scene *Document::createNewScene(const bool emitCreated) {
     const auto newScene = enve::make_shared<Scene>(*this);
     fScenes.append(newScene);
-    SWT_addChild(newScene.get());
+    // TODO(kaixoo): Should we set the child ContainerBox as SWT child, or just get rid of the SWT children scheme and use fScenes?
+    // (prefer Composition over Inheritance)
+    SWT_addChild(newScene.get()->getCurrentGroup());
     if (emitCreated) {
         emit sceneCreated(newScene.get());
     }
@@ -133,8 +135,8 @@ bool Document::removeScene(const qsptr<Scene>& scene) {
 bool Document::removeScene(const int id) {
     if(id < 0 || id >= fScenes.count()) return false;
     const auto scene = fScenes.takeAt(id);
-    SWT_removeChild(scene.data());
-    emit sceneRemoved(scene.data());
+    SWT_removeChild(scene->getCurrentGroup());
+    emit sceneRemoved(scene.get());
     emit sceneRemoved(id);
     return true;
 }
@@ -170,13 +172,13 @@ void Document::clearActiveScene() {
 
 int Document::getActiveSceneFrame() const {
     if(!fActiveScene) return 0;
-    return fActiveScene->anim_getCurrentAbsFrame();
+    return fActiveScene->getCurrentGroup()->anim_getCurrentAbsFrame();
 }
 
 void Document::setActiveSceneFrame(const int frame) {
     if(!fActiveScene) return;
-    if(fActiveScene->anim_getCurrentRelFrame() == frame) return;
-    fActiveScene->anim_setAbsFrame(frame);
+    if(fActiveScene->getCurrentGroup()->anim_getCurrentRelFrame() == frame) return;
+    fActiveScene->getCurrentGroup()->anim_setAbsFrame(frame);
     emit activeSceneFrameSet(frame);
 }
 
@@ -290,7 +292,7 @@ void Document::SWT_setupAbstraction(SWT_Abstraction * const abstraction,
                                     const UpdateFuncs &updateFuncs,
                                     const int visiblePartWidgetId) {
     for(const auto& scene : fScenes) {
-        auto abs = scene->SWT_abstractionForWidget(updateFuncs,
+        auto abs = scene->getCurrentGroup()->SWT_abstractionForWidget(updateFuncs,
                                                    visiblePartWidgetId);
         abstraction->addChildAbstraction(abs->ref<SWT_Abstraction>());
     }

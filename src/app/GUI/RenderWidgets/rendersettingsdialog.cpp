@@ -159,7 +159,7 @@ RenderSettings RenderSettingsDialog::getSettings() const {
     sett.fVideoHeight = mHeightSpin->value();
     sett.fMinFrame = mMinFrameSpin->value();
     sett.fMaxFrame = mMaxFrameSpin->value();
-    sett.fBaseFps = mCurrentScene ? mCurrentScene->getFps() :
+    sett.fBaseFps = mCurrentScene ? mCurrentScene->fps() :
                                     mInitialSettings.fFps;
     sett.fFps = sett.fBaseFps;
 //    sett.fFps = mFpsSpin->value();

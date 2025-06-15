@@ -356,7 +356,7 @@ ComplexTask* ExportSvgDialog::exportTo(const QString& file,
         }
 
         const FrameRange frameRange{firstFrame, lastFrame};
-        const qreal fps = scene->getFps();
+        const qreal fps = scene->fps();
 
         const auto task = new SvgExporter(file, scene, frameRange, fps,
                                           background, fixedSize, loop,

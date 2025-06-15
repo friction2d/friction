@@ -42,6 +42,7 @@
 // Undo/redo
 #include "undoredo.h"
 
+class SoundComposition;
 class SceneFrameContainer;
 class SceneBoundGradient;
 class eWriteStream;
@@ -60,14 +61,8 @@ class eReadStream;
 class Scene : public SelfRef {
     Q_OBJECT
 public:
-    Scene(QString sceneName, qreal canvasWidth, qreal canvasHeight, qreal fps);
+    Scene(QString sceneName, qreal canvasWidth, qreal canvasHeight, qreal fps, ContainerBox defaultGroup);
     ~Scene();
-
-    static Scene* fromContainerBox(QString sceneName,
-                                   qreal canvasWidth,
-                                   qreal canvasHeight,
-                                   qreal fps,
-                                   ContainerBox *containerBox);
 
     // We contain all Scene objects in an object called "ContainerBox"
     // This is basically an object that can contain other objects.
@@ -87,6 +82,11 @@ public:
     QSize canvasSize() { return QSize(canvasWidth(), canvasHeight()); };
     bool clipToCanvas() const { return _clipToCanvas; };
     void setClipToCanvas(bool clipToCanvas) { _clipToCanvas = clipToCanvas; };
+
+    // A SoundComposition basically contains all of the audio of the Scene
+    // I don't know why it's not a regular object of the treeview
+    SoundComposition *getSoundComposition() { return _soundComposition.get(); };
+
 
     // Performs tasks in the children objects
     // What kind of tasks? Is it QUEUE tasks?
@@ -308,6 +308,8 @@ private:
     qreal _fps;
     qreal _canvasWidth;
     qreal _canvasHeight;
+
+    qsptr<SoundComposition> _soundComposition;
 
     int _currentFrame;
     FrameRange _range{0, 200};

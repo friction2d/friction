@@ -24,10 +24,14 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "videoencoder.h"
+
 #include <QByteArray>
+
 #include "Boxes/boxrendercontainer.h"
 #include "CacheHandlers/sceneframecontainer.h"
+#include "ViewLayers/basecanvas.h"
 #include "Private/scene.h"
+
 
 #define AV_RuntimeThrow(errId, message) \
 { \
@@ -537,7 +541,9 @@ void VideoEncoder::startEncodingNow() {
         }
         mEncodeVideo = true;
     }
-    const auto soundComp = scene->getSoundComposition();
+
+    auto baseCanvas = BaseCanvas::sGetInstance();
+    const auto soundComp = baseCanvas->getSoundComposition();
     if(mOutputFormat->audio_codec != AV_CODEC_ID_NONE &&
        mOutputSettings.fAudioEnabled && soundComp->hasAnySounds()) {
         eSoundSettings::sSave();

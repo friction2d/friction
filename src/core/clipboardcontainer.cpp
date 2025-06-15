@@ -30,6 +30,7 @@
 #include "PathEffects/patheffectcollection.h"
 #include "Animators/SmartPath/smartpathcollection.h"
 #include "Properties/boxtargetproperty.h"
+#include "ViewLayers/viewlayer_selection.h"
 
 Clipboard::Clipboard(const ClipboardType type) : mType(type) {}
 
@@ -89,12 +90,12 @@ void BoxesClipboard::pasteTo(ContainerBox* const parent) {
     };
     read(reader);
     const int newCount = parent->getContainedBoxesCount();
-    const auto parentScene = parent->getParentScene();
+    auto viewLayerSelection = ViewLayerSelection::sGetInstance();
     if(parentScene) {
         const auto& list = parent->getContainedBoxes();
         for(int i = 0; i < newCount - oldCount; i++) {
             const auto& box = list.at(i);
-            parentScene->addBoxToSelection(box);
+            viewLayerSelection->addBoxToSelection(box);
         }
     }
 }

@@ -27,32 +27,19 @@
 
 #include "CacheHandlers/sceneframecontainer.h"
 #include "Animators/sceneboundgradient.h"
+#include "Boxes/boundingbox.h"
 #include "ReadWrite/ereadstream.h"
 #include "ReadWrite/ewritestream.h"
+#include "Sound/soundcomposition.h"
 #include "framerange.h"
 
 
-Scene::Scene(QString sceneName, qreal canvasWidth, qreal canvasHeight, qreal fps)
-           : _currentGroup(new ContainerBox(sceneName))
+Scene::Scene(QString sceneName, qreal canvasWidth, qreal canvasHeight, qreal fps, ContainerBox defaultGroup = ContainerBox(eBoxType::containerBox))
+           : _currentGroup(defaultGroup)
            , _name(sceneName)
            , _canvasWidth(canvasWidth)
            , _canvasHeight(canvasHeight)
            , _fps(fps) {};
-
-Scene Scene::fromContainerBox(QString sceneName,
-                                      qreal canvasWidth,
-                                      qreal canvasHeight,
-                                      qreal fps,
-                                      ContainerBox *containerBox) {
-    auto scene = Scene(sceneName,
-                       canvasWidth,
-                       canvasHeight,
-                       fps);
-
-    scene.setCurrentGroup(containerBox);
-
-    return scene;
-};
 
 Scene::~Scene() {
     emit destroyed();
@@ -62,7 +49,7 @@ void Scene::setCurrentGroupParentAsCurrentGroup()
 {
     auto currentGroup = getCurrentGroup();
 
-    currentGroup->setCurrentBoxesGroup(currentGroup->getParentGroup());
+    setCurrentGroup(currentGroup->getParentGroup());
 }
 
 void Scene::saveSVG(SvgExporter& exp, DomEleTask* const eleTask) const {

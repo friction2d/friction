@@ -24,7 +24,9 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "esound.h"
+
 #include "soundcomposition.h"
+
 
 eSound::eSound() : eBoxOrSound("sound") {
     connect(this, &eBoxOrSound::aboutToChangeAncestor, this, [this]() {
@@ -65,7 +67,7 @@ int eSound::getSampleShift() const{
 qreal eSound::getCanvasFPS() const {
     const auto pScene = getParentScene();
     if(!pScene) return 1;
-    return pScene->getFps();
+    return pScene->fps();
 }
 
 iValueRange eSound::absSecondToRelSeconds(const int absSecond) {

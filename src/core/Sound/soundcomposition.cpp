@@ -40,7 +40,7 @@ SoundComposition::SoundComposition(Scene * const parent) :
 }
 
 void SoundComposition::start(const int startFrame) {
-    mPos = qRound(startFrame*mSettings.fSampleRate/mParent->getFps());
+    mPos = qRound(startFrame*mSettings.fSampleRate/mParent->fps());
     open(QIODevice::ReadOnly);
 }
 
@@ -71,13 +71,13 @@ void SoundComposition::secondFinished(const int secondId,
 }
 
 void SoundComposition::setMinFrameUseRange(const int frame) {
-    const qreal fps = mParent->getFps();
+    const qreal fps = mParent->fps();
     const int sec = qFloor(frame/fps);
     mSecondsCache.setUseRange({sec, sec});
 }
 
 void SoundComposition::setMaxFrameUseRange(const int frame) {
-    const qreal fps = mParent->getFps();
+    const qreal fps = mParent->fps();
     const int sec = qFloor(frame/fps);
     mSecondsCache.setMaxUseRange(sec);
 }
@@ -87,14 +87,14 @@ void SoundComposition::clearUseRange() {
 }
 
 void SoundComposition::scheduleFrameRange(const FrameRange &range) {
-    const qreal fps = mParent->getFps();
+    const qreal fps = mParent->fps();
     const int minSec = qFloor((range.fMin + 1)/fps);
     const int maxSec = qFloor((range.fMax + 1)/fps);
     for(int i = minSec; i <= maxSec; i++) scheduleSecond(i);
 }
 
 SoundMerger *SoundComposition::scheduleFrame(const int frameId) {
-    const qreal fps = mParent->getFps();
+    const qreal fps = mParent->fps();
     return scheduleSecond(qFloor(frameId/fps));
 }
 
@@ -106,7 +106,7 @@ SoundMerger *SoundComposition::scheduleSecond(const int secondId) {
     const int sampleRate = mSettings.fSampleRate;
     const SampleRange sampleRange = {secondId*sampleRate,
                                      (secondId + 1)*sampleRate - 1};
-    const qreal fps = mParent->getFps();
+    const qreal fps = mParent->fps();
 
     const auto task = enve::make_shared<SoundMerger>(secondId, sampleRange, this);
     for(const auto &sound : mSounds) {
@@ -142,7 +142,7 @@ SoundMerger *SoundComposition::scheduleSecond(const int secondId) {
 }
 
 void SoundComposition::frameRangeChanged(const FrameRange &range) {
-    const qreal fps = mParent->getFps();
+    const qreal fps = mParent->fps();
     secondRangeChanged({qFloor(range.fMin/fps), qCeil(range.fMax/fps)});
 }
 
