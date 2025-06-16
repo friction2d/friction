@@ -32,10 +32,14 @@
 #include <QList>
 #include <QSize>
 
-#include "smartPointers/selfref.h"
 #include "Boxes/containerbox.h"
 #include "Boxes/boundingbox.h"
 #include "Animators/coloranimator.h"
+// Cache and memory
+#include "smartPointers/selfref.h"
+#include "CacheHandlers/usepointer.h"
+#include "CacheHandlers/sceneframecontainer.h"
+#include "CacheHandlers/hddcachablecachehandler.h"
 // Selected properties
 #include "Properties/property.h"
 #include "conncontextobjlist.h"
@@ -88,6 +92,8 @@ public:
     // I don't know why it's not a regular object of the treeview
     SoundComposition *getSoundComposition() { return _soundComposition.get(); };
 
+    HddCachableCacheHandler &getSceneFramesHandler() { return _sceneFramesHandler; };
+
     // This is what draws the background color
     ColorAnimator *getBgColorAnimator()
     {
@@ -111,6 +117,21 @@ public:
     // This tells us the video length (range of frames which is supposed to be exported)
     FrameRange getFrameRange() const { return _range; };
     void setFrameRange(const FrameRange& range);
+
+    void setMinFrameUseRange(const int min)
+    {
+        _sceneFramesHandler.setMinUseRange(min);
+    }
+
+    void setMaxFrameUseRange(const int max)
+    {
+        _sceneFramesHandler.setMaxUseRange(max);
+    }
+
+    void clearUseRange()
+    {
+        _sceneFramesHandler.clearUseRange();
+    }
 
     // FrameMarker
     void setFrameIn(const bool enabled,
@@ -273,6 +294,7 @@ public:
 
     // Converts Scene objects to SVG and saves them to a SvgExporter.
     void saveSVG(SvgExporter& exp, DomEleTask* const eleTask) const;
+    void saveSceneSVG(SvgExporter& exp) const;
 
     // Writes user data to an eWriteStream (such as last tool used, last fill color used...)
     void writeSettings(eWriteStream &dst) const;
@@ -355,6 +377,9 @@ private:
     FrameMarker _in{tr("In"), false, 0};
     FrameMarker _out{tr("Out"), false, 0};
     std::vector<FrameMarker> _markers;
+
+    UseSharedPointer<SceneFrameContainer> _sceneFrame;
+    HddCachableCacheHandler _sceneFramesHandler;
 
     bool _displayTimeCode;
     QList<qsptr<SceneBoundGradient>> _gradients;

@@ -202,7 +202,8 @@ private:
         const auto targetScene = mTargetScene;
         const auto canvasOperation = [operation, targetScene]() {
             try {
-                targetScene->executeOperationOnSelectedPoints(operation);
+                // TODO(kaixoo): This should be done in ViewLayerSelection, but is there a better way?
+                //targetScene->executeOperationOnSelectedPoints(operation);
             } catch(const std::exception& e) {
                 gPrintExceptionCritical(e);
             }

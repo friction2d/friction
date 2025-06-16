@@ -121,8 +121,12 @@ void ViewLayerPreview::containedDetachedBlendSetup(
         SkCanvas * const canvas,
         const SkFilterQuality filter, int& drawId,
         QList<BlendEffect::Delayed> &delayed) const {
-    for(int i = _containedBoxesRef->count() - 1; i >= 0; i--) {
-        const auto& box = _containedBoxesRef->at(i);
+    auto activeScene = *_document.fActiveScene;
+    auto containerBox = activeScene->getCurrentGroup();
+    auto containedBoxes = containerBox->getContainedBoxes();
+
+    for(int i = containedBoxes->count() - 1; i >= 0; i--) {
+        const auto& box = containedBoxes->at(i);
         if(box->isVisibleAndInVisibleDurationRect()) {
             if(box->isGroup()) {
                 const auto cBox = static_cast<ContainerBox*>(box);
@@ -148,7 +152,7 @@ void ViewLayerPreview::drawContainedBoxesToCanvas(SkCanvas * const canvas,
 void ViewLayerPreview::drawContainedBoxesToCanvas(SkCanvas * const canvas,
                                      const SkFilterQuality filter, int& drawId,
                                      QList<BlendEffect::Delayed> &delayed) const {
-    auto activeScene = _document.fActiveScene;
+    auto activeScene = *_document.fActiveScene;
     auto containedBoxes = activeScene->getCurrentGroup();
 
     if(containedBoxes->isEmpty()) return;

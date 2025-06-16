@@ -31,9 +31,6 @@
 #include "framerange.h"
 #include "Private/document.h"
 #include "skia/skiaincludes.h"
-#include "CacheHandlers/usepointer.h"
-#include "CacheHandlers/sceneframecontainer.h"
-#include "CacheHandlers/hddcachablecachehandler.h"
 
 class BaseCanvas;
 
@@ -49,38 +46,6 @@ public:
     static ViewLayerRender* sGetInstance() { return sInstance; };
 
     void repaint(SkCanvas * const canvas) override;
-
-    void setSceneFrame(const int relFrame);
-    void setSceneFrame(const stdsptr<SceneFrameContainer> &cont);
-    HddCachableCacheHandler &getSceneFramesHandler() { return _sceneFramesHandler; };
-    const FrameMarker getFrameIn() const { return _in; };
-    const FrameMarker getFrameOut() const { return _out; };
-    const std::vector<FrameMarker> getMarkers() { return _markers; };
-    int getCurrentFrame() const { return 0; };
-    int getMinFrame() const
-    {
-        return _range.fMin;
-    }
-    int getMaxFrame() const
-    {
-        return _range.fMax;
-    }
-    FrameRange getFrameRange() const
-    {
-        return _range;
-    }
-    void setMinFrameUseRange(const int min)
-    {
-        _sceneFramesHandler.setMinUseRange(min);
-    }
-    void setMaxFrameUseRange(const int max)
-    {
-        _sceneFramesHandler.setMaxUseRange(max);
-    }
-    void clearUseRange()
-    {
-        _sceneFramesHandler.clearUseRange();
-    }
 
     qreal getResolution() const;
     void setResolution(const qreal percent);
@@ -103,18 +68,6 @@ private:
     static ViewLayerRender *sInstance;
 
     bool _isRenderingOutput;
-
-    // This code works, but I don't know why
-    // Do not touch please
-
-    UseSharedPointer<SceneFrameContainer> _sceneFrame;
-    HddCachableCacheHandler _sceneFramesHandler;
-
-    FrameRange _range{0, 200};
-
-    FrameMarker _in{"In", false, 0};
-    FrameMarker _out{"Out", false, 0};
-    std::vector<FrameMarker> _markers;
 };
 
 #endif // FRICTION_UI_VIEW_LAYER_RENDER_H

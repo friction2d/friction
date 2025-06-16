@@ -542,8 +542,8 @@ void VideoEncoder::startEncodingNow() {
         mEncodeVideo = true;
     }
 
-    auto baseCanvas = BaseCanvas::sGetInstance();
-    const auto soundComp = baseCanvas->getSoundComposition();
+    auto pScene = getParentScene();
+    const auto soundComp = pScene->getSoundComposition();
     if(mOutputFormat->audio_codec != AV_CODEC_ID_NONE &&
        mOutputSettings.fAudioEnabled && soundComp->hasAnySounds()) {
         eSoundSettings::sSave();

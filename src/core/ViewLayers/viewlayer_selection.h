@@ -159,6 +159,15 @@ public:
 
     void selectAllPointsAction();
 
+    // ???
+
+    void makePointCtrlsSymmetric();
+    void makePointCtrlsSmooth();
+    void makePointCtrlsCorner();
+
+    void makeSegmentLine();
+    void makeSegmentCurve();
+
     /* ======== Mouse events =======  */
     void mousePressEvent(QMouseEvent *e) override;
     void mouseReleaseEvent(QMouseEvent *e) override;

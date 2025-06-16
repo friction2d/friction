@@ -27,14 +27,13 @@
 
 #include "CacheHandlers/sceneframecontainer.h"
 #include "Animators/sceneboundgradient.h"
-#include "Boxes/boundingbox.h"
 #include "ReadWrite/ereadstream.h"
 #include "ReadWrite/ewritestream.h"
 #include "Sound/soundcomposition.h"
 #include "framerange.h"
 
 
-Scene::Scene(QString sceneName, qreal canvasWidth, qreal canvasHeight, qreal fps, ContainerBox defaultGroup = ContainerBox(eBoxType::containerBox))
+Scene::Scene(QString sceneName, qreal canvasWidth, qreal canvasHeight, qreal fps, ContainerBox defaultGroup = ContainerBox(nullptr))
            : _currentGroup(defaultGroup)
            , _name(sceneName)
            , _canvasWidth(canvasWidth)
@@ -82,7 +81,7 @@ QString Scene::makeNameUniqueForDescendants(
         const QString &name, eBoxOrSound * const skip) {
     return NameFixer::makeNameUnique(
                 name, [this, skip](const QString& name) {
-        return allDescendantsNamesStartingWith(name, skip);
+        return getCurrentGroup()->allDescendantsNamesStartingWith(name, skip);
     });
 }
 
