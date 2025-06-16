@@ -50,24 +50,30 @@ public:
 
     void repaint(SkCanvas * const canvas) override;
 
-    bool getPivotLocal() const;
-
-    bool isBoxSelectionEmpty();
-    bool isPointSelectionEmpty();
-
-    void selectAllAction();
-    void invertSelectionAction();
-    void clearSelectionAction();
-
-    void selectedPathsBreakApart();
-    void startSelectedStrokeColorTransform();
-    void startSelectedFillColorTransform();
+    /* ========= Actions ========= */
 
     void cutAction();
     void pasteAction();
     void copyAction();
     void deleteAction();
     void duplicateAction();
+    void splitAction();
+
+    void selectAllAction();
+    void invertSelectionAction();
+    void clearSelectionAction();
+
+
+    /* ========= Selection ========= */
+
+    bool getPivotLocal() const;
+
+    bool isBoxSelectionEmpty();
+    bool isPointSelectionEmpty();
+
+    void selectedPathsBreakApart();
+    void startSelectedStrokeColorTransform();
+    void startSelectedFillColorTransform();
 
     void setSelectedFontText(const QString &text);
     void setSelectedFontSize(const qreal size);
@@ -85,6 +91,8 @@ public:
                          const QPointF &absOrigin,
                          const bool startTrans);
 
+    /* ========= Box selection ========= */
+
     void addBoxToSelection(BoundingBox * const box);
     void removeBoxFromSelection(BoundingBox * const box);
 
@@ -98,7 +106,7 @@ public:
                             const AlignRelativeTo relativeTo);
     void applyCurrentTransformToSelected();
 
-    // Movable points
+    /* ========= Movable points ========= */
     void addPointToSelection(MovablePoint * const point);
     void removePointFromSelection(MovablePoint * const point);
 
@@ -132,7 +140,7 @@ public:
 
     void selectAllPointsAction();
 
-    // Mouse events
+    /* ======== Mouse events =======  */
     void mousePressEvent(QMouseEvent *e) override;
     void mouseReleaseEvent(QMouseEvent *e) override;
     void mouseMoveEvent(QMouseEvent *e) override;

@@ -41,6 +41,8 @@
 #include "conncontextptr.h"
 // Undo/redo
 #include "undoredo.h"
+// FrameMarker
+#include "framerange.h"
 
 class SoundComposition;
 class SceneFrameContainer;
@@ -64,8 +66,7 @@ public:
     Scene(QString sceneName, qreal canvasWidth, qreal canvasHeight, qreal fps, ContainerBox defaultGroup);
     ~Scene();
 
-    // We contain all Scene objects in an object called "ContainerBox"
-    // This is basically an object that can contain other objects.
+    /* ========= Children ========= */
     ContainerBox *getCurrentGroup() const { return _currentGroup; };
     void setCurrentGroup(ContainerBox* containerBox) { _currentGroup = containerBox; };
 
@@ -73,8 +74,7 @@ public:
     const QList<BoundingBox*> &getContainedBoxes() const { return getCurrentGroup()->getContainedBoxes(); };
     void setCurrentGroupParentAsCurrentGroup();
 
-    // Scene properties (name, width, fps...)
-
+    /* ========= Scene properties ========= */
     QString name() const { return _name; };
     qreal fps() const { return _fps; };
     qreal canvasWidth() const { return _canvasWidth; };
@@ -95,17 +95,26 @@ public:
     // Scene should only contain data.
     void queTasks();
 
-    // Frames of the timeline
-
+    /* ========= Frames ========= */
     // Sets which frame is currently selected in the timeline
+    int getCurrentFrame() const { return _currentFrame; };
     void setSceneFrame(const int relFrame);
     void setSceneFrame(const stdsptr<SceneFrameContainer> &cont);
     void setLoadingSceneFrame(const stdsptr<SceneFrameContainer> &cont);
 
+    // This tells us the video length (range of frames which is supposed to be exported)
     FrameRange getFrameRange() const { return _range; };
     void setFrameRange(const FrameRange& range);
 
-    int currentFrame() const { return _currentFrame; };
+    // FrameMarker
+    void setFrameIn(const bool enabled,
+                    const int frameIn);
+    void setFrameOut(const bool enabled,
+                     const int frameOut);
+
+    const FrameMarker getFrameIn() const;
+    const FrameMarker getFrameOut() const;
+
     int getMinFrame() const
     {
         return _range.fMin;
@@ -113,6 +122,16 @@ public:
     int getMaxFrame() const
     {
         return _range.fMax;
+    }
+
+    // Display time code
+    // What is a "display time code?"
+    // Is it some kind of per-region hour format thing?
+    bool getDisplayTimecode() { return _displayTimeCode; }
+    void setDisplayTimecode(bool timecode)
+    {
+        _displayTimeCode = timecode;
+        emit displayTimeCodeChanged(timecode);
     }
 
     // Gradients
@@ -125,7 +144,7 @@ public:
     SceneBoundGradient * getGradientWithDocumentId(const int id) const;
     SceneBoundGradient * getGradientWithDocumentSceneId(const int id) const;
 
-    // Undo/redo
+    /* ========= Undo / Redo ========= */
     bool newUndoRedoSet();
 
     // Performs an undo action in the current scene
@@ -149,8 +168,33 @@ public:
         return _undoRedoStack.get();
     }
 
-    // Setters
+    // What are markers?
+    // As in "tags" or "labels" in the timeline?
+    void writeMarkers(eWriteStream &dst) const;
+    void readMarkers(eReadStream &src);
 
+    void setMarker(const QString &title,
+                   const int frame);
+    void setMarker(const int frame);
+    void setMarkerEnabled(const int frame, const bool &enabled);
+    bool hasMarker(const int frame,
+                   const bool removeExists = false);
+    bool hasMarkerIn(const int frame);
+    bool hasMarkerOut(const int frame);
+    bool hasMarkerEnabled(const int frame);
+    bool removeMarker(const int frame);
+    bool editMarker(const int frame,
+                    const QString &title,
+                    const bool enabled);
+    void moveMarkerFrame(const int markerFrame,
+                         const int newFrame);
+    const QString getMarkerText(int frame);
+    int getMarkerIndex(const int frame);
+    const std::vector<FrameMarker> getMarkers();
+    void clearMarkers();
+    void updateMarkers();
+
+    /* ========= Setters ========= */
     void setName(QString name) { _name = name; };
     void setFps(qreal fps) {
         _fps = fps;
@@ -173,9 +217,8 @@ public:
 
     void setCurrentFrame(int frame) { _currentFrame = frame; };
 
-    // Selected `Properties/property.h`
+    /* ========= Selected Properties ========= */
     // What are "Selected Properties"? These are not classical key-value "properties", this is a base class for objects that provides basic things like prp_getName()...
-
     template <class T = MovablePoint>
     [[deprecated]]
     void executeOperationOnSelectedPoints(const std::function<void(T*)> &operation) {}
@@ -217,11 +260,7 @@ public:
     }
 
 public:
-    // Import / export
-
-    // TODO(kaixoo):
-    // Ideally these should form part of different interfaces (SVG, XEV...)
-    // That one can ask for without having to care of implementation details
+    /* ========= Import / export ========= */
 
     // Converts Scene objects to SVG and saves them to a SvgExporter.
     void saveSVG(SvgExporter& exp, DomEleTask* const eleTask) const;
@@ -234,11 +273,6 @@ public:
     // Does it mean "import these files as bounding boxes in the scene?"
     void writeBoundingBox(eWriteStream& dst) const;
     void readBoundingBox(eReadStream& src);
-
-    // What are markers?
-    // As in "tags" or "labels" in the timeline?
-    void writeMarkers(eWriteStream &dst) const;
-    void readMarkers(eReadStream &src);
 
     void writeBoxOrSoundXEV(const stdsptr<XevZipFileSaver>& xevFileSaver,
                             const RuntimeIdToWriteId& objListIdConv,
@@ -254,6 +288,8 @@ public:
                               const RuntimeIdToWriteId& objListIdConv,
                               const QString& path) const;
 
+    /* ========= Utility functions ========= */
+
     // Checks if the object name is being used elsewhere, and gives it a unique name if necessary
     // We do this to avoid two objects having the same name
     QString makeNameUniqueForDescendants(
@@ -262,15 +298,6 @@ public:
     // We do this to avoid two objects having the same name
     QString makeNameUniqueForContained(
             const QString& name, eBoxOrSound * const skip = nullptr);
-
-    // What is a "display time code?"
-    // Is it some kind of per-region hour format thing?
-    bool getDisplayTimecode() { return _displayTimeCode; }
-    void setDisplayTimecode(bool timecode)
-    {
-        _displayTimeCode = timecode;
-        emit displayTimeCodeChanged(timecode);
-    }
 
 signals:
     // "Intrinsic" signals
@@ -313,6 +340,10 @@ private:
 
     int _currentFrame;
     FrameRange _range{0, 200};
+
+    FrameMarker _in{tr("In"), false, 0};
+    FrameMarker _out{tr("Out"), false, 0};
+    std::vector<FrameMarker> _markers;
 
     bool _displayTimeCode;
 
