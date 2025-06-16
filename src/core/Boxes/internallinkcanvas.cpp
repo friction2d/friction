@@ -27,6 +27,7 @@
 
 #include "Animators/transformanimator.h"
 #include "Private/scene.h"
+#include "ViewLayers/basecanvas.h"
 #include "linkcanvasrenderdata.h"
 #include "typemenu.h"
 
