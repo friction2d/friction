@@ -37,7 +37,7 @@ SceneSettingsDialog::SceneSettingsDialog(Scene * const scene,
                           scene->canvasHeight(),
                           scene->getFrameRange(),
                           scene->fps(),
-                          scene->getBgColorAnimator(), // TODO(kaixoo)
+                          scene->getBgColorAnimator(),
                           parent,
                           false)
 {
@@ -338,7 +338,7 @@ void SceneSettingsDialog::applySettingsToCanvas(Scene * const scene) const
         mEnableResolutionPresetsAuto) { AppSupport::saveResolutionPreset(getCanvasWidth(),
                                                                          getCanvasHeight()); }
     if (scene != mTargetScene) {
-        scene->getBgColorAnimator()->setColor(mBgColorButton->color()); // TODO(kaixoo)
+        scene->getBgColorAnimator()->setColor(mBgColorButton->color());
 
         // Adjust default fill/stroke color to background color
         auto settings = eSettings::sInstance;

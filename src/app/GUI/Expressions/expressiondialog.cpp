@@ -45,7 +45,6 @@
 #include "Private/document.h"
 #include "expressioneditor.h"
 #include "appsupport.h"
-#include "Private/scene.h"
 
 using namespace Friction::Core;
 

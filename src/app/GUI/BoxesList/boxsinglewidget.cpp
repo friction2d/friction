@@ -82,7 +82,6 @@ bool BoxSingleWidget::sStaticPixmapsLoaded = false;
 #include "clipboardcontainer.h"
 #include "Timeline/durationrectangle.h"
 #include "GUI/coloranimatorbutton.h"
-#include "Private/scene.h"
 #include "PathEffects/patheffect.h"
 #include "PathEffects/patheffectcollection.h"
 #include "Sound/esoundobjectbase.h"

@@ -25,13 +25,14 @@
 
 #include "fillstrokesettings.h"
 #include "gradientwidgets/gradientwidget.h"
-#include "Private/scene.h"
 #include "widgets/qrealanimatorvalueslider.h"
 #include "widgets/colorsettingswidget.h"
 #include "paintsettingsapplier.h"
 #include "Animators/gradient.h"
 #include "Private/esettings.h"
+#include "Private/scene.h"
 #include "Private/document.h"
+#include "ViewLayers/viewlayer_selection.h"
 
 #include "GUI/global.h"
 
@@ -485,8 +486,8 @@ void FillStrokeSettingsWidget::applyBrushWidthAction(const SegAction& action)
 {
     Q_UNUSED(action)
     qWarning() << "applyBrushWidthAction";
-    const auto scene = *mDocument.fActiveScene;
-    if(scene) scene->applyStrokeBrushWidthActionToSelected(action);
+    auto viewLayerSelection = ViewLayerSelection::sGetInstance();
+    if(viewLayerSelection) viewLayerSelection->applyStrokeBrushWidthActionToSelected(action);
     mDocument.actionFinished();
 }
 

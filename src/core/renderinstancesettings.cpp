@@ -206,6 +206,7 @@ void RenderInstanceSettings::read(eReadStream &src) {
                 box = src.getBoxByReadId(targetReadId);
              if(!box && targetDocumentId != -1)
                  box = BoundingBox::sGetBoxByDocumentId(targetDocumentId);
+             // TODO(kaixoo): cast to Scene
              if(const auto scene = enve_cast<Scene*>(box))
                  setTargetScene(scene, false);
         });

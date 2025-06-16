@@ -373,7 +373,8 @@ void KeysView::mousePressEvent(QMouseEvent *e) {
                         const auto& instance = DialogsInterface::instance();
                         instance.showDurationSettingsDialog(durRect);
                     } else if (selectedAction->text() == splitStr) {
-                        if (mCurrentScene) { mCurrentScene->splitAction(); }
+                        auto viewLayerSelection = ViewLayerSelection::sGetInstance();
+                        if (viewLayerSelection) { viewLayerSelection->splitAction(); }
                     }
                 }
             }
@@ -764,6 +765,8 @@ void KeysView::handleMouseMoveScroll(const QPoint &pos) {
 
 void KeysView::handleMouseMove(const QPoint &pos,
                                const Qt::MouseButtons &buttons) {
+    auto viewLayerSelection = ViewLayerSelection::sGetInstance();
+
     const QPoint posU = pos + QPoint(-eSizesUI::widget/2, 0);
     if(buttons & Qt::MiddleButton) {
         if (mGraphViewed) { graphMiddleMove(posU); }
@@ -859,11 +862,11 @@ void KeysView::handleMouseMove(const QPoint &pos,
                     // mMoveAllSelected = shiftPressed && enve_cast<eBoxOrSound*>(childProp);
                     if(mMoveAllSelected) {
                         if(mLastPressedMovable->isDurationRect()) {
-                            mCurrentScene->startDurationRectPosTransformForAllSelected();
+                            viewLayerSelection->startDurationRectPosTransformForAllSelected();
                         } else if(mLastPressedMovable->isMaxFrame()) {
-                            mCurrentScene->startMaxFramePosTransformForAllSelected();
+                            viewLayerSelection->startMaxFramePosTransformForAllSelected();
                         } else if(mLastPressedMovable->isMinFrame()) {
-                            mCurrentScene->startMinFramePosTransformForAllSelected();
+                            viewLayerSelection->startMinFramePosTransformForAllSelected();
                         }
                         const auto ebs = static_cast<eBoxOrSound*>(childProp);
                         if(!ebs->isSelected()) mLastPressedMovable->startPosTransform();
@@ -878,11 +881,11 @@ void KeysView::handleMouseMove(const QPoint &pos,
                     const auto childProp = mLastPressedMovable->getParentProperty();
                     if(mMoveAllSelected) {
                         if(mLastPressedMovable->isDurationRect()) {
-                            mCurrentScene->moveDurationRectForAllSelected(iDDFrame);
+                            viewLayerSelection->moveDurationRectForAllSelected(iDDFrame);
                         } else if(mLastPressedMovable->isMaxFrame()) {
-                            mCurrentScene->moveMaxFrameForAllSelected(iDDFrame);
+                            viewLayerSelection->moveMaxFrameForAllSelected(iDDFrame);
                         } else if(mLastPressedMovable->isMinFrame()) {
-                            mCurrentScene->moveMinFrameForAllSelected(iDDFrame);
+                            viewLayerSelection->moveMinFrameForAllSelected(iDDFrame);
                         }
                         const auto ebs = static_cast<eBoxOrSound*>(childProp);
                         if(!ebs->isSelected()) mLastPressedMovable->changeFramePosBy(iDDFrame);
@@ -918,6 +921,8 @@ void KeysView::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void KeysView::mouseReleaseEvent(QMouseEvent *e) {
+    auto viewLayerSelection = ViewLayerSelection::sGetInstance();
+
     if(mScrollTimer->isActive()) {
         mScrollTimer->disconnect();
         mScrollTimer->stop();
@@ -972,11 +977,11 @@ void KeysView::mouseReleaseEvent(QMouseEvent *e) {
                     const auto childProp = mLastPressedMovable->getParentProperty();
                     if(mMoveAllSelected) {
                         if(mLastPressedMovable->isDurationRect()) {
-                            mCurrentScene->finishDurationRectPosTransformForAllSelected();
+                            viewLayerSelection->finishDurationRectPosTransformForAllSelected();
                         } else if(mLastPressedMovable->isMinFrame()) {
-                            mCurrentScene->finishMinFramePosTransformForAllSelected();
+                            viewLayerSelection->finishMinFramePosTransformForAllSelected();
                         } else if(mLastPressedMovable->isMaxFrame()) {
-                            mCurrentScene->finishMaxFramePosTransformForAllSelected();
+                            viewLayerSelection->finishMaxFramePosTransformForAllSelected();
                         }
                         const auto ebs = static_cast<eBoxOrSound*>(childProp);
                         if(!ebs->isSelected()) mLastPressedMovable->finishPosTransform();
@@ -991,11 +996,11 @@ void KeysView::mouseReleaseEvent(QMouseEvent *e) {
                     const auto childProp = mLastPressedMovable->getParentProperty();
                     if(mMoveAllSelected) {
                         if(mLastPressedMovable->isDurationRect()) {
-                            mCurrentScene->cancelDurationRectPosTransformForAllSelected();
+                            viewLayerSelection->cancelDurationRectPosTransformForAllSelected();
                         } else if(mLastPressedMovable->isMinFrame()) {
-                            mCurrentScene->cancelMinFramePosTransformForAllSelected();
+                            viewLayerSelection->cancelMinFramePosTransformForAllSelected();
                         } else if(mLastPressedMovable->isMaxFrame()) {
-                            mCurrentScene->cancelMaxFramePosTransformForAllSelected();
+                            viewLayerSelection->cancelMaxFramePosTransformForAllSelected();
                         }
                         const auto ebs = static_cast<eBoxOrSound*>(childProp);
                         if(!ebs->isSelected()) mLastPressedMovable->cancelPosTransform();

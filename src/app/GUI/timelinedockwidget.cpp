@@ -35,6 +35,7 @@
 
 #include "mainwindow.h"
 #include "Private/scene.h"
+#include "ViewLayers/viewlayer_selection.h"
 #include "animationdockwidget.h"
 #include "widgets/widgetstack.h"
 #include "widgets/actionbutton.h"
@@ -94,7 +95,7 @@ TimelineDockWidget::TimelineDockWidget(Document& document,
         if (jumpFrame) { // Go to previous scene quarter
             jumpToIntermediateFrame(false);
         } else { // Go to First Frame
-            scene->anim_setAbsFrame(scene->getFrameRange().fMin);
+            scene->getCurrentGroup()->anim_setAbsFrame(scene->getFrameRange().fMin);
             mDocument.actionFinished();
         }
     });
@@ -209,7 +210,7 @@ TimelineDockWidget::TimelineDockWidget(Document& document,
             this, [this]() {
         const auto scene = *mDocument.fActiveScene;
         if (!scene) { return; }
-        scene->anim_setAbsFrame(mCurrentFrameSpin->value());
+        scene->getCurrentGroup()->anim_setAbsFrame(mCurrentFrameSpin->value());
         mDocument.actionFinished();
     });
 
@@ -500,7 +501,7 @@ bool TimelineDockWidget::setPreviewFromStart(PreviewState state)
     const auto scene = *mDocument.fActiveScene;
     if (!scene) { return false; }
     if (state != PreviewState::stopped) { interruptPreview(); }
-    scene->anim_setAbsFrame(scene->getFrameRange().fMin);
+    scene->getCurrentGroup()->anim_setAbsFrame(scene->getFrameRange().fMin);
     renderPreview();
     return true;
 }
@@ -511,7 +512,7 @@ bool TimelineDockWidget::setNextKeyframe()
     if (!scene) { return false; }
     int targetFrame;
     const int frame = mDocument.getActiveSceneFrame();
-    if (scene->anim_nextRelFrameWithKey(frame, targetFrame)) {
+    if (scene->getCurrentGroup()->anim_nextRelFrameWithKey(frame, targetFrame)) {
         mDocument.setActiveSceneFrame(targetFrame);
     }
     return true;
@@ -523,7 +524,7 @@ bool TimelineDockWidget::setPrevKeyframe()
     if (!scene) { return false; }
     int targetFrame;
     const int frame = mDocument.getActiveSceneFrame();
-    if (scene->anim_prevRelFrameWithKey(frame, targetFrame)) {
+    if (scene->getCurrentGroup()->anim_prevRelFrameWithKey(frame, targetFrame)) {
         mDocument.setActiveSceneFrame(targetFrame);
     }
     return true;
@@ -692,9 +693,9 @@ void TimelineDockWidget::setMarker()
 
 void TimelineDockWidget::splitClip()
 {
-    const auto scene = *mDocument.fActiveScene;
-    if (!scene) { return; }
-    scene->splitAction();
+    auto viewLayerSelection = ViewLayerSelection::sGetInstance();
+    if (!viewLayerSelection) { return; }
+    viewLayerSelection->splitAction();
 }
 
 void TimelineDockWidget::jumpToIntermediateFrame(bool forward) {

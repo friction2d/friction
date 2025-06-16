@@ -268,7 +268,7 @@ TimelineWidget::TimelineWidget(Document &document,
     connect(mFrameScrollBar, &FrameScrollBar::triggeredFrameRangeChange,
             this, [this](const FrameRange& range){
         const auto scene = mSceneChooser->getCurrentScene();
-        if(scene) scene->anim_setAbsFrame(range.fMin);
+        if(scene) scene->getCurrentGroup()->anim_setAbsFrame(range.fMin);
         Document::sInstance->actionFinished();
     });
     mMainLayout->addWidget(mFrameScrollBar, 0, 1);
@@ -423,6 +423,7 @@ void TimelineWidget::readState(eReadStream &src) {
         if(!sceneBox && sceneDocumentId != -1)
             sceneBox = BoundingBox::sGetBoxByDocumentId(sceneDocumentId);
 
+        // TODO(kaixoo): cast to Scene
         setCurrentScene(enve_cast<Scene*>(sceneBox));
     });
 
@@ -463,6 +464,7 @@ void TimelineWidget::readStateXEV(XevReadBoxesHandler& boxReadHandler,
     boxReadHandler.addXevImporterDoneTask(
                 [this, sceneId](const XevReadBoxesHandler& imp) {
         const auto sceneBox = imp.getBoxByReadId(sceneId);
+        // TODO(kaixoo): cast to Scene
         const auto scene = enve_cast<Scene*>(sceneBox);
         setCurrentScene(scene);
     });

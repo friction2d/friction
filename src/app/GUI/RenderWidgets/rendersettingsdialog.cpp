@@ -23,7 +23,7 @@ RenderSettingsDialog::RenderSettingsDialog(const RenderInstanceSettings &setting
     for (const auto& scene : Document::sInstance->fScenes) {
         mSceneCombo->addItem(scene->name());
     }
-    if (mCurrentScene) {  mSceneCombo->setCurrentText(mCurrentScene->prp_getName()); }
+    if (mCurrentScene) {  mSceneCombo->setCurrentText(mCurrentScene->name()); }
     connect(mSceneCombo, qOverload<int>(&QComboBox::currentIndexChanged),
             this, [this](const int id) {
         const auto newScene = Document::sInstance->fScenes.at(id).get();
@@ -231,7 +231,7 @@ void RenderSettingsDialog::updateValuesFromHeight() {
 
 void RenderSettingsDialog::restoreInitialSettings() {
     if(mInitialScene) {
-        mSceneCombo->setCurrentText(mInitialScene->prp_getName());
+        mSceneCombo->setCurrentText(mInitialScene->name());
     }
     mResolutionSpin->setValue(mInitialSettings.fResolution*100);
     mMinFrameSpin->setValue(mInitialSettings.fMinFrame);

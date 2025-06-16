@@ -37,7 +37,7 @@ void RenderSettingsDisplayWidget::setRenderSettings(
         const Scene * const scene,
         const RenderSettings &settings) {
     mSceneLabel->setText("<b>Scene:</b><br>" +
-                         (scene ? scene->prp_getName() : "-none-"));
+                         (scene ? scene->name() : "-none-"));
     mFrameRangeLabel->setText(QString("<b>Frame range:</b><br>%1 - %2").
                               arg(settings.fMinFrame).arg(settings.fMaxFrame));
     mResolutionLabel->setText(QString("<b>Resolution:</b><br>%1% - %2 x %3").

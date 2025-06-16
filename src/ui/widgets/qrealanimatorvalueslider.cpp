@@ -348,13 +348,15 @@ void QrealAnimatorValueSlider::openContextMenu(const QPoint &globalPos)
     const auto setExpression = menu.addAction(tr("Set Expression"));
     connect(setExpression, &QAction::triggered, this, [aTarget]() {
         const auto scene = aTarget->getParentScene();
-        if (scene) { scene->openExpressionDialog(aTarget); }
+        // TODO(kaixoo): this is deprecated
+        //if (scene) { scene->openExpressionDialog(aTarget); }
     });
 
     const auto applyExpression = menu.addAction(tr("Apply Expression"));
     connect(applyExpression, &QAction::triggered, this, [aTarget]() {
         const auto scene = aTarget->getParentScene();
-        if (scene) { scene->openApplyExpressionDialog(aTarget); }
+        // TODO(kaixoo): this is deprecated
+        //if (scene) { scene->openApplyExpressionDialog(aTarget); }
     });
     applyExpression->setEnabled(aTarget->hasExpression());
 

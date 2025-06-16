@@ -72,8 +72,7 @@ public:
     bool isPointSelectionEmpty();
 
     void selectedPathsBreakApart();
-    void startSelectedStrokeColorTransform();
-    void startSelectedFillColorTransform();
+
 
     void setSelectedFontText(const QString &text);
     void setSelectedFontSize(const qreal size);
@@ -90,6 +89,26 @@ public:
                          const qreal scaleYBy,
                          const QPointF &absOrigin,
                          const bool startTrans);
+
+    /* ========= Start / stop transformations ========= */
+    void startSelectedStrokeColorTransform();
+    void startSelectedFillColorTransform();
+
+    void moveDurationRectForAllSelected(const int dFrame);
+    void startDurationRectPosTransformForAllSelected();
+    void finishDurationRectPosTransformForAllSelected();
+    void cancelDurationRectPosTransformForAllSelected();
+
+    void startMinFramePosTransformForAllSelected();
+    void finishMinFramePosTransformForAllSelected();
+    void cancelMinFramePosTransformForAllSelected();
+    void moveMinFrameForAllSelected(const int dFrame);
+
+    void startMaxFramePosTransformForAllSelected();
+    void finishMaxFramePosTransformForAllSelected();
+    void cancelMaxFramePosTransformForAllSelected();
+    void moveMaxFrameForAllSelected(const int dFrame);
+
 
     /* ========= Box selection ========= */
 

@@ -29,6 +29,7 @@
 
 #include "Private/esettings.h"
 #include "Private/scene.h"
+#include "ViewLayers/viewlayer_selection.h"
 
 #define ITEM_ACTION_ROLE Qt::UserRole
 #define ITEM_CMD_ROLE Qt::UserRole + 1
@@ -278,10 +279,10 @@ void CommandPalette::parseCmd(const QString &input)
     if (doScale) {
         const QString arg = input.split(":").takeLast().simplified().replace(",", ".");
         if (!isIntOrDouble(arg)) { return; }
-        const auto scene = *mDocument.fActiveScene;
-        if (!scene) { return; }
+        const auto viewLayerSelection = ViewLayerSelection::sGetInstance();
+        if (!viewLayerSelection) { return; }
         qDebug() << "do scale" << arg;
-        scene->scaleSelectedBoxesStartAndFinish(arg.toDouble());
+        viewLayerSelection->scaleSelectedBoxesStartAndFinish(arg.toDouble());
         mDocument.actionFinished();
         appendHistory(input);
         accept();

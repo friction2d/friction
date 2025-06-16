@@ -24,9 +24,12 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "internallinkcanvas.h"
-#include "linkcanvasrenderdata.h"
+
 #include "Animators/transformanimator.h"
 #include "Private/scene.h"
+#include "linkcanvasrenderdata.h"
+#include "typemenu.h"
+
 
 InternalLinkCanvas::InternalLinkCanvas(ContainerBox * const linkTarget,
                                        const bool innerLink) :
@@ -77,18 +80,22 @@ void InternalLinkCanvas::setupRenderData(const qreal relFrame,
 
     ContainerBox* finalTarget = getFinalTarget();
     auto canvasData = static_cast<LinkCanvasRenderData*>(data);
+    // TODO(kaixoo): static_cast to Scene
     const auto canvasTarget = static_cast<Scene*>(finalTarget);
     canvasData->fBgColor = toSkColor(canvasTarget->getBgColorAnimator()->
             getColor(relFrame));
-    //qreal res = mParentScene->getResolution();
-    canvasData->fCanvasHeight = canvasTarget->canvasHeight();//*res;
-    canvasData->fCanvasWidth = canvasTarget->canvasWidth();//*res;
+
+    auto baseCanvas = BaseCanvas::sGetInstance();
+    qreal res = baseCanvas->resolution();
+    canvasData->fCanvasHeight = canvasTarget->canvasHeight()*res;
+    canvasData->fCanvasWidth = canvasTarget->canvasWidth()*res;
+
     if(getParentGroup()->isLink()) {
         const auto ilc = static_cast<InternalLinkCanvas*>(getLinkTarget());
         canvasData->fClipToCanvas = ilc->clipToCanvas();
     } else {
         canvasData->fClipToCanvas = mClipToCanvas->getValue();
-    }
+        }
 }
 
 bool InternalLinkCanvas::clipToCanvas() {
@@ -112,6 +119,7 @@ bool InternalLinkCanvas::relPointInsidePath(const QPointF &relPos) const {
 
 void InternalLinkCanvas::anim_setAbsFrame(const int frame) {
     InternalLinkGroupBox::anim_setAbsFrame(frame);
+    // TODO(kaixoo): static_cast to Scene
     const auto canvasTarget = static_cast<Scene*>(getFinalTarget());
     if(!canvasTarget) return;
     canvasTarget->anim_setAbsFrame(anim_getCurrentRelFrame());

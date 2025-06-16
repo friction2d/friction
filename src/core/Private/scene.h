@@ -35,6 +35,7 @@
 #include "smartPointers/selfref.h"
 #include "Boxes/containerbox.h"
 #include "Boxes/boundingbox.h"
+#include "Animators/coloranimator.h"
 // Selected properties
 #include "Properties/property.h"
 #include "conncontextobjlist.h"
@@ -87,6 +88,11 @@ public:
     // I don't know why it's not a regular object of the treeview
     SoundComposition *getSoundComposition() { return _soundComposition.get(); };
 
+    // This is what draws the background color
+    ColorAnimator *getBgColorAnimator()
+    {
+        return _backgroundColor.get();
+    }
 
     // Performs tasks in the children objects
     // What kind of tasks? Is it QUEUE tasks?
@@ -136,7 +142,10 @@ public:
 
     // Gradients
     // What is a "Scene Bound Gradient"?
-
+    const QList<qsptr<SceneBoundGradient>> &gradients() const
+    {
+        return _gradients;
+    }
     SceneBoundGradient * createNewGradient();
     bool removeGradient(const qsptr<SceneBoundGradient> &gradient);
 
@@ -322,6 +331,7 @@ signals:
     void currentPickedColor(const QColor &color);
     void currentHoverColor(const QColor &color);
     void requestEasingAction(const QString &easing);
+    void currentCotnainerSet(ContainerBox* const container);
 
 protected:
     qsptr<UndoRedoStack> _undoRedoStack;
@@ -337,6 +347,7 @@ private:
     qreal _canvasHeight;
 
     qsptr<SoundComposition> _soundComposition;
+    qsptr<ColorAnimator> _backgroundColor = enve::make_shared<ColorAnimator>();
 
     int _currentFrame;
     FrameRange _range{0, 200};
@@ -346,6 +357,7 @@ private:
     std::vector<FrameMarker> _markers;
 
     bool _displayTimeCode;
+    QList<qsptr<SceneBoundGradient>> _gradients;
 
 private:
     // Selected properties
