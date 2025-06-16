@@ -73,9 +73,9 @@ void ColorToolBar::setCurrentCanvas(Scene * const target)
 
     mColorBackground->setColorTarget(target ? target->getBgColorAnimator() : nullptr);
 
-    mCanvas.assign(target);
+    mScene.assign(target);
     if (target) {
-        mCanvas << connect(target, &Canvas::requestUpdate,
+        mScene << connect(target, &Scene::requestUpdate,
                            this, [this]() {
             mColorFill->updateColor();
             mColorStroke->updateColor();

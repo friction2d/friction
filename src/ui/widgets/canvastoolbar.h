@@ -61,7 +61,7 @@ namespace Friction
             QSpinBox *mSpinHeight;
             QComboBox *mComboResolution;
 
-            ConnContextQPtr<Canvas> mCanvas;
+            ConnContextQPtr<Scene> mCanvas;
             bool mIconsOnly;
         };
     }

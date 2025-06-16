@@ -138,7 +138,7 @@ void Document::writeDoxumentXEV(QDomDocument& doc) const {
         auto scene = doc.createElement("Scene");
         scene.setAttribute("resolution", QString::number(resolution));
         scene.setAttribute("clip", fActiveScene->clipToCanvas() ? "true" : "false");
-        scene.setAttribute("frame", s->currentFrame());
+        scene.setAttribute("frame", s->getCurrentFrame());
         scene.setAttribute("name", s->name());
         scene.setAttribute("width", s->canvasWidth());
         scene.setAttribute("height", s->canvasHeight());

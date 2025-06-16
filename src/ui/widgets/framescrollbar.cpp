@@ -29,8 +29,10 @@
 #include <QMenu>
 
 #include "GUI/global.h"
+#include "ViewLayers/viewlayer_selection.h"
 #include "colorhelpers.h"
 #include "appsupport.h"
+
 
 FrameScrollBar::FrameScrollBar(const int minSpan,
                                const int maxSpan,
@@ -63,9 +65,8 @@ qreal FrameScrollBar::posToFrame(int xPos) {
 
 void FrameScrollBar::setCurrentCanvas(Scene * const canvas)
 {
-    mCurrentCanvas = canvas;
-    //if (mCurrentCanvas) { mDisplayTime = mCurrentCanvas->getDisplayTimecode(); }
-    if (mCurrentCanvas) { mCurrentCanvas->setDisplayTimecode(mDisplayTime); }
+    mCurrentScene = canvas;
+    if (mCurrentScene) { mCurrentScene->setDisplayTimecode(mDisplayTime); }
     update();
 }
 
@@ -87,18 +88,18 @@ void FrameScrollBar::paintEvent(QPaintEvent *) {
     const qreal w1 = width() - 1.5*eSizesUI::widget + f1*pixPerFrame - x0;
 
     // draw cache
-    if (mCurrentCanvas) {
-        const qreal fps = mCurrentCanvas->getFps();
+    if (mCurrentScene) {
+        const qreal fps = mCurrentScene->fps();
         mFps = fps;
         if (!mRange) {
             const int soundHeight = eSizesUI::widget / 1.5;
             const int rasterHeight = eSizesUI::widget - soundHeight;
             const QRectF rasterRect(x0, 0, w1, rasterHeight);
-            const auto& rasterCache = mCurrentCanvas->getSceneFramesHandler();
+            const auto& rasterCache = mCurrentScene->getSceneFramesHandler();
             rasterCache.drawCacheOnTimeline(&p, rasterRect, minFrame, maxFrame);
 
             const QRectF soundRect(x0, rasterHeight, w1, soundHeight);
-            const auto& soundCache = mCurrentCanvas->getSoundCacheHandler();
+            const auto& soundCache = mCurrentScene->getSoundCacheHandler();
             soundCache.drawCacheOnTimeline(&p, soundRect, minFrame, maxFrame, fps);
         }
     }
@@ -230,43 +231,43 @@ int FrameScrollBar::getMinFrame() {
 
 bool FrameScrollBar::hasFrameIn(const int frame)
 {
-    if (!mCurrentCanvas) { return false; }
-    const auto frameIn = mCurrentCanvas->getFrameIn();
+    if (!mCurrentScene) { return false; }
+    const auto frameIn = mCurrentScene->getFrameIn();
     if ((frameIn.enabled && frame + 1 == frameIn.frame)) { return true; }
     return false;
 }
 
 bool FrameScrollBar::hasFrameOut(const int frame)
 {
-    if (!mCurrentCanvas) { return false; }
-    const auto frameOut = mCurrentCanvas->getFrameOut();
+    if (!mCurrentScene) { return false; }
+    const auto frameOut = mCurrentScene->getFrameOut();
     if ((frameOut.enabled && frame + 1 == frameOut.frame)) { return true; }
     return false;
 }
 
 bool FrameScrollBar::hasFrameMarker(const int frame)
 {
-    if (!mCurrentCanvas) { return false; }
-    return mCurrentCanvas->hasMarkerEnabled(frame + 1);
+    if (!mCurrentScene) { return false; }
+    return mCurrentScene->hasMarkerEnabled(frame + 1);
 }
 
 const QString FrameScrollBar::getFrameMarkerText(const int frame)
 {
-    if (!mCurrentCanvas) { return QString(); }
-    return mCurrentCanvas->getMarkerText(frame + 1);
+    if (!mCurrentScene) { return QString(); }
+    return mCurrentScene->getMarkerText(frame + 1);
 }
 
 const QPair<bool, int> FrameScrollBar::getFrameIn()
 {
-    if (!mCurrentCanvas) { return {false, 0}; }
-    const auto in = mCurrentCanvas->getFrameIn();
+    if (!mCurrentScene) { return {false, 0}; }
+    const auto in = mCurrentScene->getFrameIn();
     return {in.enabled, in.frame};
 }
 
 const QPair<bool, int> FrameScrollBar::getFrameOut()
 {
-    if (!mCurrentCanvas) { return {false, 0}; }
-    const auto out = mCurrentCanvas->getFrameOut();
+    if (!mCurrentScene) { return {false, 0}; }
+    const auto out = mCurrentScene->getFrameOut();
     return {out.enabled, out.frame};
 }
 
@@ -339,7 +340,7 @@ void FrameScrollBar::mousePressEvent(QMouseEvent *event)
         framesAction->setChecked(!mDisplayTime);
         menu.addAction(framesAction);
 
-        bool hasMarker = mCurrentCanvas ? mCurrentCanvas->hasMarker(mCurrentCanvas->getCurrentFrame()) : false;
+        bool hasMarker = mCurrentScene ? mCurrentScene->hasMarker(mCurrentScene->getCurrentFrame()) : false;
 
         const auto setFrameInAct = new QAction(QIcon::fromTheme("range-in"),
                                                tr("Set In"), this);
@@ -374,65 +375,66 @@ void FrameScrollBar::mousePressEvent(QMouseEvent *event)
             } else*/ if (selectedAction == framesAction) {
                 mDisplayTime = false;
                 update();
-                if (mCurrentCanvas) {
-                    mCurrentCanvas->setDisplayTimecode(mDisplayTime);
+                if (mCurrentScene) {
+                    mCurrentScene->setDisplayTimecode(mDisplayTime);
                 }
                 AppSupport::setSettings("ui", "DisplayTimecode", mDisplayTime);
             } else if (selectedAction == timeAction) {
                 mDisplayTime = true;
                 update();
-                if (mCurrentCanvas) {
-                    mCurrentCanvas->setDisplayTimecode(mDisplayTime);
+                if (mCurrentScene) {
+                    mCurrentScene->setDisplayTimecode(mDisplayTime);
                 }
                 AppSupport::setSettings("ui", "DisplayTimecode", mDisplayTime);
             } else if (selectedAction == clearFrameOutAct) {
-                if (mCurrentCanvas) {
-                    mCurrentCanvas->setFrameIn(false, 0);
-                    mCurrentCanvas->setFrameOut(false, 0);
+                if (mCurrentScene) {
+                    mCurrentScene->setFrameIn(false, 0);
+                    mCurrentScene->setFrameOut(false, 0);
                 }
             } else if (selectedAction == setFrameInAct) {
-                if (mCurrentCanvas) {
-                    const auto frame = mCurrentCanvas->getCurrentFrame();
-                    if (mCurrentCanvas->getFrameOut().enabled) {
-                        if (frame >= mCurrentCanvas->getFrameOut().frame) { return; }
+                if (mCurrentScene) {
+                    const auto frame = mCurrentScene->getCurrentFrame();
+                    if (mCurrentScene->getFrameOut().enabled) {
+                        if (frame >= mCurrentScene->getFrameOut().frame) { return; }
                     }
-                    bool apply = frame == 0 ? true : (mCurrentCanvas->getFrameIn().frame != frame);
-                    mCurrentCanvas->setFrameIn(apply, frame);
+                    bool apply = frame == 0 ? true : (mCurrentScene->getFrameIn().frame != frame);
+                    mCurrentScene->setFrameIn(apply, frame);
                 }
             } else if (selectedAction == setFrameOutAct) {
-                if (mCurrentCanvas) {
-                    const auto frame = mCurrentCanvas->getCurrentFrame();
-                    if (mCurrentCanvas->getFrameIn().enabled) {
-                        if (frame <= mCurrentCanvas->getFrameIn().frame) { return; }
+                if (mCurrentScene) {
+                    const auto frame = mCurrentScene->getCurrentFrame();
+                    if (mCurrentScene->getFrameIn().enabled) {
+                        if (frame <= mCurrentScene->getFrameIn().frame) { return; }
                     }
-                    bool apply = (mCurrentCanvas->getFrameOut().frame != frame);
-                    mCurrentCanvas->setFrameOut(apply, frame);
+                    bool apply = (mCurrentScene->getFrameOut().frame != frame);
+                    mCurrentScene->setFrameOut(apply, frame);
                 }
             } else if (selectedAction == setMarkerAct) {
-                if (mCurrentCanvas) {
-                    mCurrentCanvas->setMarker(mCurrentCanvas->getCurrentFrame());
+                if (mCurrentScene) {
+                    mCurrentScene->setMarker(mCurrentScene->getCurrentFrame());
                 }
             } else if (selectedAction == clearMarkersAct) {
-                if (mCurrentCanvas) {
-                    mCurrentCanvas->clearMarkers();
+                if (mCurrentScene) {
+                    mCurrentScene->clearMarkers();
                 }
             } else if (selectedAction == splitDurationAct) {
-                if (mCurrentCanvas) {
-                    mCurrentCanvas->splitAction();
+                auto viewLayerSelection = ViewLayerSelection::sGetInstance();
+                if (viewLayerSelection) {
+                    viewLayerSelection->splitAction();
                 }
-            } else if (selectedAction == openMarkerEditorAct) {
+            }/*else if (selectedAction == openMarkerEditorAct) {
                 if (mCurrentCanvas) {
-                    mCurrentCanvas->openMarkerEditor();
+                    MainWindow::s->openMarkerEditor();
                 }
-            }
+                } */ // TODO(kaixoo): This is deprecated code but we need to look for a replacement
         }
         return;
     }
     mPressed = true;
     mLastMousePressFrame = posToFrame(event->x() );
-    bool hasMarker = mCurrentCanvas ? mCurrentCanvas->hasMarker(mLastMousePressFrame) : false;
-    bool hasMarkerIn = mCurrentCanvas ? mCurrentCanvas->hasMarkerIn(mLastMousePressFrame) : false;
-    bool hasMarkerOut = mCurrentCanvas ? mCurrentCanvas->hasMarkerOut(mLastMousePressFrame) : false;
+    bool hasMarker = mCurrentScene ? mCurrentScene->hasMarker(mLastMousePressFrame) : false;
+    bool hasMarkerIn = mCurrentScene ? mCurrentScene->hasMarkerIn(mLastMousePressFrame) : false;
+    bool hasMarkerOut = mCurrentScene ? mCurrentScene->hasMarkerOut(mLastMousePressFrame) : false;
     if (event->button() == Qt::LeftButton &&
         (hasMarker || hasMarkerIn || hasMarkerOut)) { // grab current marker
         mGrabbedMarker.enabled = true;
@@ -453,18 +455,18 @@ void FrameScrollBar::mousePressEvent(QMouseEvent *event)
 void FrameScrollBar::mouseMoveEvent(QMouseEvent *event)
 {
     qreal newFrame = posToFrame(event->x() );
-    if (mGrabbedMarker.enabled && mCurrentCanvas) { // move grabbed marker
+    if (mGrabbedMarker.enabled && mCurrentScene) { // move grabbed marker
         if (mGrabbedMarker.in) {
-            if (mCurrentCanvas->hasMarkerIn(newFrame) ||
-                mCurrentCanvas->hasMarkerOut(newFrame)) { return; }
-            mCurrentCanvas->setFrameIn(true, newFrame);
+            if (mCurrentScene->hasMarkerIn(newFrame) ||
+                mCurrentScene->hasMarkerOut(newFrame)) { return; }
+            mCurrentScene->setFrameIn(true, newFrame);
         } else if (mGrabbedMarker.out) {
-            if (mCurrentCanvas->hasMarkerOut(newFrame) ||
-                mCurrentCanvas->hasMarkerIn(newFrame)) { return; }
-            mCurrentCanvas->setFrameOut(true, newFrame);
+            if (mCurrentScene->hasMarkerOut(newFrame) ||
+                mCurrentScene->hasMarkerIn(newFrame)) { return; }
+            mCurrentScene->setFrameOut(true, newFrame);
         } else {
-            if (mCurrentCanvas->hasMarker(newFrame)) { return; }
-            mCurrentCanvas->moveMarkerFrame(mGrabbedMarker.frame, newFrame);
+            if (mCurrentScene->hasMarker(newFrame)) { return; }
+            mCurrentScene->moveMarkerFrame(mGrabbedMarker.frame, newFrame);
         }
         mGrabbedMarker.frame = newFrame;
         return;

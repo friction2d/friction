@@ -130,7 +130,7 @@ private:
     InteractiveMarker mGrabbedMarker;
 
     QColor mHandleColor = ThemeSupport::getThemeButtonBorderColor();
-    qptr<Canvas> mCurrentCanvas;
+    qptr<Scene> mCurrentScene;
 };
 
 #endif // ANIMATiONWIDGETSCROLLBAR_H

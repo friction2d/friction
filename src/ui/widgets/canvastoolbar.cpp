@@ -91,7 +91,7 @@ void CanvasToolBar::setCurrentCanvas(Scene * const target)
             setDimension({mSpinWidth->value(), mSpinHeight->value()},
                          target);
         });
-        mCanvas << connect(target, &Canvas::dimensionsChanged,
+        mCanvas << connect(target, &Scene::dimensionsChanged,
                            this, [this](int width, int height) {
             updateDimension({width, height});
         });
@@ -166,7 +166,7 @@ void CanvasToolBar::updateWidgets(Scene * const target)
     }
     setEnabled(true);
 
-    updateDimension(target->getCanvasSize());
+    updateDimension(target->canvasSize());
 
     mComboResolution->blockSignals(true);
     mComboResolution->setCurrentText(QString("%1 %")
