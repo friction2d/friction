@@ -173,18 +173,18 @@ const VideoBox::VideoSpecs VideoBox::getSpecs()
 
 void VideoBox::soundDataChanged()
 {
-    const auto viewLayerRender = ViewLayerRender::sGetInstance();
+    const auto scene = getParentScene();
     const auto soundHandler = mFileHandler ?
                 mFileHandler->getSoundHandler() : nullptr;
     const auto durRect = getDurationRectangle();
     if (soundHandler) {
         if (!mSound->SWT_isVisible()) {
-            if (viewLayerRender) { viewLayerRender->getSoundComposition()->addSound(mSound); }
+            if (scene) { scene->getSoundComposition()->addSound(mSound); }
         }
         durRect->setSoundCacheHandler(&soundHandler->getCacheHandler());
     } else {
         if (mSound->SWT_isVisible()) {
-            if (viewLayerRender) { viewLayerRender->getSoundComposition()->removeSound(mSound); }
+            if (scene) { scene->getSoundComposition()->removeSound(mSound); }
         }
         durRect->setSoundCacheHandler(nullptr);
     }

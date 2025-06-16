@@ -54,13 +54,13 @@ Actions::Actions(Document &document)
             this, &Actions::connectToActiveScene);
 
     const auto pushName = [this](const QString& name) {
-        if(!mActiveCanvas) return;
-        mActiveCanvas->pushUndoRedoName(name);
+        if(!mActiveScene) return;
+        mActiveScene->pushUndoRedoName(name);
     };
 
     { // deleteSceneAction
         const auto deleteSceneActionCan = [this]() {
-            return static_cast<bool>(mActiveCanvas);
+            return static_cast<bool>(mActiveScene);
         };
         const auto deleteSceneActionExec = [this]() {
             if(!mActiveScene) return false;

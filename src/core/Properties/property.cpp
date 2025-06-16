@@ -418,7 +418,7 @@ int Property::prp_getSceneWidth() const {
 
 int Property::prp_getSceneHeight() const {
     if (mParentScene) {
-        return mParentScene->getCanvasHeight();
+        return mParentScene->canvasHeight();
     }
     return 0;
 }

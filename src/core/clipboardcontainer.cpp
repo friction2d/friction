@@ -91,7 +91,7 @@ void BoxesClipboard::pasteTo(ContainerBox* const parent) {
     read(reader);
     const int newCount = parent->getContainedBoxesCount();
     auto viewLayerSelection = ViewLayerSelection::sGetInstance();
-    if(parentScene) {
+    if(viewLayerSelection) {
         const auto& list = parent->getContainedBoxes();
         for(int i = 0; i < newCount - oldCount; i++) {
             const auto& box = list.at(i);

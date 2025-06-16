@@ -32,6 +32,7 @@
 #include "skia/skiaincludes.h"
 #include "MovablePoints/segment.h"
 #include "MovablePoints/movablepoint.h"
+#include "Boxes/boundingbox.h"
 
 class QString;
 class QPointF;
@@ -83,6 +84,9 @@ public:
                          const qreal scaleYBy,
                          const QPointF &absOrigin,
                          const bool startTrans);
+
+    void addBoxToSelection(BoundingBox * const box);
+    void removeBoxFromSelection(BoundingBox * const box);
 
     void raiseSelectedBoxesToTop();
     void lowerSelectedBoxesToBottom();

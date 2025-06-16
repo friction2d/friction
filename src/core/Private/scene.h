@@ -178,7 +178,7 @@ public:
 
     template <class T = MovablePoint>
     [[deprecated]]
-    void executeOperationOnSelectedPoints(const std::function<void(T*)> &op) {}
+    void executeOperationOnSelectedPoints(const std::function<void(T*)> &operation) {}
 
     template <class T = Property>
     void executeOperationOnSelectedProperties(const std::function<void(T*)> &operation) {
