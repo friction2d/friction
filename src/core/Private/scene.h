@@ -93,6 +93,7 @@ public:
     SoundComposition *getSoundComposition() { return _soundComposition.get(); };
 
     HddCachableCacheHandler &getSceneFramesHandler() { return _sceneFramesHandler; };
+    UseSharedPointer<SceneFrameContainer> &getSceneFrame() { return _sceneFrame; }
 
     // This is what draws the background color
     ColorAnimator *getBgColorAnimator()

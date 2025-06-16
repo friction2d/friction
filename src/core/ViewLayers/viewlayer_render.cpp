@@ -44,6 +44,7 @@ ViewLayerRender::ViewLayerRender(Document &document, BaseCanvas *canvas)
 };
 
 void ViewLayerRender::repaint(SkCanvas * const canvas) {
+    auto scene = *document.fActiveScene;
 
     /* ======== Setup ======== */
 
@@ -69,17 +70,19 @@ void ViewLayerRender::repaint(SkCanvas * const canvas) {
 
     /* ======== Rendering ======== */
 
-    if (_sceneFrame) {
+    auto sceneFrame = scene->getSceneFrame();
+
+    if (sceneFrame) {
         canvas->clear(SK_ColorBLACK);
         canvas->save();
 
         if (qBackgroundColor.alpha() != 255)
             drawTransparencyMesh(canvas, canvasRect);
 
-        const float reversedResolution = toSkScalar(1/_sceneFrame->fResolution);
+        const float reversedResolution = toSkScalar(1/sceneFrame.fResolution);
         canvas->scale(reversedResolution, reversedResolution);
 
-        _sceneFrame->drawImage(canvas, filter);
+        sceneFrame.drawImage(canvas, filter);
 
         canvas->restore();
     }
@@ -89,7 +92,7 @@ void ViewLayerRender::setSceneFrame(const int relFrame) {};
 
 void ViewLayerRender::setSceneFrame(const stdsptr<SceneFrameContainer> &cont) {
     _sceneFrame = cont;
-    //emit requestUpdate();
+    emit requestUpdate();
 };
 
 void ViewLayerRender::setResolution(const qreal percent) {
