@@ -157,6 +157,15 @@ public:
         return _range.fMax;
     }
 
+    //! Used for clip to canvas, when frames are not really changed.
+    void sceneFramesUpToDate() const
+    {
+        for (const auto &cont : _sceneFramesHandler) {
+            const auto sceneCont = static_cast<SceneFrameContainer*>(cont.second.get());
+            sceneCont->fBoxState = getCurrentGroup()->getStateId();
+        };
+    }
+
     // Display time code
     // What is a "display time code?"
     // Is it some kind of per-region hour format thing?

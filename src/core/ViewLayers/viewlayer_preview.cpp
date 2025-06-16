@@ -153,15 +153,16 @@ void ViewLayerPreview::drawContainedBoxesToCanvas(SkCanvas * const canvas,
                                      const SkFilterQuality filter, int& drawId,
                                      QList<BlendEffect::Delayed> &delayed) const {
     auto activeScene = *_document.fActiveScene;
-    auto containedBoxes = activeScene->getCurrentGroup();
+    auto containerBox = activeScene->getCurrentGroup();
+    auto containedBoxes = containerBox->getContainedBoxes();
 
-    if(containedBoxes->isEmpty()) return;
-    _handleDelayed(delayed, drawId, nullptr, containedBoxes->last());
+    if(containedBoxes.isEmpty()) return;
+    _handleDelayed(delayed, drawId, nullptr, containedBoxes.last());
 
-    const auto count = containedBoxes->count() - 1;
+    const auto count = containedBoxes.count() - 1;
     for(int i = count; i >= 0; i--) {
-        const auto& box = containedBoxes->at(i);
-        const auto& nextBox = i == 0 ? nullptr : containedBoxes->at(i - 1);
+        const auto& box = containedBoxes.at(i);
+        const auto& nextBox = i == 0 ? nullptr : containedBoxes.at(i - 1);
         if(box->isVisibleAndInVisibleDurationRect()) {
             box->drawPixmapSk(canvas, filter, drawId, delayed);
             if(!box->isGroup()) drawId++;

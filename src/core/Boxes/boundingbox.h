@@ -454,6 +454,9 @@ public:
     eTask* saveSVGWithTransform(SvgExporter& exp, QDomElement& parent,
                                 const FrameRange& parentVisRange,
                                 const QString &maskId = QString()) const;
+
+    uint getStateId() const { return mStateId; };
+
 private:
     void cancelWaitingTasks();
     void afterTotalTransformChanged(const UpdateReason reason);

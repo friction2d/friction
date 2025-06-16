@@ -71,9 +71,6 @@ public:
     bool isBoxSelectionEmpty();
     bool isPointSelectionEmpty();
 
-    void selectedPathsBreakApart();
-
-
     void setSelectedFontText(const QString &text);
     void setSelectedFontSize(const qreal size);
     void setSelectedFontFamilyAndStyle(const QString &family,
@@ -142,10 +139,12 @@ public:
     void subdivideSegments();
 
     void selectedPathsUnion();
+    void selectedPathsExclusion();
+    void selectedPathsDivision();
     void selectedPathsDifference();
     void selectedPathsIntersection();
-    void selectedPathsDivision();
     void selectedPathsCombine();
+    void selectedPathsBreakApart();
 
     QPointF getSelectedPointsAbsPivotPos();
     bool isPointSelectionEmpty() const;
