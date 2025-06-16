@@ -108,6 +108,11 @@ public:
     // Scene should only contain data.
     void queTasks();
 
+    // This is used for XEV writing
+    // Comes from Property (?)
+    int getWriteId() const;
+    int getDocumentId() const;
+
     /* ========= Frames ========= */
     // Sets which frame is currently selected in the timeline
     int getCurrentFrame() const { return _currentFrame; };

@@ -44,7 +44,7 @@ ViewLayerRender::ViewLayerRender(Document &document, BaseCanvas *canvas)
 };
 
 void ViewLayerRender::repaint(SkCanvas * const canvas) {
-    auto scene = *document.fActiveScene;
+    auto scene = *_document.fActiveScene;
 
     /* ======== Setup ======== */
 
@@ -79,20 +79,13 @@ void ViewLayerRender::repaint(SkCanvas * const canvas) {
         if (qBackgroundColor.alpha() != 255)
             drawTransparencyMesh(canvas, canvasRect);
 
-        const float reversedResolution = toSkScalar(1/sceneFrame.fResolution);
+        const float reversedResolution = toSkScalar(1/sceneFrame->fResolution);
         canvas->scale(reversedResolution, reversedResolution);
 
-        sceneFrame.drawImage(canvas, filter);
+        sceneFrame->drawImage(canvas, filter);
 
         canvas->restore();
     }
-};
-
-void ViewLayerRender::setSceneFrame(const int relFrame) {};
-
-void ViewLayerRender::setSceneFrame(const stdsptr<SceneFrameContainer> &cont) {
-    _sceneFrame = cont;
-    emit requestUpdate();
 };
 
 void ViewLayerRender::setResolution(const qreal percent) {

@@ -83,7 +83,7 @@ public:
 
     void flipSelectedBoxesVertically();
     void flipSelectedBoxesHorizontally();
-    void rotateSelectedBoxesStartAndFinish();
+    void rotateSelectedBoxesStartAndFinish(int deg);
 
     void scaleSelectedBy(const qreal scaleXBy,
                          const qreal scaleYBy,
@@ -115,6 +115,9 @@ public:
     void addBoxToSelection(BoundingBox * const box);
     void removeBoxFromSelection(BoundingBox * const box);
 
+    void groupSelectedBoxes();
+    void ungroupSelectedBoxes();
+
     void raiseSelectedBoxesToTop();
     void lowerSelectedBoxesToBottom();
     void raiseSelectedBoxes();
@@ -137,6 +140,12 @@ public:
     void disconnectPoints();
     bool connectPoints();
     void subdivideSegments();
+
+    void selectedPathsUnion();
+    void selectedPathsDifference();
+    void selectedPathsIntersection();
+    void selectedPathsDivision();
+    void selectedPathsCombine();
 
     QPointF getSelectedPointsAbsPivotPos();
     bool isPointSelectionEmpty() const;
@@ -167,6 +176,11 @@ public:
 
     void makeSegmentLine();
     void makeSegmentCurve();
+
+    void newEmptyPaintFrameAction();
+    void setSelectedCapStyle(const SkPaint::Cap capStyle);
+    void setSelectedJoinStyle(const SkPaint::Join joinStyle);
+    void setSelectedStrokeBrush(SimpleBrushWrapper * const brush);
 
     /* ======== Mouse events =======  */
     void mousePressEvent(QMouseEvent *e) override;

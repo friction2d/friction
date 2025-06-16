@@ -42,10 +42,13 @@ Actions* Actions::sInstance = nullptr;
 
 Actions::Actions(Document &document)
     : mDocument(document)
-    , mActiveCanvas(ViewLayerPreview::sGetInstance())
-    , mActiveCanvasSelection(ViewLayerSelection::sGetInstance()) {
+    , mActiveCanvas(nullptr)
+    , mActiveCanvasSelection(nullptr) {
     Q_ASSERT(!sInstance);
     sInstance = this;
+
+    mActiveCanvas = ViewLayerPreview::sGetInstance();
+    mActiveCanvasSelection = ViewLayerSelection::sGetInstance();
 
     // Call once!!
     connectToViewLayerSelection();

@@ -125,8 +125,8 @@ void ViewLayerPreview::containedDetachedBlendSetup(
     auto containerBox = activeScene->getCurrentGroup();
     auto containedBoxes = containerBox->getContainedBoxes();
 
-    for(int i = containedBoxes->count() - 1; i >= 0; i--) {
-        const auto& box = containedBoxes->at(i);
+    for(int i = containedBoxes.count() - 1; i >= 0; i--) {
+        const auto& box = containedBoxes.at(i);
         if(box->isVisibleAndInVisibleDurationRect()) {
             if(box->isGroup()) {
                 const auto cBox = static_cast<ContainerBox*>(box);
