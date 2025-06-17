@@ -38,10 +38,10 @@ class CORE_EXPORT ContainerBox : public BoxWithPathEffects {
     e_OBJECT
     e_DECLARE_TYPE(ContainerBox)
     typedef qCubicSegment1DAnimator::Action SegAction;
-protected:
+public:
     ContainerBox(const eBoxType type = eBoxType::group);
     ContainerBox(const QString& name, const eBoxType type = eBoxType::group);
-public:
+
     bool isGroup() const final { return !mIsLayer; }
     bool isLayer() const final { return mIsLayer; }
 
