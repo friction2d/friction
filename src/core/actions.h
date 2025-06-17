@@ -178,7 +178,6 @@ private:
     bool mSmoothChange = false;
     Document& mDocument;
     ConnContextPtr<ViewLayerSelection> mActiveCanvasSelection;
-    ConnContextPtr<ViewLayerPreview> mActiveCanvas;
     ConnContextPtr<Scene> mActiveScene;
 };
 
