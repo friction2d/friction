@@ -68,6 +68,8 @@ class eReadStream;
 // We inherit from QObject because that allows us to do signals
 class Scene : public SelfRef {
     Q_OBJECT
+    e_OBJECT
+    e_DECLARE_TYPE(Scene)
 public:
     Scene(
         Document& document,

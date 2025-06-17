@@ -41,6 +41,8 @@
 // We inherit from QObject because that allows us to do signals
 class ViewLayer : public SelfRef {
     Q_OBJECT
+    e_OBJECT
+    e_DECLARE_TYPE(ViewLayer)
 public:
     ViewLayer(std::string layerId)
         : _layerId(layerId)
