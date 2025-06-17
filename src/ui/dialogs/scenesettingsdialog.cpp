@@ -359,7 +359,7 @@ void SceneSettingsDialog::sNewSceneDialog(Document& document,
     const auto docPtr = &document;
     connect(dialog, &QDialog::accepted, dialog, [dialog, docPtr]() {
         const auto newScene = docPtr->createNewScene();
-        const auto block = newScene->blockUndoRedo(); // TODO(kaixoo)
+        const auto block = newScene->blockUndoRedo();
         dialog->applySettingsToCanvas(newScene);
         dialog->close();
         docPtr->actionFinished();
