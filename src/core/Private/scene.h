@@ -49,6 +49,7 @@
 // FrameMarker
 #include "framerange.h"
 
+class Document;
 class SoundComposition;
 class SceneFrameContainer;
 class SceneBoundGradient;
@@ -68,7 +69,14 @@ class eReadStream;
 class Scene : public SelfRef {
     Q_OBJECT
 public:
-    Scene(QString sceneName, qreal canvasWidth, qreal canvasHeight, qreal fps, ContainerBox defaultGroup);
+    Scene(
+        Document& document,
+        const QString sceneName,
+        const int canvasWidth = 1920,
+        const int canvasHeight = 1080,
+        const qreal fps = 24,
+        const int frameCount = 200,
+        ContainerBox defaultGroup = ContainerBox(eBoxType::canvas));
     ~Scene();
 
     /* ========= Children ========= */
@@ -240,7 +248,12 @@ public:
     void updateMarkers();
 
     /* ========= Setters ========= */
-    void setName(QString name) { _name = name; };
+    void setName(QString name) {
+        _name = name;
+        getCurrentGroup()->prp_setName(_name);
+        // TODO(kaixoo): ???
+        //emit nameChanged(_name, QPrivateSignal);
+    };
     void setFps(qreal fps) {
         _fps = fps;
         emit fpsChanged(_fps);

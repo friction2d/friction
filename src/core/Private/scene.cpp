@@ -30,20 +30,25 @@
 #include "ReadWrite/ereadstream.h"
 #include "ReadWrite/ewritestream.h"
 #include "Sound/soundcomposition.h"
+#include "Private/document.h"
 #include "framerange.h"
 
 
 Scene::Scene(
-    QString sceneName,
-    qreal canvasWidth,
-    qreal canvasHeight,
-    qreal fps,
+    Document& document,
+    const QString sceneName = "New scene",
+    const int canvasWidth = 1920,
+    const int canvasHeight = 1080,
+    const int qreal fps = 24,
+    const int frameCount = 200,
     ContainerBox defaultGroup = ContainerBox(eBoxType::canvas)
     ) : _currentGroup(defaultGroup)
       , _name(sceneName)
       , _canvasWidth(canvasWidth)
       , _canvasHeight(canvasHeight)
-      , _fps(fps) {};
+      , _fps(fps) {
+          _range = {0, frameCount};
+      };
 
 Scene::~Scene() {
     emit destroyed();
