@@ -937,8 +937,9 @@ void Actions::connectToActiveScene(Scene* const scene) {
                         }
 }
 
-// Call once!!
-void Actions::connectToViewLayerSelection() {
+void Actions::connectToViewLayerSelection(ViewLayerSelection* const viewLayerSelection) {
+    auto& conn = mActiveCanvasSelection.assign(viewLayerSelection);
+
     raiseAction->raiseCanExecuteChanged();
     lowerAction->raiseCanExecuteChanged();
     raiseToTopAction->raiseCanExecuteChanged();

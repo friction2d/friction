@@ -33,12 +33,17 @@
 #include "framerange.h"
 
 
-Scene::Scene(QString sceneName, qreal canvasWidth, qreal canvasHeight, qreal fps, ContainerBox defaultGroup = ContainerBox(nullptr))
-           : _currentGroup(defaultGroup)
-           , _name(sceneName)
-           , _canvasWidth(canvasWidth)
-           , _canvasHeight(canvasHeight)
-           , _fps(fps) {};
+Scene::Scene(
+    QString sceneName,
+    qreal canvasWidth,
+    qreal canvasHeight,
+    qreal fps,
+    ContainerBox defaultGroup = ContainerBox()
+    ) : _currentGroup(defaultGroup)
+      , _name(sceneName)
+      , _canvasWidth(canvasWidth)
+      , _canvasHeight(canvasHeight)
+      , _fps(fps) {};
 
 Scene::~Scene() {
     emit destroyed();

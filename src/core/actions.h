@@ -171,8 +171,8 @@ public:
     Action* redoAction;
 private:
     void connectToActiveScene(Scene* const scene);
-    // Call once!!
-    void connectToViewLayerSelection();
+    void connectToViewLayerSelection(ViewLayerSelection* const viewLayerSelection);
+
     void afterAction() const;
 
     bool mSmoothChange = false;
