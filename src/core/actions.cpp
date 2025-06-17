@@ -41,8 +41,7 @@
 Actions* Actions::sInstance = nullptr;
 
 Actions::Actions(Document &document)
-    : mDocument(document)
-    , mActiveCanvasSelection(nullptr) {
+    : mDocument(document) {
     Q_ASSERT(!sInstance);
     sInstance = this;
 
