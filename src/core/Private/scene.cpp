@@ -38,7 +38,7 @@ Scene::Scene(
     qreal canvasWidth,
     qreal canvasHeight,
     qreal fps,
-    ContainerBox defaultGroup = ContainerBox()
+    ContainerBox defaultGroup = ContainerBox(sceneName)
     ) : _currentGroup(defaultGroup)
       , _name(sceneName)
       , _canvasWidth(canvasWidth)
