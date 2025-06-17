@@ -37,6 +37,7 @@
 #include "Animators/coloranimator.h"
 // Cache and memory
 #include "smartPointers/selfref.h"
+#include "smartPointers/ememory.h"
 #include "CacheHandlers/usepointer.h"
 #include "CacheHandlers/sceneframecontainer.h"
 #include "CacheHandlers/hddcachablecachehandler.h"
@@ -68,22 +69,29 @@ class eReadStream;
 // We inherit from QObject because that allows us to do signals
 class Scene : public SelfRef {
     Q_OBJECT
-    e_OBJECT
-    e_DECLARE_TYPE(Scene)
+    //e_OBJECT
+    //e_DECLARE_TYPE(Scene)
 public:
+    Scene(
+        Document& document,
+        ContainerBox defaultGroup,
+        const QString sceneName,
+        const int canvasWidth = 1920,
+        const int canvasHeight = 1080,
+        const qreal fps = 24,
+        const int frameCount = 200);
     Scene(
         Document& document,
         const QString sceneName,
         const int canvasWidth = 1920,
         const int canvasHeight = 1080,
         const qreal fps = 24,
-        const int frameCount = 200,
-        ContainerBox defaultGroup = ContainerBox(eBoxType::canvas));
+        const int frameCount = 200);
     ~Scene();
 
     /* ========= Children ========= */
-    ContainerBox *getCurrentGroup() const { return _currentGroup; };
-    void setCurrentGroup(ContainerBox* containerBox) { _currentGroup = containerBox; };
+    qptr<ContainerBox> getCurrentGroup() const { return _currentGroup; };
+    void setCurrentGroup(qptr<ContainerBox> containerBox) { _currentGroup = containerBox; };
 
     // Access the objects that the ContainerBox has
     const QList<BoundingBox*> &getContainedBoxes() const { return getCurrentGroup()->getContainedBoxes(); };
@@ -170,10 +178,11 @@ public:
     //! Used for clip to canvas, when frames are not really changed.
     void sceneFramesUpToDate() const
     {
-        for (const auto &cont : _sceneFramesHandler) {
+        // TODO(kaixoo): static_cast to Scene
+        /*for (const auto &cont : _sceneFramesHandler) {
             const auto sceneCont = static_cast<SceneFrameContainer*>(cont.second.get());
             sceneCont->fBoxState = getCurrentGroup()->getStateId();
-        };
+        };*/
     }
 
     // Display time code
