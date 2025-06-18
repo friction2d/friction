@@ -40,31 +40,30 @@ Scene::Scene(
     const QString sceneName = "New scene",
     const int canvasWidth = 1920,
     const int canvasHeight = 1080,
-    const int qreal fps = 24,
+    const qreal fps = 24,
     const int frameCount = 200
 ) : _currentGroup(defaultGroup)
   , _name(sceneName)
-  , _canvasWidth(canvasWidth)
+  , _fps(fps)
+  , _range({0, frameCount})
   , _canvasHeight(canvasHeight)
-  , _fps(fps) {
-    _range = {0, frameCount};
-};
+  , _canvasWidth(canvasWidth) {};
 
 Scene::Scene(
     Document& document,
     QString sceneName = "New scene",
     const int canvasWidth = 1920,
     const int canvasHeight = 1080,
-    const int qreal fps = 24,
+    const qreal fps = 24,
     const int frameCount = 200) {
     auto containerBox = ContainerBox(eBoxType::canvas);
     Scene(document,
+          containerBox,
           sceneName,
           canvasWidth,
           canvasHeight,
           fps,
-          frameCount,
-          containerBox);
+          frameCount);
 };
 
 Scene::~Scene() {
