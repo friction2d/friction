@@ -36,12 +36,12 @@
 
 Scene::Scene(
     Document& document,
-    ContainerBox defaultGroup,
-    const QString sceneName = "New scene",
-    const int canvasWidth = 1920,
-    const int canvasHeight = 1080,
-    const qreal fps = 24,
-    const int frameCount = 200
+    qsptr<ContainerBox> defaultGroup,
+    const QString sceneName,
+    const int canvasWidth,
+    const int canvasHeight,
+    const qreal fps,
+    const int frameCount
 ) : _currentGroup(defaultGroup)
   , _name(sceneName)
   , _fps(fps)
@@ -49,14 +49,16 @@ Scene::Scene(
   , _canvasHeight(canvasHeight)
   , _canvasWidth(canvasWidth) {};
 
+// TODO: In C++17, make this a single default constructor
+// We currently need to overload constructor because C++14 is dumb
 Scene::Scene(
     Document& document,
-    QString sceneName = "New scene",
-    const int canvasWidth = 1920,
-    const int canvasHeight = 1080,
-    const qreal fps = 24,
-    const int frameCount = 200) {
-    auto containerBox = ContainerBox(eBoxType::canvas);
+    const QString sceneName,
+    const int canvasWidth,
+    const int canvasHeight,
+    const qreal fps,
+    const int frameCount) {
+    const auto containerBox = enve::make_shared<ContainerBox>(eBoxType::canvas);
     Scene(document,
           containerBox,
           sceneName,

@@ -120,7 +120,7 @@ Scene *Document::createNewScene(const bool emitCreated) {
     fScenes.append(newScene);
     // TODO(kaixoo): Should we set the child ContainerBox as SWT child, or just get rid of the SWT children scheme and use fScenes?
     // (prefer Composition over Inheritance)
-    SWT_addChild(newScene.get()->getCurrentGroup());
+    SWT_addChild(newScene.get()->getCurrentGroup().get());
     if (emitCreated) {
         emit sceneCreated(newScene.get());
     }
@@ -135,7 +135,7 @@ bool Document::removeScene(const qsptr<Scene>& scene) {
 bool Document::removeScene(const int id) {
     if(id < 0 || id >= fScenes.count()) return false;
     const auto scene = fScenes.takeAt(id);
-    SWT_removeChild(scene->getCurrentGroup());
+    SWT_removeChild(scene->getCurrentGroup().get());
     emit sceneRemoved(scene.get());
     emit sceneRemoved(id);
     return true;
@@ -160,7 +160,7 @@ void Document::setActiveScene(Scene * const scene) {
     if(fActiveScene) {
         conn << connect(fActiveScene, &Scene::destroyed,
                         this, &Document::clearActiveScene);
-        emit currentBoxChanged(fActiveScene->getCurrentGroup());
+        emit currentBoxChanged(fActiveScene->getCurrentGroup().get());
         emit selectedPaintSettingsChanged();
     }
     emit activeSceneSet(scene);

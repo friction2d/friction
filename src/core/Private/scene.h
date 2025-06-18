@@ -73,15 +73,18 @@ class Scene : public SelfRef {
 public:
     Scene(
         Document& document,
-        ContainerBox defaultGroup,
-        const QString sceneName,
+        qsptr<ContainerBox> defaultGroup,
+        const QString sceneName = "New scene",
         const int canvasWidth = 1920,
         const int canvasHeight = 1080,
         const qreal fps = 24,
         const int frameCount = 200);
+
+    // TODO: In C++17, make this a single default constructor
+    // We currently need to overload constructor because C++14 is dumb
     Scene(
         Document& document,
-        const QString sceneName,
+        const QString sceneName = "New Scene",
         const int canvasWidth = 1920,
         const int canvasHeight = 1080,
         const qreal fps = 24,
@@ -89,8 +92,8 @@ public:
     ~Scene();
 
     /* ========= Children ========= */
-    qptr<ContainerBox> getCurrentGroup() const { return _currentGroup; };
-    void setCurrentGroup(qptr<ContainerBox> containerBox) { _currentGroup = containerBox; };
+    qsptr<ContainerBox> getCurrentGroup() const { return _currentGroup; };
+    void setCurrentGroup(qsptr<ContainerBox> containerBox) { _currentGroup = containerBox; };
 
     // Access the objects that the ContainerBox has
     const QList<BoundingBox*> &getContainedBoxes() const { return getCurrentGroup()->getContainedBoxes(); };
@@ -397,7 +400,7 @@ protected:
     qsptr<UndoRedoStack> _undoRedoStack;
 
 private:
-    qptr<ContainerBox> _currentGroup;
+    qsptr<ContainerBox> _currentGroup;
 
     QString _name;
     bool _clipToCanvas;

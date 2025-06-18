@@ -31,7 +31,7 @@ int SceneBoundGradient::sNextDocumentId = 0;
 SceneBoundGradient::SceneBoundGradient(Scene * const scene) :
     mDocumentId(sNextDocumentId++), mScene(scene) {
     connect(this, &Property::prp_ancestorChanged, this, [this]() {
-        if(!getParentScene()) setParent(mScene->getCurrentGroup());
+        if(!getParentScene()) setParent(mScene->getCurrentGroup().get());
     });
 }
 
