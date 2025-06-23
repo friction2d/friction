@@ -714,6 +714,17 @@ int Animator::anim_getLowestAbsFrameForSelectedKey() {
     return lowestKey;
 }
 
+int Animator::anim_getHighestAbsFrameForSelectedKey() {
+    int highestKey = FrameRange::EMIN;
+    for(const auto& key : anim_mSelectedKeys) {
+        int keyAbsFrame = key->getAbsFrame();
+        if(keyAbsFrame > highestKey) {
+            highestKey = keyAbsFrame;
+        }
+    }
+    return highestKey;
+}
+
 void Animator::saveSVG(SvgExporter& exp,
                        QDomElement& parent,
                        const FrameRange& visRange,
