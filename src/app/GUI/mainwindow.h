@@ -39,7 +39,7 @@
 #include <QComboBox>
 #include <QTimer>
 
-#include "widgets/fontswidget.h"
+
 #include "Private/Tasks/taskscheduler.h"
 #include "Private/document.h"
 #include "Sound/audiohandler.h"
@@ -48,14 +48,17 @@
 #include "renderhandler.h"
 #include "fileshandler.h"
 #include "ekeyfilter.h"
+#include "window.h"
 #include "GUI/RenderWidgets/renderwidget.h"
+
+#include "widgets/fontswidget.h"
+#include "widgets/toolbar.h"
+#include "widgets/toolcontrols.h"
 #include "widgets/colortoolbar.h"
 #include "widgets/qdoubleslider.h"
 #include "widgets/canvastoolbar.h"
-#include "window.h"
 #include "widgets/aboutwidget.h"
 #include "widgets/uilayout.h"
-#include "widgets/toolbar.h"
 
 class VideoEncoder;
 class RenderWidget;
@@ -362,6 +365,7 @@ private:
 
     Friction::Ui::ColorToolBar *mColorToolBar;
     Friction::Ui::CanvasToolBar *mCanvasToolBar;
+    Friction::Ui::ToolControls *mToolControls;
 
     void setupToolBox();
     void setupToolBoxMain();
@@ -399,8 +403,6 @@ private:
     void askInstallRenderPresets();
     void askInstallExpressionsPresets();
     void askRestoreFillStrokeDefault();
-
-    QLabel *mColorPickLabel;
 
     QAction *mToolBarMainAct;
     QAction *mToolBarColorAct;

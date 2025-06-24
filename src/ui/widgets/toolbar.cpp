@@ -62,11 +62,23 @@ void ToolBar::updateActions()
     }
 }
 
+QAction *ToolBar::addSpacer(const bool &horizontal)
+{
+    const auto widget = new QWidget(this);
+    widget->setSizePolicy(horizontal ? QSizePolicy::Expanding : QSizePolicy::Minimum,
+                          horizontal ? QSizePolicy::Minimum : QSizePolicy::Expanding);
+    return addWidget(widget);
+}
+
 void ToolBar::setup()
 {
 #ifdef Q_OS_MAC
     setStyleSheet(QString("font-size: %1pt;").arg(font().pointSize()));
 #endif
+
+    eSizesUI::widget.add(this, [this](const int size) {
+        this->setIconSize({size, size});
+    });
 
     if (objectName().isEmpty()) {
         setObjectName(windowTitle().replace(" ", "").simplified());
