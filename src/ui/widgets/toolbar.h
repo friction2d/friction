@@ -45,6 +45,7 @@ namespace Friction
                              QWidget *parent = nullptr,
                              const bool iconsOnly = false);
             void updateActions();
+            QAction* addSpacer(const bool &horizontal = true);
 
         private:
             bool mIconsOnly;
