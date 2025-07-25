@@ -27,6 +27,8 @@
 
 #include <QKeyEvent>
 #include <QScrollBar>
+#include <QEvent>
+#include <QTimer>
 
 #include "Private/document.h"
 #include "GUI/global.h"
@@ -216,6 +218,7 @@ TimelineDockWidget::TimelineDockWidget(Document& document,
         scene->anim_setAbsFrame(mCurrentFrameSpin->value());
         mDocument.actionFinished();
     });
+    mCurrentFrameSpin->installEventFilter(this);
 
     const auto mPrevKeyframeAct = new QAction(QIcon::fromTheme("prev_keyframe"),
                                               QString(),
@@ -765,4 +768,20 @@ void TimelineDockWidget::stepPreview()
     }
     scene->anim_setAbsFrame(nextFrame);
     mDocument.actionFinished();
+}
+
+bool TimelineDockWidget::eventFilter(QObject *obj, QEvent *event)
+{
+    if (obj == mCurrentFrameSpin && event->type() == QEvent::Wheel) {
+        const bool handled = QWidget::eventFilter(obj, event);
+
+        QTimer::singleShot(0, this, [this]() {
+            const auto scene = *mDocument.fActiveScene;
+            if (!scene) { return; }
+            scene->anim_setAbsFrame(mCurrentFrameSpin->value());
+            mDocument.actionFinished();
+        });
+        return handled;
+    }
+    return QWidget::eventFilter(obj, event);
 }

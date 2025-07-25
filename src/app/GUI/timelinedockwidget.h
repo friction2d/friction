@@ -90,6 +90,8 @@ public:
     void setMarker();
     void splitClip();
 
+    bool eventFilter(QObject *obj, QEvent *event) override;
+
 private:
     void setLoop(const bool loop);
     void interruptPreview();
