@@ -855,6 +855,7 @@ void Canvas::setCanvasMode(const CanvasMode mode)
     clearLastPressedPoint();
     updatePivot();
     //updatePaintBox();
+    emit canvasModeSet(mode);
 }
 
 /*void Canvas::updatePaintBox()
@@ -1065,6 +1066,11 @@ void Canvas::clearSelectionAction()
         clearPointsSelection();
         clearBoxesSelection();
     }
+}
+
+void Canvas::finishedAction()
+{
+    mDocument.actionFinished();
 }
 
 void Canvas::clearParentForSelected()
