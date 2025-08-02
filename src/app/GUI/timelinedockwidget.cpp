@@ -210,12 +210,10 @@ TimelineDockWidget::TimelineDockWidget(Document& document,
     mCurrentFrameSpin->setRange(-INT_MAX, INT_MAX);
     connect(mCurrentFrameSpin,
             &QSpinBox::editingFinished,
-            this, [this]() {
-        const auto scene = *mDocument.fActiveScene;
-        if (!scene) { return; }
-        scene->anim_setAbsFrame(mCurrentFrameSpin->value());
-        mDocument.actionFinished();
-    });
+            this, [this]() { gotoFrame(mCurrentFrameSpin->value()); });
+    connect(mCurrentFrameSpin,
+            &FrameSpinBox::wheelValueChanged,
+            this, &TimelineDockWidget::gotoFrame);
 
     const auto mPrevKeyframeAct = new QAction(QIcon::fromTheme("prev_keyframe"),
                                               QString(),
@@ -567,6 +565,14 @@ void TimelineDockWidget::setStepPreviewStart()
     mStepPreviewTimer->setInterval(1000 / fps);
     mStepPreviewTimer->start();
     previewBeingPlayed();
+}
+
+void TimelineDockWidget::gotoFrame(int frame)
+{
+    const auto scene = *mDocument.fActiveScene;
+    if (!scene) { return; }
+    scene->anim_setAbsFrame(frame);
+    mDocument.actionFinished();
 }
 
 void TimelineDockWidget::updateButtonsVisibility(const CanvasMode mode)

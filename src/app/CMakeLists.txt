@@ -199,9 +199,9 @@ set(
     GUI/graphboxeslist.cpp
     GUI/keysview.cpp
     GUI/mainwindow.cpp
-    GUI/toolbox.cpp
     GUI/extraactions.cpp
     GUI/effectactions.cpp
+    GUI/menu.cpp
 )
 
 set(

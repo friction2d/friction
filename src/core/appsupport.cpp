@@ -41,6 +41,7 @@
 #include <QtMath>
 #include <QRegularExpression>
 #include <QMessageBox>
+#include <QFontDatabase>
 
 #include <iostream>
 #include <ostream>
@@ -54,6 +55,26 @@ AppSupport::AppSupport(QObject *parent)
     : QObject{parent}
 {
 
+}
+
+void AppSupport::clearSettings(const QString &group)
+{
+    if (AppSupport::isAppPortable()) {
+        QSettings settings(QString("%1/friction.conf").arg(getAppConfigPath()),
+                           QSettings::IniFormat);
+        clearSettings(&settings, group);
+        return;
+    }
+    QSettings settings;
+    clearSettings(&settings, group);
+}
+
+void AppSupport::clearSettings(QSettings *settings,
+                               const QString &group)
+{
+    settings->beginGroup(group);
+    settings->remove(""); // clear all
+    settings->endGroup();
 }
 
 QVariant AppSupport::getSettings(const QString &group,
@@ -1086,4 +1107,19 @@ const QColor AppSupport::adjustColorVisibility(const QColor &color,
         else { return color.lighter(150); }
     }
     return color;
+}
+
+void AppSupport::setFont(const QString &path)
+{
+    if (!QFile::exists(path)) { return; }
+
+    int fontId = QFontDatabase::addApplicationFont(path);
+    if (fontId == -1) { return; }
+
+    QStringList fontFamilies = QFontDatabase::applicationFontFamilies(fontId);
+    if (fontFamilies.isEmpty()) { return; }
+
+    QFont font(fontFamilies.at(0));
+    font.setPointSizeF(QApplication::font().pointSizeF());
+    QApplication::setFont(font);
 }

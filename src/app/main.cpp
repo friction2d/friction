@@ -116,6 +116,15 @@ int main(int argc, char *argv[])
 
     // init splash (windows-only)
 #ifdef Q_OS_WIN
+    // load custom font if exists
+    const auto fontBundle = QString("%1/font.ttf").arg(AppSupport::getAppPath());
+    if (QFile::exists(fontBundle)) { AppSupport::setFont(fontBundle); }
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
+    // https://bugreports.qt.io/browse/QTBUG-58610
+    // https://github.com/musescore/MuseScore/pull/5820
+    else { QApplication::setFont(QApplication::font("QMessageBox")); }
+#endif
+
     QSplashScreen splash(QPixmap(":/icons/splash/splash-00001.png"));
     splash.show();
     splash.raise();

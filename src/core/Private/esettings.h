@@ -122,6 +122,9 @@ public:
     qreal fCurrentInterfaceDPI;
     bool fDefaultInterfaceScaling;
 
+    // restore ui on quit
+    bool fRestoreDefaultUi = false;
+
     // canvas settings
     bool fCanvasRtlSupport;
 

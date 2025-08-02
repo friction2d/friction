@@ -28,6 +28,7 @@
 #include <QApplication>
 #include <QDebug>
 #include <QDesktopWidget>
+#include <QToolButton>
 
 const QColor ThemeSupport::getQColor(int r,
                                      int g,
@@ -278,4 +279,16 @@ const QSize ThemeSupport::findClosestIconSize(int iconSize)
                                         const QSize& b) {
         return qAbs(a.width() - iconSize) < qAbs(b.width() - iconSize);
     });
+}
+
+void ThemeSupport::setToolbarButtonStyle(const QString &name,
+                                         QToolBar *bar,
+                                         QAction *act)
+{
+    if (!bar || !act || name.simplified().isEmpty()) { return; }
+    if (QWidget *widget = bar->widgetForAction(act)) {
+        if (QToolButton *button = qobject_cast<QToolButton*>(widget)) {
+            button->setObjectName(name);
+        }
+    }
 }

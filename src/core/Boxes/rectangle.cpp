@@ -104,6 +104,21 @@ void RectangleBox::setXRadius(const qreal radiusX) {
     mRadiusAnimator->getXAnimator()->setCurrentBaseValue(radiusX);
 }
 
+QPointFAnimator *RectangleBox::getTopLeftAnimator()
+{
+    return mTopLeftAnimator.get();
+}
+
+QPointFAnimator *RectangleBox::getBottomRightAnimator()
+{
+    return mBottomRightAnimator.get();
+}
+
+QPointFAnimator *RectangleBox::getRadiusAnimator()
+{
+    return mRadiusAnimator.get();
+}
+
 void RectangleBox::moveSizePointByAbs(const QPointF &absTrans) {
     mBottomRightPoint->moveByAbs(absTrans);
 }

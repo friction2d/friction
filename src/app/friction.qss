@@ -204,7 +204,9 @@ QSpinBox#ComboSpinBox,
 QComboBox,
 QPushButton,
 QToolButton,
-QAction {
+QAction,
+#ToolBoxButton
+{
     background-color: %1;
     border-radius: 2%;
     border: 1px solid %2;
@@ -232,7 +234,8 @@ QPushButton:hover,
 QToolButton:hover,
 QPushButton:checked,
 QToolButton:checked,
-QAction:checked
+QAction:checked,
+#ToolBoxButton:hover
 {
     background-color: %3;
     border-color: %4;
@@ -486,7 +489,8 @@ AlignWidget QPushButton:disabled {
     background: transparent;
 }
 
-QWidget#DarkWidget {
+QWidget#DarkWidget,
+Friction--Ui--ToolBar#ToolBox {
     background-color: %5;
 }
 
@@ -601,13 +605,14 @@ QCheckBox:disabled {
     color: %13;
 }
 
-QToolBar#DarkToolBar {
+QToolBar#DarkToolBar,
+Friction--Ui--ToolControls {
     background-color: %5;
 }
 
 QToolBar#ColorToolBar QToolButton:hover,
-QToolBar#CanvasToolBar QToolButton:hover
-{
+QToolBar#CanvasToolBar QToolButton:hover,
+Friction--Ui--ToolControls QToolButton:hover {
     background-color: transparent;
     border-color: transparent;
 }
@@ -634,6 +639,34 @@ Friction--Ui--ToolBar::separator:horizontal {
     width: 1px;
 }
 
+Friction--Ui--ToolControls::separator,
+Friction--Ui--ToolboxToolBar::separator {
+    background-color: transparent;
+}
+
+Friction--Ui--ToolControls::separator:horizontal,
+Friction--Ui--ToolboxToolBar::separator:horizontal {
+    width: 2px;
+}
+
+Friction--Ui--ToolControls QComboBox {
+    padding: .1em;
+}
+Friction--Ui--ToolboxToolBar QComboBox {
+    padding-left: .2em;
+}
+
 ExpressionEditor {
     background: %6;
+}
+
+#ToolBoxButton {
+    margin-top: .05em;
+    margin-bottom: .05em;
+    margin-left: .1em;
+    margin-right: .1em;
+}
+
+#ToolBoxButton:disabled {
+    background: transparent;
 }

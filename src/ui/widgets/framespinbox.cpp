@@ -49,3 +49,14 @@ void FrameSpinBox::fixup(QString &str) const
     }
     QSpinBox::fixup(str);
 }
+
+void FrameSpinBox::wheelEvent(QWheelEvent *event)
+{
+    const int val = value();
+
+    QSpinBox::wheelEvent(event);
+
+    if (val != value()) {
+        emit wheelValueChanged(value());
+    }
+}

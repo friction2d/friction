@@ -24,6 +24,7 @@
 #include "uilayout.h"
 #include "appsupport.h"
 #include "themesupport.h"
+#include "Private/esettings.h"
 
 #include <QLabel>
 #include <QPushButton>
@@ -181,8 +182,16 @@ void UIDock::addWidget(QWidget *widget)
 void UIDock::writeSettings()
 {
     qDebug() << "==> write dock conf" << mLabel << mPos << mIndex;
-    AppSupport::setSettings(UI_CONF_GROUP, QString(UI_CONF_KEY_POS).arg(getId()), mPos);
-    AppSupport::setSettings(UI_CONF_GROUP, QString(UI_CONF_KEY_INDEX).arg(getId()), mIndex);
+    if (eSettings::instance().fRestoreDefaultUi) {
+        AppSupport::clearSettings(UI_CONF_GROUP);
+        return;
+    }
+    AppSupport::setSettings(UI_CONF_GROUP,
+                            QString(UI_CONF_KEY_POS).arg(getId()),
+                            mPos);
+    AppSupport::setSettings(UI_CONF_GROUP,
+                            QString(UI_CONF_KEY_INDEX).arg(getId()),
+                            mIndex);
 }
 
 UILayout::UILayout(QWidget *parent)

@@ -47,6 +47,9 @@ public:
         QString script;
     };
     explicit AppSupport(QObject *parent = nullptr);
+    static void clearSettings(const QString &group);
+    static void clearSettings(QSettings *settings,
+                              const QString &group);
     static QVariant getSettings(const QString &group,
                                 const QString &key,
                                 const QVariant &fallback = QVariant());
@@ -140,6 +143,7 @@ public:
     static const QString filterId(const QString &input);
     static const QColor adjustColorVisibility(const QColor &color,
                                               const QColor &background);
+    static void setFont(const QString &path);
 };
 
 #endif // APPSUPPORT_H

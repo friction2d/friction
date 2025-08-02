@@ -101,6 +101,7 @@ private:
     void resumePreview();
     void setStepPreviewStop(const bool pause = false);
     void setStepPreviewStart();
+    void gotoFrame(int frame);
 
     void updateButtonsVisibility(const CanvasMode mode);
 

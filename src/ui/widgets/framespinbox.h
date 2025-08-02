@@ -39,6 +39,12 @@ public:
     QString textFromValue(int value) const override;
     void fixup(QString &str) const override;
 
+signals:
+    void wheelValueChanged(int value);
+
+protected:
+    void wheelEvent(QWheelEvent *event) override;
+
 private:
     bool mDisplayTimecode = false;
     qreal mFps = 0;
