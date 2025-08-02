@@ -290,6 +290,11 @@ QToolButton::menu-button {
     background-color: transparent;
 }
 
+QToolBar#ToolControls QWidget[isSpacer="true"] {
+    min-width: %10px;
+    max-width: %10px;
+}
+
 QPushButton::menu-indicator,
 QToolButton#ToolButton::menu-indicator,
 QToolButton#FlatButton::menu-indicator { width: 0px; }

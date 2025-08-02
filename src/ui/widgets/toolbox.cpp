@@ -312,6 +312,10 @@ void ToolBox::setupNodesAction(const QIcon &icon,
 
 void ToolBox::setupNodesActions()
 {
+    auto* spacerNodes = new QWidget(mControls);
+    spacerNodes->setProperty("isSpacer", true);
+    QAction* spacerAct = mControls->addWidget(spacerNodes);
+    mGroupNodes->addAction(spacerAct);
     mControls->addAction(mGroupNodes->addAction(QIcon::fromTheme("pointTransform"),
                                                 tr("Nodes")));
 

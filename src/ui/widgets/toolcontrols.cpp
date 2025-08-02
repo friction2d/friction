@@ -215,38 +215,59 @@ void ToolControls::setupTransform()
     mTransformPY = new QrealAnimatorValueSlider(nullptr, this);
     mTransformOX = new QrealAnimatorValueSlider(nullptr, this);
 
+    auto* spacerMove = new QWidget(this);
+    spacerMove->setProperty("isSpacer", true);
+    mTransformMove->addAction(addWidget(spacerMove));
     mTransformMove->addAction(addAction(QIcon::fromTheme("boxTransform"),
                                         tr("Move")));
     mTransformMove->addAction(addWidget(mTransformX));
     mTransformMove->addAction(addSeparator());
     mTransformMove->addAction(addWidget(mTransformY));
 
+    auto* spacerRotate = new QWidget(this);
+    spacerRotate->setProperty("isSpacer", true);
+    mTransformRotate->addAction(addWidget(spacerRotate));
     mTransformRotate->addAction(addAction(QIcon::fromTheme("loop3"),
                                           tr("Rotate")));
     mTransformRotate->addAction(addWidget(mTransformR));
 
+    auto* spacerScale = new QWidget(this);
+    spacerScale->setProperty("isSpacer", true);
+    mTransformScale->addAction(addWidget(spacerScale));
     mTransformScale->addAction(addAction(QIcon::fromTheme("fullscreen"),
                                          tr("Scale")));
     mTransformScale->addAction(addWidget(mTransformSX));
     mTransformScale->addAction(addSeparator());
     mTransformScale->addAction(addWidget(mTransformSY));
 
+    auto* spacerPivot = new QWidget(this);
+    spacerPivot->setProperty("isSpacer", true);
+    mTransformPivot->addAction(addWidget(spacerPivot));
     mTransformPivot->addAction(addAction(QIcon::fromTheme("pivot"),
                                          tr("Pivot")));
     mTransformPivot->addAction(addWidget(mTransformPX));
     mTransformPivot->addAction(addSeparator());
     mTransformPivot->addAction(addWidget(mTransformPY));
 
+    auto* spacerOpacity = new QWidget(this);
+    spacerOpacity->setProperty("isSpacer", true);
+    mTransformOpacity->addAction(addWidget(spacerOpacity));
     mTransformOpacity->addAction(addAction(QIcon::fromTheme("alpha"),
                                            tr("Opacity")));
     mTransformOpacity->addAction(addWidget(mTransformOX));
 
+    auto* spacerBottomRight = new QWidget(this);
+    spacerBottomRight->setProperty("isSpacer", true);
+    mTransformBottomRight->addAction(addWidget(spacerBottomRight));
     mTransformBottomRight->addAction(addAction(QIcon::fromTheme("rectCreate"),
                                               tr("Rectangle")));
     mTransformBottomRight->addAction(addWidget(mTransformBX));
     mTransformBottomRight->addAction(addSeparator());
     mTransformBottomRight->addAction(addWidget(mTransformBY));
 
+    auto* spacerRadius = new QWidget(this);
+    spacerRadius->setProperty("isSpacer", true);
+    mTransformRadius->addAction(addWidget(spacerRadius));
     mTransformRadius->addAction(addAction(QIcon::fromTheme("circleCreate"),
                                           tr("Radius")));
     mTransformRadius->addAction(addWidget(mTransformRX));
