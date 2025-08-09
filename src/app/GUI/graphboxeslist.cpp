@@ -639,3 +639,36 @@ void KeysView::graphUpdateAfterKeysChanged() {
     graphResetValueScaleAndMinShown();
     graphUpdateDimensions();
 }
+
+void KeysView::keyframeZoomHorizontalAction()
+{
+    if (!mCurrentScene) { return; }
+    
+    FrameRange range;
+    if (!mSelectedKeysAnimators.isEmpty()) {
+        int minFrame = INT_MAX;
+        int maxFrame = INT_MIN;
+        
+        for (const auto& anim : mSelectedKeysAnimators) {
+            const int animMin = anim->anim_getLowestAbsFrameForSelectedKey(); 
+            const int animMax = anim->anim_getHighestAbsFrameForSelectedKey();
+            
+            if (animMin < minFrame) { minFrame = animMin; }
+            if (animMax > maxFrame) { maxFrame = animMax; }
+        }
+        
+        if (minFrame != INT_MAX && maxFrame != INT_MIN && minFrame < maxFrame) {
+            range = {minFrame, maxFrame};
+        } else {
+            range = mCurrentScene->getFrameRange();
+        }
+    } else {
+        range = mCurrentScene->getFrameRange(); 
+    }
+
+    const int padding = 2;
+    const FrameRange newRange = {range.fMin - padding, range.fMax + padding};
+    setFramesRange(newRange);
+    emit changedViewedFrames(newRange);
+    update();
+}

@@ -25,6 +25,8 @@
 
 #include "GUI/BoxesList/boxscrollwidget.h"
 
+using namespace Friction;
+
 void MainWindow::setupMenuExtras()
 {
     const auto menu = new QMenu(this);
@@ -648,6 +650,7 @@ void MainWindow::setupMenuExtras()
 
 void MainWindow::setupPropertiesActions()
 {
+    mViewMenu->addSeparator();
     const auto menu = mViewMenu->addMenu(QIcon::fromTheme("filter"),
                                          tr("Properties Filter"));
     const int defaultRule = AppSupport::getSettings("ui",

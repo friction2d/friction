@@ -111,7 +111,7 @@ ExportSvgDialog::ExportSvgDialog(QWidget* const parent,
     mBlendMix = new QCheckBox(tr("Mix Blend Modes"), this);
     mBlendMix->setChecked(AppSupport::getSettings("exportSVG",
                                                   "blendMix",
-                                                  false).toBool());
+                                                  true).toBool());
 
     connect(mBackground, &QCheckBox::stateChanged,
             this, [this] {

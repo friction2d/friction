@@ -268,6 +268,25 @@ static AVFrame *getVideoFrame(OutputStream * const ost,
     }
     SkPixmap pixmap;
     image->peekPixels(&pixmap);
+
+    // check if we need to convert to "unpremultiplied"
+    const bool unpremul = c->codec_id == AV_CODEC_ID_PNG; // for now only check for PNG
+    if (unpremul) {
+        SkImageInfo unpremulInfo = SkImageInfo::Make(pixmap.width(),
+                                                     pixmap.height(),
+                                                     kRGBA_8888_SkColorType,
+                                                     kUnpremul_SkAlphaType,
+                                                     pixmap.info().refColorSpace());
+        SkBitmap unpremulBitmap;
+        if (unpremulBitmap.tryAllocPixels(unpremulInfo)) {
+            const bool converted = image->readPixels(unpremulInfo,
+                                                     unpremulBitmap.getPixels(),
+                                                     unpremulBitmap.rowBytes(),
+                                                     0, 0);
+            if (converted) { unpremulBitmap.peekPixels(&pixmap); }
+        }
+    }
+
     const uint8_t * const dstSk[] = {static_cast<uint8_t*>(pixmap.writable_addr())};
     int linesizesSk[4];
 

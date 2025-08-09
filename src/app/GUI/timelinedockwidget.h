@@ -93,6 +93,7 @@ public:
 private:
     void setLoop(const bool loop);
     void interruptPreview();
+    void jumpToIntermediateFrame(bool forward);
 
     void playPreview();
     void renderPreview();
@@ -100,6 +101,7 @@ private:
     void resumePreview();
     void setStepPreviewStop(const bool pause = false);
     void setStepPreviewStart();
+    void gotoFrame(int frame);
 
     void updateButtonsVisibility(const CanvasMode mode);
 

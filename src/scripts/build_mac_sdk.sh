@@ -28,7 +28,7 @@ NASM_V=2.14.02
 YASM_V=1.3.0
 PKGCONF_V=1.1.0
 
-QT_V=5.15.16_20241121_32be1543
+QT_V=5.15.17_20250607_0825fcb1
 QSCINTILLA_V=2.14.1
 QUAZIP_V=1.5
 
@@ -42,7 +42,7 @@ LSMASH_V=2.14.5
 X264_V=20180806-2245
 X265_V=3.5
 AOM_V=3.6.1
-FFMPEG_V=4.2.10
+FFMPEG_V=4.2.11
 OSX=12.7
 OSX_HOST=`sw_vers -productVersion`
 CPU=`uname -m`
@@ -118,10 +118,10 @@ if [ ! -f "${CMAKE_BIN}" ]; then
     rm -rf ${CMAKE_SRC} || true
     tar xf ${DIST}/ffmpeg/${CMAKE_SRC}.tar.gz
     cd ${CMAKE_SRC}
-    if [ "${OSX_HOST}" = "15.4" ]; then
+    if [ "${CPU}" = "arm64" ]; then
         patch -p0 < ${DIST}/patches/cmake-zlib-macos154.diff
     fi
-    ./configure ${COMMON_CONFIGURE} --parallel=${MKJOBS} -- -DCMAKE_USE_OPENSSL=OFF
+    ./configure ${COMMON_CONFIGURE} --no-system-libs --parallel=${MKJOBS} -- -DCMAKE_USE_OPENSSL=OFF
     make -j${MKJOBS}
     make install
 fi # cmake
@@ -171,10 +171,6 @@ if [ ! -f "${QMAKE_BIN}" ]; then
         tar xf ${DIST}/qt/${QT_SRC}.${SRC_SUFFIX}
     fi
     cd ${QT_SRC}
-    if [ "${OSX_HOST}" = "15.4" ]; then
-        patch -p0 < ${DIST}/patches/qt-zlib-macos154.diff
-        patch -p0 < ${DIST}/patches/qt-libpng-macos154.diff
-    fi
     patch -p0 < ${DIST}/qt/qtbase-macos-versions.diff
     CXXFLAGS="${DEFAULT_CPPFLAGS}" CFLAGS="${DEFAULT_CFLAGS}" \
     ./configure \
@@ -487,6 +483,7 @@ if [ ! -f "${SDK}/lib/pkgconfig/libavcodec.pc" ]; then
     rm -rf ${FFMPEG_SRC} || true
     tar xf ${DIST}/ffmpeg/${FFMPEG_SRC}.tar.xz
     cd ${FFMPEG_SRC}
+    xzcat ${DIST}/ffmpeg/ffmpeg-tiff-assocalpha.diff.xz | patch -p0
     export MACOSX_DEPLOYMENT_TARGET=${OSX}
     CFLAGS="${DEFAULT_CFLAGS}" \
     CXXFLAGS="${DEFAULT_CPPFLAGS}" \

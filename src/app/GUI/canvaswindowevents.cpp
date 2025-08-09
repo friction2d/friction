@@ -97,6 +97,7 @@ void CanvasWindow::zoomInView()
     mViewTransform.translate(canvasSize.width() * 0.5, canvasSize.height() * 0.5);
     mViewTransform.scale(1.1, 1.1);
     mViewTransform.translate(-canvasSize.width() * 0.5, -canvasSize.height() * 0.5);
+    update();
 }
 
 void CanvasWindow::zoomOutView()
@@ -106,6 +107,7 @@ void CanvasWindow::zoomOutView()
     mViewTransform.translate(canvasSize.width() * 0.5, canvasSize.height() * 0.5);
     mViewTransform.scale(0.9, 0.9);
     mViewTransform.translate(-canvasSize.width() * 0.5, -canvasSize.height() * 0.5);
+    update();
 }
 
 bool CanvasWindow::event(QEvent *e)

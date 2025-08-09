@@ -1,2 +1,6 @@
 #!/bin/sh
-for file in *; do echo "SHA256 Checksum: "; sha256sum $file; echo ""; done | gpg --sign --clear-sign
+for file in *; do
+sha256sum ${file} > ${file}.sha256
+sha512sum ${file} > ${file}.sha512
+gpg --detach-sign ${file}
+done

@@ -366,6 +366,7 @@ void RenderInstanceWidget::updateOutputDestinationFromCurrentFormat() {
         div.replace(div.count() - 2, div.at(div.count() - 2) + "%05d");
         outputDst = div.join(".");
     }
+    outputDst = outputDst.trimmed();
     mSettings.setOutputDestination(outputDst);
     mOutputDestinationLineEdit->setText(outputDst);
 }

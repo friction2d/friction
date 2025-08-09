@@ -43,6 +43,7 @@ public:
 signals:
     void valueSet(const qreal value);
     void hoverChanged();
+    void tabPressed();
 protected:
     void mousePressEvent(QMouseEvent* e) override;
     void keyPressEvent(QKeyEvent *e) override;
@@ -75,6 +76,7 @@ public:
     void setNameVisible(const bool nameVisible);
     void setName(const QString& name);
     void setNumberDecimals(const int decimals);
+    void setLineEditFocus();
 
     void fitWidthToContent();
     QString getValueString();
@@ -131,6 +133,7 @@ signals:
     void valueEdited(qreal);
     void editingFinished(qreal);
     void editingCanceled();
+    void tabPressed();
 protected:
     QString valueToText(const qreal value) const;
     qreal getDValueForMouseMove(const int mouseX) const;

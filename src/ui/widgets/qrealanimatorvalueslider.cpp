@@ -69,6 +69,8 @@ QrealAnimatorValueSlider::QrealAnimatorValueSlider(qreal minVal,
                     parent)
 {
     setTarget(animator);
+    connect(this, &QDoubleSlider::tabPressed,
+            this, &QrealAnimatorValueSlider::handleTabPressed);
 }
 
 QrealAnimatorValueSlider::QrealAnimatorValueSlider(QrealAnimator *animator,
@@ -76,6 +78,8 @@ QrealAnimatorValueSlider::QrealAnimatorValueSlider(QrealAnimator *animator,
     : QDoubleSlider(parent)
 {
     setTarget(animator);
+    connect(this, &QDoubleSlider::tabPressed,
+            this, &QrealAnimatorValueSlider::handleTabPressed);
 }
 
 QrealAnimatorValueSlider::QrealAnimatorValueSlider(QWidget *parent)
@@ -105,8 +109,19 @@ QrealAnimator* QrealAnimatorValueSlider::getTransformTargetSibling()
         const auto parent = mTransformTarget->getParent();
         if (const auto qPA = enve_cast<QPointFAnimator*>(parent)) {
             const bool thisX = qPA->getXAnimator() == mTransformTarget;
-            return thisX ? qPA->getYAnimator() :
-                           qPA->getXAnimator();
+            return thisX ? qPA->getYAnimator() : qPA->getXAnimator();
+        }
+    }
+    return nullptr;
+}
+
+QrealAnimator *QrealAnimatorValueSlider::getTargetSibling()
+{
+    if (mTarget) {
+        const auto parent = mTarget->getParent();
+        if (const auto qPA = enve_cast<QPointFAnimator*>(parent)) {
+            const bool thisX = qPA->getXAnimator() == mTarget;
+            return thisX ? qPA->getYAnimator() : qPA->getXAnimator();
         }
     }
     return nullptr;
@@ -140,6 +155,12 @@ bool QrealAnimatorValueSlider::eventFilter(QObject *obj,
                                            QEvent *event)
 {
     return QDoubleSlider::eventFilter(obj, event);
+}
+
+void QrealAnimatorValueSlider::handleTabPressed()
+{
+    const auto other = getTargetSibling();
+    if (other) { emit other->requestWidgetFocus(); }
 }
 
 void QrealAnimatorValueSlider::startTransform(const qreal value)
@@ -306,6 +327,8 @@ void QrealAnimatorValueSlider::setTarget(QrealAnimator * const animator)
                         this, qOverload<>(&QrealAnimatorValueSlider::update));
         conn << connect(animator, &QrealAnimator::expressionChanged,
                         this, &QrealAnimatorValueSlider::targetHasExpressionChanged);
+        conn << connect(animator, &QrealAnimator::requestWidgetFocus,
+                        this, &QDoubleSlider::setLineEditFocus);
 
         setNumberDecimals(animator->getNumberDecimals());
         setValueRange(animator->getMinPossibleValue(),

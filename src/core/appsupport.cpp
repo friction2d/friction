@@ -43,6 +43,7 @@
 #include <QMessageBox>
 #include <QMimeDatabase>
 #include <QMimeType>
+#include <QFontDatabase>
 
 #include <iostream>
 #include <ostream>
@@ -56,6 +57,26 @@ AppSupport::AppSupport(QObject *parent)
     : QObject{parent}
 {
 
+}
+
+void AppSupport::clearSettings(const QString &group)
+{
+    if (AppSupport::isAppPortable()) {
+        QSettings settings(QString("%1/friction.conf").arg(getAppConfigPath()),
+                           QSettings::IniFormat);
+        clearSettings(&settings, group);
+        return;
+    }
+    QSettings settings;
+    clearSettings(&settings, group);
+}
+
+void AppSupport::clearSettings(QSettings *settings,
+                               const QString &group)
+{
+    settings->beginGroup(group);
+    settings->remove(""); // clear all
+    settings->endGroup();
 }
 
 QVariant AppSupport::getSettings(const QString &group,
@@ -1022,14 +1043,14 @@ QPair<bool, int> AppSupport::handleXDGArgs(const bool &isRenderer,
                                            const QStringList &args)
 {
     QPair<bool,int> status(false, 0);
-    if (!AppSupport::isAppPortable() || isRenderer) { return status; }
+    if ((!isAppPortable() && !isAppImage()) || isRenderer) { return status; }
     if (args.contains("--xdg-remove")) {
-        const bool removedXDG = AppSupport::removeXDGDesktopIntegration();
+        const bool removedXDG = removeXDGDesktopIntegration();
         qWarning() << "Removed XDG Integration:" << removedXDG;
         status.first = true;
         status.second = removedXDG ? 0 : -1;
     } else if (args.contains("--xdg-install")) {
-        const bool installedXDG = AppSupport::setupXDGDesktopIntegration();
+        const bool installedXDG = setupXDGDesktopIntegration();
         qWarning() << "Installed XDG Integration:" << installedXDG;
         status.first = true;
         status.second = installedXDG ? 0 : -1;
@@ -1097,4 +1118,37 @@ const QColor AppSupport::adjustColorVisibility(const QColor &color,
         else { return color.lighter(150); }
     }
     return color;
+}
+
+void AppSupport::setFont(const QString &path)
+{
+    if (!QFile::exists(path)) { return; }
+
+    int fontId = QFontDatabase::addApplicationFont(path);
+    if (fontId == -1) { return; }
+
+    QStringList fontFamilies = QFontDatabase::applicationFontFamilies(fontId);
+    if (fontFamilies.isEmpty()) { return; }
+
+    QFont font(fontFamilies.at(0));
+    font.setPointSizeF(QApplication::font().pointSizeF());
+    QApplication::setFont(font);
+}
+
+bool AppSupport::hasOfflineDocs()
+{
+    const QString html = QString("%1/html/index.html").arg(getAppPath());
+    return QFile::exists(html);
+}
+
+QString AppSupport::getOfflineDocs()
+{
+    const QString html = QString("%1/html/index.html").arg(getAppPath());
+    if (QFile::exists(html)) { return html; }
+    return QString();
+}
+
+QString AppSupport::getOnlineDocs()
+{
+    return QString("%1/documentation").arg(getAppUrl());
 }

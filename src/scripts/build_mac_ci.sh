@@ -23,9 +23,14 @@ set -e -x
 CWD=`pwd`
 CPU=`uname -m`
 SDK=1.0.0
+SDK_REV=r2
+
+if [ "${CPU}" = "arm64" ]; then
+    SDK_REV=r3
+fi
 
 URL=https://github.com/friction2d/friction-sdk/releases/download/v${SDK}
-SDK_TAR=friction-sdk-${SDK}-macOS-${CPU}.tar.xz
+SDK_TAR=friction-sdk-${SDK}${SDK_REV}-macOS-${CPU}.tar.xz
 
 if [ ! -d "${CWD}/sdk" ]; then
     curl -OL ${URL}/${SDK_TAR}

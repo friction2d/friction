@@ -39,6 +39,7 @@ AnimationDockWidget::AnimationDockWidget(QWidget *parent,
     , mSmoothButton(nullptr)
     , mCornerButton(nullptr)
     , mFitToHeightButton(nullptr)
+    , mFitToWidthButton(nullptr)
 {
     setObjectName(QString::fromUtf8("animationDockWidget"));
     setSizePolicy(QSizePolicy::Maximum,
@@ -51,6 +52,11 @@ AnimationDockWidget::AnimationDockWidget(QWidget *parent,
     easingButton->setSizePolicy(QSizePolicy::Expanding,
                                 QSizePolicy::Expanding);
     generateEasingActions(easingButton, keysView);
+
+    mFitToWidthButton = new QAction(QIcon::fromTheme("zoom_horizontal"),
+                                    tr("Fit Horizontal"), this);
+    connect(mFitToWidthButton, &QAction::triggered,
+            keysView, &KeysView::keyframeZoomHorizontalAction);
 
     mLineButton = new QAction(QIcon::fromTheme("segmentLine"),
                               tr("Make Segment Line"), this);
@@ -77,7 +83,7 @@ AnimationDockWidget::AnimationDockWidget(QWidget *parent,
     connect(mCornerButton, &QAction::triggered,
             keysView, &KeysView::graphSetCornerCtrlAction);
 
-    mFitToHeightButton = new QAction(QIcon::fromTheme("zoom"),
+    mFitToHeightButton = new QAction(QIcon::fromTheme("zoom_vertical"),
                                      tr("Fit Vertical"), this);
     connect(mFitToHeightButton, &QAction::triggered,
             keysView, &KeysView::graphResetValueScaleAndMinShownAction);
@@ -105,6 +111,7 @@ AnimationDockWidget::AnimationDockWidget(QWidget *parent,
     addAction(mSmoothButton);
     addAction(mCornerButton);
     addAction(mFitToHeightButton);
+    addAction(mFitToWidthButton);
     //addWidget(valueLines);
 
     eSizesUI::widget.add(this, [this](const int size) {

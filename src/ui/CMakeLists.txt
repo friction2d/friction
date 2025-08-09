@@ -105,8 +105,11 @@ set(
     widgets/scenechooser.cpp
     widgets/settingswidget.cpp
     widgets/toolbar.cpp
+    widgets/toolbox.cpp
+    widgets/toolcontrols.cpp
     widgets/twocolumnlayout.cpp
     widgets/uilayout.cpp
+    widgets/toolboxtoolbar.cpp
     widgets/welcomedialog.cpp
     widgets/widgetstack.cpp
     widgets/widgetwrappernode.cpp
@@ -177,10 +180,13 @@ set(
     widgets/scenechooser.h
     widgets/settingswidget.h
     widgets/toolbar.h
+    widgets/toolbox.h
     widgets/toolbutton.h
+    widgets/toolcontrols.h
     widgets/twocolumnlayout.h
     widgets/uilayout.h
     widgets/vlabel.h
+    widgets/toolboxtoolbar.h
     widgets/welcomedialog.h
     widgets/widgetstack.h
     widgets/widgetwrappernode.h

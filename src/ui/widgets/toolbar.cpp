@@ -62,11 +62,35 @@ void ToolBar::updateActions()
     }
 }
 
+QAction *ToolBar::addSpacer(const bool &horizontal,
+                            const bool &fixed,
+                            const int &width,
+                            const int &height)
+{
+    const auto widget = new QWidget(this);
+    if (fixed) {
+        if (width > 0 || height > 0) {
+            if (width > 0) { widget->setFixedWidth(width); }
+            if (height > 0) { widget->setFixedHeight(height); }
+        }
+        else { widget->setProperty("isFixedSpacer", true); };
+    }
+    else {
+        widget->setSizePolicy(horizontal ? QSizePolicy::Expanding : QSizePolicy::Minimum,
+                              horizontal ? QSizePolicy::Minimum : QSizePolicy::Expanding);
+    }
+    return addWidget(widget);
+}
+
 void ToolBar::setup()
 {
 #ifdef Q_OS_MAC
     setStyleSheet(QString("font-size: %1pt;").arg(font().pointSize()));
 #endif
+
+    eSizesUI::widget.add(this, [this](const int size) {
+        this->setIconSize({size, size});
+    });
 
     if (objectName().isEmpty()) {
         setObjectName(windowTitle().replace(" ", "").simplified());

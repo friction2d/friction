@@ -138,6 +138,21 @@ qreal Circle::getCurrentYRadius() {
     return mVerticalRadiusAnimator->getEffectiveYValue();
 }
 
+QPointFAnimator *Circle::getCenterAnimator()
+{
+    return mCenterAnimator.get();
+}
+
+QPointFAnimator *Circle::getHRadiusAnimator()
+{
+    return mHorizontalRadiusAnimator.get();
+}
+
+QPointFAnimator *Circle::getVRadiusAnimator()
+{
+    return mVerticalRadiusAnimator.get();
+}
+
 void Circle::getMotionBlurProperties(QList<Property*> &list) const {
     PathBox::getMotionBlurProperties(list);
     list.append(mHorizontalRadiusAnimator.get());
@@ -161,7 +176,9 @@ void Circle::setCenter(const QPointF &center) {
 #include "Expressions/expression.h"
 #include "svgexporter.h"
 
-void Circle::saveSVG(SvgExporter& exp, DomEleTask* const task) const {
+void Circle::saveSVG(SvgExporter& exp,
+                     DomEleTask* const task) const
+{
     auto& ele = task->initialize("ellipse");
     const auto cX = mCenterAnimator->getXAnimator();
     const auto cY = mCenterAnimator->getYAnimator();
@@ -173,6 +190,44 @@ void Circle::saveSVG(SvgExporter& exp, DomEleTask* const task) const {
     cY->saveQrealSVG(exp, ele, task->visRange(), "cy");
     rX->saveQrealSVG(exp, ele, task->visRange(), "rx");
     rY->saveQrealSVG(exp, ele, task->visRange(), "ry");
+
+    {
+        bool ok = false;
+        const double value = ele.attribute("rx").toDouble(&ok);
+        if (ok && value < 0.) { ele.setAttribute("rx",
+                                                 QString::number(qAbs(value))); }
+    }
+    {
+        bool ok = false;
+        const double value = ele.attribute("ry").toDouble(&ok);
+        if (ok && value < 0.) { ele.setAttribute("ry",
+                                                 QString::number(qAbs(value))); }
+    }
+    {
+        QDomNodeList children = ele.childNodes();
+        for (int i = 0; i < children.count(); ++i) {
+            QDomNode childNode = children.at(i);
+            if (!childNode.isElement()) { continue; }
+            QDomElement childElement = childNode.toElement();
+            if (childElement.tagName() != "animate") { continue; }
+            QString nameAttribute = childElement.attribute("attributeName");
+            if (nameAttribute == "rx" || nameAttribute == "ry") {
+                const QString valuesAttribute = childElement.attribute("values");
+                const QStringList valuesList = valuesAttribute.split(';');
+
+                QStringList newValuesList;
+                for (const QString &valueStr : valuesList) {
+                    const double value = valueStr.toDouble();
+                    newValuesList.append(QString::number(qAbs(value)));
+                }
+
+                const QString newValuesAttribute = newValuesList.join(';');
+                if (newValuesAttribute != valuesAttribute) {
+                    childElement.setAttribute("values", newValuesAttribute);
+                }
+            }
+        }
+    }
 
     savePathBoxSVG(exp, ele, task->visRange());
 }

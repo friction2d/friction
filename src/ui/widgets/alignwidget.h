@@ -6,8 +6,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# the Free Software Foundation, version 3.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -21,38 +20,55 @@
 #
 */
 
-// Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
-
-#ifndef ALIGNWIDGET_H
-#define ALIGNWIDGET_H
+#ifndef FRICTION_ALIGN_WIDGET_H
+#define FRICTION_ALIGN_WIDGET_H
 
 #include "ui_global.h"
 
 #include <QWidget>
 #include <QComboBox>
+#include <QToolBar>
+#include <QPushButton>
 
 #include "canvas.h"
 
-class UI_EXPORT AlignWidget : public QWidget
+namespace Friction
 {
-    Q_OBJECT
+    namespace Ui
+    {
+        class UI_EXPORT AlignWidget : public QWidget
+        {
+            Q_OBJECT
 
-public:
-    explicit AlignWidget(QWidget* const parent = nullptr);
+        public:
+            explicit AlignWidget(QWidget* const parent = nullptr,
+                                 QToolBar* const toolbar = nullptr);
 
-signals:
-    void alignTriggered(const Qt::Alignment,
-                        const AlignPivot,
-                        const AlignRelativeTo);
+        signals:
+            void alignTriggered(const Qt::Alignment,
+                                const AlignPivot,
+                                const AlignRelativeTo);
 
-private:
-    void triggerAlign(const Qt::Alignment align);
-    void setComboBoxItemState(QComboBox *box,
-                              int index,
-                              bool enabled);
+        private:
+            void setup();
+            void setupToolbar();
+            QAction* addAlignAction(const Qt::Alignment &align,
+                                    const QString &icon,
+                                    const QString &title);
+            QPushButton* addAlignButton(const Qt::Alignment &align,
+                                        const QString &icon,
+                                        const QString &title);
+            void connectAlignPivot();
+            void triggerAlign(const Qt::Alignment align);
+            void setComboBoxItemState(QComboBox *box,
+                                      int index,
+                                      bool enabled);
 
-    QComboBox *mAlignPivot;
-    QComboBox *mRelativeTo;
-};
+            QComboBox *mAlignPivot;
+            QComboBox *mRelativeTo;
+            QToolBar *mToolbar;
+        };
+    }
+}
 
-#endif // ALIGNWIDGET_H
+#endif // FRICTION_ALIGN_WIDGET_H

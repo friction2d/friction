@@ -42,7 +42,7 @@ LSMASH_V=2.14.5
 X264_V=20180806-2245
 X265_V=3.5
 AOM_V=3.6.1
-FFMPEG_V=4.2.10
+FFMPEG_V=4.2.11
 
 export PATH="${SDK}/bin:${PATH}"
 export PKG_CONFIG_PATH="${SDK}/lib/pkgconfig"
@@ -278,6 +278,7 @@ if [ ! -f "${SDK}/lib/pkgconfig/libavcodec.pc" ]; then
     rm -rf ${FFMPEG_SRC} || true
     tar xf ${DIST}/ffmpeg/${FFMPEG_SRC}.tar.xz
     cd ${FFMPEG_SRC}
+    patch -p0 < ${DIST}/ffmpeg/ffmpeg-tiff-assocalpha.diff
     CFLAGS="${DEFAULT_CFLAGS}" \
     CXXFLAGS="${DEFAULT_CFLAGS}" \
     LDFLAGS="${DEFAULT_LDFLAGS}" \

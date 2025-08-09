@@ -48,7 +48,8 @@ namespace Friction
         {
             Q_OBJECT
         public:
-            FontsWidget(QWidget *parent = nullptr);
+            FontsWidget(QWidget *parent = nullptr,
+                        const bool toolbar = false);
 
             float fontSize() const;
             QString fontStyle() const;
@@ -84,12 +85,11 @@ namespace Friction
             void afterFamilyChange();
             void afterStyleChange();
 
+            bool mToolbar;
             const QStringList filterFonts();
 
             int mBlockEmit;
             bool mBlockTextUpdate;
-
-            QVBoxLayout *mMainLayout;
 
             QComboBox *mFontFamilyCombo;
             QComboBox *mFontStyleCombo;

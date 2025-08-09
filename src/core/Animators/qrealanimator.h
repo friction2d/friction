@@ -234,6 +234,7 @@ signals:
     void expressionChanged();
     void effectiveValueChanged(qreal);
     void baseValueChanged(qreal);
+    void requestWidgetFocus();
 };
 
 class CORE_EXPORT QrealAction {

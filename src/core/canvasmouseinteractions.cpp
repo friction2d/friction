@@ -96,7 +96,7 @@ void Canvas::addActionsToMenu(QMenu *const menu)
         const auto newScene = Document::sInstance->createNewScene();
         newScene->setCanvasSize(mWidth, mHeight);
         newScene->setFps(mFps);
-        newScene->setFrameRange(mRange);
+        newScene->setFrameRange(mRange, false);
         BoxClipboard::sCopyAndPaste(this, newScene);
         newScene->prp_setNameAction(newScene->prp_getName() + " copy");
     });

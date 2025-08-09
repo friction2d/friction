@@ -29,6 +29,7 @@
 #include <QPalette>
 #include <QList>
 #include <QSize>
+#include <QToolBar>
 
 #include "include/core/SkColor.h"
 
@@ -73,6 +74,9 @@ public:
     static const QSize getIconSize(const int size);
     static bool hasIconSize(const int size);
     static const QSize findClosestIconSize(int iconSize);
+    static void setToolbarButtonStyle(const QString &name,
+                                      QToolBar *bar,
+                                      QAction *act);
 };
 
 #endif // THEMESUPPORT_H

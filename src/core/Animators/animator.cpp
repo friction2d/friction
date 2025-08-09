@@ -703,15 +703,24 @@ void Animator::anim_deleteSelectedKeys() {
     anim_mSelectedKeys.clear();
 }
 
-int Animator::anim_getLowestAbsFrameForSelectedKey() {
+int Animator::anim_getLowestAbsFrameForSelectedKey()
+{
     int lowestKey = FrameRange::EMAX;
-    for(const auto& key : anim_mSelectedKeys) {
+    for (const auto& key : anim_mSelectedKeys) {
         int keyAbsFrame = key->getAbsFrame();
-        if(keyAbsFrame < lowestKey) {
-            lowestKey = keyAbsFrame;
-        }
+        if (keyAbsFrame < lowestKey) { lowestKey = keyAbsFrame; }
     }
     return lowestKey;
+}
+
+int Animator::anim_getHighestAbsFrameForSelectedKey()
+{
+    int highestKey = FrameRange::EMIN;
+    for (const auto& key : anim_mSelectedKeys) {
+        int keyAbsFrame = key->getAbsFrame();
+        if (keyAbsFrame > highestKey) { highestKey = keyAbsFrame; }
+    }
+    return highestKey;
 }
 
 void Animator::saveSVG(SvgExporter& exp,

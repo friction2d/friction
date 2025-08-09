@@ -239,7 +239,7 @@ void Document::readDocumentXML(const QDomDocument& doc,
         newScene->setCanvasSize(width, height);
         newScene->setFps(fps);
         newScene->setClipToCanvas(clip);
-        newScene->setFrameRange(FrameRange{rangeMin, rangeMax});
+        newScene->setFrameRange(FrameRange{rangeMin, rangeMax}, false);
 
         scenes << newScene;
     }

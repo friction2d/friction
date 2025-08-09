@@ -148,6 +148,7 @@ public:
                           const bool startTrans);
 
     QPointF getSelectedBoxesAbsPivotPos();
+    int getSelectedBoxesCount();
     bool isBoxSelectionEmpty() const;
 
     void ungroupSelectedBoxes();
@@ -344,7 +345,8 @@ public:
         return mHeight;
     }
 
-    void setFrameRange(const FrameRange& range);
+    void setFrameRange(const FrameRange& range,
+                       const bool undo = true);
 
     void setFrameIn(const bool enabled,
                     const int frameIn);
@@ -450,6 +452,7 @@ signals:
     void currentPickedColor(const QColor &color);
     void currentHoverColor(const QColor &color);
     void markersChanged();
+    void canvasModeSet(const CanvasMode &mode);
 
 public:
     void makePointCtrlsSymmetric();
@@ -561,6 +564,7 @@ public:
     void duplicateAction();
     void selectAllAction();
     void clearSelectionAction();
+    void finishedAction();
     void rotateSelectedBoxesStartAndFinish(const qreal rotBy,
                                            bool inc = true);
     void scaleSelectedBoxesStartAndFinish(const qreal scaleBy);

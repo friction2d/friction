@@ -19,6 +19,7 @@ friction-unit-tests
 gperftools
 friction-examples
 sfntly
+gn
 "
 
 mkdir -p ${BACKUP_DIR}

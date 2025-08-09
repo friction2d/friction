@@ -2,7 +2,7 @@
 set -e -x
 
 CWD=`pwd`
-VERSION=4.2.10
+VERSION=4.2.11
 BUILD=${CWD}/ffmpeg-friction-${VERSION}-win64
 MXE=${CWD}/usr/x86_64-w64-mingw32.static
 

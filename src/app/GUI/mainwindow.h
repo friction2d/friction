@@ -39,7 +39,7 @@
 #include <QComboBox>
 #include <QTimer>
 
-#include "widgets/fontswidget.h"
+
 #include "Private/Tasks/taskscheduler.h"
 #include "Private/document.h"
 #include "Sound/audiohandler.h"
@@ -48,14 +48,16 @@
 #include "renderhandler.h"
 #include "fileshandler.h"
 #include "ekeyfilter.h"
-#include "GUI/RenderWidgets/renderwidget.h"
-#include "widgets/colortoolbar.h"
-#include "widgets/qdoubleslider.h"
-#include "widgets/canvastoolbar.h"
 #include "window.h"
+#include "GUI/RenderWidgets/renderwidget.h"
+
+#include "widgets/fontswidget.h"
+#include "widgets/toolbar.h"
+#include "widgets/colortoolbar.h"
+#include "widgets/canvastoolbar.h"
 #include "widgets/aboutwidget.h"
 #include "widgets/uilayout.h"
-#include "widgets/toolbar.h"
+#include "widgets/toolbox.h"
 
 class VideoEncoder;
 class RenderWidget;
@@ -86,6 +88,10 @@ public:
     ~MainWindow();
 
     static MainWindow *sGetInstance();
+
+    void setupDocument();
+    void setupImporters();
+    void setupAutoSave();
 
     AnimationDockWidget *getAnimationDockWidget();
     BoxScrollWidget *getObjectSettingsList();
@@ -220,17 +226,11 @@ private:
 
     void handleNewVideoClip(const VideoBox::VideoSpecs &specs);
 
-    void handleCurrentPixelColor(const QColor &color);
-
     TimelineDockWidget *mTimeline;
     RenderWidget *mRenderWidget;
 
     Friction::Ui::ToolBar *mToolbar;
-
-    QActionGroup *mToolBoxGroupMain;
-    QActionGroup *mToolBoxGroupNodes;
-
-    Friction::Ui::ToolBar *mToolBoxMain;
+    Friction::Ui::ToolBox *mToolBox;
 
     UILayout *mUI;
 
@@ -250,18 +250,6 @@ private:
     QAction *mClearSelAct;
     QAction *mAddKeyAct;
 
-    QAction *mActionConnectPointsAct;
-    QAction *mActionDisconnectPointsAct;
-    QAction *mActionMergePointsAct;
-    QAction* mActionNewNodeAct;
-
-    QAction *mActionSymmetricPointCtrlsAct;
-    QAction *mActionSmoothPointCtrlsAct;
-    QAction *mActionCornerPointCtrlsAct;
-
-    QAction *mActionLineAct;
-    QAction *mActionCurveAct;
-
     QAction *mResetZoomAction;
     QAction *mZoomInAction;
     QAction *mZoomOutAction;
@@ -280,25 +268,8 @@ private:
     QAction *mAddToQueAct;
     QAction *mViewFullScreenAct;
 
-    QAction *mLocalPivotAct;
-
-    QToolButton *mNodeVisibility;
-    QAction *mNodeVisibilityAct;
-
     Friction::Ui::FontsWidget *mFontWidget;
     QAction* mFontWidgetAct;
-
-    QAction *mDrawPathAuto;
-    QDoubleSlider *mDrawPathSmooth;
-    QDoubleSlider *mDrawPathMaxError;
-
-    QAction *mToolBoxDrawActLabel1;
-    QAction *mToolBoxDrawActLabel2;
-    QAction *mToolBoxDrawActIcon1;
-    QAction *mToolBoxDrawActIcon2;
-    QAction *mToolBoxDrawActMaxError;
-    QAction *mToolBoxDrawActSmooth;
-    QAction *mToolBoxDrawActSep;
 
     QMenuBar *mMenuBar;
     QMenu *mFileMenu;
@@ -319,19 +290,23 @@ private:
     AudioHandler& mAudioHandler;
     RenderHandler& mRenderHandler;
 
-    LayoutHandler *mLayoutHandler = nullptr;
+    LayoutHandler *mLayoutHandler;
 
     FillStrokeSettingsWidget *mFillStrokeSettings;
 
-    bool mChangedSinceSaving = false;
-    bool mEventFilterDisabled = true;
+    bool mChangedSinceSaving;
+    bool mEventFilterDisabled;
     bool isEnabled();
-    QWidget *mGrayOutWidget = nullptr;
-    bool mDisplayedFillStrokeSettingsUpdateNeeded = false;
+    QWidget *mGrayOutWidget;
+    bool mDisplayedFillStrokeSettingsUpdateNeeded;
 
-    BoxScrollWidget *mObjectSettingsWidget = nullptr;
+    BoxScrollWidget *mObjectSettingsWidget;
     ScrollArea *mObjectSettingsScrollArea;
 
+    void setupMainWidgets();
+    void setupStackWidgets();
+    void setupPropertiesWidgets();
+    void setupLayout();
     void setupToolBar();
     void setupMenuBar();
     void setupMenuScene();
@@ -363,14 +338,6 @@ private:
     Friction::Ui::ColorToolBar *mColorToolBar;
     Friction::Ui::CanvasToolBar *mCanvasToolBar;
 
-    void setupToolBox();
-    void setupToolBoxMain();
-    void setupToolBoxNodes();
-    void setupToolBoxDraw();
-
-    void setEnableToolBoxNodes(const bool &enable);
-    void setEnableToolBoxDraw(const bool &enable);
-
     bool mBackupOnSave;
     bool mAutoSave;
     int mAutoSaveTimeout;
@@ -399,8 +366,7 @@ private:
     void askInstallRenderPresets();
     void askInstallExpressionsPresets();
     void askRestoreFillStrokeDefault();
-
-    QLabel *mColorPickLabel;
+    void askRestoreDefaultUi();
 
     QAction *mToolBarMainAct;
     QAction *mToolBarColorAct;

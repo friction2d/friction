@@ -83,9 +83,11 @@ protected:
     void keyReleaseEvent(QKeyEvent *e);
     bool eventFilter(QObject *obj,
                      QEvent *event);
+    void handleTabPressed();
 
 private:
     QrealAnimator *getTransformTargetSibling();
+    QrealAnimator *getTargetSibling();
     void targetHasExpressionChanged();
 
     QMetaObject::Connection mExprConn;

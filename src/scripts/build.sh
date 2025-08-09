@@ -32,7 +32,7 @@ APPIMG=20240401
 SDK=1.0.0
 URL=https://github.com/friction2d/friction-sdk/releases/download/v${SDK}
 APPIMAGE_TAR=friction-appimage-tools-${APPIMG}.tar.xz
-SDK_TAR=friction-sdk-${SDK}r5-linux-x86_64.tar.xz
+SDK_TAR=friction-sdk-${SDK}r7-linux-x86_64.tar.xz
 SKIA_TAR=skia-friction-${SDK}-f5941b02-linux-x86_64.tar.xz
 
 mkdir -p distfiles/sdk || true
