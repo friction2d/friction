@@ -544,7 +544,7 @@ void MainWindow::setupDocument()
 
 void MainWindow::setupImporters()
 {
-    //ImportHandler::sInstance->addImporter<eXevImporter>();
+    ImportHandler::sInstance->addImporter<eXmlImporter>();
     ImportHandler::sInstance->addImporter<evImporter>();
 
     ImportHandler::sInstance->addImporter<eSvgImporter>();
