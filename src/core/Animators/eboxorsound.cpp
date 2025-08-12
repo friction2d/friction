@@ -175,13 +175,14 @@ void eBoxOrSound::readBoxOrSoundXML(Friction::Core::XmlReadBoxesHandler& boxRead
         doc.setContent(src);
     });
     const auto obj = doc.firstChildElement("Object");
-    const bool hasDurRect = obj.hasAttribute("visRange");
-    if(hasDurRect) {
-        if(!mDurationRectangle) createDurationRectangle();
-        mDurationRectangle->readDurationRectangleXML(obj);
-    }
+
     const Friction::Core::XmlImporter imp(boxReadHandler, fileLoader, objListIdConv, path);
     prp_readPropertyXML(obj, imp);
+
+    if (obj.hasAttribute("visFrameRange")) {
+        if (!mDurationRectangle) { createDurationRectangle(); }
+        mDurationRectangle->readDurationRectangleXML(obj);
+    }
 }
 
 TimelineMovable *eBoxOrSound::anim_getTimelineMovable(
