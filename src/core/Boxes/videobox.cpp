@@ -118,18 +118,25 @@ void VideoBox::readBoundingBox(eReadStream& src) {
     }
 }
 
-QDomElement VideoBox::prp_writePropertyXML_impl(const Friction::Core::XmlExporter& exp) const {
+QDomElement VideoBox::prp_writePropertyXML_impl(const Friction::Core::XmlExporter& exp) const
+{
     auto result = AnimationBox::prp_writePropertyXML_impl(exp);
     const QString& absSrc = mFileHandler.path();
     Friction::Core::XevExportHelpers::setAbsAndRelFileSrc(absSrc, result, exp);
+
+    result.setAttribute("stretch", QString::number(getStretch()));
+
     return result;
 }
 
 void VideoBox::prp_readPropertyXML_impl(const QDomElement& ele,
-                                        const Friction::Core::XmlImporter& imp) {
+                                        const Friction::Core::XmlImporter& imp)
+{
     AnimationBox::prp_readPropertyXML_impl(ele, imp);
     const QString absSrc = Friction::Core::XevExportHelpers::getAbsAndRelFileSrc(ele, imp);
     setFilePathNoRename(absSrc);
+
+    setStretch(ele.attribute("stretch", "0").toDouble());
 }
 
 #include "GUI/edialogs.h"
