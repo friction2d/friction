@@ -1437,19 +1437,48 @@ void Canvas::writeBoxOrSoundXML(const stdsptr<XmlZipFileSaver>& xevFileSaver,
 {
     ContainerBox::writeBoxOrSoundXML(xevFileSaver, objListIdConv, path);
     auto& fileSaver = xevFileSaver->fileSaver();
+
     fileSaver.processText(path + "gradients.xml",
                           [&](QTextStream& stream) {
         QDomDocument doc;
         auto gradients = doc.createElement("Gradients");
         int id = 0;
-        const auto exp = enve::make_shared<Friction::Core::XmlExporter>(
-                    doc, xevFileSaver, objListIdConv, path);
+        const auto exp = enve::make_shared<Friction::Core::XmlExporter>(doc,
+                                                                        xevFileSaver,
+                                                                        objListIdConv,
+                                                                        path);
         for (const auto &grad : mGradients) {
             auto gradient = grad->prp_writePropertyXML(*exp);
             gradient.setAttribute("id", id++);
             gradients.appendChild(gradient);
         }
         doc.appendChild(gradients);
+
+        stream << doc.toString();
+    });
+
+    fileSaver.processText(path + "markers.xml",
+                          [&](QTextStream& stream) {
+        QDomDocument doc;
+        auto markers = doc.createElement("Markers");
+
+        markers.setAttribute("inFrame", QString::number(mIn.frame));
+        markers.setAttribute("inEnabled", QString::number(mIn.enabled));
+        markers.setAttribute("outFrame", QString::number(mOut.frame));
+        markers.setAttribute("outEnabled", QString::number(mOut.enabled));
+
+        const auto exp = enve::make_shared<Friction::Core::XmlExporter>(doc,
+                                                                        xevFileSaver,
+                                                                        objListIdConv,
+                                                                        path);
+        for (auto &mark: mMarkers) {
+            auto marker = exp->createElement("Marker");
+            marker.setAttribute("title", mark.title);
+            marker.setAttribute("frame", QString::number(mark.frame));
+            marker.setAttribute("enabled", QString::number(mark.enabled));
+            markers.appendChild(marker);
+        }
+        doc.appendChild(markers);
 
         stream << doc.toString();
     });
@@ -1460,7 +1489,11 @@ void Canvas::readBoxOrSoundXML(Friction::Core::XmlReadBoxesHandler& boxReadHandl
                                const QString &path,
                                const Friction::Core::RuntimeIdToWriteId& objListIdConv)
 {
-    ContainerBox::readBoxOrSoundXML(boxReadHandler, fileLoader, path, objListIdConv);
+    ContainerBox::readBoxOrSoundXML(boxReadHandler,
+                                    fileLoader,
+                                    path,
+                                    objListIdConv);
+
     fileLoader.process(path + "gradients.xml",
                        [&](QIODevice* const src) {
         QDomDocument doc;
@@ -1470,9 +1503,38 @@ void Canvas::readBoxOrSoundXML(Friction::Core::XmlReadBoxesHandler& boxReadHandl
         for (int i = 0; i < gradients.count(); i++) {
             const auto node = gradients.at(i);
             const auto ele = node.toElement();
-            const Friction::Core::XmlImporter imp(boxReadHandler, fileLoader, objListIdConv, path);
+            const Friction::Core::XmlImporter imp(boxReadHandler,
+                                                  fileLoader,
+                                                  objListIdConv,
+                                                  path);
             createNewGradient()->prp_readPropertyXML(ele, imp);
         }
+    });
+
+    fileLoader.process(path + "markers.xml",
+                       [&](QIODevice* const src) {
+       QDomDocument doc;
+       doc.setContent(src);
+       const auto root = doc.firstChildElement("Markers");
+
+       mIn.enabled = root.attribute("inEnabled").toInt();
+       mIn.frame = root.attribute("inFrame").toInt();
+       mOut.enabled = root.attribute("outEnabled").toInt();
+       mOut.frame = root.attribute("outFrame").toInt();
+       mMarkers.clear();
+
+       const auto markers = root.elementsByTagName("Marker");
+       for (int i = 0; i < markers.count(); i++) {
+           const auto node = markers.at(i);
+           const auto marker = node.toElement();
+
+           const QString title = marker.attribute("title");
+           const int frame = marker.attribute("frame").toInt();
+           const bool enabled = marker.attribute("enabled").toInt();
+
+           if (hasMarker(frame)) { continue; }
+           mMarkers.push_back({title.simplified(), enabled, frame});
+       }
     });
 }
 
