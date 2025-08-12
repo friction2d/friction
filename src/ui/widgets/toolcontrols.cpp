@@ -83,14 +83,25 @@ void ToolControls::setCanvasMode(const CanvasMode &mode)
 
     const bool hasPivot = mTransformPX->hasTarget() && mTransformPY->hasTarget();
     const bool hasOpacity = mTransformOX->hasTarget();
-    mTransformPivot->setVisible(hasPivot && mode == CanvasMode::boxTransform);
-    mTransformOpacity->setVisible(hasOpacity && mode == CanvasMode::boxTransform);
+
+    const bool isBoxMode = mode == CanvasMode::boxTransform;
+    const bool isBoxOrPointMode = isBoxMode || mode == CanvasMode::pointTransform;
 
     const bool hasRadius = mTransformRX->hasTarget() && mTransformRY->hasTarget();
     const bool hasRectangle = mTransformBX->hasTarget() && mTransformBY->hasTarget();
-    const bool showRectangle = mode == CanvasMode::boxTransform ||
-                               mode == CanvasMode::rectCreate;
-    mTransformRadius->setVisible(hasRadius && (showRectangle || mode == CanvasMode::circleCreate));
+
+    const bool showRectangle = isBoxOrPointMode || mode == CanvasMode::rectCreate;
+
+    bool showRadius = showRectangle || mode == CanvasMode::circleCreate;
+
+    // we don't want to show radius in 'point' mode for rectangle
+    if (showRadius && hasRectangle && mode == CanvasMode::pointTransform) {
+        showRadius = false;
+    }
+
+    mTransformPivot->setVisible(hasPivot && isBoxMode);
+    mTransformOpacity->setVisible(hasOpacity && isBoxMode);
+    mTransformRadius->setVisible(hasRadius && showRadius);
     mTransformBottomRight->setVisible(hasRectangle && showRectangle);
 }
 
