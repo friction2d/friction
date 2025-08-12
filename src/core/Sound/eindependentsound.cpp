@@ -179,5 +179,5 @@ void eIndependentSound::prp_readPropertyXML_impl(const QDomElement& ele,
     const QString absSrc = Friction::Core::XevExportHelpers::getAbsAndRelFileSrc(ele, imp);
     if (!absSrc.isEmpty()) { setFilePathNoRename(absSrc); }
 
-    setStretch(ele.attribute("stretch", "0").toDouble());
+    setStretch(ele.attribute("stretch", "1").toDouble());
 }
