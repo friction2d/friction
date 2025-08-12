@@ -45,6 +45,10 @@ public:
     void prp_writeProperty_impl(eWriteStream& dst) const;
     void prp_readProperty_impl(eReadStream& src);
 
+    void prp_readPropertyXML_impl(const QDomElement& ele,
+                                  const Friction::Core::XmlImporter& imp);
+    QDomElement prp_writePropertyXML_impl(const Friction::Core::XmlExporter& exp) const;
+
     void switchVisible();
     void setVisible(const bool visible);
     bool isVisible() const;

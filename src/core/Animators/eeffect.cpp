@@ -63,6 +63,29 @@ void eEffect::prp_readProperty_impl(eReadStream& src)
     }
 }
 
+void eEffect::prp_readPropertyXML_impl(const QDomElement &ele,
+                                       const Friction::Core::XmlImporter &imp)
+{
+    StaticComplexAnimator::prp_readPropertyXML_impl(ele, imp);
+
+    if (ele.hasAttribute("visible")) {
+        mVisible = ele.attribute("visible").toInt();
+    }
+
+    if (ele.hasAttribute("name")) {
+        const QString name = ele.attribute("name");
+        if (!name.isEmpty()) { prp_setName(name); }
+    }
+}
+
+QDomElement eEffect::prp_writePropertyXML_impl(const Friction::Core::XmlExporter &exp) const
+{
+    auto result = StaticComplexAnimator::prp_writePropertyXML_impl(exp);
+    result.setAttribute("visible", QString::number(mVisible));
+    result.setAttribute("name", prp_getName());
+    return result;
+}
+
 void eEffect::switchVisible() {
     setVisible(!mVisible);
 }
