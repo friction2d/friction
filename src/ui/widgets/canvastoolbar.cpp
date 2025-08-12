@@ -135,6 +135,10 @@ void CanvasToolBar::setupResolution()
     mComboResolution = new EditableComboBox(this);
     mComboResolution->setMinimumWidth(75);
     mComboResolution->setFocusPolicy(Qt::ClickFocus);
+    mComboResolution->addItem("500 %");
+    mComboResolution->addItem("400 %");
+    mComboResolution->addItem("300 %");
+    mComboResolution->addItem("200 %");
     mComboResolution->addItem("100 %");
     mComboResolution->addItem("75 %");
     mComboResolution->addItem("50 %");
@@ -191,7 +195,7 @@ void CanvasToolBar::setResolution(QString text,
     if (!target) { return; }
 
     const qreal percent = clamp(text.remove("%").simplified().toDouble(),
-                                1, 200) / 100;
+                                1, 1000) / 100;
 
     target->setResolution(percent);
     Document::sInstance->actionFinished();
