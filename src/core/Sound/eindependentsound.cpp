@@ -166,6 +166,9 @@ QDomElement eIndependentSound::prp_writePropertyXML_impl(const Friction::Core::X
     auto result = eBoxOrSound::prp_writePropertyXML_impl(exp);
     const QString& absSrc = mFileHandler.path();
     Friction::Core::XevExportHelpers::setAbsAndRelFileSrc(absSrc, result, exp);
+
+    result.setAttribute("stretch", QString::number(getStretch()));
+
     return result;
 }
 
@@ -175,4 +178,6 @@ void eIndependentSound::prp_readPropertyXML_impl(const QDomElement& ele,
     eBoxOrSound::prp_readPropertyXML_impl(ele, imp);
     const QString absSrc = Friction::Core::XevExportHelpers::getAbsAndRelFileSrc(ele, imp);
     if (!absSrc.isEmpty()) { setFilePathNoRename(absSrc); }
+
+    setStretch(ele.attribute("stretch", "0").toDouble());
 }
