@@ -25,7 +25,7 @@
 
 #include "Private/document.h"
 
-#include "ReadWrite/xevformat.h"
+#include "ReadWrite/xmlformat.h"
 #include "ReadWrite/evformat.h"
 #include "XML/xmlexporthelpers.h"
 #include "Animators/gradient.h"
@@ -33,6 +33,8 @@
 #include "simpletask.h"
 #include "canvas.h"
 #include "appsupport.h"
+
+using namespace Friction;
 
 void Document::writeBookmarked(eWriteStream &dst) const
 {
@@ -107,7 +109,8 @@ void Document::readScenes(eReadStream& src)
 void Document::writeDoxumentXML(QDomDocument& doc) const
 {
     auto document = doc.createElement("Document");
-    document.setAttribute("format-version", XevFormat::version);
+    document.setAttribute("format-version",
+                          Core::XmlFormat::version);
 
     auto bColors = doc.createElement("ColorBookmarks");
     for (const auto &col : fColors) {
@@ -120,7 +123,7 @@ void Document::writeDoxumentXML(QDomDocument& doc) const
     // REMOVE
     /*auto bBrushes = doc.createElement("BrushBookmarks");
     for(const auto &b : fBrushes) {
-        const auto brush = Friction::Core::XevExportHelpers::brushToElement(b, doc);
+        const auto brush = Core::XevExportHelpers::brushToElement(b, doc);
         bBrushes.appendChild(brush);
     }
     document.appendChild(bBrushes);*/
@@ -147,8 +150,8 @@ void Document::writeDoxumentXML(QDomDocument& doc) const
     doc.appendChild(document);
 }
 
-void Document::writeScenesXML(const std::shared_ptr<Friction::Core::XmlZipFileSaver>& xevFileSaver,
-                              const Friction::Core::RuntimeIdToWriteId& objListIdConv) const
+void Document::writeScenesXML(const std::shared_ptr<Core::XmlZipFileSaver>& xevFileSaver,
+                              const Core::RuntimeIdToWriteId& objListIdConv) const
 {
     int id = 0;
     for (const auto &s : fScenes) {
@@ -157,8 +160,8 @@ void Document::writeScenesXML(const std::shared_ptr<Friction::Core::XmlZipFileSa
     }
 }
 
-void Document::writeXML(const std::shared_ptr<Friction::Core::XmlZipFileSaver>& xevFileSaver,
-                        const Friction::Core::RuntimeIdToWriteId& objListIdConv) const
+void Document::writeXML(const std::shared_ptr<Core::XmlZipFileSaver>& xevFileSaver,
+                        const Core::RuntimeIdToWriteId& objListIdConv) const
 {
     auto& fileSaver = xevFileSaver->fileSaver();
     fileSaver.processText("document.xml", [&](QTextStream& stream) {
@@ -169,7 +172,7 @@ void Document::writeXML(const std::shared_ptr<Friction::Core::XmlZipFileSaver>& 
     writeScenesXML(xevFileSaver, objListIdConv);
 }
 
-void Document::readDocumentXML(Friction::Core::ZipFileLoader& fileLoader,
+void Document::readDocumentXML(Core::ZipFileLoader& fileLoader,
                                QList<Canvas*>& scenes)
 {
     fileLoader.process("document.xml", [&](QIODevice* const src) {
@@ -185,7 +188,7 @@ void Document::readDocumentXML(const QDomDocument& doc,
     const auto document = doc.firstChildElement("Document");
     const QString versionStr = document.attribute("format-version", "");
     if (versionStr.isEmpty()) { RuntimeThrow("No format version specified"); }
-//    const int version = Friction::Core::XmlExportHelpers::stringToInt(versionStr);
+//    const int version = Core::XmlExportHelpers::stringToInt(versionStr);
 
     auto bColors = document.firstChildElement("ColorBookmarks");
     const auto colors = bColors.elementsByTagName("Color");
@@ -207,7 +210,7 @@ void Document::readDocumentXML(const QDomDocument& doc,
         const auto brush = brushes.at(i);
         if(!brush.isElement()) continue;
         const auto brushEle = brush.toElement();
-        const auto brushPtr = Friction::Core::XevExportHelpers::brushFromElement(brushEle);
+        const auto brushPtr = Core::XevExportHelpers::brushFromElement(brushEle);
         if(brushPtr) addBookmarkBrush(brushPtr);
     }*/
 
@@ -220,17 +223,17 @@ void Document::readDocumentXML(const QDomDocument& doc,
         const auto sceneEle = sceneNode.toElement();
 
         const auto resStr = sceneEle.attribute("resolution");
-        const qreal res = Friction::Core::XmlExportHelpers::stringToDouble(resStr);
-        const int frame = Friction::Core::XmlExportHelpers::stringToInt(sceneEle.attribute("frame"));
-        const int width = Friction::Core::XmlExportHelpers::stringToInt(sceneEle.attribute("width"));
-        const int height = Friction::Core::XmlExportHelpers::stringToInt(sceneEle.attribute("height"));
-        const qreal fps = Friction::Core::XmlExportHelpers::stringToDouble(sceneEle.attribute("fps"));
+        const qreal res = Core::XmlExportHelpers::stringToDouble(resStr);
+        const int frame = Core::XmlExportHelpers::stringToInt(sceneEle.attribute("frame"));
+        const int width = Core::XmlExportHelpers::stringToInt(sceneEle.attribute("width"));
+        const int height = Core::XmlExportHelpers::stringToInt(sceneEle.attribute("height"));
+        const qreal fps = Core::XmlExportHelpers::stringToDouble(sceneEle.attribute("fps"));
         const bool clip = sceneEle.attribute("clip") == "true";
         const auto rangeStr = sceneEle.attribute("frameRange", "0 200");
         const auto rangeStrs = rangeStr.split(' ', Qt::SkipEmptyParts);
         if (rangeStrs.count() != 2) { RuntimeThrow("Invalid frame range " + rangeStr); }
-        const int rangeMin = Friction::Core::XmlExportHelpers::stringToInt(rangeStrs[0]);
-        const int rangeMax = Friction::Core::XmlExportHelpers::stringToInt(rangeStrs[1]);
+        const int rangeMin = Core::XmlExportHelpers::stringToInt(rangeStrs[0]);
+        const int rangeMax = Core::XmlExportHelpers::stringToInt(rangeStrs[1]);
 
         const auto newScene = createNewScene();
         newScene->setResolution(res);
@@ -245,10 +248,10 @@ void Document::readDocumentXML(const QDomDocument& doc,
     }
 }
 
-void Document::readScenesXML(Friction::Core::XmlReadBoxesHandler& boxReadHandler,
-                             Friction::Core::ZipFileLoader& fileLoader,
+void Document::readScenesXML(Core::XmlReadBoxesHandler& boxReadHandler,
+                             Core::ZipFileLoader& fileLoader,
                              const QList<Canvas*>& scenes,
-                             const Friction::Core::RuntimeIdToWriteId& objListIdConv)
+                             const Core::RuntimeIdToWriteId& objListIdConv)
 {
     int id = 0;
     for (const auto& scene : scenes) {

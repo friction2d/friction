@@ -6,8 +6,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# the Free Software Foundation, version 3.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -21,20 +20,23 @@
 #
 */
 
-// Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
+#ifndef FRICTION_XML_FORMAT_H
+#define FRICTION_XML_FORMAT_H
 
-#ifndef XEVFORMAT_H
-#define XEVFORMAT_H
-
-namespace XevFormat {
-    enum {
-        initial,
-        fdesign,
-
-        nextVersion
-    };
-
-    const int version = nextVersion - 1;
+namespace Friction
+{
+    namespace Core
+    {
+        namespace XmlFormat
+        {
+            enum {
+                alpha,
+                beta,
+                next
+            };
+            const int version = next - 1;
+        }
+    }
 }
 
-#endif // XEVFORMAT_H
+#endif // FRICTION_XML_FORMAT_H

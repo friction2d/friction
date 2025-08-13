@@ -527,7 +527,7 @@ set(
     ReadWrite/evformat.h
     ReadWrite/ewritestream.h
     ReadWrite/filefooter.h
-    ReadWrite/xevformat.h
+    ReadWrite/xmlformat.h
     Segments/fitcurves.h
     Segments/smoothcurves.h
     ShaderEffects/PropertyCreators/coloranimatorcreator.h
