@@ -6,8 +6,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# the Free Software Foundation, version 3.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -23,13 +22,13 @@
 
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
-#ifndef XML_ZIP_FILE_SAVER_H
-#define XML_ZIP_FILE_SAVER_H
+#ifndef FRICTION_XML_ZIP_FILE_SAVER_H
+#define FRICTION_XML_ZIP_FILE_SAVER_H
 
 #include "core_global.h"
+#include "zipfilesaver.h"
 
 #include <QDir>
-#include "zipfilesaver.h"
 
 namespace Friction
 {
@@ -39,7 +38,7 @@ namespace Friction
         {
         public:
             XmlZipFileSaver();
-            ZipFileSaver& fileSaver() { return mFileSaver; }
+            ZipFileSaver& fileSaver();
             void setPath(const QString& path);
             QString absPathToRelPath(const QString& absPath) const;
 
@@ -51,4 +50,4 @@ namespace Friction
     }
 }
 
-#endif // XML_ZIP_FILE_SAVER_H
+#endif // FRICTION_XML_ZIP_FILE_SAVER_H

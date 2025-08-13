@@ -23,8 +23,8 @@
 
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
-#ifndef XML_IMPORTER_H
-#define XML_IMPORTER_H
+#ifndef FRICTION_XML_IMPORTER_H
+#define FRICTION_XML_IMPORTER_H
 
 #include "core_global.h"
 
@@ -49,8 +49,10 @@ namespace Friction
             void addReadBox(const int readId,
                             BoundingBox * const box);
             BoundingBox *getBoxByReadId(const int readId) const;
+
             using XmlImporterDoneTask = std::function<void(const XmlReadBoxesHandler&)>;
             void addXevImporterDoneTask(const XmlImporterDoneTask& task);
+
         private:
             std::map<int, BoundingBox*> mReadBoxes;
             QList<XmlImporterDoneTask> mDoneTasks;
@@ -65,14 +67,15 @@ namespace Friction
                         const QString& path,
                         const QString& assetsPath = "");
 
-            XmlReadBoxesHandler& getXevReadBoxesHandler() const {
-                return mXevReadBoxesHandler;
-            }
+            XmlReadBoxesHandler& getXevReadBoxesHandler() const;
 
-            const RuntimeIdToWriteId& objListIdConv() const { return mObjectListIdConv; }
+            const RuntimeIdToWriteId& objListIdConv() const;
             XmlImporter withAssetsPath(const QString& path) const;
+
             using Processor = std::function<void(QIODevice* const dst)>;
-            void processAsset(const QString& file, const Processor& func) const;
+            void processAsset(const QString& file,
+                              const Processor& func) const;
+
             QString relPathToAbsPath(const QString& relPath) const;
 
         private:
@@ -85,4 +88,4 @@ namespace Friction
     }
 }
 
-#endif // XML_IMPORTER_H
+#endif // FRICTION_XML_IMPORTER_H

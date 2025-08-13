@@ -82,13 +82,13 @@ void ImageBox::readBoundingBox(eReadStream& src) {
 QDomElement ImageBox::prp_writePropertyXML_impl(const Friction::Core::XmlExporter& exp) const {
     auto result = BoundingBox::prp_writePropertyXML_impl(exp);
     const QString& absSrc = mFileHandler.path();
-    Friction::Core::XevExportHelpers::setAbsAndRelFileSrc(absSrc, result, exp);
+    Friction::Core::XmlExportHelpers::setAbsAndRelFileSrc(absSrc, result, exp);
     return result;
 }
 
 void ImageBox::prp_readPropertyXML_impl(const QDomElement& ele, const Friction::Core::XmlImporter& imp) {
     BoundingBox::prp_readPropertyXML_impl(ele, imp);
-    const QString absSrc = Friction::Core::XevExportHelpers::getAbsAndRelFileSrc(ele, imp);
+    const QString absSrc = Friction::Core::XmlExportHelpers::getAbsAndRelFileSrc(ele, imp);
     setFilePathNoRename(absSrc);
 }
 

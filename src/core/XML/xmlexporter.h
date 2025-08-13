@@ -6,8 +6,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# the Free Software Foundation, version 3.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -23,8 +22,8 @@
 
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
-#ifndef XML_EXPORTER_H
-#define XML_EXPORTER_H
+#ifndef FRICTION_XML_EXPORTER_H
+#define FRICTION_XML_EXPORTER_H
 
 #include "smartPointers/stdselfref.h"
 
@@ -46,7 +45,7 @@ namespace Friction
                         const QString& path,
                         const QString& assetsPath = "");
 
-            const RuntimeIdToWriteId& objListIdConv() const { return mObjectListIdConv; }
+            const RuntimeIdToWriteId& objListIdConv() const;
 
             QDomDocument& doc() const { return mDoc; }
 
@@ -56,7 +55,8 @@ namespace Friction
             QDomText createTextNode(const QString& data) const;
 
             using Processor = std::function<void(QIODevice* const dst)>;
-            void processAsset(const QString& file, const Processor& func,
+            void processAsset(const QString& file,
+                              const Processor& func,
                               const bool compress = true) const;
 
             QString absPathToRelPath(const QString& absPath) const;
@@ -71,4 +71,4 @@ namespace Friction
     }
 }
 
-#endif // XML_EXPORTER_H
+#endif // FRICTION_XML_EXPORTER_H

@@ -6,8 +6,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# the Free Software Foundation, version 3.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -29,7 +28,6 @@
 #include "Paint/simplebrushwrapper.h"
 #include "Paint/brushescontext.h"
 #include "exceptions.h"
-#include "appsupport.h"
 
 using namespace Friction::Core;
 
@@ -132,7 +130,7 @@ int XmlExportHelpers::stringToInt(const QString& string)
     return stringToInt(&string);
 }
 
-QDomElement XevExportHelpers::brushToElement(SimpleBrushWrapper* const brush,
+QDomElement XmlExportHelpers::brushToElement(SimpleBrushWrapper* const brush,
                                              QDomDocument& doc)
 {
     auto ele = doc.createElement("Brush");
@@ -141,7 +139,7 @@ QDomElement XevExportHelpers::brushToElement(SimpleBrushWrapper* const brush,
     return ele;
 }
 
-SimpleBrushWrapper* XevExportHelpers::brushFromElement(const QDomElement& ele)
+SimpleBrushWrapper* XmlExportHelpers::brushFromElement(const QDomElement& ele)
 {
     const QString coll = ele.attribute("collection");
     const QString name = ele.attribute("name");
@@ -168,7 +166,7 @@ QString XmlExportHelpers::matrixToString(const QMatrix& m)
                                         arg(m.dx()).arg(m.dy());
 }
 
-void XevExportHelpers::setAbsAndRelFileSrc(const QString& absSrc,
+void XmlExportHelpers::setAbsAndRelFileSrc(const QString& absSrc,
                                            QDomElement& ele,
                                            const XmlExporter& exp)
 {
@@ -176,7 +174,7 @@ void XevExportHelpers::setAbsAndRelFileSrc(const QString& absSrc,
     ele.setAttribute("absSrc", absSrc);
 }
 
-QString XevExportHelpers::getAbsAndRelFileSrc(const QDomElement& ele,
+QString XmlExportHelpers::getAbsAndRelFileSrc(const QDomElement& ele,
                                               const XmlImporter& imp)
 {
     const auto relSrc = ele.attribute("relSrc");
@@ -190,7 +188,7 @@ QString XevExportHelpers::getAbsAndRelFileSrc(const QDomElement& ele,
     }
 }
 
-bool XevExportHelpers::writeProperty(QDomElement& ele,
+bool XmlExportHelpers::writeProperty(QDomElement& ele,
                                      const XmlExporter& exp,
                                      const QString& name,
                                      Property* const prop)
@@ -201,7 +199,7 @@ bool XevExportHelpers::writeProperty(QDomElement& ele,
     return true;
 }
 
-bool XevExportHelpers::readProperty(const QDomElement& ele,
+bool XmlExportHelpers::readProperty(const QDomElement& ele,
                                     const XmlImporter& imp,
                                     const QString& name,
                                     Property* const prop)

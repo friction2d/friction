@@ -6,8 +6,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# the Free Software Foundation, version 3.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -33,31 +32,51 @@ XmlExporter::XmlExporter(QDomDocument& doc,
                          const std::shared_ptr<Friction::Core::XmlZipFileSaver>& xevFileSaver,
                          const RuntimeIdToWriteId& objListIdConv,
                          const QString& path,
-                         const QString& assetsPath) :
-    mDoc(doc), mFileSaver(xevFileSaver),
-    mObjectListIdConv(objListIdConv),
-    mPath(path), mAssetsPath(assetsPath) {}
+                         const QString& assetsPath)
+    : mDoc(doc)
+    , mFileSaver(xevFileSaver)
+    , mObjectListIdConv(objListIdConv)
+    , mPath(path)
+    , mAssetsPath(assetsPath)
+{
 
-stdsptr<XmlExporter> XmlExporter::withAssetsPath(const QString& path) const {
-    return enve::make_shared<XmlExporter>(
-                mDoc, mFileSaver, mObjectListIdConv,
-                mPath, mAssetsPath + path);
 }
 
-QDomElement XmlExporter::createElement(const QString& tagName) const {
+const RuntimeIdToWriteId &XmlExporter::objListIdConv() const
+{
+    return mObjectListIdConv;
+}
+
+stdsptr<XmlExporter> XmlExporter::withAssetsPath(const QString& path) const
+{
+    return enve::make_shared<XmlExporter>(mDoc,
+                                          mFileSaver,
+                                          mObjectListIdConv,
+                                          mPath,
+                                          mAssetsPath + path);
+}
+
+QDomElement XmlExporter::createElement(const QString& tagName) const
+{
     return mDoc.createElement(tagName);
 }
 
-QDomText XmlExporter::createTextNode(const QString& data) const {
+QDomText XmlExporter::createTextNode(const QString& data) const
+{
     return mDoc.createTextNode(data);
 }
 
-void XmlExporter::processAsset(const QString& file, const Processor& func,
-                               const bool compress) const {
+void XmlExporter::processAsset(const QString& file,
+                               const Processor& func,
+                               const bool compress) const
+{
     auto& fileSaver = mFileSaver->fileSaver();
-    fileSaver.process(mPath + "assets/" + mAssetsPath + file, func, compress);
+    fileSaver.process(mPath + "assets/" + mAssetsPath + file,
+                      func,
+                      compress);
 }
 
-QString XmlExporter::absPathToRelPath(const QString& absPath) const {
+QString XmlExporter::absPathToRelPath(const QString& absPath) const
+{
     return mFileSaver->absPathToRelPath(absPath);
 }

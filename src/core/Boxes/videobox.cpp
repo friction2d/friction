@@ -122,7 +122,7 @@ QDomElement VideoBox::prp_writePropertyXML_impl(const Friction::Core::XmlExporte
 {
     auto result = AnimationBox::prp_writePropertyXML_impl(exp);
     const QString& absSrc = mFileHandler.path();
-    Friction::Core::XevExportHelpers::setAbsAndRelFileSrc(absSrc, result, exp);
+    Friction::Core::XmlExportHelpers::setAbsAndRelFileSrc(absSrc, result, exp);
 
     result.setAttribute("stretch", QString::number(getStretch()));
 
@@ -133,7 +133,7 @@ void VideoBox::prp_readPropertyXML_impl(const QDomElement& ele,
                                         const Friction::Core::XmlImporter& imp)
 {
     AnimationBox::prp_readPropertyXML_impl(ele, imp);
-    const QString absSrc = Friction::Core::XevExportHelpers::getAbsAndRelFileSrc(ele, imp);
+    const QString absSrc = Friction::Core::XmlExportHelpers::getAbsAndRelFileSrc(ele, imp);
     setFilePathNoRename(absSrc);
 
     setStretch(ele.attribute("stretch", "1").toDouble());

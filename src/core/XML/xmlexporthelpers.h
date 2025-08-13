@@ -6,8 +6,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# the Free Software Foundation, version 3.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -23,12 +22,12 @@
 
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
-#ifndef XMLEXPORTHELPERS_H
-#define XMLEXPORTHELPERS_H
+#ifndef FRICTION_XML_EXPORT_HELPERS_H
+#define FRICTION_XML_EXPORT_HELPERS_H
 
-#include "../exceptions.h"
+#include "exceptions.h"
 
-#include "../skia/skiaincludes.h"
+#include "skia/skiaincludes.h"
 
 #include <QDomElement>
 #include <QString>
@@ -54,51 +53,57 @@ namespace Friction
             static int stringToInt(const QString& string);
 
             template <typename T, typename S>
-            static T stringToEnum(const S& string) {
+            static T stringToEnum(const S& string)
+            {
                 const int intVal = stringToInt(string);
                 return static_cast<T>(intVal);
             }
 
             template <typename T, typename S>
-            static T stringToEnum(const S& string, const T min, const T max) {
+            static T stringToEnum(const S& string,
+                                  const T min,
+                                  const T max)
+            {
                 const auto result = stringToEnum<T>(string);
-                if(result < min || result > max)
+                if (result < min || result > max) {
                     RuntimeThrow("Value outside of enum value range");
+                }
                 return result;
             }
 
             template <typename T, typename S>
-            static T stringToEnum(const S& string, const T max) {
+            static T stringToEnum(const S& string,
+                                  const T max)
+            {
                 return stringToEnum(string, 0, max);
             }
 
             static QMatrix stringToMatrix(const QString& str);
             static QString matrixToString(const QMatrix& m);
-        };
 
-        namespace XevExportHelpers
-        {
-            CORE_EXPORT
-            QDomElement brushToElement(SimpleBrushWrapper* const brush,
-                                       QDomDocument& doc);
-            CORE_EXPORT
-            SimpleBrushWrapper* brushFromElement(const QDomElement& ele);
+            static QDomElement brushToElement(SimpleBrushWrapper* const brush,
+                                              QDomDocument& doc);
 
-            CORE_EXPORT
-            void setAbsAndRelFileSrc(const QString& absSrc,
-                                     QDomElement& ele,
-                                     const XmlExporter& exp);
-            CORE_EXPORT
-            QString getAbsAndRelFileSrc(const QDomElement& ele,
-                                        const XmlImporter& imp);
-            CORE_EXPORT
-            bool writeProperty(QDomElement& ele, const XmlExporter& exp,
-                               const QString& name, Property* const prop);
-            CORE_EXPORT
-            bool readProperty(const QDomElement& ele, const XmlImporter& imp,
-                              const QString& name, Property* const prop);
+            static SimpleBrushWrapper* brushFromElement(const QDomElement& ele);
+
+            static void setAbsAndRelFileSrc(const QString& absSrc,
+                                            QDomElement& ele,
+                                            const XmlExporter& exp);
+
+            static QString getAbsAndRelFileSrc(const QDomElement& ele,
+                                               const XmlImporter& imp);
+
+            static bool writeProperty(QDomElement& ele,
+                                      const XmlExporter& exp,
+                                      const QString& name,
+                                      Property* const prop);
+
+            static bool readProperty(const QDomElement& ele,
+                                     const XmlImporter& imp,
+                                     const QString& name,
+                                     Property* const prop);
         };
     }
 }
 
-#endif // XMLEXPORTHELPERS_H
+#endif // FRICTION_XML_EXPORT_HELPERS_H

@@ -6,8 +6,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# the Free Software Foundation, version 3.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -46,11 +45,15 @@ namespace Friction
             void setIoDevice(QIODevice * const src);
 
             using Processor = std::function<void(QIODevice* const dst)>;
-            void process(const QString& file, const Processor& func,
+            void process(const QString& file,
+                         const Processor& func,
                          const bool compress = true);
+
             using TextProcessor = std::function<void(QTextStream& stream)>;
-            void processText(const QString& file, const TextProcessor& func,
+            void processText(const QString& file,
+                             const TextProcessor& func,
                              const bool compress = true);
+
         private:
             QuaZip mZip;
             QuaZipFile mFile;

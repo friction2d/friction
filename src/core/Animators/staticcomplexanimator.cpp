@@ -58,7 +58,7 @@ void StaticComplexAnimator::prp_readPropertyXML_impl(
         const QString tagName = c->prp_tagNameXML();
         const auto path = tagName + "/";
         const auto impc = imp.withAssetsPath(path);
-        Friction::Core::XevExportHelpers::readProperty(ele, impc, tagName, c.get());
+        Friction::Core::XmlExportHelpers::readProperty(ele, impc, tagName, c.get());
     }
 }
 
@@ -69,7 +69,7 @@ void StaticComplexAnimator::writeChildPropertiesXML(
         const QString tagName = c->prp_tagNameXML();
         const auto path = tagName + "/";
         const auto expc = exp.withAssetsPath(path);
-        Friction::Core::XevExportHelpers::writeProperty(prop, *expc, tagName, c.get());
+        Friction::Core::XmlExportHelpers::writeProperty(prop, *expc, tagName, c.get());
     }
 }
 

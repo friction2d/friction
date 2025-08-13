@@ -123,7 +123,7 @@ void Document::writeDoxumentXML(QDomDocument& doc) const
     // REMOVE
     /*auto bBrushes = doc.createElement("BrushBookmarks");
     for(const auto &b : fBrushes) {
-        const auto brush = Core::XevExportHelpers::brushToElement(b, doc);
+        const auto brush = Core::XmlExportHelpers::brushToElement(b, doc);
         bBrushes.appendChild(brush);
     }
     document.appendChild(bBrushes);*/
@@ -210,7 +210,7 @@ void Document::readDocumentXML(const QDomDocument& doc,
         const auto brush = brushes.at(i);
         if(!brush.isElement()) continue;
         const auto brushEle = brush.toElement();
-        const auto brushPtr = Core::XevExportHelpers::brushFromElement(brushEle);
+        const auto brushPtr = Core::XmlExportHelpers::brushFromElement(brushEle);
         if(brushPtr) addBookmarkBrush(brushPtr);
     }*/
 
