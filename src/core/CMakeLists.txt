@@ -248,6 +248,8 @@ set(
     XML/xmlimporter.cpp
     XML/xmlzipfilesaver.cpp
     XML/xmlexporthelpers.cpp
+    XML/zipfileloader.cpp
+    XML/zipfilesaver.cpp
     action.cpp
     actions.cpp
     canvas.cpp
@@ -347,8 +349,6 @@ set(
     typemenu.cpp
     themesupport.cpp
     wrappedint.cpp
-    zipfileloader.cpp
-    zipfilesaver.cpp
     outputsettings.cpp
     rendersettings.cpp
     renderinstancesettings.cpp
@@ -527,7 +527,6 @@ set(
     ReadWrite/evformat.h
     ReadWrite/ewritestream.h
     ReadWrite/filefooter.h
-    ReadWrite/xmlformat.h
     Segments/fitcurves.h
     Segments/smoothcurves.h
     ShaderEffects/PropertyCreators/coloranimatorcreator.h
@@ -570,9 +569,12 @@ set(
     TransformEffects/transformeffectmenucreator.h
     XML/runtimewriteid.h
     XML/xmlexporter.h
+    XML/xmlformat.h
     XML/xmlimporter.h
     XML/xmlzipfilesaver.h
     XML/xmlexporthelpers.h
+    XML/zipfileloader.h
+    XML/zipfilesaver.h
     action.h
     actions.h
     canvas.h
@@ -687,8 +689,6 @@ set(
     pointtypemenu.h
     wrappedint.h
     windowsincludes.h
-    zipfileloader.h
-    zipfilesaver.h
     outputsettings.h
     rendersettings.h
     renderinstancesettings.h

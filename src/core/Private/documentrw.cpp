@@ -25,7 +25,7 @@
 
 #include "Private/document.h"
 
-#include "ReadWrite/xmlformat.h"
+#include "XML/xmlformat.h"
 #include "ReadWrite/evformat.h"
 #include "XML/xmlexporthelpers.h"
 #include "Animators/gradient.h"
