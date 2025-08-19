@@ -203,6 +203,9 @@ static void addVideoStream(OutputStream * const ost,
     ost->fStream->time_base = renSettings.fTimeBase;
     c->time_base       = ost->fStream->time_base;
 
+    ost->fStream->r_frame_rate = av_inv_q(renSettings.fTimeBase);
+    ost->fStream->avg_frame_rate = ost->fStream->r_frame_rate;
+
     if (VideoEncoder::isValidProfile(codec,
                                      outSettings.fVideoProfile)) {
         c->profile = outSettings.fVideoProfile;
