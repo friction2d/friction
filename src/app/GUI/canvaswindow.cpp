@@ -312,7 +312,8 @@ void CanvasWindow::mouseMoveEvent(QMouseEvent *event)
 
 void CanvasWindow::wheelEvent(QWheelEvent *event)
 {
-#ifdef Q_OS_MAC
+//#ifdef Q_OS_MAC
+    qWarning() << event->phase();
     const bool alt = event->modifiers() & Qt::AltModifier;
     if (!alt && event->phase() != Qt::NoScrollPhase) {
         if (event->phase() == Qt::ScrollUpdate ||
@@ -333,7 +334,7 @@ void CanvasWindow::wheelEvent(QWheelEvent *event)
     }
     if (event->angleDelta().y() == 0 &&
         event->phase() != Qt::NoScrollPhase) { return; }
-#endif
+//#endif
     if (!mCurrentCanvas) { return; }
     const auto ePos = event->position();
     if (event->angleDelta().y() > 0) {
