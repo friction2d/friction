@@ -115,7 +115,7 @@ bool CanvasWindow::event(QEvent *e)
     if (e->type() == QEvent::ShowToParent) { fitCanvasToSize(); }
     else if (e->type() == QEvent::Show) { KFT_setFocus(); }
     qWarning() << e->type();
-#ifdef Q_OS_MAC
+//#ifdef Q_OS_MAC
     if (e->type() == QEvent::NativeGesture) {
         auto g = dynamic_cast<QNativeGestureEvent*>(e);
         if (g->gestureType() == Qt::ZoomNativeGesture) {
@@ -124,7 +124,7 @@ bool CanvasWindow::event(QEvent *e)
             handleNativeGestures(g);
         }
     }
-#endif
+//#endif
     return QWidget::event(e);
 }
 

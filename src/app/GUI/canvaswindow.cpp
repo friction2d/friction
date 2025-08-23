@@ -579,7 +579,7 @@ bool CanvasWindow::handleSelectAllKeyPress(QKeyEvent* event)
     return true;
 }
 
-#ifdef Q_OS_MAC
+//#ifdef Q_OS_MAC
 bool CanvasWindow::handleNativeGestures(QNativeGestureEvent *event)
 {
     if (!event || !mCurrentCanvas) { return false; }
@@ -594,7 +594,7 @@ bool CanvasWindow::handleNativeGestures(QNativeGestureEvent *event)
     } else { return false; }
     return true;
 }
-#endif
+//#endif
 
 // This does nothing ...
 /*bool CanvasWindow::handleShiftKeysKeyPress(QKeyEvent* event) {

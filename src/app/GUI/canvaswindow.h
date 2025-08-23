@@ -161,9 +161,9 @@ private:
     bool handleStartTransformKeyPress(const eKeyEvent &e);
     bool handleSelectAllKeyPress(QKeyEvent *event);
     //bool handleShiftKeysKeyPress(QKeyEvent *event);
-#ifdef Q_OS_MAC
+//#ifdef Q_OS_MAC
     bool handleNativeGestures(QNativeGestureEvent *event);
-#endif
+//#endif
 
 signals:
     void changeCanvasFrameRange(FrameRange);
