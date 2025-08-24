@@ -395,11 +395,12 @@ void ContainerBox::queTasks() {
     else BoundingBox::queTasks();
 }
 
-void ContainerBox::promoteToLayer() {
-    if(!isGroup()) return;
-    if(!isLink()) mType = eBoxType::layer;
+void ContainerBox::promoteToLayer()
+{
+    if (!isGroup()) { return; }
+    if (!isLink()) { mType = eBoxType::layer; }
     mIsLayer = true;
-    if(prp_getName().contains("Group")) {
+    if (prp_getName().contains("Group")) {
         auto newName  = prp_getName();
         newName.replace("Group", "Layer");
         rename(newName);
@@ -409,7 +410,7 @@ void ContainerBox::promoteToLayer() {
     prp_afterWholeInfluenceRangeChanged();
 
     const auto pLayer = getFirstParentLayer();
-    if(pLayer) {
+    if (pLayer) {
         removeAllChildBoxesWithBlendEffects(pLayer);
         pLayer->afterChildBlendEffectChanged();
     }
@@ -417,7 +418,7 @@ void ContainerBox::promoteToLayer() {
     afterChildBlendEffectChanged();
 
     {
-        prp_pushUndoRedoName("Promote to Layer");
+        prp_pushUndoRedoName(tr("Promote to Layer"));
         UndoRedo ur;
         ur.fUndo = [this]() { demoteToGroup(); };
         ur.fRedo = [this]() { promoteToLayer(); };
@@ -426,11 +427,12 @@ void ContainerBox::promoteToLayer() {
     emit switchedGroupLayer(eBoxType::layer);
 }
 
-void ContainerBox::demoteToGroup() {
-    if(!isLayer()) return;
-    if(!isLink()) mType = eBoxType::group;
+void ContainerBox::demoteToGroup()
+{
+    if (!isLayer()) { return; }
+    if (!isLink()) { mType = eBoxType::group; }
     mIsLayer = false;
-    if(prp_getName().contains("Layer")) {
+    if (prp_getName().contains("Layer")) {
         auto newName  = prp_getName();
         newName.replace("Layer", "Group");
         rename(newName);
@@ -442,13 +444,13 @@ void ContainerBox::demoteToGroup() {
     mBoxesWithBlendEffects.clear();
     clearBlendEffectUI();
     const auto pLayer = getFirstParentLayer();
-    if(pLayer) {
+    if (pLayer) {
         addAllChildBoxesWithBlendEffects(pLayer);
         pLayer->afterChildBlendEffectChanged();
     }
 
     {
-        prp_pushUndoRedoName("Demote to Group");
+        prp_pushUndoRedoName(tr("Demote to Group"));
         UndoRedo ur;
         ur.fUndo = [this]() { promoteToLayer(); };
         ur.fRedo = [this]() { demoteToGroup(); };
@@ -1155,9 +1157,10 @@ void ContainerBox::addContained(const qsptr<eBoxOrSound>& child) {
 }
 
 #include "Sound/esoundlink.h"
-void ContainerBox::insertContained(
-        const int id, const qsptr<eBoxOrSound>& child) {
-    if(child->getParentGroup() == this) {
+
+void ContainerBox::insertContained(const int id, const qsptr<eBoxOrSound>& child)
+{
+    if (child->getParentGroup() == this) {
         const int cId = mContained.indexOf(child);
         moveContainedInList(child.get(), cId, (cId < id ? id - 1 : id));
         return;
@@ -1165,7 +1168,7 @@ void ContainerBox::insertContained(
     child->removeFromParent_k();
 
     const bool isBoxShadow = enve_cast<BlendEffectBoxShadow*>(child.get());
-    if(!isBoxShadow) {
+    if (!isBoxShadow) {
         const QString oldName = child->prp_getName();
         const auto parentScene = getParentScene();
         const auto nameCtxt = parentScene ? parentScene : this;
@@ -1179,27 +1182,27 @@ void ContainerBox::insertContained(
     updateContainedIds(id);
 
     const bool isLink = this->isLink();
-    if(!isLink) {
+    if (!isLink) {
         SWT_addChildAt(child.get(), containedIdToAbstractionId(id));
     }
 
-    if(const auto box = enve_cast<BoundingBox*>(child)) {
+    if (const auto box = enve_cast<BoundingBox*>(child)) {
         updateContainedBoxes();
         connCtx << connect(box, &Property::prp_absFrameRangeChanged,
                            this, &Property::prp_afterChangedAbsRange);
         connCtx << connect(box, &BoundingBox::blendEffectChanged,
                            this, &ContainerBox::afterChildBlendEffectChanged);
         const auto pLayer = mIsLayer ? this : box->getFirstParentLayer();
-        if(pLayer) {
-            if(box->blendEffectsEnabled()) {
+        if (pLayer) {
+            if (box->blendEffectsEnabled()) {
                 pLayer->addBoxWithBlendEffects(box);
             }
-            if(box->isGroup()) {
+            if (box->isGroup()) {
                 const auto cBox = static_cast<ContainerBox*>(box);
                 cBox->addAllChildBoxesWithBlendEffects(pLayer);
             }
         }
-        if(box->hasBlendEffects()) afterChildBlendEffectChanged();
+        if (box->hasBlendEffects()) { afterChildBlendEffectChanged(); }
     }
 
     child->anim_setAbsFrame(anim_getCurrentAbsFrame());
@@ -1208,8 +1211,8 @@ void ContainerBox::insertContained(
     child->prp_afterWholeInfluenceRangeChanged();
     emit insertedObject(id, child.get());
 
-    if(!isLink && !isBoxShadow) {
-        prp_pushUndoRedoName("Insert " + child->prp_getName());
+    if (!isLink && !isBoxShadow) {
+        prp_pushUndoRedoName(tr("Insert ") + child->prp_getName());
         UndoRedo ur;
         ur.fUndo = [this, child]() {
             removeContained(child);
@@ -1233,11 +1236,12 @@ void ContainerBox::removeAllContained() {
     while(mContained.count() > 0) removeContained(mContained.last());
 }
 
-void ContainerBox::removeContainedFromList(const int id) {
+void ContainerBox::removeContainedFromList(const int id)
+{
     const auto child = mContained.takeObjAt(id);
-    if(const auto group = enve_cast<ContainerBox*>(child)) {
+    if (const auto group = enve_cast<ContainerBox*>(child)) {
         const auto pScene = getParentScene();
-        if(group->isCurrentGroup() && pScene) {
+        if (group->isCurrentGroup() && pScene) {
             pScene->setCurrentGroupParentAsCurrentGroup();
         }
     }
@@ -1246,33 +1250,29 @@ void ContainerBox::removeContainedFromList(const int id) {
     child->setParentGroup(nullptr);
     updateContainedIds(id);
 
-    if(const auto box = enve_cast<BoundingBox*>(child)) {
+    if (const auto box = enve_cast<BoundingBox*>(child)) {
         updateContainedBoxes();
         const auto pLayer = mIsLayer ? this : box->getFirstParentLayer();
-        if(pLayer) {
-            if(box->blendEffectsEnabled()) {
+        if (pLayer) {
+            if (box->blendEffectsEnabled()) {
                 pLayer->removeBoxWithBlendEffects(box);
             }
-            if(box->isGroup()) {
+            if (box->isGroup()) {
                 const auto cBox = static_cast<ContainerBox*>(child.get());
                 cBox->removeAllChildBoxesWithBlendEffects(pLayer);
             }
         }
-        if(box->hasBlendEffects()) afterChildBlendEffectChanged();
+        if (box->hasBlendEffects()) { afterChildBlendEffectChanged(); }
         prp_afterWholeInfluenceRangeChanged();
     }
 
     emit removedObject(id, child.get());
 
-    if(!isLink() && !enve_cast<BlendEffectBoxShadow*>(child.get())) {
-        prp_pushUndoRedoName("Remove " + child->prp_getName());
+    if (!isLink() && !enve_cast<BlendEffectBoxShadow*>(child.get())) {
+        prp_pushUndoRedoName(tr("Remove ") + child->prp_getName());
         UndoRedo ur;
-        ur.fUndo = [this, id, child]() {
-            insertContained(id, child);
-        };
-        ur.fRedo = [this, id]() {
-            removeContainedFromList(id);
-        };
+        ur.fUndo = [this, id, child]() { insertContained(id, child); };
+        ur.fRedo = [this, id]() { removeContainedFromList(id); };
         prp_addUndoRedo(ur);
     }
 }
@@ -1341,18 +1341,20 @@ void ContainerBox::decreaseContainedZInList(eBoxOrSound * const child) {
     moveContainedInList(child, index, index - 1);
 }
 
-void ContainerBox::bringContainedToEndList(eBoxOrSound * const child) {
+void ContainerBox::bringContainedToEndList(eBoxOrSound * const child)
+{
     const int index = getContainedIndex(child);
     const auto targetIndex = mContained.count() - 1;
-    if(index == targetIndex) return;
-    prp_pushUndoRedoName("Lower " + child->prp_getName() + " to Bottom");
+    if (index == targetIndex) { return; }
+    prp_pushUndoRedoName(tr("Lower %1 to Bottom").arg(child->prp_getName()));
     moveContainedInList(child, index, targetIndex);
 }
 
-void ContainerBox::bringContainedToFrontList(eBoxOrSound * const child) {
+void ContainerBox::bringContainedToFrontList(eBoxOrSound * const child)
+{
     const int index = getContainedIndex(child);
-    if(index == 0) return;
-    prp_pushUndoRedoName("Raise " + child->prp_getName() + " to Top");
+    if (index == 0) { return; }
+    prp_pushUndoRedoName(tr("Raise %1 to Top").arg(child->prp_getName()));
     moveContainedInList(child, index, 0);
 }
 
@@ -1368,13 +1370,15 @@ void ContainerBox::moveContainedInList(const int from, const int to) {
 }
 
 void ContainerBox::moveContainedInList(eBoxOrSound * const child,
-                                       const int from, const int to) {
+                                       const int from,
+                                       const int to)
+{
     const int boundTo = qBound(0, to, mContained.count() - 1);
     mContained.moveObj(from, boundTo);
     updateContainedIds(qMin(from, boundTo), qMax(from, boundTo));
     SWT_moveChildTo(child, containedIdToAbstractionId(boundTo));
 
-    if(enve_cast<BoundingBox*>(child)) {
+    if (enve_cast<BoundingBox*>(child)) {
         updateContainedBoxes();
         updateUIElementsForBlendEffects();
         planUpdate(UpdateReason::userChange);
@@ -1383,16 +1387,16 @@ void ContainerBox::moveContainedInList(eBoxOrSound * const child,
 
     emit movedObject(from, boundTo, child);
 
-    if(!isLink()) {
-        prp_pushUndoRedoName("Change Z-Index");
+    if (!isLink()) {
+        prp_pushUndoRedoName(tr("Change Z-Index"));
         UndoRedo ur;
         qptr<eBoxOrSound> childQPtr = child;
         ur.fUndo = [this, from, to, childQPtr]() {
-            if(!childQPtr) return;
+            if (!childQPtr) { return; }
             moveContainedInList(childQPtr.data(), to, from);
         };
         ur.fRedo = [this, from, to, childQPtr]() {
-            if(!childQPtr) return;
+            if (!childQPtr) { return; }
             moveContainedInList(childQPtr.data(), from, to);
         };
         prp_addUndoRedo(ur);

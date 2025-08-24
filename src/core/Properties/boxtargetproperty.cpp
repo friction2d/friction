@@ -36,21 +36,18 @@ BoundingBox* BoxTargetProperty::getTarget() const {
     return mTarget_d;
 }
 
-void BoxTargetProperty::setTargetAction(BoundingBox* const box) {
-    if(box == mTarget_d) return;
+void BoxTargetProperty::setTargetAction(BoundingBox* const box)
+{
+    if (box == mTarget_d) { return; }
     const auto oldValue = mTarget_d.get();
     emit setActionStarted(oldValue, box);
     {
-        prp_pushUndoRedoName("Set Box Target");
+        prp_pushUndoRedoName(tr("Set Box Target"));
         UndoRedo ur;
         const qptr<BoundingBox> oldValue = mTarget_d.operator BoundingBox *();
         const qptr<BoundingBox> newValue = box;
-        ur.fUndo = [this, oldValue]() {
-            setTarget(oldValue);
-        };
-        ur.fRedo = [this, newValue]() {
-            setTarget(newValue);
-        };
+        ur.fUndo = [this, oldValue]() { setTarget(oldValue); };
+        ur.fRedo = [this, newValue]() { setTarget(newValue); };
         prp_addUndoRedo(ur);
     }
 

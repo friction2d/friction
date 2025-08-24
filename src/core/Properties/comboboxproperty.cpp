@@ -58,19 +58,16 @@ QString ComboBoxProperty::getCurrentValueName() {
     return mValueNames.at(mCurrentValue);
 }
 
-void ComboBoxProperty::setCurrentValue(const int id) {
-    if(mCurrentValue == id) return;
+void ComboBoxProperty::setCurrentValue(const int id)
+{
+    if (mCurrentValue == id) { return; }
     {
-        prp_pushUndoRedoName("Set " + mValueNames.at(id));
+        prp_pushUndoRedoName(tr("Set ") + mValueNames.at(id));
         UndoRedo ur;
         const auto oldValue = mCurrentValue;
         const auto newValue = id;
-        ur.fUndo = [this, oldValue]() {
-            setCurrentValue(oldValue);
-        };
-        ur.fRedo = [this, newValue]() {
-            setCurrentValue(newValue);
-        };
+        ur.fUndo = [this, oldValue]() { setCurrentValue(oldValue); };
+        ur.fRedo = [this, newValue]() { setCurrentValue(newValue); };
         prp_addUndoRedo(ur);
     }
     mCurrentValue = id;

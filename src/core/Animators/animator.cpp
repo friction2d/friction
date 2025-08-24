@@ -247,32 +247,26 @@ void Animator::anim_deleteCurrentKeyAction() {
         anim_removeKeyAction(anim_mKeyOnCurrentFrame->ref<Key>());
 }
 
-void Animator::anim_appendKeyAction(const stdsptr<Key>& newKey) {
+void Animator::anim_appendKeyAction(const stdsptr<Key>& newKey)
+{
     anim_appendKey(newKey);
     {
-        prp_pushUndoRedoName("Add Key");
+        prp_pushUndoRedoName(tr("Add Key"));
         UndoRedo ur;
-        ur.fUndo = [this, newKey]() {
-            anim_removeKey(newKey);
-        };
-        ur.fRedo = [this, newKey]() {
-            anim_appendKey(newKey);
-        };
+        ur.fUndo = [this, newKey]() { anim_removeKey(newKey); };
+        ur.fRedo = [this, newKey]() { anim_appendKey(newKey); };
         prp_addUndoRedo(ur);
     }
 }
 
-void Animator::anim_removeKeyAction(const stdsptr<Key> newKey) {
+void Animator::anim_removeKeyAction(const stdsptr<Key> newKey)
+{
     anim_removeKey(newKey);
     {
-        prp_pushUndoRedoName("Remove Key");
+        prp_pushUndoRedoName(tr("Remove Key"));
         UndoRedo ur;
-        ur.fUndo = [this, newKey]() {
-            anim_appendKey(newKey);
-        };
-        ur.fRedo = [this, newKey]() {
-            anim_removeKey(newKey);
-        };
+        ur.fUndo = [this, newKey]() { anim_appendKey(newKey); };
+        ur.fRedo = [this, newKey]() { anim_removeKey(newKey); };
         prp_addUndoRedo(ur);
     }
 }
@@ -379,19 +373,16 @@ void Animator::anim_setRecordingWithoutChangingKeys(const bool rec) {
     anim_setRecordingValue(rec);
 }
 
-void Animator::anim_setRecordingValue(const bool rec) {
-    if(rec == anim_mIsRecording) return;
+void Animator::anim_setRecordingValue(const bool rec)
+{
+    if (rec == anim_mIsRecording) { return; }
     {
-        prp_pushUndoRedoName("Set Recording");
+        prp_pushUndoRedoName(tr("Set Recording"));
         UndoRedo ur;
         const auto oldValue = anim_mIsRecording;
         const auto newValue = rec;
-        ur.fUndo = [this, oldValue]() {
-            anim_setRecordingValue(oldValue);
-        };
-        ur.fRedo = [this, newValue]() {
-            anim_setRecordingValue(newValue);
-        };
+        ur.fUndo = [this, oldValue]() { anim_setRecordingValue(oldValue); };
+        ur.fRedo = [this, newValue]() { anim_setRecordingValue(newValue); };
         prp_addUndoRedo(ur);
     }
     anim_mIsRecording = rec;

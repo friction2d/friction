@@ -76,19 +76,17 @@ public:
         menu->addPlainAction(QIcon::fromTheme("trash"), tr("Clear"), dOp)->setEnabled(this->ca_getNumberOfChildren());
     }
 
-    void insertChild(const qsptr<T>& child, const int index) {
+    void insertChild(const qsptr<T>& child,
+                     const int index)
+    {
         clearOldParent(child);
         ca_insertChild(child, index);
 
         {
-            prp_pushUndoRedoName("Insert " + child->prp_getName());
+            prp_pushUndoRedoName(tr("Insert ") + child->prp_getName());
             UndoRedo ur;
-            ur.fUndo = [this, child]() {
-                removeChild(child);
-            };
-            ur.fRedo = [this, child, index]() {
-                insertChild(child, index);
-            };
+            ur.fUndo = [this, child]() { removeChild(child); };
+            ur.fRedo = [this, child, index]() { insertChild(child, index); };
             prp_addUndoRedo(ur);
         }
     }
@@ -104,19 +102,16 @@ public:
         insertChild(newChild, ca_getNumberOfChildren());
     }
 
-    void removeChild(const qsptr<T>& child) {
+    void removeChild(const qsptr<T>& child)
+    {
         const int index = ca_getChildPropertyIndex(child.get());
         ca_removeChild(child);
 
         {
-            prp_pushUndoRedoName("Remove " + child->prp_getName());
+            prp_pushUndoRedoName(tr("Remove ") + child->prp_getName());
             UndoRedo ur;
-            ur.fUndo = [this, child, index]() {
-                insertChild(child, index);
-            };
-            ur.fRedo = [this, child]() {
-                removeChild(child);
-            };
+            ur.fUndo = [this, child, index]() { insertChild(child, index); };
+            ur.fRedo = [this, child]() { removeChild(child); };
             prp_addUndoRedo(ur);
         }
     }
@@ -138,18 +133,16 @@ public:
             addChild(from->takeChildAt(i));
     }
 
-    void swapChildren(const int id1, const int id2) {
+    void swapChildren(const int id1,
+                      const int id2)
+    {
         ca_swapChildren(id1, id2);
 
         {
-            prp_pushUndoRedoName("Swap");
+            prp_pushUndoRedoName(tr("Swap"));
             UndoRedo ur;
-            ur.fUndo = [this, id1, id2]() {
-                swapChildren(id2, id1);
-            };
-            ur.fRedo = [this, id1, id2]() {
-                swapChildren(id1, id2);
-            };
+            ur.fUndo = [this, id1, id2]() { swapChildren(id2, id1); };
+            ur.fRedo = [this, id1, id2]() { swapChildren(id1, id2); };
             prp_addUndoRedo(ur);
         }
     }
@@ -162,17 +155,14 @@ public:
         restoreOrder(mSavedOrder);
     }
 
-    void finishOrder() {
-        prp_pushUndoRedoName("Reorder");
+    void finishOrder()
+    {
+        prp_pushUndoRedoName(tr("Reorder"));
         UndoRedo ur;
         const auto oldValue = mSavedOrder;
         const auto newValue = ca_getChildren();
-        ur.fUndo = [this, oldValue]() {
-            restoreOrder(oldValue);
-        };
-        ur.fRedo = [this, newValue]() {
-            restoreOrder(newValue);
-        };
+        ur.fUndo = [this, oldValue]() { restoreOrder(oldValue); };
+        ur.fRedo = [this, newValue]() { restoreOrder(newValue); };
         prp_addUndoRedo(ur);
     }
 

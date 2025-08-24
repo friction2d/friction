@@ -408,29 +408,26 @@ void eBoxOrSound::selectionChangeTriggered(const bool shiftPressed) {
     }
 }
 
-void eBoxOrSound::setVisible(const bool visible) {
-    if(mVisible == visible) return;
-    if(!isLink()) {
-        if(enve_cast<eSound*>(this)) {
-            prp_pushUndoRedoName(visible ? "Mute" : "Unmute");
-        } else prp_pushUndoRedoName(visible ? "Hide" : "Show");
+void eBoxOrSound::setVisible(const bool visible)
+{
+    if (mVisible == visible) { return; }
+    if (!isLink()) {
+        if (enve_cast<eSound*>(this)) {
+            prp_pushUndoRedoName(visible ? tr("Mute") : tr("Unmute"));
+        } else { prp_pushUndoRedoName(visible ? tr("Hide") : tr("Show")); }
         UndoRedo ur;
         const auto oldValue = mVisible;
         const auto newValue = visible;
-        ur.fUndo = [this, oldValue]() {
-            setVisible(oldValue);
-        };
-        ur.fRedo = [this, newValue]() {
-            setVisible(newValue);
-        };
+        ur.fUndo = [this, oldValue]() { setVisible(oldValue); };
+        ur.fRedo = [this, newValue]() { setVisible(newValue); };
         prp_addUndoRedo(ur);
     }
     mVisible = visible;
 
-    if(hasDurationRectangle() && enve_cast<BoundingBox*>(this)) {
+    if (hasDurationRectangle() && enve_cast<BoundingBox*>(this)) {
         const auto updateRange = prp_absInfluenceRange().adjusted(-1, 1);
         prp_afterChangedAbsRange(updateRange, false);
-    } else prp_afterWholeInfluenceRangeChanged();
+    } else { prp_afterWholeInfluenceRangeChanged(); }
 
     SWT_scheduleContentUpdate(SWT_BoxRule::visible);
     SWT_scheduleContentUpdate(SWT_BoxRule::hidden);

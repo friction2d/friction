@@ -43,14 +43,15 @@ QList<SmartNodePoint*> Canvas::getSortedSelectedNodes() {
     return nodes;
 }
 
-bool Canvas::connectPoints() {
-    prp_pushUndoRedoName("Connect Nodes");
+bool Canvas::connectPoints()
+{
+    prp_pushUndoRedoName(tr("Connect Nodes"));
     const auto nodes = getSortedSelectedNodes();
     QList<SmartNodePoint*> endNodes;
-    for(const auto& node : nodes) {
-        if(node->isEndPoint()) endNodes.append(node);
+    for (const auto& node : nodes) {
+        if (node->isEndPoint()) { endNodes.append(node); }
     }
-    if(endNodes.count() == 2) {
+    if (endNodes.count() == 2) {
         const auto point1 = endNodes.first();
         const auto point2 = endNodes.last();
         const auto node1 = point1->getTargetNode();
@@ -58,7 +59,7 @@ bool Canvas::connectPoints() {
 
         const auto handler = point1->getHandler();
         const bool success = point2->actionConnectToNormalPoint(point1);
-        if(success) {
+        if (success) {
             clearPointsSelection();
             const int targetId1 = node1->getNodeId();
             const auto sel1 = handler->getPointWithId<SmartNodePoint>(targetId1);
@@ -66,58 +67,61 @@ bool Canvas::connectPoints() {
             const int targetId2 = node2->getNodeId();
             const auto sel2 = handler->getPointWithId<SmartNodePoint>(targetId2);
             addPointToSelection(sel2);
-        } else return false;
+        } else { return false; }
     }
     return true;
 }
 
-void Canvas::disconnectPoints() {
-    prp_pushUndoRedoName("Disconnect Nodes");
+void Canvas::disconnectPoints()
+{
+    prp_pushUndoRedoName(tr("Disconnect Nodes"));
     const auto nodes = getSortedSelectedNodes();
-    for(const auto& node : nodes) {
+    for (const auto& node : nodes) {
         const auto nextPoint = node->getNextPoint();
-        if(!nextPoint || !nextPoint->isSelected()) continue;
+        if (!nextPoint || !nextPoint->isSelected()) { continue; }
         node->actionDisconnectFromNormalPoint(nextPoint);
         break;
     }
     clearPointsSelection();
 }
 
-void Canvas::mergePoints() {
-    prp_pushUndoRedoName("Merge Nodes");
+void Canvas::mergePoints()
+{
+    prp_pushUndoRedoName(tr("Merge Nodes"));
     const auto nodes = getSortedSelectedNodes();
 
-    if(nodes.count() == 2) {
+    if (nodes.count() == 2) {
         const auto firstPoint = nodes.last();
         const auto secondPoint = nodes.first();
 
         const bool ends = firstPoint->isEndPoint() && secondPoint->isEndPoint();
         const bool neigh = firstPoint->getPreviousPoint() == secondPoint ||
                            firstPoint->getNextPoint() == secondPoint;
-        if(!ends && !neigh) return;
-        if(ends) {
+        if (!ends && !neigh) { return; }
+        if (ends) {
             const bool success = connectPoints();
-            if(success) mergePoints();
+            if (success) { mergePoints(); }
             return;
         }
         removePointFromSelection(secondPoint);
         firstPoint->actionMergeWithNormalPoint(secondPoint);
     } else {
-        for(const auto& node : nodes) {
+        for (const auto& node : nodes) {
             const auto nextPoint = node->getNextPoint();
-            if(!nextPoint || !nextPoint->isSelected()) continue;
+            if (!nextPoint || !nextPoint->isSelected()) { continue; }
             node->actionMergeWithNormalPoint(nextPoint);
         }
         clearPointsSelection();
     }
 }
 
-void Canvas::subdivideSegments() {
-    prp_pushUndoRedoName("Subdivide Segments");
+void Canvas::subdivideSegments()
+{
+    prp_pushUndoRedoName(tr("Subdivide Segments"));
     const auto nodes = getSortedSelectedNodes();
-    for(const auto& node : nodes) {
+    for (const auto& node : nodes) {
         const auto nextPoint = node->getNextPoint();
-        if(!nextPoint || !nextPoint->isSelected()) continue;
+        if (!nextPoint || !nextPoint->isSelected()) { continue; }
         NormalSegment(node, nextPoint).divideAtT(0.5);
     }
     clearPointsSelection();
@@ -132,41 +136,47 @@ void Canvas::setPointCtrlsMode(const CtrlsMode mode) {
     }
 }
 
-void Canvas::makeSegmentCurve() {
-    prp_pushUndoRedoName("Make Segments Curves");
+void Canvas::makeSegmentCurve()
+{
+    prp_pushUndoRedoName(tr("Make Segments Curves"));
     QList<SmartNodePoint*> selectedSNodePoints;
-    for(const auto& point : mSelectedPoints_d) {
-        if(point->isSmartNodePoint()) {
+    for (const auto& point : mSelectedPoints_d) {
+        if (point->isSmartNodePoint()) {
             const auto asNodePt = static_cast<SmartNodePoint*>(point);
             selectedSNodePoints.append(asNodePt);
         }
     }
-    for(const auto& selectedPoint : selectedSNodePoints) {
+    for (const auto& selectedPoint : selectedSNodePoints) {
         SmartNodePoint * const nextPoint = selectedPoint->getNextPoint();
         SmartNodePoint * const prevPoint = selectedPoint->getPreviousPoint();
-        if(selectedSNodePoints.contains(nextPoint))
+        if (selectedSNodePoints.contains(nextPoint)) {
             selectedPoint->setC2Enabled(true);
-        if(selectedSNodePoints.contains(prevPoint))
+        }
+        if (selectedSNodePoints.contains(prevPoint)) {
             selectedPoint->setC0Enabled(true);
+        }
     }
 }
 
-void Canvas::makeSegmentLine() {
-    prp_pushUndoRedoName("Make Segments Lines");
+void Canvas::makeSegmentLine()
+{
+    prp_pushUndoRedoName(tr("Make Segments Lines"));
     QList<SmartNodePoint*> selectedSNodePoints;
-    for(const auto& point : mSelectedPoints_d) {
-        if(point->isSmartNodePoint()) {
+    for (const auto& point : mSelectedPoints_d) {
+        if (point->isSmartNodePoint()) {
             auto asNodePt = static_cast<SmartNodePoint*>(point);
             selectedSNodePoints.append(asNodePt);
         }
     }
-    for(const auto& selectedPoint : selectedSNodePoints) {
+    for (const auto& selectedPoint : selectedSNodePoints) {
         SmartNodePoint * const nextPoint = selectedPoint->getNextPoint();
         SmartNodePoint * const prevPoint = selectedPoint->getPreviousPoint();
-        if(selectedSNodePoints.contains(nextPoint))
+        if (selectedSNodePoints.contains(nextPoint)) {
             selectedPoint->setC2Enabled(false);
-        if(selectedSNodePoints.contains(prevPoint))
+        }
+        if (selectedSNodePoints.contains(prevPoint)) {
             selectedPoint->setC0Enabled(false);
+        }
     }
 }
 

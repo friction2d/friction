@@ -154,8 +154,9 @@ void SmartVectorPath::setupCanvasMenu(PropertyMenu * const menu)
     menu->addPlainAction(QIcon::fromTheme("loop2"), tr("Apply Transformation"), op);
 }
 
-void SmartVectorPath::applyCurrentTransform() {
-    prp_pushUndoRedoName("Apply Transform");
+void SmartVectorPath::applyCurrentTransform()
+{
+    prp_pushUndoRedoName(tr("Apply Transform"));
     mNReasonsNotToApplyUglyTransform++;
     const auto transform = mTransformAnimator->getRotScaleShearTransform();
     mPathAnimator->applyTransform(transform);

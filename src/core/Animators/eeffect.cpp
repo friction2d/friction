@@ -90,19 +90,16 @@ void eEffect::switchVisible() {
     setVisible(!mVisible);
 }
 
-void eEffect::setVisible(const bool visible) {
-    if(visible == mVisible) return;
+void eEffect::setVisible(const bool visible)
+{
+    if (visible == mVisible) { return; }
     {
-        prp_pushUndoRedoName(visible ? "Hide Effect" : "Show Effect");
+        prp_pushUndoRedoName(visible ? tr("Hide Effect") : tr("Show Effect"));
         UndoRedo ur;
         const auto oldValue = mVisible;
         const auto newValue = visible;
-        ur.fUndo = [this, oldValue]() {
-            setVisible(oldValue);
-        };
-        ur.fRedo = [this, newValue]() {
-            setVisible(newValue);
-        };
+        ur.fUndo = [this, oldValue]() { setVisible(oldValue); };
+        ur.fRedo = [this, newValue]() { setVisible(newValue); };
         prp_addUndoRedo(ur);
     }
     mVisible = visible;

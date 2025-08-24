@@ -387,8 +387,7 @@ void FrameScrollBar::mousePressEvent(QMouseEvent *event)
                 AppSupport::setSettings("ui", "DisplayTimecode", mDisplayTime);
             } else if (selectedAction == clearFrameOutAct) {
                 if (mCurrentCanvas) {
-                    mCurrentCanvas->setFrameIn(false, 0);
-                    mCurrentCanvas->setFrameOut(false, 0);
+                    mCurrentCanvas->clearFrameInOut();
                 }
             } else if (selectedAction == setFrameInAct) {
                 if (mCurrentCanvas) {

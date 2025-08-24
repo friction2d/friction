@@ -728,14 +728,16 @@ eBoxOrSound *Actions::importFile(const QString &path,
                                  ContainerBox* const target,
                                  const int insertId,
                                  const QPointF &relDropPos,
-                                 const int frame) {
+                                 const int frame)
+{
     const auto scene = target->getParentScene();
     auto block = scene ? scene->blockUndoRedo() :
                          UndoRedoStack::StackBlock();
     qsptr<eBoxOrSound> result;
     const QFile file(path);
-    if(!file.exists())
+    if (!file.exists()) {
         RuntimeThrow("File " + path + " does not exit.");
+    }
 
     QFileInfo fInfo(path);
 
@@ -745,19 +747,19 @@ eBoxOrSound *Actions::importFile(const QString &path,
                                 fInfo.dir().absolutePath());
     }
 
-    if(fInfo.isDir()) {
+    if (fInfo.isDir()) {
         result = createImageSequenceBox(path);
         target->insertContained(insertId, result);
     } else { // is file
         const QString extension = fInfo.suffix();
-        if(isSoundExt(extension)) {
+        if (isSoundExt(extension)) {
             result = createSoundForPath(path);
             target->insertContained(insertId, result);
         } else {
             try {
-                if(isImageExt(extension)) {
+                if (isImageExt(extension)) {
                     result = createImageBox(path);
-                } else if(isVideoExt(extension)) {
+                } else if (isVideoExt(extension)) {
                     result = createVideoForPath(path);
                 } else {
                     result = ImportHandler::sInstance->import(path, scene);
@@ -767,12 +769,12 @@ eBoxOrSound *Actions::importFile(const QString &path,
             }
         }
     }
-    if(result) {
-        if(frame) result->shiftAll(frame);
+    if (result) {
+        if (frame) { result->shiftAll(frame); }
         block.reset();
-        target->prp_pushUndoRedoName("Import File");
+        target->prp_pushUndoRedoName(tr("Import File"));
         target->insertContained(insertId, result);
-        if(const auto importedBox = enve_cast<BoundingBox*>(result)) {
+        if (const auto importedBox = enve_cast<BoundingBox*>(result)) {
             importedBox->planCenterPivotPosition();
             importedBox->startPosTransform();
             importedBox->moveByAbs(relDropPos);
@@ -817,7 +819,7 @@ eBoxOrSound *Actions::importClipboard(const QString &content,
     if (result) {
         if (frame) { result->shiftAll(frame); }
         block.reset();
-        target->prp_pushUndoRedoName("Import from Clipboard");
+        target->prp_pushUndoRedoName(tr("Import from Clipboard"));
         target->insertContained(insertId, result);
         if (const auto importedBox = enve_cast<BoundingBox*>(result)) {
             importedBox->planCenterPivotPosition();

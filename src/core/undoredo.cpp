@@ -139,6 +139,7 @@ bool UndoRedoStack::canRedo() const {
 bool UndoRedoStack::redo() {
     if(!canRedo()) return false;
     stdsptr<UndoRedo_priv> toRedo = mRedoStack.last();
+    // TODO: add setting for frame skip?
     if(mChangeFrameFunc(toRedo->fFrame)) return true;
     mRedoStack.removeLast();
     {
@@ -153,6 +154,7 @@ bool UndoRedoStack::redo() {
 bool UndoRedoStack::undo() {
     if(!canUndo()) return false;
     stdsptr<UndoRedo_priv> toUndo = mUndoStack.last();
+    // TODO: add setting for frame skip?
     if(mChangeFrameFunc(toUndo->fFrame)) return true;
     mUndoStack.removeLast();
     {

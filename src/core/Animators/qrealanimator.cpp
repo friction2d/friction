@@ -275,18 +275,15 @@ QString QrealAnimator::getExpressionScriptString() const {
     return mExpression->scriptString();
 }
 
-void QrealAnimator::setExpressionAction(const qsptr<Expression> &expression) {
+void QrealAnimator::setExpressionAction(const qsptr<Expression> &expression)
+{
     {
-        prp_pushUndoRedoName("Change Expression");
+        prp_pushUndoRedoName(tr("Change Expression"));
         UndoRedo ur;
         const auto oldValue = mExpression.sptr();
         const auto newValue = expression;
-        ur.fUndo = [this, oldValue]() {
-            setExpression(oldValue);
-        };
-        ur.fRedo = [this, newValue]() {
-            setExpression(newValue);
-        };
+        ur.fUndo = [this, oldValue]() { setExpression(oldValue); };
+        ur.fRedo = [this, newValue]() { setExpression(newValue); };
         prp_addUndoRedo(ur);
     }
     setExpression(expression);
@@ -295,7 +292,7 @@ void QrealAnimator::setExpressionAction(const qsptr<Expression> &expression) {
 void QrealAnimator::setExpressionEasingAction(const qsptr<Expression> &expression)
 {
     {
-        prp_pushUndoRedoName("Change Easing");
+        prp_pushUndoRedoName(tr("Change Easing"));
         UndoRedo ur;
         ur.fUndo = [this]() { setExpression(nullptr); };
         ur.fRedo = [this, expression]() { setExpression(expression); };
@@ -379,31 +376,31 @@ void QrealAnimator::applyExpression(const FrameRange& relRange,
                                     const bool easing)
 {
     qDebug() << "applyExpression" << prp_getName() << relRange.fMin << relRange.fMax << accuracy << action << easing;
-    if(!hasValidExpression()) {}
-    else if(!relRange.isValid()) {}
-    else if(isZero4Dec(accuracy) || accuracy < 0) {}
+    if (!hasValidExpression()) {}
+    else if (!relRange.isValid()) {}
+    else if (isZero4Dec(accuracy) || accuracy < 0) {}
     else {
         const int sampleInc = qMax(1, qRound(1/accuracy));
 
-        prp_pushUndoRedoName(easing ? "Apply Easing" : "Apply Expression");
+        prp_pushUndoRedoName(easing ? tr("Apply Easing") : tr("Apply Expression"));
 
         const bool isStatic = mExpression->isStatic();
-        if(isStatic) {
+        if (isStatic) {
             const qreal value = mExpression->evaluate(relRange.fMin).toNumber();
             setCurrentBaseValue(value);
         } else {
             const auto absRange = prp_relRangeToAbsRange(relRange);
             QList<FrameRange> ranges;
-            for(int i = relRange.fMin; i < relRange.fMax; i++) {
+            for (int i = relRange.fMin; i < relRange.fMax; i++) {
                 const int absFrame = absRange.fMin + i - relRange.fMin;
                 const auto nextNonUnary = mExpression->nextNonUnaryIdenticalRelRange(absFrame);
-                if(!nextNonUnary.inRange(i)) {
+                if (!nextNonUnary.inRange(i)) {
                     ranges << relRange*FrameRange{i, nextNonUnary.fMin};
                 }
                 i = nextNonUnary.fMax;
             }
 
-            for(const auto& range : ranges) {
+            for (const auto& range : ranges) {
                 applyExpressionSub(range, sampleInc, action, accuracy);
             }
         }

@@ -60,21 +60,25 @@ void FrameRemappingBase::prp_readPropertyXML_impl(const QDomElement& ele, const 
     setEnabled(enabled == "true");
 }
 
-void FrameRemappingBase::enableAction(const int minFrame, const int maxFrame,
-                                      const int animStartRelFrame) {
-    if(mEnabled) return;
-    prp_pushUndoRedoName("Enable Frame Remapping");
+void FrameRemappingBase::enableAction(const int minFrame,
+                                      const int maxFrame,
+                                      const int animStartRelFrame)
+{
+    if (mEnabled) { return; }
+    prp_pushUndoRedoName(tr("Enable Frame Remapping"));
     setValueRange(minFrame, maxFrame);
-    if(maxFrame > minFrame) {
+    if (maxFrame > minFrame) {
         const int firstValue = minFrame;
         const int firstFrame = animStartRelFrame + minFrame;
-        const auto firstFrameKey = enve::make_shared<QrealKey>(
-                    firstValue, firstFrame, this);
+        const auto firstFrameKey = enve::make_shared<QrealKey>(firstValue,
+                                                               firstFrame,
+                                                               this);
         anim_appendKey(firstFrameKey);
         const int lastValue = maxFrame;
         const int lastFrame = animStartRelFrame + maxFrame;
-        const auto lastFrameKey = enve::make_shared<QrealKey>(
-                    lastValue, lastFrame, this);
+        const auto lastFrameKey = enve::make_shared<QrealKey>(lastValue,
+                                                              lastFrame,
+                                                              this);
         anim_appendKey(lastFrameKey);
     } else {
         setCurrentBaseValue(0);
@@ -82,18 +86,15 @@ void FrameRemappingBase::enableAction(const int minFrame, const int maxFrame,
     setEnabled(true);
 }
 
-void FrameRemappingBase::setEnabled(const bool enabled) {
+void FrameRemappingBase::setEnabled(const bool enabled)
+{
     {
-        prp_pushUndoRedoName("Set Frame Remapping");
+        prp_pushUndoRedoName(tr("Set Frame Remapping"));
         UndoRedo ur;
         const auto oldValue = mEnabled;
         const auto newValue = enabled;
-        ur.fUndo = [this, oldValue]() {
-            setEnabled(oldValue);
-        };
-        ur.fRedo = [this, newValue]() {
-            setEnabled(newValue);
-        };
+        ur.fUndo = [this, oldValue]() { setEnabled(oldValue); };
+        ur.fRedo = [this, newValue]() { setEnabled(newValue); };
         prp_addUndoRedo(ur);
     }
     SWT_setVisible(enabled);

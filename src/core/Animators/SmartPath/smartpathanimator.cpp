@@ -176,9 +176,10 @@ SkPath SmartPathAnimator::getPathAtRelFrame(const qreal frame) {
     return baseValue().getPathAt();
 }
 
-void SmartPathAnimator::actionSetNormalNodeCtrlsMode(
-        const int nodeId, const CtrlsMode mode) {
-    prp_pushUndoRedoName("Set Node Ctrls Mode");
+void SmartPathAnimator::actionSetNormalNodeCtrlsMode(const int nodeId,
+                                                     const CtrlsMode mode)
+{
+    prp_pushUndoRedoName(tr("Set Node Ctrls Mode"));
 
     prp_startTransform();
     getCurrentlyEdited()->actionSetNormalNodeCtrlsMode(nodeId, mode);
@@ -186,9 +187,10 @@ void SmartPathAnimator::actionSetNormalNodeCtrlsMode(
     changed();
 }
 
-void SmartPathAnimator::actionDemoteToDissolved(
-        const int nodeId, const bool approx) {
-    prp_pushUndoRedoName("Demote Node");
+void SmartPathAnimator::actionDemoteToDissolved(const int nodeId,
+                                                const bool approx)
+{
+    prp_pushUndoRedoName(tr("Demote Node"));
 
     prp_startTransform();
     getCurrentlyEdited()->actionDemoteToDissolved(nodeId, approx);
@@ -196,8 +198,9 @@ void SmartPathAnimator::actionDemoteToDissolved(
     changed();
 }
 
-void SmartPathAnimator::actionPromoteToNormal(const int nodeId) {
-    prp_pushUndoRedoName("Promote Node");
+void SmartPathAnimator::actionPromoteToNormal(const int nodeId)
+{
+    prp_pushUndoRedoName(tr("Promote Node"));
 
     prp_startTransform();
     getCurrentlyEdited()->actionPromoteDissolvedNodeToNormal(nodeId);
@@ -245,8 +248,9 @@ const SkPath &SmartPathAnimator::getCurrentPath() {
     return mResultPath;
 }
 
-void SmartPathAnimator::setMode(const SmartPathAnimator::Mode mode) {
-    if(mMode == mode) return;
+void SmartPathAnimator::setMode(const SmartPathAnimator::Mode mode)
+{
+    if (mMode == mode) { return; }
     {
         prp_pushUndoRedoName("Set Path Blend Mode");
         UndoRedo ur;

@@ -921,8 +921,7 @@ void MainWindow::setupMenuScene()
                           tr("Clear In/Out"), this, [this]() {
                               const auto scene = *mDocument.fActiveScene;
                               if (!scene) { return; }
-                              scene->setFrameIn(false, 0);
-                              scene->setFrameOut(false, 0);
+                              scene->clearFrameInOut();
                           });
     mSceneMenu->addSeparator();
     mSceneMenu->addAction(QIcon::fromTheme("markers-add"),

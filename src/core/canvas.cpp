@@ -435,7 +435,7 @@ void Canvas::setCanvasSize(const int width,
 {
     if (width == mWidth && height == mHeight) { return; }
     {
-        prp_pushUndoRedoName("Scene Changed");
+        prp_pushUndoRedoName(tr("Scene Dimension Changed"));
         UndoRedo ur;
         const QSize origSize{mWidth, mHeight};
         const QSize newSize{width, height};
@@ -460,7 +460,7 @@ void Canvas::setFrameRange(const FrameRange &range,
 {
     if (undo) {
         {
-            prp_pushUndoRedoName("Scene Changed");
+            prp_pushUndoRedoName(tr("Frame Range Changed"));
             UndoRedo ur;
             const FrameRange origRange(mRange);
             const FrameRange newRange(range);
@@ -481,18 +481,34 @@ void Canvas::setFrameIn(const bool enabled,
                         const int frameIn)
 {
     if (enabled && mOut.enabled && frameIn >= mOut.frame) { return; }
+    const auto oIn = mIn;
     mIn.enabled = enabled;
     mIn.frame = frameIn;
     emit requestUpdate();
+    {
+        prp_pushUndoRedoName(tr("Frame In Changed"));
+        UndoRedo ur;
+        ur.fUndo = [this, oIn]() { setFrameIn(oIn.enabled, oIn.frame); };
+        ur.fRedo = [this, enabled, frameIn]() { setFrameIn(enabled, frameIn); };
+        prp_addUndoRedo(ur);
+    }
 }
 
 void Canvas::setFrameOut(const bool enabled,
                          const int frameOut)
 {
     if (enabled && mIn.enabled && frameOut <= mIn.frame) { return; }
+    const auto oOut = mOut;
     mOut.enabled = enabled;
     mOut.frame = frameOut;
     emit requestUpdate();
+    {
+        prp_pushUndoRedoName(tr("Frame Out Changed"));
+        UndoRedo ur;
+        ur.fUndo = [this, oOut]() { setFrameOut(oOut.enabled, oOut.frame); };
+        ur.fRedo = [this, enabled, frameOut]() { setFrameOut(enabled, frameOut); };
+        prp_addUndoRedo(ur);
+    }
 }
 
 const FrameMarker Canvas::getFrameIn() const
@@ -505,6 +521,34 @@ const FrameMarker Canvas::getFrameOut() const
     return mOut;
 }
 
+void Canvas::clearFrameInOut()
+{
+    const auto oIn = mIn;
+    const auto oOut = mOut;
+
+    mIn.frame = 0;
+    mIn.enabled = false;
+    mOut.frame = 0;
+    mOut.enabled = false;
+
+    emit requestUpdate();
+    {
+        prp_pushUndoRedoName(tr("Cleared Frame In/Out"));
+        UndoRedo ur;
+        ur.fUndo = [this, oIn, oOut]() { restoreFrameInOut(oIn, oOut); };
+        ur.fRedo = [this]() { clearFrameInOut(); };
+        prp_addUndoRedo(ur);
+    }
+}
+
+void Canvas::restoreFrameInOut(const FrameMarker &frameIn,
+                               const FrameMarker &frameOut)
+{
+    mIn = frameIn;
+    mOut = frameOut;
+    emit requestUpdate();
+}
+
 void Canvas::setMarker(const QString &title,
                        const int frame)
 {
@@ -514,11 +558,16 @@ void Canvas::setMarker(const QString &title,
         } else { removeMarker(frame); }
         return;
     }
-    mMarkers.push_back({title.isEmpty() ?
-                            QString::number(mMarkers.size()) :
-                            title,
-                        true, frame});
+    const QString mark = title.isEmpty() ? QString::number(mMarkers.size()) : title;
+    mMarkers.push_back({mark, true, frame});
     emit requestUpdate();
+    {
+        prp_pushUndoRedoName(tr("Added Marker"));
+        UndoRedo ur;;
+        ur.fUndo = [this, frame]() { removeMarker(frame); };
+        ur.fRedo = [this, mark, frame]() { setMarker(mark, frame); };
+        prp_addUndoRedo(ur);
+    }
 }
 
 void Canvas::setMarker(const int frame)
@@ -534,6 +583,13 @@ void Canvas::setMarkerEnabled(const int frame,
     if (index < 0) { return; }
     mMarkers.at(index).enabled = enabled;
     updateMarkers();
+    {
+        prp_pushUndoRedoName(tr("Changed Marker State"));
+        UndoRedo ur;;
+        ur.fUndo = [this, frame, enabled]() { setMarkerEnabled(frame, !enabled); };
+        ur.fRedo = [this, frame, enabled]() { setMarkerEnabled(frame, enabled); };
+        prp_addUndoRedo(ur);
+    }
 }
 
 bool Canvas::hasMarker(const int frame,
@@ -545,6 +601,13 @@ bool Canvas::hasMarker(const int frame,
             if (removeExists) {
                 mMarkers.erase(mMarkers.begin() + index);
                 emit newFrameRange(mRange);
+                {
+                    prp_pushUndoRedoName(tr("Removed Marker"));
+                    UndoRedo ur;;
+                    ur.fUndo = [this, mark]() { setMarker(mark.title, mark.frame); };
+                    ur.fRedo = [this, mark]() { removeMarker(mark.frame); };
+                    prp_addUndoRedo(ur);
+                }
             }
             return true;
         }
@@ -582,9 +645,17 @@ bool Canvas::editMarker(const int frame,
 {
     int index = getMarkerIndex(frame);
     if (index >= 0) {
+        const auto mark = mMarkers.at(index);
         mMarkers.at(index).title = title;
         mMarkers.at(index).enabled = enabled;
         emit newFrameRange(mRange);
+        {
+            prp_pushUndoRedoName(tr("Changed Marker"));
+            UndoRedo ur;;
+            ur.fUndo = [this, mark]() { editMarker(mark.frame, mark.title, mark.enabled); };
+            ur.fRedo = [this, frame, title, enabled]() { editMarker(frame, title, enabled); };
+            prp_addUndoRedo(ur);
+        }
         return true;
     }
     return false;
@@ -594,12 +665,18 @@ void Canvas::moveMarkerFrame(const int markerFrame,
                              const int newFrame)
 {
     if (markerFrame == newFrame) { return; }
-    qDebug() << "moveMarkerFrame" << markerFrame << newFrame;
     int index = getMarkerIndex(markerFrame);
     if (index >= 0) {
         mMarkers.at(index).frame = newFrame;
         emit newFrameRange(mRange);
         emit markersChanged();
+        {
+            prp_pushUndoRedoName(tr("Moved Marker"));
+            UndoRedo ur;
+            ur.fUndo = [this, markerFrame, newFrame]() { moveMarkerFrame(newFrame, markerFrame); };
+            ur.fRedo = [this, markerFrame, newFrame]() { moveMarkerFrame(markerFrame, newFrame); };
+            prp_addUndoRedo(ur);
+        }
     }
 }
 
@@ -626,15 +703,29 @@ const std::vector<FrameMarker> Canvas::getMarkers()
 
 void Canvas::clearMarkers()
 {
+    const auto markers = mMarkers;
     mMarkers.clear();
     emit markersChanged();
     emit requestUpdate();
+    {
+        prp_pushUndoRedoName(tr("Cleared Markers"));
+        UndoRedo ur;
+        ur.fUndo = [this, markers]() { restoreMarkers(markers); };
+        ur.fRedo = [this]() { clearMarkers(); };
+        prp_addUndoRedo(ur);
+    }
 }
 
 void Canvas::updateMarkers()
 {
     emit newFrameRange(mRange);
     emit requestUpdate();
+}
+
+void Canvas::restoreMarkers(const std::vector<FrameMarker> &markers)
+{
+    mMarkers = markers;
+    updateMarkers();
 }
 
 void Canvas::addKeySelectedProperties()
@@ -800,19 +891,19 @@ void Canvas::updatePivotIfNeeded()
 
 void Canvas::makePointCtrlsSymmetric()
 {
-    prp_pushUndoRedoName("Make Nodes Symmetric");
+    prp_pushUndoRedoName(tr("Make Nodes Symmetric"));
     setPointCtrlsMode(CtrlsMode::symmetric);
 }
 
 void Canvas::makePointCtrlsSmooth()
 {
-    prp_pushUndoRedoName("Make Nodes Smooth");
+    prp_pushUndoRedoName(tr("Make Nodes Smooth"));
     setPointCtrlsMode(CtrlsMode::smooth);
 }
 
 void Canvas::makePointCtrlsCorner()
 {
-    prp_pushUndoRedoName("Make Nodes Corner");
+    prp_pushUndoRedoName(tr("Make Nodes Corner"));
     setPointCtrlsMode(CtrlsMode::corner);
 }
 
@@ -1334,11 +1425,13 @@ void Canvas::addUndoRedo(const QString& name,
                          const stdfunc<void()>& undo,
                          const stdfunc<void()>& redo)
 {
+    qDebug() << "addUndoRedo" << name;
     mUndoRedoStack->addUndoRedo(name, undo, redo);
 }
 
 void Canvas::pushUndoRedoName(const QString& name) const
 {
+    qDebug() << "pushUndoRedoName" << name;
     mUndoRedoStack->pushName(name);
 }
 
@@ -1562,7 +1655,7 @@ void Canvas::writeGradients(eWriteStream &dst) const
 
 SceneBoundGradient *Canvas::createNewGradient()
 {
-    prp_pushUndoRedoName("Create Gradient");
+    prp_pushUndoRedoName(tr("Create Gradient"));
     const auto grad = enve::make_shared<SceneBoundGradient>(this);
     addGradient(grad);
     return grad.get();
@@ -1570,7 +1663,7 @@ SceneBoundGradient *Canvas::createNewGradient()
 
 void Canvas::addGradient(const qsptr<SceneBoundGradient>& grad)
 {
-    prp_pushUndoRedoName("Add Gradient");
+    prp_pushUndoRedoName(tr("Add Gradient"));
     mGradients.append(grad);
     emit gradientCreated(grad.get());
     {
@@ -1589,7 +1682,7 @@ bool Canvas::removeGradient(const qsptr<SceneBoundGradient> &gradient)
 {
     const auto guard = gradient;
     if (mGradients.removeOne(gradient)) {
-        prp_pushUndoRedoName("Remove Gradient");
+        prp_pushUndoRedoName(tr("Remove Gradient"));
         {
             UndoRedo ur;
             ur.fUndo = [this, guard]() {

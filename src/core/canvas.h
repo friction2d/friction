@@ -354,6 +354,9 @@ public:
                      const int frameOut);
     const FrameMarker getFrameIn() const;
     const FrameMarker getFrameOut() const;
+    void clearFrameInOut();
+    void restoreFrameInOut(const FrameMarker &frameIn,
+                           const FrameMarker &frameOut);
 
     void setMarker(const QString &title,
                    const int frame);
@@ -375,6 +378,7 @@ public:
     const std::vector<FrameMarker> getMarkers();
     void clearMarkers();
     void updateMarkers();
+    void restoreMarkers(const std::vector<FrameMarker> &markers);
 
     void addKeySelectedProperties();
 

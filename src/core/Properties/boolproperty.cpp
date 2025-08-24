@@ -53,19 +53,16 @@ bool BoolProperty::getValue() {
     return mValue;
 }
 
-void BoolProperty::setValue(const bool value) {
-    if(mValue == value) return;
+void BoolProperty::setValue(const bool value)
+{
+    if (mValue == value) { return; }
     {
-        prp_pushUndoRedoName(value ? "Enable Property" : "Disable Property");
+        prp_pushUndoRedoName(value ? tr("Enable Property") : tr("Disable Property"));
         UndoRedo ur;
         const auto oldValue = mValue;
         const auto newValue = value;
-        ur.fUndo = [this, oldValue]() {
-            setValue(oldValue);
-        };
-        ur.fRedo = [this, newValue]() {
-            setValue(newValue);
-        };
+        ur.fUndo = [this, oldValue]() { setValue(oldValue); };
+        ur.fRedo = [this, newValue]() { setValue(newValue); };
         prp_addUndoRedo(ur);
     }
     mValue = value;

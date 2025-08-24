@@ -232,19 +232,16 @@ qreal Property::prp_relFrameToAbsFrameF(const qreal relFrame) const {
     return relFrame + prp_getTotalFrameShift();
 }
 
-void Property::prp_setNameAction(const QString &newName) {
-    if(newName == prp_mName) return;
+void Property::prp_setNameAction(const QString &newName)
+{
+    if (newName == prp_mName) { return; }
     {
-        prp_pushUndoRedoName("Rename");
+        prp_pushUndoRedoName(tr("Rename"));
         UndoRedo ur;
         const auto oldValue = prp_mName;
         const auto newValue = newName;
-        ur.fUndo = [this, oldValue]() {
-            prp_setName(oldValue);
-        };
-        ur.fRedo = [this, newValue]() {
-            prp_setName(newValue);
-        };
+        ur.fUndo = [this, oldValue]() { prp_setName(oldValue); };
+        ur.fRedo = [this, newValue]() { prp_setName(newValue); };
         prp_addUndoRedo(ur);
     }
     prp_setName(newName);
@@ -327,15 +324,16 @@ void Property::setPointsHandler(const stdsptr<PointsHandler> &handler) {
     }
 }
 
-void Property::prp_addUndoRedo(const UndoRedo& undoRedo) {
+void Property::prp_addUndoRedo(const UndoRedo& undoRedo)
+{
     const auto parentScene = getParentScene();
-    if(!parentScene) return;
+    if (!parentScene) { return; }
     qptr<Property> thisQPtr = this;
     auto undo = undoRedo.fUndo;
     auto redo = undoRedo.fRedo;
-    undo = [thisQPtr, undo]() { if(thisQPtr) undo(); };
-    redo = [thisQPtr, redo]() { if(thisQPtr) redo(); };
-    parentScene->addUndoRedo(prp_getName() + " Change", undo, redo);
+    undo = [thisQPtr, undo]() { if (thisQPtr) { undo(); } };
+    redo = [thisQPtr, redo]() { if (thisQPtr) { redo(); } };
+    parentScene->addUndoRedo(prp_getName() + tr(" Change"), undo, redo);
 }
 
 void Property::prp_pushUndoRedoName(const QString& name) {

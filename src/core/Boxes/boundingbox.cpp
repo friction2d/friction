@@ -411,19 +411,16 @@ void BoundingBox::drawPixmapSk(SkCanvas * const canvas,
     canvas->restore();
 }
 
-void BoundingBox::setBlendModeSk(const SkBlendMode blendMode) {
-    if(mBlendMode == blendMode) return;
+void BoundingBox::setBlendModeSk(const SkBlendMode blendMode)
+{
+    if (mBlendMode == blendMode) { return; }
     {
-        prp_pushUndoRedoName("Set Blend Mode");
+        prp_pushUndoRedoName(tr("Set Blend Mode"));
         UndoRedo ur;
         const auto oldValue = mBlendMode;
         const auto newValue = blendMode;
-        ur.fUndo = [this, oldValue]() {
-            setBlendModeSk(oldValue);
-        };
-        ur.fRedo = [this, newValue]() {
-            setBlendModeSk(newValue);
-        };
+        ur.fUndo = [this, oldValue]() { setBlendModeSk(oldValue); };
+        ur.fRedo = [this, newValue]() { setBlendModeSk(newValue); };
         prp_addUndoRedo(ur);
     }
     mBlendMode = blendMode;
@@ -1220,43 +1217,37 @@ QMatrix BoundingBox::getTotalTransformAtFrame(const qreal relFrame) const {
     return mTransformAnimator->getTotalTransformAtFrame(relFrame);
 }
 
-void BoundingBox::setCustomPropertiesVisible(const bool visible) {
-    if(mCustomProperties->SWT_isVisible() == visible) return;
+void BoundingBox::setCustomPropertiesVisible(const bool visible)
+{
+    if (mCustomProperties->SWT_isVisible() == visible) { return; }
     {
-        prp_pushUndoRedoName("Custom Properties");
+        prp_pushUndoRedoName(tr("Custom Properties"));
         UndoRedo ur;
         const auto oldValue = !visible;
         const auto newValue = visible;
-        ur.fUndo = [this, oldValue]() {
-            mCustomProperties->SWT_setVisible(oldValue);
-        };
-        ur.fRedo = [this, newValue]() {
-            mCustomProperties->SWT_setVisible(newValue);
-        };
+        ur.fUndo = [this, oldValue]() { mCustomProperties->SWT_setVisible(oldValue); };
+        ur.fRedo = [this, newValue]() { mCustomProperties->SWT_setVisible(newValue); };
         prp_addUndoRedo(ur);
     }
     mCustomProperties->SWT_setVisible(visible);
 }
 
-void BoundingBox::setBlendEffectsVisible(const bool visible) {
-    if(mBlendEffectCollection->SWT_isVisible() == visible) return;
+void BoundingBox::setBlendEffectsVisible(const bool visible)
+{
+    if (mBlendEffectCollection->SWT_isVisible() == visible) { return; }
     {
-        prp_pushUndoRedoName("Blend Effects");
+        prp_pushUndoRedoName(tr("Blend Effects"));
         UndoRedo ur;
         const auto oldValue = !visible;
         const auto newValue = visible;
-        ur.fUndo = [this, oldValue]() {
-            setBlendEffectsVisible(oldValue);
-        };
-        ur.fRedo = [this, newValue]() {
-            setBlendEffectsVisible(newValue);
-        };
+        ur.fUndo = [this, oldValue]() { setBlendEffectsVisible(oldValue); };
+        ur.fRedo = [this, newValue]() { setBlendEffectsVisible(newValue); };
         prp_addUndoRedo(ur);
     }
     mBlendEffectCollection->SWT_setVisible(visible);
     const auto pLayer = getFirstParentLayer();
-    if(pLayer) {
-        if(visible) {
+    if (pLayer) {
+        if (visible) {
             pLayer->addBoxWithBlendEffects(this);
         } else {
             pLayer->removeBoxWithBlendEffects(this);

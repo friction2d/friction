@@ -32,28 +32,23 @@ bool BoolPropertyContainer::getValue() {
     return mValue;
 }
 
-void BoolPropertyContainer::setValue(const bool value) {
-    if(mValue == value) return;
+void BoolPropertyContainer::setValue(const bool value)
+{
+    if (mValue == value) { return; }
     {
-        prp_pushUndoRedoName(value ? "Enable Property" : "Disable Property");
+        prp_pushUndoRedoName(value ? tr("Enable Property") : tr("Disable Property"));
         UndoRedo ur;
         const auto oldValue = mValue;
         const auto newValue = value;
-        ur.fUndo = [this, oldValue]() {
-            setValue(oldValue);
-        };
-        ur.fRedo = [this, newValue]() {
-            setValue(newValue);
-        };
+        ur.fUndo = [this, oldValue]() { setValue(oldValue); };
+        ur.fRedo = [this, newValue]() { setValue(newValue); };
         prp_addUndoRedo(ur);
     }
     mValue = value;
     prp_afterWholeInfluenceRangeChanged();
 
     const auto& children = ca_getChildren();
-    for(const auto& prop : children) {
-        prop->SWT_setDisabled(!value);
-    }
+    for (const auto& prop : children) { prop->SWT_setDisabled(!value); }
     emit valueChanged(value);
 }
 
