@@ -128,8 +128,9 @@ void CurrentGradientWidget::colorRightPress(const int x, const QPoint &point) {
     } else {
         colorLeftPress(x);
         QMenu menu(this);
-        menu.addAction("Delete Color");
-        menu.addAction("Add Color");
+        menu.addAction(QIcon::fromTheme("plus"), tr("Add Color"));
+        menu.addAction(QIcon::fromTheme("minus"), tr("Delete Color"));
+        menu.addAction(QIcon::fromTheme("color"), tr("Bookmark Color"));
         const auto selectedAction = menu.exec(point);
         if(selectedAction) {
             if(selectedAction->text() == "Delete Color") {
@@ -140,6 +141,11 @@ void CurrentGradientWidget::colorRightPress(const int x, const QPoint &point) {
                 }
             } else if(selectedAction->text() == "Add Color") {
                 mGradient->addColor(Qt::black);
+            } else if(selectedAction->text() == "Bookmark Color") {
+                if (mColor) {
+                    const QColor col = mColor->getColor();
+                    Document::sInstance->addBookmarkColor(col);
+                }
             }
             Document::sInstance->actionFinished();
         }
