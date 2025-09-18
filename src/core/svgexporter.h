@@ -42,7 +42,8 @@ public:
                 const SkEncodedImageFormat imageFormat = SkEncodedImageFormat::kPNG,
                 const int imageQuality = 100,
                 bool html = false,
-                bool blendMix = false);
+                bool blendMix = false,
+                bool colors11 = false);
 
     void nextStep() override;
 
@@ -57,6 +58,7 @@ public:
     const SkEncodedImageFormat fImageFormat;
     const int fImageQuality;
     const bool fBlendMix;
+    const bool fColors11;
 
     QDomElement createElement(const QString& tagName)
     {

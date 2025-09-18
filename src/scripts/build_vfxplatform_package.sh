@@ -148,26 +148,6 @@ for so in *.so*; do
 done
 )
 
-SKIA_DIST_LIB=${DISTFILES}/skia/libskia.friction.so
-PKG_SKIA_LIB64=${BUILD}/${FRICTION_PKG}/opt/friction/lib64/libskia.friction.so
-PKG_SKIA_LIB=${BUILD}/${FRICTION_PKG}/opt/friction/lib/libskia.friction.so
-
-if [ -f "${PKG_SKIA_LIB64}" ]; then
-    mv ${PKG_SKIA_LIB64} ${PKG_SKIA_LIB}
-    strip -s ${PKG_SKIA_LIB}
-    rm -rf ${BUILD}/${FRICTION_PKG}/opt/friction/lib64
-else
-    if [ -f "${SKIA_DIST_LIB}" ] && [ ! -f "${PKG_SKIA_LIB}" ]; then
-        cp -a ${SKIA_DIST_LIB} ${PKG_SKIA_LIB}
-        strip -s ${PKG_SKIA_LIB}
-    fi
-fi
-
-if [ ! -f "${PKG_SKIA_LIB}" ]; then
-    echo "Missing libskia.friction.so"
-    exit 1
-fi
-
 PLUGS="
 platforms
 audio

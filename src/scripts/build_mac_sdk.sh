@@ -45,13 +45,19 @@ AOM_V=3.6.1
 FFMPEG_V=4.2.11
 OSX=12.7
 OSX_HOST=`sw_vers -productVersion`
-CPU=`uname -m`
+CPU=`arch`
+
+if [ "${CPU}" = "i386" ]; then
+    CPU=x86_64
+fi
+
+echo "Friction SDK on macOS ${OSX_HOST} for ${OSX} ${CPU}"
 
 CWD=`pwd`
-SDK=${SDK:-"${CWD}/sdk"}
+SDK=${SDK:-"${CWD}/sdk/${CPU}"}
 SRC=${SDK}/src
 DIST=${DIST:-"${CWD}/distfiles"}
-MKJOBS=${MKJOBS:-2}
+MKJOBS=${MKJOBS:-10}
 SRC_SUFFIX=tar.xz
 
 QMAKE_BIN=${SDK}/bin/qmake
@@ -118,9 +124,7 @@ if [ ! -f "${CMAKE_BIN}" ]; then
     rm -rf ${CMAKE_SRC} || true
     tar xf ${DIST}/ffmpeg/${CMAKE_SRC}.tar.gz
     cd ${CMAKE_SRC}
-    if [ "${CPU}" = "arm64" ]; then
-        patch -p0 < ${DIST}/patches/cmake-zlib-macos154.diff
-    fi
+    patch -p0 < ${DIST}/patches/cmake-zlib-macos154.diff
     ./configure ${COMMON_CONFIGURE} --no-system-libs --parallel=${MKJOBS} -- -DCMAKE_USE_OPENSSL=OFF
     make -j${MKJOBS}
     make install
@@ -171,7 +175,7 @@ if [ ! -f "${QMAKE_BIN}" ]; then
         tar xf ${DIST}/qt/${QT_SRC}.${SRC_SUFFIX}
     fi
     cd ${QT_SRC}
-    patch -p0 < ${DIST}/qt/qtbase-macos-versions.diff
+    patch -p0 < ${DIST}/patches/qtbase-macos-versions.diff
     CXXFLAGS="${DEFAULT_CPPFLAGS}" CFLAGS="${DEFAULT_CFLAGS}" \
     ./configure \
     -prefix ${SDK} \
@@ -297,7 +301,7 @@ if [ ! -f "${SDK}/lib/libmp3lame.dylib" ]; then
     rm -rf ${LAME_SRC} || true
     tar xf ${DIST}/ffmpeg/${LAME_SRC}.tar.gz
     cd ${LAME_SRC}
-    patch -p0 < ${DIST}/patches/patch-lame-avoid_undefined_symbols_error.diff
+    patch -p0 < ${DIST}/patches/lame-avoid_undefined_symbols_error.diff
     CFLAGS="${DEFAULT_CFLAGS}" \
     CXXFLAGS="${DEFAULT_CPPFLAGS}" \
     LDFLAGS="${DEFAULT_LDFLAGS}" \
@@ -313,8 +317,8 @@ if [ ! -f "${SDK}/lib/libvpx.a" ]; then
     rm -rf ${VPX_SRC} || true
     tar xf ${DIST}/ffmpeg/libvpx-${VPX_V}.tar.gz
     cd ${VPX_SRC}
-    patch -p0 < ${DIST}/patches/patch-vpx-Makefile.diff
-    patch -p0 < ${DIST}/patches/patch-vpx-configure.sh.diff
+    patch -p0 < ${DIST}/patches/vpx-Makefile.diff
+    patch -p0 < ${DIST}/patches/vpx-configure.diff
     CFLAGS="${DEFAULT_CFLAGS}" \
     CXXFLAGS="${DEFAULT_CPPFLAGS}" \
     LDFLAGS="${DEFAULT_LDFLAGS}" \
@@ -483,7 +487,7 @@ if [ ! -f "${SDK}/lib/pkgconfig/libavcodec.pc" ]; then
     rm -rf ${FFMPEG_SRC} || true
     tar xf ${DIST}/ffmpeg/${FFMPEG_SRC}.tar.xz
     cd ${FFMPEG_SRC}
-    xzcat ${DIST}/ffmpeg/ffmpeg-tiff-assocalpha.diff.xz | patch -p0
+    patch -p0 < ${DIST}/patches/ffmpeg-tiff-assocalpha.diff
     export MACOSX_DEPLOYMENT_TARGET=${OSX}
     CFLAGS="${DEFAULT_CFLAGS}" \
     CXXFLAGS="${DEFAULT_CPPFLAGS}" \

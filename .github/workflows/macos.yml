@@ -12,5 +12,5 @@ jobs:
     - name: Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: friction-ci-macOS-arm64
-        path: build-release/*.dmg
+        name: friction-ci-macOS
+        path: build-release-universal/*.dmg

@@ -211,8 +211,14 @@ bool NullObject::relPointInsidePath(const QPointF &relPos) const {
     return mType->relPointInsidePath(relPos);
 }
 
-void NullObject::drawNullObject(
-        SkCanvas* const canvas, const CanvasMode mode,
-        const float invScale, const bool ctrlPressed) {
-    mType->prp_drawCanvasControls(canvas, mode, invScale, ctrlPressed);
+void NullObject::drawNullObject(SkCanvas* const canvas,
+                                const CanvasMode mode,
+                                const float invScale,
+                                const bool ctrlPressed)
+{
+    if (!isVisible()) { return; }
+    mType->prp_drawCanvasControls(canvas,
+                                  mode,
+                                  invScale,
+                                  ctrlPressed);
 }

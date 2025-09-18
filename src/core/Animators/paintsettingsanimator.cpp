@@ -346,7 +346,7 @@ void PaintSettingsAnimator::saveSVG(SvgExporter& exp,
             exp.addToDefs(grad);
             parent.setAttribute(name, QString("url(#%1)").arg(thisGradId));
         } else {
-            parent.setAttribute(name, "black");
+            parent.setAttribute(name, "#000000");
         }
     } else {
         mColor->saveColorSVG(exp, parent, visRange, name);

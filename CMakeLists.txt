@@ -20,7 +20,7 @@
 cmake_minimum_required(VERSION 3.12)
 project(friction.graphics)
 
-option(BUILD_ENGINE "Build Engine" ON)
+option(BUILD_SKIA "Build skia" ON)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/src/cmake")
 include(friction-version)
@@ -57,8 +57,8 @@ if(UNIX AND NOT APPLE)
     include(CPack)
 endif()
 
-if(${BUILD_ENGINE})
-    add_subdirectory(src/engine)
+if(${BUILD_SKIA})
+    add_subdirectory(src/skia)
 endif()
 if(UNIX AND NOT APPLE)
     option(BUILD_TESTING "Don't build gperftools tests" OFF)
@@ -68,6 +68,6 @@ add_subdirectory(src/core)
 add_subdirectory(src/ui)
 add_subdirectory(src/app)
 
-if(${BUILD_ENGINE})
-    add_dependencies(frictioncore Engine)
+if(${BUILD_SKIA})
+    add_dependencies(frictioncore skialib)
 endif()

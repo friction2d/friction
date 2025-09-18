@@ -48,7 +48,7 @@ endif()
 include_directories(
     ${QUAZIP_INCLUDE_DIRS}
     ${FFMPEG_INCLUDE_DIRS}
-    ${CMAKE_CURRENT_SOURCE_DIR}/../engine/skia
+    ${CMAKE_CURRENT_SOURCE_DIR}/../skia
 )
 
 set(

@@ -47,10 +47,10 @@ void SavedColorButton::mousePressEvent(QMouseEvent *e) {
         emit selected(mColor);
     } else if(e->button() == Qt::RightButton) {
         QMenu menu(this);
-        menu.addAction("Unbookmark");
+        menu.addAction(QIcon::fromTheme("minus"), tr("Unbookmark Color"));
         const auto act = menu.exec(e->globalPos());
         if(act) {
-            if(act->text() == "Unbookmark") {
+            if(act->text() == tr("Unbookmark Color")) {
                 Document::sInstance->removeBookmarkColor(getColor());
             }
         }

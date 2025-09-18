@@ -26,14 +26,12 @@ COMMIT=`git rev-parse --short=8 HEAD`
 BRANCH=`git rev-parse --abbrev-ref HEAD`
 CUSTOM=${CUSTOM:-"CI"}
 
-BUILD_ENGINE=${BUILD_ENGINE:-"OFF"}
 REL=${REL:-0}
 APPIMG=20240401
 SDK=1.0.0
 URL=https://github.com/friction2d/friction-sdk/releases/download/v${SDK}
 APPIMAGE_TAR=friction-appimage-tools-${APPIMG}.tar.xz
 SDK_TAR=friction-sdk-${SDK}r7-linux-x86_64.tar.xz
-SKIA_TAR=skia-friction-${SDK}-f5941b02-linux-x86_64.tar.xz
 
 mkdir -p distfiles/sdk || true
 
@@ -45,13 +43,6 @@ if [ ! -d "linux" ]; then
     tar xvf ${APPIMAGE_TAR}
 fi
 
-if [ ! -d "skia" ]; then
-    if [ ! -f "${SKIA_TAR}" ]; then
-        wget ${URL}/${SKIA_TAR}
-    fi
-    tar xvf ${SKIA_TAR}
-fi
-
 cd sdk
 if [ ! -f "${SDK_TAR}" ]; then
     wget ${URL}/${SDK_TAR}
@@ -59,4 +50,4 @@ fi
 
 cd ${CWD}
 
-BUILD_ENGINE=${BUILD_ENGINE} LOCAL_BUILD=0 MKJOBS=${MKJOBS} REL=${REL} BRANCH=${BRANCH} COMMIT=${COMMIT} CUSTOM=${CUSTOM} ./src/scripts/run_docker.sh
+LOCAL_BUILD=0 MKJOBS=${MKJOBS} REL=${REL} BRANCH=${BRANCH} COMMIT=${COMMIT} CUSTOM=${CUSTOM} ./src/scripts/run_docker.sh

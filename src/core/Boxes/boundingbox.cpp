@@ -1364,38 +1364,41 @@ void BoundingBox::getMotionBlurProperties(QList<Property*> &list) const {
     list.append(mTransformAnimator->getShearAnimator());
 }
 
-FrameRange BoundingBox::getMotionBlurIdenticalRange(
-        const qreal relFrame, const bool inheritedTransform) {
+FrameRange BoundingBox::getMotionBlurIdenticalRange(const qreal relFrame,
+                                                    const bool inheritedTransform)
+{
     FrameRange range(FrameRange::EMINMAX);
-    if(isVisible()) {
+    if (isVisible()) {
         const auto durRect = getDurationRectangle();
-        if(isFrameFInDurationRect(relFrame)) {
+        if (isFrameFInDurationRect(relFrame)) {
             QList<Property*> props;
             getMotionBlurProperties(props);
-            for(const auto& child : props) {
+            for (const auto& child : props) {
                 if(range.isUnary()) break;
                 auto childRange = child->prp_getIdenticalRelRange(relFrame);
                 range *= childRange;
             }
 
-            if(durRect) range *= durRect->getRelFrameRange();
+            if (durRect) { range *= durRect->getRelFrameRange(); }
         } else {
-            if(relFrame > durRect->getMaxRelFrame()) {
-                return durRect->getAbsFrameRangeToTheRight();
-            } else if(relFrame < durRect->getMinRelFrame()) {
-                return durRect->getAbsFrameRangeToTheLeft();
+            if (durRect) {
+                if (relFrame > durRect->getMaxRelFrame()) {
+                    return durRect->getAbsFrameRangeToTheRight();
+                } else if (relFrame < durRect->getMinRelFrame()) {
+                    return durRect->getAbsFrameRangeToTheLeft();
+                }
             }
         }
     } else {
         return FrameRange::EMINMAX;
     }
     const auto parent = getParentGroup();
-    if(!parent || !inheritedTransform) return range;
-    if(range.isUnary()) return range;
+    if (!parent || !inheritedTransform) { return range; }
+    if (range.isUnary()) { return range; }
     const qreal absFrame = prp_relFrameToAbsFrameF(relFrame);
     const qreal parentRel = parent->prp_absFrameToRelFrameF(absFrame);
-    auto parentRange = parent->BoundingBox::getMotionBlurIdenticalRange(
-                           parentRel, inheritedTransform);
+    auto parentRange = parent->BoundingBox::getMotionBlurIdenticalRange(parentRel,
+                                                                        inheritedTransform);
 
     return range*parentRange;
 }
@@ -1616,7 +1619,7 @@ eTask* BoundingBox::saveSVGWithTransform(SvgExporter& exp,
                     auto rect = eleMask.appendChild(expPtr->createElement("rect")).toElement();
                     rect.setAttribute("width", "100%");
                     rect.setAttribute("height", "100%");
-                    rect.setAttribute("fill", "white");
+                    rect.setAttribute("fill", "#ffffff");
                 }
                 eleMask.setAttribute("id", QString("%1Mask").arg(AppSupport::filterId(ptr->prp_getName())));
                 eleMask.appendChild(withEffects);

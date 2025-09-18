@@ -6,8 +6,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# the Free Software Foundation, version 3.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -21,22 +20,40 @@
 set -e -x
 
 CWD=`pwd`
-CPU=`uname -m`
+
+REL=${REL:-"OFF"}
+BRANCH=${BRANCH:-`git rev-parse --abbrev-ref HEAD`}
+COMMIT=${COMMIT:-`git rev-parse --short=8 HEAD`}
+CUSTOM=${CUSTOM:-"CI"}
+
 SDK=1.0.0
-SDK_REV=r2
-
-if [ "${CPU}" = "arm64" ]; then
-    SDK_REV=r3
-fi
-
-URL=https://github.com/friction2d/friction-sdk/releases/download/v${SDK}
-SDK_TAR=friction-sdk-${SDK}${SDK_REV}-macOS-${CPU}.tar.xz
+SDK_REV=""
+SDK_URL=https://github.com/friction2d/friction-sdk/releases/download/v${SDK}
+SDK_TAR=friction-sdk-${SDK}${SDK_REV}-macOS.tar.xz
+SDK_SHA256=cc10b1f47aa1dd64e70ea7eb6bcb3c926724608da0d223e1cd6203868bcb818e
 
 if [ ! -d "${CWD}/sdk" ]; then
-    curl -OL ${URL}/${SDK_TAR}
+    curl -OL ${SDK_URL}/${SDK_TAR}
+    echo "${SDK_SHA256}  ${SDK_TAR}" | shasum -a 256 --check
     tar xf ${SDK_TAR}
 fi
 
 git submodule update --init --recursive
 
-CUSTOM=CI ./src/scripts/build_mac.sh
+export CUSTOM=CI
+export REL=$REL
+
+cd ${CWD}
+arch -x86_64 ./src/scripts/build_mac.sh
+
+cd ${CWD}
+./src/scripts/build_mac.sh
+
+cd ${CWD}
+
+VERSION=`cat build-release-arm64/version.txt`
+if [ "${REL}" != "ON" ]; then
+    VERSION="${VERSION}-${COMMIT}"
+fi
+
+VERSION=${VERSION} ./src/scripts/build_mac_universal.sh

@@ -22,6 +22,9 @@ RUN rm -f /usr/include/png.h
 RUN rm -f /usr/include/pngconf.h
 RUN rm -f /usr/include/pnglibconf.h
 RUN sed -i '/.private/d' /usr/lib64/pkgconfig/freetype2.pc
+RUN sed -i '/.private/d' /usr/lib64/pkgconfig/fontconfig.pc
+RUN sed -i '/.private/d' /usr/lib64/pkgconfig/glesv2.pc
+RUN sed -i '/.private/d' /usr/lib64/pkgconfig/egl.pc
 RUN echo "source scl_source enable devtoolset-7" >> /root/.bashrc
 
 RUN echo "#!/bin/sh" > /usr/bin/desktop-file-validate

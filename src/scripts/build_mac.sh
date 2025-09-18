@@ -20,15 +20,19 @@
 set -e -x
 
 CWD=`pwd`
-SDK=${SDK:-"${CWD}/sdk"}
-BUILD_ENGINE=${BUILD_ENGINE:-"ON"}
 REL=${REL:-"OFF"}
 BRANCH=${BRANCH:-`git rev-parse --abbrev-ref HEAD`}
 COMMIT=${COMMIT:-`git rev-parse --short=8 HEAD`}
 CUSTOM=${CUSTOM:-""}
-BUILD_DIR=${BUILD_DIR:-"${CWD}/build-release"}
 OSX=12.7
-CPU=`uname -m`
+CPU=`arch`
+
+if [ "${CPU}" = "i386" ]; then
+    CPU=x86_64
+fi
+
+SDK=${SDK:-"${CWD}/sdk/${CPU}"}
+BUILD_DIR=${BUILD_DIR:-"${CWD}/build-release-${CPU}"}
 
 export PATH="${SDK}/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 export PKG_CONFIG_PATH="${SDK}/lib/pkgconfig"
@@ -59,7 +63,8 @@ cmake -G Ninja \
 -DGIT_BRANCH=${BRANCH} \
 -DFRICTION_OFFICIAL_RELEASE=${REL} \
 -DCUSTOM_BUILD=${CUSTOM} \
--DBUILD_ENGINE=${BUILD_ENGINE} \
+-DBUILD_SKIA=ON \
+-DSKIA_SYNC_EXTERNAL=ON \
 -DCMAKE_BUILD_TYPE=Release \
 -DQSCINTILLA_INCLUDE_DIRS=${SDK}/include \
 -DQSCINTILLA_LIBRARIES_DIRS=${SDK}/lib \
@@ -71,13 +76,6 @@ if [ "${REL}" != "ON" ]; then
 fi
 
 cmake --build .
-
-#if [ "${BUILD_ENGINE}" = "ON" ]; then
-#    (cd src/engine ;
-#        tar cvvf skia-build-macOS-${GIT_COMMIT}.tar skia
-#        mv skia-build-macOS-${GIT_COMMIT}.tar ${BUILD_DIR}/
-#    )
-#fi
 
 mv src/app/friction.app src/app/Friction.app
 macdeployqt src/app/Friction.app

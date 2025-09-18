@@ -74,7 +74,8 @@ void Canvas::addActionsToMenu(QMenu *const menu)
         pasteAct->setShortcut(Qt::CTRL + Qt::Key_V);
     }
 
-    QMenu * const linkCanvasMenu = menu->addMenu(QIcon::fromTheme("sequence"),
+    const auto sceneIcon = QIcon::fromTheme("sequence");
+    QMenu * const linkCanvasMenu = menu->addMenu(sceneIcon,
                                                  tr("Link Scene"));
     for (const auto& canvas : mDocument.fScenes) {
         const auto slot = [this, canvas]() {
@@ -82,7 +83,8 @@ void Canvas::addActionsToMenu(QMenu *const menu)
             mCurrentContainer->addContained(newLink);
             newLink->centerPivotPosition();
         };
-        QAction * const action = linkCanvasMenu->addAction(canvas->prp_getName(),
+        QAction * const action = linkCanvasMenu->addAction(sceneIcon,
+                                                           canvas->prp_getName(),
                                                            this,
                                                            slot);
         if (canvas == this) {

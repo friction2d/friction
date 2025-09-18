@@ -39,7 +39,7 @@ include_directories(
     ${FFMPEG_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/../core
-    ${CMAKE_CURRENT_SOURCE_DIR}/../engine/skia
+    ${CMAKE_CURRENT_SOURCE_DIR}/../skia
 )
 
 set(

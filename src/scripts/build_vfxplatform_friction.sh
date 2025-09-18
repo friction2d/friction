@@ -26,7 +26,6 @@ clang -v
 SDK=${SDK:-"/opt/friction"}
 BUILD=${BUILD:-"${HOME}"}
 
-BUILD_ENGINE=${BUILD_ENGINE:-"ON"}
 REL=${REL:-1}
 BRANCH=${BRANCH:-""}
 COMMIT=${COMMIT:-""}
@@ -89,7 +88,8 @@ cmake -G Ninja \
 -DCMAKE_PREFIX_PATH=${SDK} \
 -DCMAKE_BUILD_TYPE=Release \
 -DLINUX_DEPLOY=ON \
--DUSE_SKIA_SYSTEM_LIBS=OFF \
+-DSKIA_USE_SYSTEM_LIBS=OFF \
+-DSKIA_SYNC_EXTERNAL=ON \
 -DUSE_EGL=ON \
 -DFRICTION_OFFICIAL_RELEASE=${REL_STATUS} \
 -DQSCINTILLA_INCLUDE_DIRS=${SDK}/include \
@@ -100,7 +100,7 @@ cmake -G Ninja \
 -DGIT_COMMIT=${GIT_COMMIT} \
 -DGIT_BRANCH=${GIT_BRANCH} \
 -DCUSTOM_BUILD=${CUSTOM} \
--DBUILD_ENGINE=${BUILD_ENGINE} \
+-DSKIA_STATIC=ON \
 ..
 
 VERSION=`cat version.txt`
@@ -109,14 +109,6 @@ if [ "${REL}" != 1 ]; then
 fi
 
 cmake --build .
-
-if [ "${BUILD_ENGINE}" = "ON" ]; then
-    (cd src/engine ;
-        tar cf skia-friction-${VERSION}-linux-x86_64.tar skia/libskia.friction.so
-        mkdir -p /mnt/builds/${VERSION} || true
-        mv skia-friction-${VERSION}-linux-x86_64.tar /mnt/builds/${VERSION}/
-    )
-fi
 
 FRICTION_INSTALL_DIR=friction-${VERSION}
 mkdir -p ${BUILD}/${FRICTION_INSTALL_DIR}/opt/friction/{bin,lib,share} || true

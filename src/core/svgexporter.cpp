@@ -34,7 +34,8 @@ SvgExporter::SvgExporter(const QString& path,
                          const SkEncodedImageFormat imageFormat,
                          const int imageQuality,
                          bool html,
-                         bool blendMix)
+                         bool blendMix,
+                         bool colors11)
     : ComplexTask(INT_MAX, tr("SVG Export"))
     , fScene(scene)
     , fAbsRange(frameRange)
@@ -45,6 +46,7 @@ SvgExporter::SvgExporter(const QString& path,
     , fImageFormat(imageFormat)
     , fImageQuality(imageQuality)
     , fBlendMix(blendMix)
+    , fColors11(colors11)
     , mHtml(html)
     , mOpen(false)
     , mFile(path)

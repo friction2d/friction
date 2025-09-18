@@ -1,6 +1,3 @@
-[submodule "src/engine/skia"]
-	path = src/engine/skia
-	url = https://github.com/friction2d/skia
 [submodule "src/gperftools"]
 	path = src/gperftools
 	url = https://github.com/friction2d/gperftools
@@ -10,3 +7,6 @@
 [submodule "src/app/icons"]
 	path = src/app/icons
 	url = https://github.com/friction2d/friction-icon-theme
+[submodule "src/skia"]
+	path = src/skia
+	url = https://github.com/friction2d/skia

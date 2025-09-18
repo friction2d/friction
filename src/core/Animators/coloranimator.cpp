@@ -26,6 +26,7 @@
 #include "Animators/coloranimator.h"
 #include "colorhelpers.h"
 #include "pointtypemenu.h"
+#include "svgexporter.h"
 
 ColorAnimator::ColorAnimator(const QString &name) : StaticComplexAnimator(name) {
     setColorMode(ColorMode::rgb);
@@ -271,8 +272,17 @@ void ColorAnimator::saveColorSVG(SvgExporter &exp,
                                  bool rgba,
                                  bool a) const
 {
-    Animator::saveSVG(exp, parent, visRange, name, [this, &rgba, &a](const int relFrame) {
+    qDebug() << "save color for SVG" << name;
+    Animator::saveSVG(exp, parent, visRange, name,
+                      [this, &rgba, &a, &exp, &name, &parent](const int relFrame) {
         const auto color = getColor(relFrame);
+        if (exp.fColors11) {
+            if (color.alphaF() != 1. && (name == "fill" || name == "stroke" || name == "stop-color")) {
+                QString type = QString("%1-opacity").arg(name == "stop-color" ? "stop" : name);
+                parent.setAttribute(type, QString::number(color.alphaF()));
+            }
+            return color.name();
+        }
         if (a) { return QString::number(color.alphaF()); }
         if (!rgba) { return color.name(); }
         return QString("rgba(%1, %2, %3, %4)").arg(QString::number(color.red()),

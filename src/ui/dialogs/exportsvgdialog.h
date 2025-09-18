@@ -62,6 +62,7 @@ private:
     QCheckBox *mOptimize;
     QCheckBox *mNotify;
     QCheckBox *mBlendMix;
+    QCheckBox *mColors11;
 
     QComboBox *mImageFormat;
     QSpinBox *mImageQuality;

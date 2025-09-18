@@ -96,7 +96,7 @@ void Gradient::saveSVG(SvgExporter& exp) const {
     if(count == 0) {
         auto stop = exp.createElement("stop");
         stop.setAttribute("offset", 0);
-        stop.setAttribute("stop-color", "black");
+        stop.setAttribute("stop-color", "#000000");
         ele.appendChild(stop);
     } else {
         for(int i = 0; i < count; i++) {

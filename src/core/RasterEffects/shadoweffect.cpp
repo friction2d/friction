@@ -82,7 +82,7 @@ QDomElement ShadowEffect::saveShadowSVG(
     x->saveQrealSVG(exp, shadow, visRange, "dx", scale);
     const auto y = mTranslation->getYAnimator();
     y->saveQrealSVG(exp, shadow, visRange, "dy", scale);
-    mColor->saveColorSVG(exp, shadow, visRange, "flood-color");
+    mColor->saveColorSVG(exp, shadow, visRange, "flood-color", !exp.fColors11);
     mOpacity->saveQrealSVG(exp, shadow, visRange, "flood-opacity");
     mBlurRadius->saveQrealSVG(exp, shadow, visRange, "stdDeviation", scale/3);
     filter.appendChild(shadow);

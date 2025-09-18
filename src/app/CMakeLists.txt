@@ -36,14 +36,15 @@ if(${LINUX_DEPLOY})
     set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
 endif()
 
-option(USE_SKIA_SYSTEM_LIBS "Use skia (third-party) system libraries on Linux" ON)
+option(SKIA_USE_SYSTEM_LIBS "Use skia (third-party) system libraries on Linux" ON)
 if(APPLE)
-    set(USE_SKIA_SYSTEM_LIBS OFF)
+    set(SKIA_USE_SYSTEM_LIBS OFF)
 endif()
 
-if(${USE_SKIA_SYSTEM_LIBS} AND UNIX)
+if(${SKIA_USE_SYSTEM_LIBS} AND UNIX)
     pkg_check_modules(EXPAT REQUIRED expat)
     pkg_check_modules(FREETYPE REQUIRED freetype2)
+    pkg_check_modules(FONTCONFIG REQUIRED fontconfig)
     pkg_check_modules(JPEG REQUIRED libjpeg)
     pkg_check_modules(PNG REQUIRED libpng)
     pkg_check_modules(WEBP REQUIRED libwebp)
@@ -54,6 +55,16 @@ if(${USE_SKIA_SYSTEM_LIBS} AND UNIX)
     pkg_check_modules(HARFBUZZ REQUIRED harfbuzz)
 else()
     add_definitions(-DFRICTION_BUNDLE_SKIA_BUNDLE)
+endif()
+
+if(${SKIA_STATIC})
+    if(UNIX AND NOT APPLE)
+        pkg_check_modules(EGL REQUIRED egl)
+        pkg_check_modules(GLES REQUIRED glesv2)
+        if(NOT ${SKIA_USE_SYSTEM_LIBS})
+            pkg_check_modules(FONTCONFIG REQUIRED fontconfig)
+        endif()
+    endif()
 endif()
 
 if(APPLE)
@@ -116,13 +127,14 @@ include_directories(
     ${FFMPEG_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}/../core
     ${CMAKE_CURRENT_SOURCE_DIR}/../ui
-    ${CMAKE_CURRENT_SOURCE_DIR}/../engine/skia
+    ${CMAKE_CURRENT_SOURCE_DIR}/../skia
 )
 
-if(${USE_SKIA_SYSTEM_LIBS} AND UNIX)
+if(${SKIA_USE_SYSTEM_LIBS} AND UNIX)
     include_directories(
         ${EXPAT_INCLUDE_DIRS}
         ${FREETYPE_INCLUDE_DIRS}
+        ${FONTCONFIG_INCLUDE_DIRS}
         ${JPEG_INCLUDE_DIRS}
         ${PNG_INCLUDE_DIRS}
         ${WEBP_INCLUDE_DIRS}
@@ -130,6 +142,18 @@ if(${USE_SKIA_SYSTEM_LIBS} AND UNIX)
         ${ICU_INCLUDE_DIRS}
         ${HARFBUZZ_INCLUDE_DIRS}
     )
+endif()
+
+if(${SKIA_STATIC})
+    if(UNIX AND NOT APPLE)
+        include_directories(
+            ${EGL_INCLUDE_DIRS}
+            ${GLES_INCLUDE_DIRS}
+        )
+        if(NOT ${SKIA_USE_SYSTEM_LIBS})
+                include_directories(${FONTCONFIG_INCLUDE_DIRS})
+        endif()
+    endif()
 endif()
 
 if(UNIX AND NOT APPLE)
@@ -291,12 +315,13 @@ target_link_directories(
     ${SKIA_LIBRARIES_DIRS}
 )
 
-if(${USE_SKIA_SYSTEM_LIBS} AND UNIX)
+if(${SKIA_USE_SYSTEM_LIBS} AND UNIX)
     target_link_directories(
         ${PROJECT_NAME}
         PRIVATE
         ${EXPAT_LIBRARIES_DIRS}
         ${FREETYPE_LIBRARIES_DIRS}
+        ${FONTCONFIG_LIBRARIES_DIRS}
         ${JPEG_LIBRARIES_DIRS}
         ${PNG_LIBRARIES_DIRS}
         ${WEBP_LIBRARIES_DIRS}
@@ -304,6 +329,24 @@ if(${USE_SKIA_SYSTEM_LIBS} AND UNIX)
         ${ICU_LIBRARIES_DIRS}
         ${HARFBUZZ_LIBRARIES_DIRS}
     )
+endif()
+
+if(${SKIA_STATIC})
+    if(UNIX AND NOT APPLE)
+        target_link_directories(
+            ${PROJECT_NAME}
+            PRIVATE
+            ${EGL_LIBRARIES_DIRS}
+            ${GLES_LIBRARIES_DIRS}
+        )
+        if(NOT ${SKIA_USE_SYSTEM_LIBS})
+            target_link_directories(
+                ${PROJECT_NAME}
+                PRIVATE
+                ${FONTCONFIG_LIBRARIES_DIRS}
+            )
+        endif()
+    endif()
 endif()
 
 target_link_libraries(
@@ -318,12 +361,13 @@ target_link_libraries(
     ${SKIA_LIBRARIES}
 )
 
-if(${USE_SKIA_SYSTEM_LIBS} AND UNIX)
+if(${SKIA_USE_SYSTEM_LIBS} AND UNIX)
     target_link_libraries(
         ${PROJECT_NAME}
         PRIVATE
         ${EXPAT_LIBRARIES}
         ${FREETYPE_LIBRARIES}
+        ${FONTCONFIG_LIBRARIES}
         ${JPEG_LIBRARIES}
         ${PNG_LIBRARIES}
         ${WEBP_LIBRARIES}
@@ -333,6 +377,25 @@ if(${USE_SKIA_SYSTEM_LIBS} AND UNIX)
         ${ICU_LIBRARIES}
         ${HARFBUZZ_LIBRARIES}
     )
+endif()
+
+if(${SKIA_STATIC})
+    if(UNIX AND NOT APPLE)
+        target_link_libraries(
+            ${PROJECT_NAME}
+            PRIVATE
+            ${EGL_LIBRARIES}
+            ${GLES_LIBRARIES}
+            ${FONTCONFIG_LIBRARIES}
+        )
+        if(NOT ${SKIA_USE_SYSTEM_LIBS})
+            target_link_libraries(
+                ${PROJECT_NAME}
+                PRIVATE
+                ${FONTCONFIG_LIBRARIES}
+            )
+        endif()
+    endif()
 endif()
 
 if(APPLE)

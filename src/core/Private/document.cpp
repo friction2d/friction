@@ -224,10 +224,12 @@ void Document::addBookmarkColor(const QColor &color) {
     emit bookmarkColorAdded(color);
 }
 
-void Document::removeBookmarkColor(const QColor &color) {
+void Document::removeBookmarkColor(const QColor &color)
+{
     const auto rgba = color.rgba();
-    for(const auto& iColor : fColors) {
-        if(iColor.rgba() == rgba) {
+    for (int i = 0; i < fColors.count(); i++) {
+        if (fColors.at(i).rgba() == rgba) {
+            fColors.removeAt(i);
             emit bookmarkColorRemoved(color);
             break;
         }
@@ -294,11 +296,13 @@ void Document::clear() {
     const int nScenes = fScenes.count();
     for(int i = 0; i < nScenes; i++) removeScene(0);
     replaceClipboard(nullptr);
-    for(const auto brush : fBrushes) {
+    const auto iBrushes = fBrushes;
+    for (const auto brush : iBrushes) {
         removeBookmarkBrush(brush);
     }
     fBrushes.clear();
-    for(const auto& color : fColors) {
+    const auto iColors = fColors;
+    for (const auto& color : iColors) {
         removeBookmarkColor(color);
     }
     fColors.clear();

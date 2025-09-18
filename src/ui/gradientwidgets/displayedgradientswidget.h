@@ -56,6 +56,7 @@ public:
     void removeGradient(Gradient* const gradient);
     void removeSelectedGradient();
     void duplicateSelectedGradient();
+    void bookmarkColorsSelectedGradient();
 
     void updateHeight();
 
