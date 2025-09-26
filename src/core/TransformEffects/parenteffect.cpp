@@ -28,6 +28,7 @@
 #include "Boxes/boundingbox.h"
 #include "Animators/transformanimator.h"
 #include "Animators/qrealanimator.h"
+#include "matrixdecomposition.h"
 
 ParentEffect::ParentEffect() :
     FollowObjectEffectBase("parent", TransformEffectType::parent) {}
@@ -64,30 +65,75 @@ void ParentEffect::applyEffect(const qreal relFrame,
     const qreal targetRelFrame = target->prp_absFrameToRelFrameF(absFrame);
     const auto targetTransAnim = target->getTransformAnimator();
 
-    postTransform = targetTransAnim->getRelativeTransformAtFrame(targetRelFrame);
+    const QMatrix targetTransform =
+            targetTransAnim->getRelativeTransformAtFrame(targetRelFrame);
+    const QPointF targetPivot = target->getPivotRelPos(targetRelFrame);
+    const auto targetValues =
+            MatrixDecomposition::decomposePivoted(targetTransform, targetPivot);
 
-    // influence
+    // Get influence values with reasonable bounds to prevent extreme values
+    const qreal posXInfl = qBound(-10.0, mPosInfluence->getEffectiveXValue(relFrame), 10.0);
+    const qreal posYInfl = qBound(-10.0, mPosInfluence->getEffectiveYValue(relFrame), 10.0);
+    const qreal scaleXInfl = qBound(-10.0, mScaleInfluence->getEffectiveXValue(relFrame), 10.0);
+    const qreal scaleYInfl = qBound(-10.0, mScaleInfluence->getEffectiveYValue(relFrame), 10.0);
+    const qreal rotInfl = qBound(-10.0, mRotInfluence->getEffectiveValue(relFrame), 10.0);
 
-    const qreal posXInfl = mPosInfluence->getEffectiveXValue(relFrame);
-    const qreal posYInfl = mPosInfluence->getEffectiveYValue(relFrame);
-    const qreal scaleXInfl = mScaleInfluence->getEffectiveXValue(relFrame);
-    const qreal scaleYInfl = mScaleInfluence->getEffectiveYValue(relFrame);
-    const qreal rotInfl = mRotInfluence->getEffectiveValue(relFrame);
+    // Validate influence values for safety
+    if (!validateInfluenceValues(posXInfl, posYInfl, scaleXInfl, scaleYInfl, rotInfl)) {
+        return; // Skip effect if invalid values detected
+    }
 
-    const auto rotAnim = targetTransAnim->getRotAnimator();
-    const qreal targetRot = rotAnim->getEffectiveValue(targetRelFrame);
+    // Check for near-zero rotation influence
+    const bool zeroRotInfluence = std::abs(rotInfl) < 1e-6;
+    
+    // Apply influence to transform values using helper method
+    TransformValues influencedValues = targetValues;
+    applyInfluenceToTransform(influencedValues, targetValues, posXInfl, posYInfl, scaleXInfl, scaleYInfl);
+    
+    // Handle rotation influence with linear interpolation
+    qreal translationRotInfl = 1.0;
 
-    const auto scaleAnim = targetTransAnim->getScaleAnimator();
-    const qreal targetScaleX = scaleAnim->getEffectiveXValue(targetRelFrame);
-    const qreal targetScaleY = scaleAnim->getEffectiveYValue(targetRelFrame);
+    influencedValues.fRotation = targetValues.fRotation * translationRotInfl;
 
-    postTransform.setMatrix(postTransform.m11(),
-                            postTransform.m12(),
-                            postTransform.m21(),
-                            postTransform.m22(),
-                            postTransform.dx() * posXInfl,
-                            postTransform.dy() * posYInfl);
-    postTransform.scale(targetScaleX * scaleXInfl,
-                        targetScaleY * scaleYInfl);
-    postTransform.rotate(targetRot * rotInfl);
+    const qreal desiredRotation = zeroRotInfluence
+            ? -targetValues.fRotation
+            : targetValues.fRotation * rotInfl;
+    const qreal rotDeltaZero = -targetValues.fRotation;
+    const qreal rotDeltaFull = desiredRotation - influencedValues.fRotation;
+
+    if (rotInfl >= 0.0 && rotInfl <= 1.0) {
+        const qreal t = rotInfl;
+        const qreal blendedDelta = rotDeltaZero + t * (rotDeltaFull - rotDeltaZero);
+        rot += blendedDelta;
+    } else if (zeroRotInfluence) {
+        rot += rotDeltaZero;
+    } else {
+        rot += rotDeltaFull;
+    }
+
+    // Calculate final transform matrix
+    postTransform = influencedValues.calculate();
+}
+
+bool ParentEffect::validateInfluenceValues(const qreal posXInfl, const qreal posYInfl,
+                                          const qreal scaleXInfl, const qreal scaleYInfl,
+                                          const qreal rotInfl) const
+{
+    // Check for NaN or infinite values
+    return std::isfinite(posXInfl) && std::isfinite(posYInfl) &&
+           std::isfinite(scaleXInfl) && std::isfinite(scaleYInfl) &&
+           std::isfinite(rotInfl);
+}
+
+void ParentEffect::applyInfluenceToTransform(TransformValues& values,
+                                            const TransformValues& targetValues,
+                                            const qreal posXInfl, const qreal posYInfl,
+                                            const qreal scaleXInfl, const qreal scaleYInfl) const
+{
+    values.fMoveX = targetValues.fMoveX * posXInfl;
+    values.fMoveY = targetValues.fMoveY * posYInfl;
+    
+    // Scale influence: interpolate between no scaling (1.0) and target scaling
+    values.fScaleX = 1.0 + (targetValues.fScaleX - 1.0) * scaleXInfl;
+    values.fScaleY = 1.0 + (targetValues.fScaleY - 1.0) * scaleYInfl;
 }
