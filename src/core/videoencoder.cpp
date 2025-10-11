@@ -159,6 +159,24 @@ static void openVideo(const AVCodec * const codec, OutputStream * const ost) {
     int ret = avcodec_open2(c, codec, nullptr);
     if(ret < 0) AV_RuntimeThrow(ret, "Could not open codec")
 
+    // allocate and init a re-usable frame
+    if(c->time_base.num <= 0 || c->time_base.den <= 0 ||
+       c->time_base.num != ost->fStream->time_base.num ||
+       c->time_base.den != ost->fStream->time_base.den) {
+        c->time_base = ost->fStream->time_base;
+    }
+
+    // Some formats want stream headers to be separate.
+    const AVRational fps = av_inv_q(ost->fStream->time_base);
+    if(fps.num > 0 && fps.den > 0) {
+        ost->fStream->avg_frame_rate = fps;
+        ost->fStream->r_frame_rate = fps;
+        c->framerate = fps;
+    }
+    if(c->ticks_per_frame <= 0) {
+        c->ticks_per_frame = 1;
+    }
+
     /* Allocate the encoded raw picture. */
     ost->fDstFrame = allocPicture(c->pix_fmt, c->width, c->height);
     if(!ost->fDstFrame) RuntimeThrow("Could not allocate picture");
@@ -201,6 +219,15 @@ static void addVideoStream(OutputStream * const ost,
      * timebase should be 1/framerate and timestamp increments should be
      * identical to 1. */
     ost->fStream->time_base = renSettings.fTimeBase;
+
+    const AVRational targetFps = av_inv_q(renSettings.fTimeBase);
+    if(targetFps.num > 0 && targetFps.den > 0) {
+        ost->fStream->avg_frame_rate = targetFps;
+        ost->fStream->r_frame_rate = targetFps;
+        c->framerate = targetFps;
+    }
+    c->ticks_per_frame = 1;
+
     c->time_base       = ost->fStream->time_base;
 
     if (VideoEncoder::isValidProfile(codec,
@@ -328,6 +355,17 @@ static void writeVideoFrame(AVFormatContext * const oc,
         const int recRet = avcodec_receive_packet(c, &pkt);
         if(recRet >= 0) {
             av_packet_rescale_ts(&pkt, c->time_base, ost->fStream->time_base);
+            // if we did not set frame duration earlier, do it now
+            if(ost->fFrameDuration <= 0) {
+                AVRational frameBase;
+                if(ost->fStream->avg_frame_rate.num > 0 && ost->fStream->avg_frame_rate.den > 0)
+                    frameBase = av_inv_q(ost->fStream->avg_frame_rate);
+                else
+                    frameBase = c->time_base;
+                ost->fFrameDuration = av_rescale_q(1, frameBase, ost->fStream->time_base);
+                if(ost->fFrameDuration <= 0) ost->fFrameDuration = 1;
+            }
+            pkt.duration = ost->fFrameDuration;
             pkt.stream_index = ost->fStream->index;
 
             // Write the compressed frame to the media file.
@@ -657,15 +695,26 @@ static void flushStream(OutputStream * const ost,
             avcodec_flush_buffers(ost->fCodec);
             break;
         }
+        if(ret < 0) AV_RuntimeThrow(ret, "Error encoding a video frame during flush");
+
         if(pkt.pts != AV_NOPTS_VALUE)
             pkt.pts = av_rescale_q(pkt.pts, ost->fCodec->time_base,
                                    ost->fStream->time_base);
         if(pkt.dts != AV_NOPTS_VALUE)
             pkt.dts = av_rescale_q(pkt.dts, ost->fCodec->time_base,
                                    ost->fStream->time_base);
-        if(pkt.duration > 0)
-            pkt.duration = av_rescale_q(pkt.duration, ost->fCodec->time_base,
-                                        ost->fStream->time_base);
+        if(ost->fFrameDuration <= 0) {
+            // if we did not set frame duration earlier, do it now
+            AVRational frameBase;
+            if(ost->fStream->avg_frame_rate.num > 0 && ost->fStream->avg_frame_rate.den > 0)
+                frameBase = av_inv_q(ost->fStream->avg_frame_rate);
+            else
+                frameBase = ost->fCodec->time_base;
+            ost->fFrameDuration = av_rescale_q(1, frameBase, ost->fStream->time_base);
+            if(ost->fFrameDuration <= 0) ost->fFrameDuration = 1;
+        }
+        // set duration if not set
+        pkt.duration = ost->fFrameDuration;
         pkt.stream_index = ost->fStream->index;
         ret = av_interleaved_write_frame(formatCtx, &pkt);
     }
@@ -689,6 +738,16 @@ void VideoEncoder::finishEncodingNow() {
 
     if(mEncodeVideo) flushStream(&mVideoStream, mFormatContext);
     if(mEncodeAudio) flushStream(&mAudioStream, mFormatContext);
+
+    // set the number of frames in the video stream
+    if(mEncodeVideo && mVideoStream.fStream && mVideoStream.fCodec) {
+        mVideoStream.fStream->nb_frames = mVideoStream.fNextPts;
+        const AVRational fps = av_inv_q(mRenderSettings.fTimeBase);
+        if(fps.num > 0 && fps.den > 0) {
+            mVideoStream.fStream->avg_frame_rate = fps;
+            mVideoStream.fStream->r_frame_rate = fps;
+        }
+    }
 
     if(mEncodingSuccesfull) av_write_trailer(mFormatContext);
 

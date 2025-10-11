@@ -168,6 +168,8 @@ typedef struct CORE_EXPORT OutputStream {
     AVFrame *fSrcFrame = nullptr;
     struct SwsContext *fSwsCtx = nullptr;
     struct SwrContext *fSwrCtx = nullptr;
+    // Cached per-frame duration in stream time_base ticks
+    int64_t fFrameDuration = 0;
 } OutputStream;
 
 class CORE_EXPORT VideoEncoderEmitter : public QObject {
