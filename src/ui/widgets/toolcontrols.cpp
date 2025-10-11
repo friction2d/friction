@@ -358,7 +358,7 @@ void ToolControls::setupTransformInteract(const Core::Gizmos::Interact &ti)
     interact->setCheckable(true);
     interact->setChecked(visible);
 
-    ThemeSupport::setToolbarButtonStyle("ToolBoxGizmo", this, interact);
+    Friction::Core::Theme::setToolbarButtonStyle("ToolBoxGizmo", this, interact);
 
     connect(interact, &QAction::triggered,
             this, [mDocument, ti]() {

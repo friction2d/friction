@@ -316,7 +316,7 @@ void ToolBox::setupNodesAction(const QIcon &icon,
     });
     mControls->addAction(mGroupNodes->addAction(act));
     mGroupNodes->addAction(mControls->addSeparator());
-    ThemeSupport::setToolbarButtonStyle("ToolBoxButton", mControls, act);
+    Friction::Core::Theme::setToolbarButtonStyle("ToolBoxButton", mControls, act);
 }
 
 void ToolBox::setupNodesActions()
