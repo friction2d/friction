@@ -56,6 +56,9 @@
 #include <QMouseEvent>
 #include <QMenu>
 #include <QInputDialog>
+#include <QApplication>
+
+using namespace Friction::Core;
 
 void Canvas::handleMovePathMousePressEvent(const eMouseEvent& e) {
     mPressedBox = mCurrentContainer->getBoxAt(e.fPos);
@@ -207,6 +210,25 @@ void Canvas::handleLeftButtonMousePress(const eMouseEvent& e) {
     mStartTransform = true;
 
     const qreal invScale = 1/e.fScale;
+    const qreal invScaleUi = (qApp ? qApp->devicePixelRatio() : 1.0) * invScale;
+
+    if (tryStartShearGizmo(e, invScaleUi)) {
+        mPressedPoint = nullptr;
+        return;
+    }
+    if (tryStartScaleGizmo(e, invScaleUi)) {
+        mPressedPoint = nullptr;
+        return;
+    }
+    if (tryStartAxisGizmo(e, invScaleUi)) {
+        mPressedPoint = nullptr;
+        return;
+    }
+    if (tryStartRotateWithGizmo(e, invScaleUi)) {
+        mPressedPoint = nullptr;
+        return;
+    }
+
     mPressedPoint = getPointAtAbsPos(e.fPos, mCurrentMode, invScale);
 
     if(mRotPivot->isPointAtAbsPos(e.fPos, mCurrentMode, invScale)) {
@@ -295,7 +317,10 @@ void Canvas::handleLeftButtonMousePress(const eMouseEvent& e) {
     }
 }
 
-void Canvas::cancelCurrentTransform() {
+void Canvas::cancelCurrentTransform()
+{
+    mGizmos.fState.rotatingFromHandle = false;
+
     if(mCurrentMode == CanvasMode::pointTransform) {
         if(mCurrentNormalSegment.isValid()) {
             mCurrentNormalSegment.cancelPassThroughTransform();
@@ -316,13 +341,15 @@ void Canvas::cancelCurrentTransform() {
     }
     mValueInput.clearAndDisableInput();
     mTransMode = TransformMode::none;
+    cancelCurrentTransformGimzos();
 }
 
 void Canvas::handleMovePointMouseRelease(const eMouseEvent &e) {
     if(mRotPivot->isSelected()) {
         mRotPivot->setSelected(false);
     } else if(mTransMode == TransformMode::rotate ||
-              mTransMode == TransformMode::scale) {
+              mTransMode == TransformMode::scale ||
+              mTransMode == TransformMode::shear) {
         finishSelectedPointsTransform();
         mTransMode = TransformMode::none;
     } else if(mSelecting) {
@@ -394,6 +421,9 @@ void Canvas::handleMovePathMouseRelease(const eMouseEvent &e) {
         finishSelectedBoxesTransform();
     } else if(mTransMode == TransformMode::scale) {
         pushUndoRedoName("Scale Objects");
+        finishSelectedBoxesTransform();
+    } else if(mTransMode == TransformMode::shear) {
+        pushUndoRedoName("Shear Objects");
         finishSelectedBoxesTransform();
     } else if(mStartTransform) {
         mSelecting = false;
@@ -569,8 +599,12 @@ void Canvas::applyPixelColor(const QColor &color,
     }
 }
 
-void Canvas::handleLeftMouseRelease(const eMouseEvent &e) {
-    if(e.fMouseGrabbing) e.fReleaseMouse();
+void Canvas::handleLeftMouseRelease(const eMouseEvent &e)
+{
+    if (e.fMouseGrabbing) { e.fReleaseMouse(); }
+
+    handleLeftMouseGizmos();
+
     if(mCurrentNormalSegment.isValid()) {
         if(!mStartTransform) mCurrentNormalSegment.finishPassThroughTransform();
         mHoveredNormalSegment = mCurrentNormalSegment;
@@ -624,6 +658,8 @@ void Canvas::handleMovePointMouseMove(const eMouseEvent &e) {
         mRotPivot->moveByAbs(getMoveByValueForEvent(e));
     } else if(mTransMode == TransformMode::scale) {
         scaleSelected(e);
+    } else if(mTransMode == TransformMode::shear) {
+        shearSelected(e);
     } else if(mTransMode == TransformMode::rotate) {
         rotateSelected(e);
     } else if(mCurrentNormalSegment.isValid()) {
@@ -708,7 +744,7 @@ void Canvas::scaleSelected(const eMouseEvent& e) {
     if(mValueInput.inputEnabled()) {
         scaleBy = mValueInput.getValue();
     } else {
-        scaleBy = 1 + distSign(distMoved)*0.003;
+        scaleBy = 1 + distSign({distMoved.x(), -distMoved.y()})*0.003;
     }
     qreal scaleX;
     qreal scaleY;
@@ -731,6 +767,46 @@ void Canvas::scaleSelected(const eMouseEvent& e) {
 
     if(!mValueInput.inputEnabled())
         mValueInput.setDisplayedValue({scaleX, scaleY});
+    mRotPivot->setMousePos(e.fPos);
+}
+
+void Canvas::shearSelected(const eMouseEvent& e)
+{
+    const QPointF absPos = mRotPivot->getAbsolutePos();
+    const QPointF distMoved = e.fPos - e.fLastPressPos;
+
+    qreal shearBy;
+    if (mValueInput.inputEnabled()) {
+        shearBy = mValueInput.getValue();
+    } else {
+        qreal axisDelta;
+        if (mValueInput.xOnlyMode()) {
+            axisDelta = -distMoved.x();
+        } else {
+            axisDelta = distMoved.y();
+        }
+        shearBy = axisDelta * 0.01;
+    }
+    qreal shearX = 0;
+    qreal shearY = 0;
+    if (mValueInput.xOnlyMode()) {
+        shearX = shearBy;
+    } else if (mValueInput.yOnlyMode()) {
+        shearY = shearBy;
+    } else {
+        shearX = shearBy;
+        shearY = shearBy;
+    }
+
+    if (mCurrentMode == CanvasMode::boxTransform) {
+        shearSelectedBy(shearX, shearY, absPos, mStartTransform);
+    } else {
+        shearSelectedPointsBy(shearX, shearY, absPos, mStartTransform);
+    }
+
+    if (!mValueInput.inputEnabled()) {
+        mValueInput.setDisplayedValue({shearX, shearY});
+    }
     mRotPivot->setMousePos(e.fPos);
 }
 
@@ -765,12 +841,40 @@ void Canvas::rotateSelected(const eMouseEvent& e) {
     mRotPivot->setMousePos(e.fPos);
 }
 
+bool Canvas::prepareRotation(const QPointF &startPos,
+                             bool fromHandle)
+{
+    if (mCurrentMode != CanvasMode::boxTransform &&
+        mCurrentMode != CanvasMode::pointTransform) { return false; }
+    if (mSelectedBoxes.isEmpty()) { return false; }
+    if (mCurrentMode == CanvasMode::pointTransform) {
+        if (mSelectedPoints_d.isEmpty()) { return false; }
+    }
+
+    mGizmos.fState.rotatingFromHandle = fromHandle;
+    mValueInput.clearAndDisableInput();
+    mValueInput.setupRotate();
+
+    if (fromHandle) { setGizmosSuppressed(true); }
+
+    mRotPivot->setMousePos(startPos);
+    mTransMode = TransformMode::rotate;
+    mRotHalfCycles = 0;
+    mLastDRot = 0;
+
+    mDoubleClick = false;
+    mStartTransform = true;
+    return true;
+}
+
 void Canvas::handleMovePathMouseMove(const eMouseEvent& e) {
     if(mRotPivot->isSelected()) {
         if(mStartTransform) mRotPivot->startTransform();
         mRotPivot->moveByAbs(getMoveByValueForEvent(e));
     } else if(mTransMode == TransformMode::scale) {
         scaleSelected(e);
+    } else if(mTransMode == TransformMode::shear) {
+        shearSelected(e);
     } else if(mTransMode == TransformMode::rotate) {
         rotateSelected(e);
     } else {

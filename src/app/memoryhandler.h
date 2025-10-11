@@ -45,9 +45,13 @@ signals:
 
     void enteredCriticalState();
     void finishedCriticalState();
+    void memoryUsed(const intMB &used);
 private:
-    void freeMemory(const MemoryState newState, const longB &minFreeBytes);
-    void memoryChecked(const intKB memKb, const intKB totMemKb);
+    void freeMemory(const MemoryState newState,
+                    const longB &minFreeBytes);
+    void memoryChecked(const intKB memKb,
+                       const intKB totMemKb,
+                       const intKB usedKb);
 
     MemoryDataHandler mDataHandler;
     MemoryState mMemoryState = NORMAL_MEMORY_STATE;

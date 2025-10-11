@@ -22,8 +22,13 @@
 #include "canvas.h"
 #include <QPainter>
 #include <QMouseEvent>
+#include <QLineF>
+#include <QtMath>
+#include <cmath>
+#include <limits>
 #include <QDebug>
 #include <QApplication>
+#include <QPolygonF>
 #include "Boxes/videobox.h"
 #include "MovablePoints/pathpivot.h"
 #include "Boxes/imagebox.h"
@@ -48,6 +53,9 @@
 #include "Boxes/nullobject.h"
 #include "simpletask.h"
 #include "themesupport.h"
+#include "efiltersettings.h"
+
+using namespace Friction::Core;
 
 Canvas::Canvas(Document &document,
                const int canvasWidth,
@@ -228,7 +236,6 @@ void drawTransparencyMesh(SkCanvas* const canvas,
     canvas->drawRect(drawRect, paint);
 }
 
-#include "efiltersettings.h"
 void Canvas::renderSk(SkCanvas* const canvas,
                       const QRect& drawRect,
                       const QMatrix& viewTrans,
@@ -321,10 +328,13 @@ void Canvas::renderSk(SkCanvas* const canvas,
         }
     //}
 
+    renderGizmos(canvas, qInvZoom, invZoom);
+
     if(mCurrentMode == CanvasMode::boxTransform ||
        mCurrentMode == CanvasMode::pointTransform) {
         if(mTransMode == TransformMode::rotate ||
-           mTransMode == TransformMode::scale) {
+           mTransMode == TransformMode::scale ||
+           mTransMode == TransformMode::shear) {
             mRotPivot->drawTransforming(canvas, mCurrentMode, invZoom,
                                         eSizesUI::widget*0.25f*invZoom);
         } else if(!mouseGrabbing || mRotPivot->isSelected()) {
@@ -931,8 +941,10 @@ void Canvas::updatePivot()
 {
     if (mCurrentMode == CanvasMode::pointTransform) {
         mRotPivot->setAbsolutePos(getSelectedPointsAbsPivotPos());
+        mDocument.fPivotPosForGizmosValid = false;
     } else if (mCurrentMode == CanvasMode::boxTransform) {
         mRotPivot->setAbsolutePos(getSelectedBoxesAbsPivotPos());
+        mDocument.fPivotPosForGizmosValid = false;
     }
 }
 
@@ -1005,11 +1017,15 @@ bool Canvas::handleTransormationInputKeyEvent(const eKeyEvent &e)
     } else if (e.fKey == Qt::Key_X) {
         if (e.fAutorepeat) { return false; }
         mValueInput.switchXOnlyMode();
+        const bool linesChanged = updateLineGizmoVisibility();
         updateTransformation(e);
+        if (linesChanged) { emit requestUpdate(); }
     } else if (e.fKey == Qt::Key_Y) {
         if (e.fAutorepeat) { return false; }
         mValueInput.switchYOnlyMode();
+        const bool linesChanged = updateLineGizmoVisibility();
         updateTransformation(e);
+        if (linesChanged) { emit requestUpdate(); }
     } else { return false; }
     return true;
 }
@@ -1189,22 +1205,7 @@ void Canvas::setParentToLastSelected()
 
 bool Canvas::startRotatingAction(const eKeyEvent &e)
 {
-    if (mCurrentMode != CanvasMode::boxTransform &&
-        mCurrentMode != CanvasMode::pointTransform) { return false; }
-    if (mSelectedBoxes.isEmpty()) { return false; }
-    if (mCurrentMode == CanvasMode::pointTransform) {
-        if (mSelectedPoints_d.isEmpty()) { return false; }
-    }
-    mValueInput.clearAndDisableInput();
-    mValueInput.setupRotate();
-
-    mRotPivot->setMousePos(e.fPos);
-    mTransMode = TransformMode::rotate;
-    mRotHalfCycles = 0;
-    mLastDRot = 0;
-
-    mDoubleClick = false;
-    mStartTransform = true;
+    if (!prepareRotation(e.fPos)) { return false; }
     e.fGrabMouse();
     return true;
 }

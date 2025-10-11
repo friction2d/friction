@@ -45,7 +45,9 @@ public:
 
     void checkMemory();
 private:
-    void sGetFreeKB(intKB& procFreeKB, intKB& sysFreeKB);
+    void sGetFreeKB(intKB& procFreeKB,
+                    intKB& sysFreeKB,
+                    intKB& usedKB);
     static char sLine[256];
 
     MemoryState mLastMemoryState = NORMAL_MEMORY_STATE;
@@ -56,8 +58,9 @@ private:
 
     static MemoryChecker *mInstance;
 signals:
-    void memoryCheckedKB(intKB, intKB);
-    void handleMemoryState(MemoryState, longB bytesToFree);
+    void memoryCheckedKB(intKB, intKB, intKB);
+    void handleMemoryState(MemoryState,
+                           longB bytesToFree);
 };
 
 #endif // MEMORYCHECKER_H

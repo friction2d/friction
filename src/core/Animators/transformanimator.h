@@ -165,7 +165,13 @@ public:
     qreal getPivotY();
 
     void startShearTransform();
-    void setShear(const qreal shearX, const qreal shearY);
+    void setShear(const qreal shearX,
+                  const qreal shearY);
+    void shear(const qreal shearXBy,
+               const qreal shearYBy);
+    void shearRelativeToSavedValue(const qreal shearXBy,
+                                   const qreal shearYBy,
+                                   const QPointF &pivot);
 
     qreal getOpacity();
 

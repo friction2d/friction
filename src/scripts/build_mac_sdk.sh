@@ -169,6 +169,7 @@ if [ ! -f "${QMAKE_BIN}" ]; then
     fi
     cd ${QT_SRC}
     patch -p0 < ${DIST}/patches/qtbase-macos-versions.diff
+    patch -p0 < ${DIST}/patches/qversion.diff
     CXXFLAGS="${DEFAULT_CPPFLAGS}" CFLAGS="${DEFAULT_CFLAGS}" \
     ./configure \
     -prefix ${SDK} \
@@ -484,6 +485,7 @@ if [ ! -f "${SDK}/lib/pkgconfig/libavcodec.pc" ]; then
     --enable-avresample \
     --enable-gpl \
     --enable-version3 \
+    --extra-version=friction \
     --disable-avisynth \
     --disable-gnutls \
     --disable-libass \

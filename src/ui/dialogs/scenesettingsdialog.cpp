@@ -362,6 +362,7 @@ void SceneSettingsDialog::sNewSceneDialog(Document& document,
         const auto newCanvas = docPtr->createNewScene();
         const auto block = newCanvas->blockUndoRedo();
         dialog->applySettingsToCanvas(newCanvas);
+        newCanvas->anim_setAbsFrame(newCanvas->getFrameRange().fMin);
         dialog->close();
         docPtr->actionFinished();
     });

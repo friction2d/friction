@@ -438,6 +438,9 @@ bool TimelineDockWidget::processKeyPress(QKeyEvent *event)
 
 void TimelineDockWidget::previewFinished()
 {
+    if (const auto scene = *mDocument.fActiveScene) {
+        scene->setGizmosSuppressed(false);
+    }
     //setPlaying(false);
     mFrameStartSpin->setEnabled(true);
     mFrameEndSpin->setEnabled(true);
@@ -454,6 +457,9 @@ void TimelineDockWidget::previewFinished()
 
 void TimelineDockWidget::previewBeingPlayed()
 {
+    if (const auto scene = *mDocument.fActiveScene) {
+        scene->setGizmosSuppressed(true);
+    }
     mFrameStartSpin->setEnabled(false);
     mFrameEndSpin->setEnabled(false);
     mCurrentFrameSpinAct->setEnabled(false);
@@ -484,6 +490,9 @@ void TimelineDockWidget::previewBeingRendered()
 
 void TimelineDockWidget::previewPaused()
 {
+    if (const auto scene = *mDocument.fActiveScene) {
+        scene->setGizmosSuppressed(false);
+    }
     mFrameStartSpin->setEnabled(true);
     mFrameEndSpin->setEnabled(true);
     mCurrentFrameSpinAct->setEnabled(true);

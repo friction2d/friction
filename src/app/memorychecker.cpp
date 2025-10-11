@@ -65,7 +65,9 @@ MemoryChecker::MemoryChecker(QObject * const parent) : QObject(parent) {
 
 char MemoryChecker::sLine[256];
 
-void MemoryChecker::sGetFreeKB(intKB& procFreeKB, intKB& sysFreeKB)
+void MemoryChecker::sGetFreeKB(intKB& procFreeKB,
+                               intKB& sysFreeKB,
+                               intKB& usedKB)
 {
     const auto usageCap = eSettings::sInstance->fRamMBCap;
 
@@ -99,11 +101,13 @@ void MemoryChecker::sGetFreeKB(intKB& procFreeKB, intKB& sysFreeKB)
                                               &physical_memory_used,
                                               &bytes_in_use_by_app);
 #elif defined(Q_OS_MACOS)
-    struct mach_task_basic_info info;
-    mach_msg_type_number_t infoCount = MACH_TASK_BASIC_INFO_COUNT;
-    if ( task_info( mach_task_self( ), MACH_TASK_BASIC_INFO,
-        (task_info_t)&info, &infoCount ) == KERN_SUCCESS ) {
-        bytes_in_use_by_app = info.resident_size;
+    task_vm_info_data_t vm_info;
+    mach_msg_type_number_t vm_info_count = TASK_VM_INFO_COUNT;
+    if (task_info(mach_task_self(),
+                  TASK_VM_INFO,
+                  (task_info_t)&vm_info,
+                  &vm_info_count) == KERN_SUCCESS) {
+        bytes_in_use_by_app = vm_info.phys_footprint;
     }
 #endif
 
@@ -145,6 +149,7 @@ void MemoryChecker::sGetFreeKB(intKB& procFreeKB, intKB& sysFreeKB)
     }
 
     sysFreeKB = intKB(longB(freeInternal)) + freeExternal;
+    usedKB = enveUsedKB;
     //qDebug() << "Free" << intMB(sysFreeKB).fValue << "Used" << intMB(enveUsedKB).fValue;
 
 #if defined(Q_OS_LINUX)
@@ -158,7 +163,8 @@ void MemoryChecker::sGetFreeKB(intKB& procFreeKB, intKB& sysFreeKB)
 void MemoryChecker::checkMemory() {
     intKB procFreeKB;
     intKB sysFreeKB;
-    sGetFreeKB(procFreeKB, sysFreeKB);
+    intKB usedKB;
+    sGetFreeKB(procFreeKB, sysFreeKB, usedKB);
 
     if(sysFreeKB < mLowFreeKB) {
         const intKB toFree = mLowFreeKB - sysFreeKB;
@@ -180,5 +186,5 @@ void MemoryChecker::checkMemory() {
         mLastMemoryState = NORMAL_MEMORY_STATE;
     }
 
-    emit memoryCheckedKB(sysFreeKB, HardwareInfo::sRamKB());
+    emit memoryCheckedKB(sysFreeKB, HardwareInfo::sRamKB(), usedKB);
 }

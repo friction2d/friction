@@ -112,14 +112,10 @@ void MemoryHandler::freeMemory(const MemoryState newState,
 }
 
 void MemoryHandler::memoryChecked(const intKB memKb,
-                                  const intKB totMemKb)
+                                  const intKB totMemKb,
+                                  const intKB usedKb)
 {
     Q_UNUSED(memKb)
     Q_UNUSED(totMemKb)
-    /*const auto window = MainWindow::sGetInstance();
-    if (!window) { return; }
-    const auto usageWidget = window->getUsageWidget();
-    if (!usageWidget) { return; }
-    usageWidget->setTotalRam(totMemKb.fValue/qreal(1024));
-    usageWidget->setRamUsage((totMemKb - memKb).fValue/qreal(1024));*/
+    emit memoryUsed(intMB(usedKb));
 }

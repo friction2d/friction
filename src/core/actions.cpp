@@ -520,6 +520,14 @@ void Actions::subdivideSegments() const
     afterAction();
 }
 
+void Actions::removePointsApprox() const
+{
+    qDebug() << "removePointsApprox";
+    if (!mActiveScene) { return; }
+    mActiveScene->removeSelectedPointsApprox();
+    afterAction();
+}
+
 void Actions::makePointCtrlsSymmetric() const
 {
     qDebug() << "makePointCtrlsSymmetric";

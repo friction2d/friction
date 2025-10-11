@@ -28,6 +28,7 @@
 #include "widgets/toolbar.h"
 #include "widgets/qrealanimatorvalueslider.h"
 #include "canvas.h"
+#include "gizmos.h"
 
 #include <QComboBox>
 #include <QActionGroup>
@@ -51,6 +52,7 @@ namespace Friction
             void resetWidgets();
             void setupWidgets();
             void setupTransform();
+            void setupTransformInteract(const Core::Gizmos::Interact &ti);
 
             ConnContextQPtr<Canvas> mCanvas;
             CanvasMode mCanvasMode;
@@ -75,6 +77,7 @@ namespace Friction
             QActionGroup *mTransformBottomRight;
             QActionGroup *mTransformPivot;
             QActionGroup *mTransformOpacity;
+            QActionGroup *mTransformInteract;
         };
     }
 }

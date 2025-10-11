@@ -60,6 +60,7 @@ public:
     void disconnectPointsSlot() const;
     void mergePointsSlot() const;
     void subdivideSegments() const;
+    void removePointsApprox() const;
 
     void makePointCtrlsSymmetric() const;
     void makePointCtrlsSmooth() const;

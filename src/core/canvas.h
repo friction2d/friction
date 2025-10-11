@@ -44,6 +44,10 @@
 #include "drawpath.h"
 #include <QMouseEvent>
 #include <QTabletEvent>
+#include <QSizeF>
+#include <QVector>
+
+#include "gizmos.h"
 
 class AnimatedSurface;
 //class PaintBox;
@@ -156,6 +160,11 @@ public:
                          const QPointF &absOrigin,
                          const bool startTrans);
     void cancelSelectedBoxesTransform();
+    void shearSelectedBy(const qreal shearXBy,
+                         const qreal shearYBy,
+                         const QPointF &absOrigin,
+                         const bool startTrans);
+
     void cancelSelectedPointsTransform();
 
     void setSelectedCapStyle(const SkPaint::Cap capStyle);
@@ -187,6 +196,11 @@ public:
                                const qreal scaleYBy,
                                const QPointF &absOrigin,
                                const bool startTrans);
+    void shearSelectedPointsBy(const qreal shearXBy,
+                               const qreal shearYBy,
+                               const QPointF &absOrigin,
+                               const bool startTrans);
+
     void rotateSelectedPointsBy(const qreal rotBy,
                                 const QPointF &absOrigin,
                                 const bool startTrans);
@@ -210,6 +224,7 @@ public:
     void setSelectedFontSize(const qreal size);
     void setSelectedFontText(const QString &text);
     void removeSelectedPointsAndClearList();
+    void removeSelectedPointsApprox();
     void removeSelectedBoxesAndClearList();
 
     BoundingBox* getCurrentBox() const { return mCurrentBox; }
@@ -314,6 +329,9 @@ public:
                   const QRect &drawRect,
                   const QMatrix &viewTrans,
                   const bool mouseGrabbing);
+    void renderGizmos(SkCanvas* const canvas,
+                      const qreal qInvZoom,
+                      const float invZoom);
 
     void setCanvasSize(const int width,
                        const int height);
@@ -419,6 +437,10 @@ public:
     {
         mPathEffectsVisible = bT;
     }
+
+    void setGizmoVisibility(const Friction::Core::Gizmos::Interact &ti,
+                            const bool visibility);
+    bool getGizmoVisibility(const Friction::Core::Gizmos::Interact &ti);
 
     void setEasingAction(const QString &easing)
     {
@@ -688,6 +710,8 @@ public:
         mSceneFramesHandler.clearUseRange();
     }
 
+    void setGizmosSuppressed(bool suppressed);
+
     //! Used for clip to canvas, when frames are not really changed.
     void sceneFramesUpToDate() const
     {
@@ -737,7 +761,52 @@ private:
     //void openTextEditorForTextBox(TextBox *textBox);
 
     void scaleSelected(const eMouseEvent &e);
+    void shearSelected(const eMouseEvent &e);
     void rotateSelected(const eMouseEvent &e);
+
+    bool prepareRotation(const QPointF &startPos,
+                         bool fromHandle = false);
+
+    void updateRotateHandleHover(const QPointF &pos,
+                                 qreal invScale);
+    bool pointOnRotateGizmo(const QPointF &pos,
+                            qreal invScale) const;
+    void setRotateHandleHover(bool hovered);
+    bool shouldShowXLineGizmo() const;
+    bool shouldShowYLineGizmo() const;
+    bool updateLineGizmoVisibility();
+
+    void updateRotateHandleGeometry(qreal invScale);
+
+    bool tryStartRotateWithGizmo(const eMouseEvent &e,
+                                 qreal invScale);
+    bool tryStartScaleGizmo(const eMouseEvent &e,
+                            qreal invScale);
+    bool tryStartShearGizmo(const eMouseEvent &e,
+                            qreal invScale);
+    bool tryStartAxisGizmo(const eMouseEvent &e,
+                           qreal invScale);
+
+    bool startScaleConstrainedMove(const eMouseEvent &e,
+                                   Friction::Core::Gizmos::ScaleHandle handle);
+    bool startShearConstrainedMove(const eMouseEvent &e,
+                                   Friction::Core::Gizmos::ShearHandle handle);
+    bool startAxisConstrainedMove(const eMouseEvent &e,
+                                  Friction::Core::Gizmos::AxisConstraint axis);
+
+    bool pointOnScaleGizmo(Friction::Core::Gizmos::ScaleHandle handle,
+                           const QPointF &pos, qreal invScale) const;
+    bool pointOnShearGizmo(Friction::Core::Gizmos::ShearHandle handle,
+                           const QPointF &pos, qreal invScale) const;
+    bool pointOnAxisGizmo(Friction::Core::Gizmos::AxisConstraint axis,
+                          const QPointF &pos, qreal invScale) const;
+
+    void setScaleGizmoHover(Friction::Core::Gizmos::ScaleHandle handle,
+                            bool hovered);
+    void setShearGizmoHover(Friction::Core::Gizmos::ShearHandle handle,
+                            bool hovered);
+    void setAxisGizmoHover(Friction::Core::Gizmos::AxisConstraint axis,
+                           bool hovered);
 
     void drawPathClear();
     void drawPathFinish(const qreal invScale);
@@ -808,6 +877,8 @@ protected:
 
     ValueInput mValueInput;
 
+    Friction::Core::Gizmos mGizmos;
+
     bool mPreviewing = false;
     bool mRenderingPreview = false;
     bool mRenderingOutput = false;
@@ -851,6 +922,7 @@ protected:
     void handleMovePathMouseMove(const eMouseEvent &e);
 
     void handleLeftMouseRelease(const eMouseEvent &e);
+    void handleLeftMouseGizmos();
 
     void handleAddSmartPointMousePress(const eMouseEvent &e);
     void handleAddSmartPointMouseMove(const eMouseEvent &e);
@@ -859,6 +931,7 @@ protected:
     void updateTransformation(const eKeyEvent &e);
     QPointF getMoveByValueForEvent(const eMouseEvent &e);
     void cancelCurrentTransform();
+    void cancelCurrentTransformGimzos();
 };
 
 #endif // CANVAS_H

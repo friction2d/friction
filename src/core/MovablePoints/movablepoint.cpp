@@ -29,6 +29,7 @@
 #include "Animators/transformanimator.h"
 #include "themesupport.h"
 #include "Private/esettings.h"
+#include "Private/document.h"
 
 MovablePoint::MovablePoint(const MovablePointType type) : mType(type) {}
 
@@ -87,6 +88,11 @@ void MovablePoint::drawOnAbsPosSk(SkCanvas * const canvas,
                                   const SkColor &fillColor,
                                   const bool keyOnCurrent)
 {
+    // Update global pivot used for gizmos with this point's absolute position
+    const auto doc = Document::sInstance;
+    doc->fPivotPosForGizmos = getAbsolutePos();
+    doc->fPivotPosForGizmosValid = true;
+
     const float scaledRadius = static_cast<float>(mRadius)*invScale;
 
     SkPaint paint;
@@ -172,10 +178,22 @@ void MovablePoint::rotateRelativeToSavedPivot(const qreal rot) {
     moveToRel(mat.map(mSavedRelPos));
 }
 
-void MovablePoint::scaleRelativeToSavedPivot(const qreal sx, const qreal sy) {
+void MovablePoint::scaleRelativeToSavedPivot(const qreal sx,
+                                             const qreal sy)
+{
     QMatrix mat;
     mat.translate(mPivot.x(), mPivot.y());
     mat.scale(sx, sy);
+    mat.translate(-mPivot.x(), -mPivot.y());
+    moveToRel(mat.map(mSavedRelPos));
+}
+
+void MovablePoint::shearRelativeToSavedPivot(const qreal shearX,
+                                             const qreal shearY)
+{
+    QMatrix mat;
+    mat.translate(mPivot.x(), mPivot.y());
+    mat.shear(shearX, shearY);
     mat.translate(-mPivot.x(), -mPivot.y());
     moveToRel(mat.map(mSavedRelPos));
 }

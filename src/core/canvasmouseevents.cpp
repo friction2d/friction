@@ -32,6 +32,7 @@
 #include "Private/document.h"
 #include "MovablePoints/pathpivot.h"
 #include "eevent.h"
+#include <QApplication>
 
 /*void Canvas::newPaintBox(const QPointF &pos) {
     const auto paintBox = enve::make_shared<PaintBox>();
@@ -78,6 +79,8 @@ void Canvas::mouseMoveEvent(const eMouseEvent &e)
     const bool leftPressed = e.fButtons & Qt::LeftButton;
 
     if (!leftPressed && !e.fMouseGrabbing) {
+        const qreal invScaleUi = (qApp ? qApp->devicePixelRatio() : 1.0) * (1 / e.fScale);
+        updateRotateHandleHover(e.fPos, invScaleUi);
         if (mCurrentMode == CanvasMode::pickFillStroke ||
             mCurrentMode == CanvasMode::pickFillStrokeEvent) {
             emit currentHoverColor(pickPixelColor(e.fGlobalPos));
@@ -110,7 +113,12 @@ void Canvas::mouseMoveEvent(const eMouseEvent &e)
             mMovesToSkip--;
             return;
         }
-        if(mStartTransform && leftPressed) {
+        if (mStartTransform &&
+            leftPressed &&
+            !mGizmos.fState.rotatingFromHandle &&
+            !mGizmos.fState.axisHandleActive &&
+            !mGizmos.fState.scaleHandleActive &&
+            !mGizmos.fState.shearHandleActive) {
             if((mCurrentMode == CanvasMode::pointTransform &&
                 !mPressedPoint && !mCurrentNormalSegment.isValid()) ||
                (mCurrentMode == CanvasMode::boxTransform &&

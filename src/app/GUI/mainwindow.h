@@ -50,6 +50,7 @@
 #include "ekeyfilter.h"
 #include "window.h"
 #include "GUI/RenderWidgets/renderwidget.h"
+#include "gizmos.h"
 
 #include "widgets/fontswidget.h"
 #include "widgets/toolbar.h"
@@ -305,6 +306,7 @@ private:
 
     void setupMainWidgets();
     void setupStackWidgets();
+    void setupMemoryWidgets();
     void setupPropertiesWidgets();
     void setupLayout();
     void setupToolBar();
@@ -312,6 +314,8 @@ private:
     void setupMenuScene();
     void setupMenuEffects();
     void setupMenuExtras();
+    void setupMenuGizmo(QMenu *menu,
+                        const Friction::Core::Gizmos::Interact &ti);
     void setupPropertiesActions();
 
     BoundingBox* getCurrentBox();
@@ -370,6 +374,8 @@ private:
 
     QAction *mToolBarMainAct;
     QAction *mToolBarColorAct;
+
+    intMB mMemoryUsed;
 
 protected:
     void keyPressEvent(QKeyEvent *event);

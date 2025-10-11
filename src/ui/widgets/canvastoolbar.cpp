@@ -37,6 +37,7 @@ CanvasToolBar::CanvasToolBar(QWidget *parent)
     , mSpinWidth(nullptr)
     , mSpinHeight(nullptr)
     , mComboResolution(nullptr)
+    , mMemoryLabel(nullptr)
     , mIconsOnly(AppSupport::getSettings("ui",
                                          "CanvasToolbarIconsOnly",
                                          false).toBool())
@@ -66,6 +67,9 @@ CanvasToolBar::CanvasToolBar(QWidget *parent)
                              QSizePolicy::Expanding);
         addWidget(space);
     }
+
+    mMemoryLabel = addAction(QIcon::fromTheme("memory"), tr("0 MB"));
+    mMemoryLabel->setToolTip(tr("Memory used"));
 
     setupDimensions();
     setupResolution();
@@ -102,6 +106,11 @@ void CanvasToolBar::setCurrentCanvas(Canvas * const target)
 QComboBox *CanvasToolBar::getResolutionComboBox()
 {
     return mComboResolution;
+}
+
+void CanvasToolBar::setMemoryUsage(const intMB &usage)
+{
+    mMemoryLabel->setText(tr("%1 MB").arg(usage.fValue));
 }
 
 void CanvasToolBar::setupDimensions()

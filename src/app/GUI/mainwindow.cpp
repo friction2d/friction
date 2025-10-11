@@ -168,6 +168,7 @@ MainWindow::MainWindow(Document& document,
     setupAutoSave();
 
     setupMainWidgets();
+    setupMemoryWidgets();
     setupPropertiesWidgets();
 
     setupToolBar();
@@ -913,6 +914,21 @@ void MainWindow::setupStackWidgets()
     mStackWidget = new QStackedWidget(this);
     mStackIndexScene = mStackWidget->addWidget(mLayoutHandler->sceneLayout());
     mStackIndexWelcome = mStackWidget->addWidget(mWelcomeDialog);
+}
+
+void MainWindow::setupMemoryWidgets()
+{
+    const auto timer = new QTimer(this);
+    connect(timer, &QTimer::timeout,
+            this, [this]() {
+        if (mShutdown || !mCanvasToolBar) { return; }
+        mCanvasToolBar->setMemoryUsage(mMemoryUsed);
+    });
+    timer->start(5000);
+
+    const auto handler = MemoryHandler::sInstance;
+    connect(handler, &MemoryHandler::memoryUsed,
+            this, [this](intMB used) { mMemoryUsed = used; });
 }
 
 void MainWindow::setupPropertiesWidgets()

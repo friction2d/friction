@@ -254,6 +254,7 @@ set(
     canvashandlesmartpath.cpp
     canvasmouseevents.cpp
     canvasmouseinteractions.cpp
+    canvasgizmos.cpp
     canvasselectedboxesactions.cpp
     canvasselectedpointsactions.cpp
     clipboardcontainer.cpp
@@ -593,6 +594,7 @@ set(
     etextureframebuffer.h
     fileshandler.h
     filesourcescache.h
+    gizmos.h
     gpurendertools.h
     hardwareenums.h
     hardwareinfo.h

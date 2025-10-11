@@ -754,8 +754,20 @@ void BoundingBox::scale(const qreal scaleBy) {
     scale(scaleBy, scaleBy);
 }
 
-void BoundingBox::scale(const qreal scaleXBy, const qreal scaleYBy) {
+void BoundingBox::scale(const qreal scaleXBy,
+                        const qreal scaleYBy)
+{
     mTransformAnimator->scale(scaleXBy, scaleYBy);
+}
+
+void BoundingBox::shear(const qreal shearXBy,
+                        const qreal shearYBy)
+{
+    if (auto boxTransform = getBoxTransformAnimator()) {
+        if (auto shearAnimator = boxTransform->getShearAnimator()) {
+            shearAnimator->incSavedValueToCurrentValue(shearXBy, shearYBy);
+        }
+    }
 }
 
 void BoundingBox::setScale(const qreal scale)
@@ -785,6 +797,14 @@ void BoundingBox::scaleRelativeToSavedPivot(const qreal scaleXBy,
 
 void BoundingBox::scaleRelativeToSavedPivot(const qreal scaleBy) {
     scaleRelativeToSavedPivot(scaleBy, scaleBy);
+}
+
+void BoundingBox::shearRelativeToSavedPivot(const qreal shearXBy,
+                                            const qreal shearYBy) {
+    if (auto boxTransform = getBoxTransformAnimator()) {
+        boxTransform->shearRelativeToSavedValue(shearXBy, shearYBy,
+                                                mSavedTransformPivot);
+    }
 }
 
 QPointF BoundingBox::mapRelPosToAbs(const QPointF &relPos) const {
@@ -1043,6 +1063,12 @@ void BoundingBox::startRotTransform() {
 
 void BoundingBox::startScaleTransform() {
     mTransformAnimator->startScaleTransform();
+}
+
+void BoundingBox::startShearTransform() {
+    if (auto boxTransform = getBoxTransformAnimator()) {
+        boxTransform->startShearTransform();
+    }
 }
 
 void BoundingBox::startTransform() {

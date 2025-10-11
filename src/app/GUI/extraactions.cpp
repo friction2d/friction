@@ -647,6 +647,48 @@ void MainWindow::setupMenuExtras()
     }
 }
 
+void MainWindow::setupMenuGizmo(QMenu *menu,
+                                const Core::Gizmos::Interact &ti)
+{
+    if (!menu) { return; }
+
+    const bool visible = mDocument.getGizmoVisibility(ti);
+    QString title;
+
+    switch (ti) {
+    case Core::Gizmos::Interact::Position:
+        title = tr("Position");
+        break;
+    case Core::Gizmos::Interact::Rotate:
+        title = tr("Rotate");
+        break;
+    case Core::Gizmos::Interact::Scale:
+        title = tr("Scale");
+        break;
+    case Core::Gizmos::Interact::Shear:
+        title = tr("Shear");
+        break;
+    default: return;
+    }
+
+    const auto act = menu->addAction(title);
+    act->setCheckable(true);
+    act->setChecked(visible);
+
+    connect(act, &QAction::toggled,
+            this, [this, ti]() {
+        mDocument.setGizmoVisibility(ti, !mDocument.getGizmoVisibility(ti));
+    });
+    connect(&mDocument, &Document::gizmoVisibilityChanged,
+            this, [ti, act](Core::Gizmos::Interact i,
+                            bool enabled) {
+        if (ti != i) { return; }
+        act->blockSignals(true);
+        act->setChecked(enabled);
+        act->blockSignals(false);
+    });
+}
+
 void MainWindow::setupPropertiesActions()
 {
     mViewMenu->addSeparator();
