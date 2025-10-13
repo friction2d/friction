@@ -45,38 +45,33 @@ Circle::Circle() : PathBox("Circle", eBoxType::circle) {
     ca_prependChild(mPathEffectsAnimators.data(),
                             mCenterAnimator);
 
-    mHorizontalRadiusAnimator =
-            enve::make_shared<QPointFAnimator>("horizontal radius");
+    mRadiusAnimator = enve::make_shared<QPointFAnimator>("radius");
+    ca_prependChild(mPathEffectsAnimators.data(), mRadiusAnimator);
     mHorizontalRadiusPoint = enve::make_shared<CircleRadiusPoint>(
-                mHorizontalRadiusAnimator.get(), mTransformAnimator.get(),
+                mRadiusAnimator.get(), mTransformAnimator.get(),
                 mCenterPoint.get(), TYPE_PATH_POINT, false);
     getPointsHandler()->appendPt(mHorizontalRadiusPoint);
     mHorizontalRadiusPoint->setRelativePos(QPointF(10, 0));
-    const auto hXAnimator = mHorizontalRadiusAnimator->getXAnimator();
-    ca_prependChild(mPathEffectsAnimators.data(),
-                            hXAnimator->ref<QrealAnimator>());
-    hXAnimator->prp_setName("horizontal radius");
 
-    mVerticalRadiusAnimator =
-            enve::make_shared<QPointFAnimator>("vertical radius");
     mVerticalRadiusPoint = enve::make_shared<CircleRadiusPoint>(
-                mVerticalRadiusAnimator.get(), mTransformAnimator.get(),
+                mRadiusAnimator.get(), mTransformAnimator.get(),
                 mCenterPoint.get(), TYPE_PATH_POINT, true);
     getPointsHandler()->appendPt(mVerticalRadiusPoint);
     mVerticalRadiusPoint->setRelativePos(QPointF(0, 10));
-    const auto vYAnimator = mVerticalRadiusAnimator->getYAnimator();
-    ca_prependChild(mPathEffectsAnimators.data(),
-                            vYAnimator->ref<QrealAnimator>());
-    vYAnimator->prp_setName("vertical radius");
+
+    const auto rXAnimator = mRadiusAnimator->getXAnimator();
+    const auto rYAnimator = mRadiusAnimator->getYAnimator();
+    rXAnimator->prp_setName("x");
+    rYAnimator->prp_setName("y");
 
     const auto pathUpdater = [this](const UpdateReason reason) {
         setPathsOutdated(reason);
     };
     connect(mCenterAnimator.get(), &Property::prp_currentFrameChanged,
             this, pathUpdater);
-    connect(vYAnimator, &Property::prp_currentFrameChanged,
+    connect(rYAnimator, &Property::prp_currentFrameChanged,
             this, pathUpdater);
-    connect(hXAnimator, &Property::prp_currentFrameChanged,
+    connect(rXAnimator, &Property::prp_currentFrameChanged,
             this, pathUpdater);
 }
 
@@ -104,8 +99,8 @@ void Circle::setRadius(const qreal radius) {
 
 SkPath Circle::getRelativePath(const qreal relFrame) const {
     const QPointF center = mCenterAnimator->getEffectiveValue();
-    const qreal xRad = mHorizontalRadiusAnimator->getEffectiveXValue(relFrame);
-    const qreal yRad = mVerticalRadiusAnimator->getEffectiveYValue(relFrame);
+    const qreal xRad = mRadiusAnimator->getEffectiveXValue(relFrame);
+    const qreal yRad = mRadiusAnimator->getEffectiveYValue(relFrame);
     SkPath path;
     const auto p0 = center + QPointF(0, -yRad);
     const auto p1 = center + QPointF(xRad, 0);
@@ -131,11 +126,11 @@ SkPath Circle::getRelativePath(const qreal relFrame) const {
 }
 
 qreal Circle::getCurrentXRadius() {
-    return mHorizontalRadiusAnimator->getEffectiveXValue();
+    return mRadiusAnimator->getEffectiveXValue();
 }
 
 qreal Circle::getCurrentYRadius() {
-    return mVerticalRadiusAnimator->getEffectiveYValue();
+    return mRadiusAnimator->getEffectiveYValue();
 }
 
 QPointFAnimator *Circle::getCenterAnimator()
@@ -145,25 +140,23 @@ QPointFAnimator *Circle::getCenterAnimator()
 
 QPointFAnimator *Circle::getHRadiusAnimator()
 {
-    return mHorizontalRadiusAnimator.get();
+    return mRadiusAnimator.get();
 }
 
 QPointFAnimator *Circle::getVRadiusAnimator()
 {
-    return mVerticalRadiusAnimator.get();
+    return mRadiusAnimator.get();
 }
 
 void Circle::getMotionBlurProperties(QList<Property*> &list) const {
     PathBox::getMotionBlurProperties(list);
-    list.append(mHorizontalRadiusAnimator.get());
-    list.append(mVerticalRadiusAnimator.get());
+    list.append(mRadiusAnimator.get());
 }
 
 bool Circle::differenceInEditPathBetweenFrames(
         const int frame1, const int frame2) const {
     if(mCenterAnimator->prp_differencesBetweenRelFrames(frame1, frame2)) return true;
-    if(mHorizontalRadiusAnimator->prp_differencesBetweenRelFrames(frame1, frame2)) return true;
-    return mVerticalRadiusAnimator->prp_differencesBetweenRelFrames(frame1, frame2);
+    return mRadiusAnimator->prp_differencesBetweenRelFrames(frame1, frame2);
 }
 
 void Circle::setCenter(const QPointF &center) {
@@ -183,8 +176,8 @@ void Circle::saveSVG(SvgExporter& exp,
     const auto cX = mCenterAnimator->getXAnimator();
     const auto cY = mCenterAnimator->getYAnimator();
 
-    const auto rX = mHorizontalRadiusAnimator->getXAnimator();
-    const auto rY = mVerticalRadiusAnimator->getYAnimator();
+    const auto rX = mRadiusAnimator->getXAnimator();
+    const auto rY = mRadiusAnimator->getYAnimator();
 
     cX->saveQrealSVG(exp, ele, task->visRange(), "cx");
     cY->saveQrealSVG(exp, ele, task->visRange(), "cy");
@@ -245,14 +238,18 @@ CircleRadiusPoint::CircleRadiusPoint(QPointFAnimator * const associatedAnimator,
 
 QPointF CircleRadiusPoint::getRelativePos() const {
     const QPointF centerPos = mCenterPoint->getRelativePos();
-    return AnimatedPoint::getRelativePos() + centerPos;
+    const QPointF radius = AnimatedPoint::getRelativePos();
+    return centerPos + QPointF(mXBlocked ? 0 : radius.x(),
+                               mXBlocked ? radius.y() : 0);
 }
 
 void CircleRadiusPoint::setRelativePos(const QPointF &relPos) {
     const QPointF centerPos = mCenterPoint->getRelativePos();
+    QPointF radius = AnimatedPoint::getRelativePos();
     if(mXBlocked) {
-        setValue(QPointF(0, relPos.y() - centerPos.y()));
+        radius.setY(relPos.y() - centerPos.y());
     } else {
-        setValue(QPointF(relPos.x() - centerPos.x(), 0));
+        radius.setX(relPos.x() - centerPos.x());
     }
+    setValue(radius);
 }

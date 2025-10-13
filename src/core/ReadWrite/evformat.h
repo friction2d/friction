@@ -46,6 +46,7 @@ namespace EvFormat {
         formatOptions2 = 31,
         subPathOffset = 32,
         avStretch = 33,
+        circleRadiusXY = 34,
 
         nextVersion
     };
