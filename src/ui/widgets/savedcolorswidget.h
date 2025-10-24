@@ -34,6 +34,7 @@
 #include "colorhelpers.h"
 
 class SavedColorButton;
+class QToolButton;
 
 class UI_EXPORT SavedColorsWidget : public QWidget
 {
@@ -48,10 +49,12 @@ public:
 
 private:
     FlowLayout *mMainLayout = nullptr;
+    QToolButton *mAddButton = nullptr;
     QList<SavedColorButton*> mButtons;
 
 signals:
     void colorSet(QColor);
+    void addCurrentColorRequested();
 };
 
 #endif // SAVEDCOLORSWIDGET_H

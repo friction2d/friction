@@ -25,15 +25,50 @@
 
 #include "savedcolorswidget.h"
 #include "widgets/savedcolorbutton.h"
-#include <QAction>
-#include <QMenu>
+
+#include <QIcon>
+#include <QPalette>
+#include <QSize>
+#include <QToolButton>
+#include <QSizePolicy>
+
 #include "colorhelpers.h"
 #include "Private/document.h"
+#include "GUI/global.h"
+#include "themesupport.h"
 
 SavedColorsWidget::SavedColorsWidget(QWidget *parent)
     : QWidget(parent) {
     mMainLayout = new FlowLayout(this);
     setLayout(mMainLayout);
+    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+
+    mAddButton = new QToolButton(this);
+    mAddButton->setCursor(Qt::PointingHandCursor);
+    mAddButton->setFocusPolicy(Qt::NoFocus);
+    mAddButton->setToolTip(tr("Add bookmarked color"));
+    mAddButton->setIcon(QIcon::fromTheme("plus"));
+    mAddButton->setAutoRaise(false);
+    mAddButton->setCheckable(false);
+    eSizesUI::widget.add(mAddButton, [this](int size) {
+        mAddButton->setFixedSize(size, size);
+        const int iconSide = qMax(0, size);
+        mAddButton->setIconSize(QSize(iconSide, iconSide));
+    });
+    const QColor baseColor = ThemeSupport::getThemeButtonBaseColor();
+    const QColor baseDarkerColor = ThemeSupport::getThemeBaseDarkerColor();
+    const QColor borderColor = ThemeSupport::getThemeButtonBorderColor();
+    const QColor hoverColor = ThemeSupport::getThemeHighlightColor();
+    const QString style = QStringLiteral(
+                "QToolButton { background-color: %1; border: 1px solid %2; padding: 0; }"
+                "QToolButton:hover { background-color: %4; border: 1px solid %3; }"
+                "QToolButton:pressed { border: 2px solid %3; }")
+            .arg(baseColor.name(), borderColor.name(), hoverColor.name(), baseDarkerColor.name());
+    mAddButton->setStyleSheet(style);
+    connect(mAddButton, &QToolButton::clicked,
+            this, &SavedColorsWidget::addCurrentColorRequested);
+    mMainLayout->addWidget(mAddButton);
+
     for(const auto& color : Document::sInstance->fColors) {
         addColor(color);
     }
@@ -41,7 +76,6 @@ SavedColorsWidget::SavedColorsWidget(QWidget *parent)
             this, &SavedColorsWidget::addColor);
     connect(Document::sInstance, &Document::bookmarkColorRemoved,
             this, &SavedColorsWidget::removeColor);
-    setVisible(!mButtons.isEmpty());
 }
 
 void SavedColorsWidget::addColor(const QColor& color) {
@@ -50,7 +84,6 @@ void SavedColorsWidget::addColor(const QColor& color) {
             this, &SavedColorsWidget::colorSet);
     mMainLayout->addWidget(button);
     mButtons << button;
-    setVisible(!mButtons.isEmpty());
 }
 
 void SavedColorsWidget::removeColor(const QColor &color) {
@@ -62,7 +95,6 @@ void SavedColorsWidget::removeColor(const QColor &color) {
             break;
         }
     }
-    setVisible(!mButtons.isEmpty());
 }
 
 void SavedColorsWidget::setColor(const QColor &color) {
