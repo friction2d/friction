@@ -68,10 +68,23 @@ void ColorAnimatorButton::paintEvent(QPaintEvent *) {
     const QColor color = mColorTarget ?
                 mColorTarget->getColor() : mColor;
     QPainter p(this);
-    if(mHover) p.setPen(Qt::red);
-    else p.setPen(Qt::white);
-    p.setBrush(color);
-    p.drawRect(0, 0, width() - 1, height() - 1);
+
+    const QRectF rect(0.0, 0.0, width(), height());
+    const float borderWidth = 2.0;
+    const QRectF innerRect = rect.adjusted(borderWidth, borderWidth, -borderWidth, -borderWidth);
+
+
+    if(mHover) {
+        p.setPen(mColor.darker(130));
+        p.setBrush(mColor.darker(130));
+        p.drawRoundedRect(rect, borderWidth + 2, borderWidth + 2);
+        p.setBrush(mColor);
+        p.drawRoundedRect(innerRect, borderWidth, borderWidth);
+    } else {
+        p.setPen(mColor);
+        p.setBrush(mColor);
+        p.drawRoundedRect(rect, borderWidth + 2, borderWidth + 2);
+    }
 }
 
 void ColorAnimatorButton::openColorSettingsDialog() {
