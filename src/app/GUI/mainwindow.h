@@ -51,6 +51,7 @@
 #include "window.h"
 #include "GUI/RenderWidgets/renderwidget.h"
 #include "gizmos.h"
+#include "gridcontroller.h"
 
 #include "widgets/fontswidget.h"
 #include "widgets/toolbar.h"
@@ -198,6 +199,10 @@ private:
 
     void openWelcomeDialog();
     void closeWelcomeDialog();
+    void openGridSettingsDialog();
+    void onGridSettingsChanged(const Friction::Core::GridSettings& settings);
+    void onGridSnapEnabledChanged(bool enabled);
+    void onSnappingActiveChanged(bool active);
 
     eKeyFilter* mNumericFilter = eKeyFilter::sCreateNumberFilter(this);
     eKeyFilter* mLineFilter = eKeyFilter::sCreateLineFilter(this);
@@ -255,6 +260,18 @@ private:
     QAction *mZoomInAction;
     QAction *mZoomOutAction;
     QAction *mFitViewAction;
+    QAction *mShowGridAct;
+    QAction *mSnappingAct;
+    QAction *mSnapToGridAct;
+    QAction *mSnapToCanvasAct;
+    QAction *mSnapToBoxesAct;
+    QAction *mSnapToNodesAct;
+    QAction *mSnapToPivotsAct;
+    QAction *mSnapAnchorPivotAct;
+    QAction *mSnapAnchorBoundsAct;
+    QAction *mSnapAnchorNodesAct;
+    QAction *mGridSettingsAct;
+    QAction *mGridDrawOnTopAct;
 
     QAction *mNoneQuality;
     QAction *mLowQuality;
@@ -282,6 +299,7 @@ private:
     QMenu *mEffectsMenu;
     QMenu *mSceneMenu;
     QMenu *mViewMenu;
+    QMenu *mGridMenu;
     QMenu *mPanelsMenu;
     QMenu *mRenderMenu;
 

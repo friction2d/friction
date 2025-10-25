@@ -34,6 +34,7 @@
 #include "efiltersettings.h"
 #include "memorystructs.h"
 #include "appsupport.h"
+#include "gridcontroller.h"
 #include "themesupport.h"
 #include "Expressions/expressionpresets.h"
 
@@ -151,6 +152,19 @@ public:
     QColor fTimelineAlternateRowColor = QColor(0, 0, 0, 25);
     bool fTimelineHighlightRow = true;
     QColor fTimelineHighlightRowColor = ThemeSupport::getThemeHighlightColor(15);
+
+    // Grid default colors
+    QColor fGridColor = Friction::Core::GridSettings::defaults().colorAnimator->getColor();
+    QColor fGridMajorColor = Friction::Core::GridSettings::defaults().majorColorAnimator->getColor();
+    bool fGridDrawOnTop = true;
+    bool fGridSnapToCanvas = false;
+    bool fGridSnapToBoxes = false;
+    bool fGridSnapToNodes = false;
+    bool fGridSnapToPivots = false;
+    bool fGridSnapAnchorPivot = true;
+    bool fGridSnapAnchorBounds = true;
+    bool fGridSnapAnchorNodes = false;
+    bool fGridSnappingActive = false;
 
     QColor fObjectKeyframeColor;
     QColor fPropertyGroupKeyframeColor;

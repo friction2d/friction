@@ -48,6 +48,7 @@ set(
     dialogs/dialog.cpp
     dialogs/durationrectsettingsdialog.cpp
     dialogs/exportsvgdialog.cpp
+    dialogs/gridsettingsdialog.cpp
     dialogs/markereditordialog.cpp
     dialogs/qrealpointvaluedialog.cpp
     dialogs/renderoutputwidget.cpp
@@ -123,6 +124,7 @@ set(
     dialogs/dialog.h
     dialogs/durationrectsettingsdialog.h
     dialogs/exportsvgdialog.h
+    dialogs/gridsettingsdialog.h
     dialogs/markereditordialog.h
     dialogs/qrealpointvaluedialog.h
     dialogs/renderoutputwidget.h

@@ -41,6 +41,7 @@
 #include <iostream>
 #include <QClipboard>
 #include <QMimeData>
+#include <QSignalBlocker>
 
 #include "GUI/edialogs.h"
 #include "dialogs/applyexpressiondialog.h"
@@ -76,6 +77,7 @@
 #include "widgets/assetswidget.h"
 #include "dialogs/adjustscenedialog.h"
 #include "dialogs/commandpalette.h"
+#include "dialogs/gridsettingsdialog.h"
 
 using namespace Friction;
 
@@ -117,6 +119,18 @@ MainWindow::MainWindow(Document& document,
     , mInvertSelAct(nullptr)
     , mClearSelAct(nullptr)
     , mAddKeyAct(nullptr)
+    , mShowGridAct(nullptr)
+    , mSnappingAct(nullptr)
+    , mSnapToGridAct(nullptr)
+    , mSnapToCanvasAct(nullptr)
+    , mSnapToBoxesAct(nullptr)
+    , mSnapToNodesAct(nullptr)
+    , mSnapToPivotsAct(nullptr)
+    , mSnapAnchorPivotAct(nullptr)
+    , mSnapAnchorBoundsAct(nullptr)
+    , mSnapAnchorNodesAct(nullptr)
+    , mGridSettingsAct(nullptr)
+    , mGridDrawOnTopAct(nullptr)
     , mAddToQueAct(nullptr)
     , mViewFullScreenAct(nullptr)
     , mFontWidget(nullptr)
@@ -159,6 +173,13 @@ MainWindow::MainWindow(Document& document,
 {
     Q_ASSERT(!sInstance);
     sInstance = this;
+
+    connect(&mDocument, &Document::gridSettingsChanged,
+            this, &MainWindow::onGridSettingsChanged);
+    connect(&mDocument, &Document::gridSnapEnabledChanged,
+            this, &MainWindow::onGridSnapEnabledChanged);
+    connect(&mDocument, &Document::snappingActiveChanged,
+            this, &MainWindow::onSnappingActiveChanged);
 
     setWindowIcon(QIcon::fromTheme(AppSupport::getAppID()));
     setContextMenuPolicy(Qt::NoContextMenu);
@@ -206,6 +227,109 @@ BoundingBox *MainWindow::getCurrentBox()
     if (!box) { return nullptr; }
 
     return box;
+}
+
+void MainWindow::openGridSettingsDialog()
+{
+    auto dialog = new GridSettingsDialog(this);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowTitle(tr("Grid Settings"));
+    dialog->setSettings(mDocument.gridController().settings);
+    connect(dialog, &GridSettingsDialog::applyRequested,
+            this, [this](Friction::Core::GridSettings settings, bool saveDefaults) {
+                settings.enabled = mDocument.gridController().settings.enabled;
+                mDocument.setGridSettings(settings);
+                if (saveDefaults) {
+                    mDocument.saveGridSettingsAsDefault(mDocument.gridController().settings);
+                }
+            });
+    connect(dialog, &QDialog::accepted,
+            this, [this, dialog]() {
+                auto settings = dialog->settings();
+                settings.enabled = mDocument.gridController().settings.enabled;
+                mDocument.setGridSettings(settings);
+                if (dialog->saveAsDefault()) {
+                    mDocument.saveGridSettingsAsDefault(mDocument.gridController().settings);
+                }
+            });
+    dialog->show();
+}
+
+void MainWindow::onGridSettingsChanged(const Friction::Core::GridSettings& settings)
+{
+    onGridSnapEnabledChanged(settings.enabled);
+    if (mShowGridAct) {
+        QSignalBlocker blocker(mShowGridAct);
+        if (mShowGridAct->isChecked() != settings.show) {
+            mShowGridAct->setChecked(settings.show);
+        }
+    }
+    if (mSnapToCanvasAct) {
+        QSignalBlocker blocker(mSnapToCanvasAct);
+        if (mSnapToCanvasAct->isChecked() != settings.snapToCanvas) {
+            mSnapToCanvasAct->setChecked(settings.snapToCanvas);
+        }
+    }
+    if (mSnapToBoxesAct) {
+        QSignalBlocker blocker(mSnapToBoxesAct);
+        if (mSnapToBoxesAct->isChecked() != settings.snapToBoxes) {
+            mSnapToBoxesAct->setChecked(settings.snapToBoxes);
+        }
+    }
+    if (mSnapToNodesAct) {
+        QSignalBlocker blocker(mSnapToNodesAct);
+        if (mSnapToNodesAct->isChecked() != settings.snapToNodes) {
+            mSnapToNodesAct->setChecked(settings.snapToNodes);
+        }
+    }
+    if (mSnapToPivotsAct) {
+        QSignalBlocker blocker(mSnapToPivotsAct);
+        if (mSnapToPivotsAct->isChecked() != settings.snapToPivots) {
+            mSnapToPivotsAct->setChecked(settings.snapToPivots);
+        }
+    }
+    if (mSnapAnchorPivotAct) {
+        QSignalBlocker blocker(mSnapAnchorPivotAct);
+        if (mSnapAnchorPivotAct->isChecked() != settings.snapAnchorPivot) {
+            mSnapAnchorPivotAct->setChecked(settings.snapAnchorPivot);
+        }
+    }
+    if (mSnapAnchorBoundsAct) {
+        QSignalBlocker blocker(mSnapAnchorBoundsAct);
+        if (mSnapAnchorBoundsAct->isChecked() != settings.snapAnchorBounds) {
+            mSnapAnchorBoundsAct->setChecked(settings.snapAnchorBounds);
+        }
+    }
+    if (mSnapAnchorNodesAct) {
+        QSignalBlocker blocker(mSnapAnchorNodesAct);
+        if (mSnapAnchorNodesAct->isChecked() != settings.snapAnchorNodes) {
+            mSnapAnchorNodesAct->setChecked(settings.snapAnchorNodes);
+        }
+    }
+    if (mGridDrawOnTopAct) {
+        QSignalBlocker blocker(mGridDrawOnTopAct);
+        if (mGridDrawOnTopAct->isChecked() != settings.drawOnTop) {
+            mGridDrawOnTopAct->setChecked(settings.drawOnTop);
+        }
+    }
+}
+
+void MainWindow::onGridSnapEnabledChanged(bool enabled)
+{
+    if (!mSnapToGridAct) { return; }
+    QSignalBlocker blocker(mSnapToGridAct);
+    if (mSnapToGridAct->isChecked() != enabled) {
+        mSnapToGridAct->setChecked(enabled);
+    }
+}
+
+void MainWindow::onSnappingActiveChanged(bool active)
+{
+    if (!mSnappingAct) { return; }
+    QSignalBlocker blocker(mSnappingAct);
+    if (mSnappingAct->isChecked() != active) {
+        mSnappingAct->setChecked(active);
+    }
 }
 
 void MainWindow::checkAutoSaveTimer()

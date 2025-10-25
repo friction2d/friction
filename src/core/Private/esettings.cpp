@@ -25,6 +25,8 @@
 
 #include "esettings.h"
 
+#include "gridcontroller.h"
+
 #include "GUI/global.h"
 #include "exceptions.h"
 
@@ -268,6 +270,51 @@ eSettings::eSettings(const int cpuThreads,
                      fTimelineHighlightRowColor,
                      "timelineHighlightRowColor",
                      QColor(255, 0, 0, 15));*/
+    // Grid default colors, TODO: move them to ThemeSupport
+    gSettings << std::make_shared<eColorSetting>(
+                     fGridColor,
+                     "gridColor",
+                     Friction::Core::GridSettings::defaults().colorAnimator->getColor());
+    gSettings << std::make_shared<eColorSetting>(
+                     fGridMajorColor,
+                     "gridMajorColor",
+                     Friction::Core::GridSettings::defaults().majorColorAnimator->getColor());
+    gSettings << std::make_shared<eBoolSetting>(
+                     fGridDrawOnTop,
+                     "gridDrawOnTop",
+                     true);
+    gSettings << std::make_shared<eBoolSetting>(
+                     fGridSnapToCanvas,
+                     "gridSnapToCanvas",
+                     false);
+    gSettings << std::make_shared<eBoolSetting>(
+                     fGridSnapToBoxes,
+                     "gridSnapToBoxes",
+                     false);
+    gSettings << std::make_shared<eBoolSetting>(
+                     fGridSnapToNodes,
+                     "gridSnapToNodes",
+                     false);
+    gSettings << std::make_shared<eBoolSetting>(
+                     fGridSnapToPivots,
+                     "gridSnapToPivots",
+                     false);
+    gSettings << std::make_shared<eBoolSetting>(
+                     fGridSnapAnchorPivot,
+                     "gridSnapAnchorPivot",
+                     true);
+    gSettings << std::make_shared<eBoolSetting>(
+                     fGridSnapAnchorBounds,
+                     "gridSnapAnchorBounds",
+                     true);
+    gSettings << std::make_shared<eBoolSetting>(
+                     fGridSnapAnchorNodes,
+                     "gridSnapAnchorNodes",
+                     false);
+    gSettings << std::make_shared<eBoolSetting>(
+                     fGridSnappingActive,
+                     "gridSnappingActive",
+                     false);
 
     gSettings << std::make_shared<eColorSetting>(
                      fObjectKeyframeColor,

@@ -145,19 +145,28 @@ void Canvas::mouseMoveEvent(const eMouseEvent &e)
         } else if(mCurrentMode == CanvasMode::pathCreate) {
             handleAddSmartPointMouseMove(e);
         } else if(mCurrentMode == CanvasMode::circleCreate) {
+            const QPointF anchor = mHasCreationPressPos
+                    ? mCreationPressPos
+                    : snapPosToGrid(e.fLastPressPos, e.fModifiers, false);
+            const QPointF current = snapEventPos(e, false);
+            const QPointF delta = current - anchor;
             if(e.shiftMod()) {
-                const qreal lenR = pointToLen(e.fPos - e.fLastPressPos);
+                const qreal lenR = pointToLen(delta);
                 mCurrentCircle->moveRadiusesByAbs({lenR, lenR});
             } else {
-                mCurrentCircle->moveRadiusesByAbs(e.fPos - e.fLastPressPos);
+                mCurrentCircle->moveRadiusesByAbs(delta);
             }
         } else if(mCurrentMode == CanvasMode::rectCreate) {
+            const QPointF anchor = mHasCreationPressPos
+                    ? mCreationPressPos
+                    : snapPosToGrid(e.fLastPressPos, e.fModifiers, false);
+            const QPointF current = snapEventPos(e, false);
+            const QPointF trans = current - anchor;
             if(e.shiftMod()) {
-                const QPointF trans = e.fPos - e.fLastPressPos;
                 const qreal valF = qMax(trans.x(), trans.y());
                 mCurrentRectangle->moveSizePointByAbs({valF, valF});
             } else {
-                mCurrentRectangle->moveSizePointByAbs(e.fPos - e.fLastPressPos);
+                mCurrentRectangle->moveSizePointByAbs(trans);
             }
         }
     }
@@ -217,6 +226,9 @@ void Canvas::mouseReleaseEvent(const eMouseEvent &e)
     mPressedBox = nullptr;
     mHoveredPoint_d = mPressedPoint;
     mPressedPoint = nullptr;
+    if (e.fButton == Qt::LeftButton) {
+        mHasCreationPressPos = false;
+    }
 }
 
 #include "MovablePoints/smartnodepoint.h"

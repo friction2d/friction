@@ -46,6 +46,7 @@
 #include "ReadWrite/ewritestream.h"
 #include "gizmos.h"
 #include "appsupport.h"
+#include "gridcontroller.h"
 
 class SceneBoundGradient;
 class FileDataCacheHandler;
@@ -69,6 +70,16 @@ public:
     Document(TaskScheduler& taskScheduler);
 
     static Document* sInstance;
+
+    Friction::Core::GridController& gridController();
+    const Friction::Core::GridController& gridController() const;
+
+    void setGridSnapEnabled(bool enabled);
+    void setGridVisible(bool visible);
+    void setSnappingActive(bool active);
+    bool isSnappingActive() const;
+    void setGridSettings(const Friction::Core::GridSettings& settings);
+    void saveGridSettingsAsDefault(const Friction::Core::GridSettings& settings);
 
     stdsptr<Clipboard> fClipboardContainer;
 
@@ -108,6 +119,8 @@ public:
     SimpleBrushWrapper* fBrush = nullptr;
     bool fOnionVisible = false;
     PaintMode fPaintMode = PaintMode::normal;
+
+    Friction::Core::GridController mGridController;
 
     QList<qsptr<Canvas>> fScenes;
     std::map<Canvas*, int> fVisibleScenes;
@@ -198,9 +211,20 @@ private:
 
     void writeBookmarked(eWriteStream &dst) const;
     void readBookmarked(eReadStream &src);
+    void writeGridSettings(eWriteStream &dst) const;
+    void readGridSettings(eReadStream &src);
+    void readGridSettings(const QDomElement& element);
+    void loadGridSettingsFromSettings();
+    void saveGridSettingsToSettings(const Friction::Core::GridSettings& settings) const;
+    void applyGridSettings(const Friction::Core::GridSettings& settings,
+                           bool silent,
+                           bool skipSave);
 
     void readGradients(eReadStream& src);
 signals:
+    void gridSettingsChanged(const Friction::Core::GridSettings& settings);
+    void gridSnapEnabledChanged(bool enabled);
+    void snappingActiveChanged(bool active);
     void canvasModeSet(CanvasMode);
 
     void gizmoVisibilityChanged(const Friction::Core::Gizmos::Interact &ti,
@@ -237,6 +261,8 @@ signals:
     void openApplyExpressionDialog(QrealAnimator* const target);
     void newVideo(const VideoBox::VideoSpecs specs);
     void currentPixelColor(const QColor &color);
+private:
+    bool mSnappingActive = false;
 };
 
 #endif // DOCUMENT_H

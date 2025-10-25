@@ -28,6 +28,7 @@
 
 #include <QComboBox>
 #include <QApplication>
+#include <QTransform>
 
 #include "mainwindow.h"
 #include "GUI/BoxesList/boxscroller.h"
@@ -173,6 +174,10 @@ void CanvasWindow::renderSk(SkCanvas * const canvas)
 {
     qreal pixelRatio = this->devicePixelRatioF();
     if (mCurrentCanvas) {
+        const QTransform worldToScreen(mViewTransform.m11(), mViewTransform.m12(), 0.0,
+                                       mViewTransform.m21(), mViewTransform.m22(), 0.0,
+                                       mViewTransform.dx(), mViewTransform.dy(), 1.0);
+        mCurrentCanvas->setWorldToScreen(worldToScreen, pixelRatio);
         canvas->save();
         mCurrentCanvas->renderSk(canvas,
                                  rect(),

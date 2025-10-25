@@ -27,6 +27,7 @@
 #include "MovablePoints/smartnodepoint.h"
 #include "Boxes/smartvectorpath.h"
 #include "eevent.h"
+#include "Private/document.h"
 
 void Canvas::clearCurrentSmartEndPoint() {
     setCurrentSmartEndPoint(nullptr);
@@ -59,14 +60,16 @@ void Canvas::handleAddSmartPointMousePress(const eMouseEvent &e) {
         mCurrentContainer->addContained(newPath);
         clearBoxesSelection();
         addBoxToSelection(newPath.get());
-        const auto relPos = newPath->mapAbsPosToRel(e.fPos);
+        const QPointF snappedPos = snapEventPos(e, false);
+        const auto relPos = newPath->mapAbsPosToRel(snappedPos);
         newPath->getBoxTransformAnimator()->setPosition(relPos.x(), relPos.y());
         const auto newHandler = newPath->getPathAnimator();
         const auto node = newHandler->createNewSubPathAtRelPos({0, 0});
         setCurrentSmartEndPoint(node);
     } else {
         if(!nodePointUnderMouse) {
-            const auto newPoint = mLastEndPoint->actionAddPointAbsPos(e.fPos);
+            const QPointF snappedPos = snapEventPos(e, false);
+            const auto newPoint = mLastEndPoint->actionAddPointAbsPos(snappedPos);
             //newPoint->startTransform();
             setCurrentSmartEndPoint(newPoint);
         } else if(!mLastEndPoint) {
@@ -90,11 +93,12 @@ void Canvas::handleAddSmartPointMousePress(const eMouseEvent &e) {
 void Canvas::handleAddSmartPointMouseMove(const eMouseEvent &e) {
     if(!mLastEndPoint) return;
     if(mStartTransform) mLastEndPoint->startTransform();
+    const QPointF snappedPos = snapEventPos(e, false);
     if(mLastEndPoint->hasNextNormalPoint() &&
        mLastEndPoint->hasPrevNormalPoint()) {
         mLastEndPoint->setCtrlsMode(CtrlsMode::corner);
         mLastEndPoint->setC0Enabled(true);
-        mLastEndPoint->moveC0ToAbsPos(e.fPos);
+        mLastEndPoint->moveC0ToAbsPos(snappedPos);
     } else {
         if(!mLastEndPoint->hasNextNormalPoint() &&
            !mLastEndPoint->hasPrevNormalPoint()) {            
@@ -104,9 +108,9 @@ void Canvas::handleAddSmartPointMouseMove(const eMouseEvent &e) {
             mLastEndPoint->setCtrlsMode(CtrlsMode::symmetric);
         }
         if(mLastEndPoint->hasNextNormalPoint()) {
-            mLastEndPoint->moveC0ToAbsPos(e.fPos);
+            mLastEndPoint->moveC0ToAbsPos(snappedPos);
         } else {
-            mLastEndPoint->moveC2ToAbsPos(e.fPos);
+            mLastEndPoint->moveC2ToAbsPos(snappedPos);
         }
     }
 }

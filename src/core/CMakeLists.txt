@@ -54,6 +54,7 @@ include_directories(
 set(
     SOURCES
     appsupport.cpp
+    gridcontroller.cpp
     Boxes/nullobject.cpp
     Expressions/expression.cpp
     Expressions/expressionpresets.cpp
@@ -359,6 +360,7 @@ set(
 set(
     HEADERS
     appsupport.h
+    gridcontroller.h
     Boxes/nullobject.h
     Expressions/expression.h
     Expressions/expressionpresets.h

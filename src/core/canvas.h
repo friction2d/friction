@@ -46,6 +46,8 @@
 #include <QTabletEvent>
 #include <QSizeF>
 #include <QVector>
+#include <QTransform>
+#include <vector>
 
 #include "gizmos.h"
 
@@ -187,6 +189,7 @@ public:
                          const bool startTrans);
 
     qreal getResolution() const;
+    void setWorldToScreen(const QTransform& transform, qreal devicePixelRatio);
     void setResolution(const qreal percent);
 
     void applyCurrentTransformToSelected();
@@ -811,6 +814,12 @@ private:
     void setAxisGizmoHover(Friction::Core::Gizmos::AxisConstraint axis,
                            bool hovered);
 
+    QPointF snapPosToGrid(const QPointF& pos,
+                          Qt::KeyboardModifiers modifiers,
+                          bool forceSnap) const;
+    QPointF snapEventPos(const eMouseEvent& e,
+                         bool forceSnap) const;
+
     void drawPathClear();
     void drawPathFinish(const qreal invScale);
 
@@ -827,6 +836,15 @@ private:
 
 protected:
     Document& mDocument;
+    QTransform mWorldToScreen;
+    QTransform mScreenToWorld;
+    bool mHasWorldToScreen = false;
+    qreal mDevicePixelRatio = 1.0;
+    QPointF mGridMoveStartPivot;
+    std::vector<QPointF> mGridSnapAnchorOffsets;
+    bool mHasCreationPressPos = false;
+    QPointF mCreationPressPos;
+
     bool mDrawnSinceQue = true;
 
     qsptr<UndoRedoStack> mUndoRedoStack;
@@ -935,6 +953,13 @@ protected:
     QPointF getMoveByValueForEvent(const eMouseEvent &e);
     void cancelCurrentTransform();
     void cancelCurrentTransformGimzos();
+
+    void collectSnapTargets(bool includePivots,
+                            bool includeBounds,
+                            bool includeNodes,
+                            std::vector<QPointF>& pivotTargets,
+                            std::vector<QPointF>& boxTargets,
+                            std::vector<QPointF>& nodeTargets) const;
 };
 
 #endif // CANVAS_H

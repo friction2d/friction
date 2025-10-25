@@ -566,6 +566,134 @@ void MainWindow::setupMenuBar()
             });
     cmdAddAction(mResetZoomAction);
 
+    mGridMenu = mViewMenu->addMenu(QIcon::fromTheme("grid"),
+                                  tr("Grid && Snapping", "MenuBar_View"));
+
+    mSnappingAct = mGridMenu->addAction(tr("Snapping"));
+    mSnappingAct->setCheckable(true);
+    mSnappingAct->setChecked(mDocument.isSnappingActive());
+    connect(mSnappingAct, &QAction::toggled, this, [this](bool checked) {
+        mDocument.setSnappingActive(checked);
+    });
+    cmdAddAction(mSnappingAct);
+
+    mGridMenu->addSeparator();
+
+    mSnapToCanvasAct = mGridMenu->addAction(tr("Snap to Canvas"));
+    mSnapToCanvasAct->setCheckable(true);
+    mSnapToCanvasAct->setChecked(mDocument.gridController().settings.snapToCanvas);
+    connect(mSnapToCanvasAct, &QAction::toggled, this, [this](bool checked) {
+        auto settings = mDocument.gridController().settings;
+        if (settings.snapToCanvas == checked) { return; }
+        settings.snapToCanvas = checked;
+        mDocument.setGridSettings(settings);
+    });
+    cmdAddAction(mSnapToCanvasAct);
+
+    mSnapToGridAct = mGridMenu->addAction(tr("Snap to Grid"));
+    mSnapToGridAct->setCheckable(true);
+    mSnapToGridAct->setChecked(mDocument.gridController().settings.enabled);
+    connect(mSnapToGridAct, &QAction::toggled, this, [this](bool checked) {
+        mDocument.setGridSnapEnabled(checked);
+    });
+    cmdAddAction(mSnapToGridAct);
+
+    mSnapToPivotsAct = mGridMenu->addAction(tr("Snap to Pivots"));
+    mSnapToPivotsAct->setCheckable(true);
+    mSnapToPivotsAct->setChecked(mDocument.gridController().settings.snapToPivots);
+    connect(mSnapToPivotsAct, &QAction::toggled, this, [this](bool checked) {
+        auto settings = mDocument.gridController().settings;
+        if (settings.snapToPivots == checked) { return; }
+        settings.snapToPivots = checked;
+        mDocument.setGridSettings(settings);
+    });
+    cmdAddAction(mSnapToPivotsAct);
+
+    mSnapToBoxesAct = mGridMenu->addAction(tr("Snap to Boxes"));
+    mSnapToBoxesAct->setCheckable(true);
+    mSnapToBoxesAct->setChecked(mDocument.gridController().settings.snapToBoxes);
+    connect(mSnapToBoxesAct, &QAction::toggled, this, [this](bool checked) {
+        auto settings = mDocument.gridController().settings;
+        if (settings.snapToBoxes == checked) { return; }
+        settings.snapToBoxes = checked;
+        mDocument.setGridSettings(settings);
+    });
+    cmdAddAction(mSnapToBoxesAct);
+
+    mSnapToNodesAct = mGridMenu->addAction(tr("Snap to Nodes"));
+    mSnapToNodesAct->setCheckable(true);
+    mSnapToNodesAct->setChecked(mDocument.gridController().settings.snapToNodes);
+    connect(mSnapToNodesAct, &QAction::toggled, this, [this](bool checked) {
+        auto settings = mDocument.gridController().settings;
+        if (settings.snapToNodes == checked) { return; }
+        settings.snapToNodes = checked;
+        mDocument.setGridSettings(settings);
+    });
+    cmdAddAction(mSnapToNodesAct);
+
+    mGridMenu->addSeparator();
+
+    mSnapAnchorPivotAct = mGridMenu->addAction(tr("Pivot anchor"));
+    mSnapAnchorPivotAct->setCheckable(true);
+    mSnapAnchorPivotAct->setChecked(mDocument.gridController().settings.snapAnchorPivot);
+    connect(mSnapAnchorPivotAct, &QAction::toggled, this, [this](bool checked) {
+        auto settings = mDocument.gridController().settings;
+        if (settings.snapAnchorPivot == checked) { return; }
+        settings.snapAnchorPivot = checked;
+        mDocument.setGridSettings(settings);
+    });
+    cmdAddAction(mSnapAnchorPivotAct);
+
+    mSnapAnchorBoundsAct = mGridMenu->addAction(tr("Boxes anchors"));
+    mSnapAnchorBoundsAct->setCheckable(true);
+    mSnapAnchorBoundsAct->setChecked(mDocument.gridController().settings.snapAnchorBounds);
+    connect(mSnapAnchorBoundsAct, &QAction::toggled, this, [this](bool checked) {
+        auto settings = mDocument.gridController().settings;
+        if (settings.snapAnchorBounds == checked) { return; }
+        settings.snapAnchorBounds = checked;
+        mDocument.setGridSettings(settings);
+    });
+    cmdAddAction(mSnapAnchorBoundsAct);
+
+    mSnapAnchorNodesAct = mGridMenu->addAction(tr("Nodes anchors"));
+    mSnapAnchorNodesAct->setCheckable(true);
+    mSnapAnchorNodesAct->setChecked(mDocument.gridController().settings.snapAnchorNodes);
+    connect(mSnapAnchorNodesAct, &QAction::toggled, this, [this](bool checked) {
+        auto settings = mDocument.gridController().settings;
+        if (settings.snapAnchorNodes == checked) { return; }
+        settings.snapAnchorNodes = checked;
+        mDocument.setGridSettings(settings);
+    });
+    cmdAddAction(mSnapAnchorNodesAct);
+
+    mGridMenu->addSeparator();
+
+    mShowGridAct = mGridMenu->addAction(tr("Show Grid"));
+    mShowGridAct->setCheckable(true);
+    mShowGridAct->setChecked(mDocument.gridController().settings.show);
+    connect(mShowGridAct, &QAction::toggled, this, [this](bool checked) {
+        mDocument.setGridVisible(checked);
+    });
+    cmdAddAction(mShowGridAct);
+
+    mGridDrawOnTopAct = mGridMenu->addAction(tr("Grid on top"));
+    mGridDrawOnTopAct->setCheckable(true);
+    connect(mGridDrawOnTopAct, &QAction::toggled, this, [this](bool checked) {
+        auto settings = mDocument.gridController().settings;
+        if (settings.drawOnTop == checked) { return; }
+        settings.drawOnTop = checked;
+        mDocument.setGridSettings(settings);
+    });
+    cmdAddAction(mGridDrawOnTopAct);
+
+    mGridMenu->addSeparator();
+
+    mGridSettingsAct = mGridMenu->addAction(tr("Grid Settings..."));
+    connect(mGridSettingsAct, &QAction::triggered, this, &MainWindow::openGridSettingsDialog);
+    cmdAddAction(mGridSettingsAct);
+
+    onGridSettingsChanged(mDocument.gridController().settings);
+
     const auto filteringMenu = mViewMenu->addMenu(QIcon::fromTheme("user-desktop"),
                                                   tr("Filtering", "MenuBar_View"));
 
