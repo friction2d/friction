@@ -23,6 +23,9 @@
 #include "canvas.h"
 
 #include "appsupport.h"
+#include "svgo.h"
+
+using namespace Friction;
 
 SvgExporter::SvgExporter(const QString& path,
                          Canvas* const scene,
@@ -35,7 +38,8 @@ SvgExporter::SvgExporter(const QString& path,
                          const int imageQuality,
                          bool html,
                          bool blendMix,
-                         bool colors11)
+                         bool colors11,
+                         bool optimize)
     : ComplexTask(INT_MAX, tr("SVG Export"))
     , fScene(scene)
     , fAbsRange(frameRange)
@@ -47,6 +51,7 @@ SvgExporter::SvgExporter(const QString& path,
     , fImageQuality(imageQuality)
     , fBlendMix(blendMix)
     , fColors11(colors11)
+    , fOptimize(optimize)
     , mHtml(html)
     , mOpen(false)
     , mFile(path)
@@ -61,20 +66,6 @@ void SvgExporter::nextStep()
     if (!mOpen) {
         if (mFile.open(QIODevice::WriteOnly)) {
             mStream.setDevice(&mFile);
-            if (mHtml) {
-                mStream << QString::fromUtf8("<!DOCTYPE html>") << Qt::endl;
-                mStream << QString::fromUtf8("<html>") << Qt::endl;
-                mStream << QString::fromUtf8("<head>") << Qt::endl;
-                mStream << QString::fromUtf8("<meta charset=\"utf-8\" />") << Qt::endl;
-                mStream << QString::fromUtf8("<title>%1</title>").arg(tr("Preview")) << Qt::endl;
-                mStream << QString::fromUtf8("<style>html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; } html { background: repeating-conic-gradient(#b0b0b0 0% 25%, transparent 0% 50%) 50% / 40px 40px; } svg { margin: auto; width: 100%; height: 100%; object-fit: contain; overflow: hidden; }</style>") << Qt::endl;
-                mStream << QString::fromUtf8("</head>") << Qt::endl;
-                mStream << QString::fromUtf8("<body>") << Qt::endl;
-            } else {
-                mStream << QString::fromUtf8("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>") << Qt::endl;
-            }
-            mStream << QString::fromUtf8("<!-- Created with %1 - %2 -->").arg(AppSupport::getAppDisplayName(),
-                                                                              AppSupport::getAppUrl()) << Qt::endl << Qt::endl;
             fScene->saveSceneSVG(*this);
         } else {
             RuntimeThrow("Could not open:\n\"" + mFile.fileName() + "\"");
@@ -96,11 +87,36 @@ void SvgExporter::finish()
     if (mOpen) {
         mSvg.appendChild(mDefs);
         mDoc.appendChild(mSvg);
-        mStream << mDoc.toString();
+
+        QString result;
         if (mHtml) {
-            mStream << QString::fromUtf8("</body>") << Qt::endl;
-            mStream << QString::fromUtf8("</html>") << Qt::endl;
+            result.append("<!DOCTYPE html>");
+            result.append("<html>");
+            result.append("<head>");
+            result.append("<meta charset=\"utf-8\" />");
+            result.append(QString("<title>%1</title>").arg(tr("Preview")));
+            result.append("<style>html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; } html { background: repeating-conic-gradient(#b0b0b0 0% 25%, transparent 0% 50%) 50% / 40px 40px; } svg { margin: auto; width: 100%; height: 100%; object-fit: contain; overflow: hidden; }</style>");
+            result.append("</head>");
+            result.append("<body>");
+            result.append("\n");
         }
+        if (!mHtml && !fOptimize) {
+            result.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
+            result.append("\n");
+        }
+
+        QString content = QString("<!-- Created with %1 - %2 -->").arg(AppSupport::getAppDisplayName(),
+                                                                       AppSupport::getAppUrl());
+        content.append("\n");
+        content.append(mDoc.toString());
+        result.append(fOptimize ? Core::SVGO::optimize(content) : content);
+
+        if (mHtml) {
+            result.append("</body>");
+            result.append("</html>");
+        }
+
+        mStream << result.toUtf8() << Qt::endl;
         mStream.flush();
         mFile.close();
     }

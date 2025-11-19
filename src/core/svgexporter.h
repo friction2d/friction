@@ -43,7 +43,8 @@ public:
                 const int imageQuality = 100,
                 bool html = false,
                 bool blendMix = false,
-                bool colors11 = false);
+                bool colors11 = false,
+                bool optimize = false);
 
     void nextStep() override;
 
@@ -59,6 +60,7 @@ public:
     const int fImageQuality;
     const bool fBlendMix;
     const bool fColors11;
+    const bool fOptimize;
 
     QDomElement createElement(const QString& tagName)
     {
