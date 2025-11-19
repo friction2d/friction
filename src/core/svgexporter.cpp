@@ -109,7 +109,7 @@ void SvgExporter::finish()
                                                                        AppSupport::getAppUrl());
         content.append("\n");
         content.append(mDoc.toString());
-        result.append(fOptimize ? Core::SVGO::optimize(content) : content);
+        result.append(fOptimize && !mHtml ? Core::SVGO::optimize(content) : content);
 
         if (mHtml) {
             result.append("</body>");
