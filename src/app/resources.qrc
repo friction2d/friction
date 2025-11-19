@@ -22,9 +22,7 @@
         <file alias="up-arrow.png">pixmaps/up-arrow.png</file>
         <file alias="down-arrow.png">pixmaps/down-arrow.png</file>
     </qresource>
-    <qresource prefix="/config">
-        <file>svgo.config.js</file>
-    </qresource>
+    <qresource prefix="/config"/>
     <qresource prefix="/">
         <file>presets/render/006-friction-preset-tiff.conf</file>
         <file>presets/render/005-friction-preset-png.conf</file>
