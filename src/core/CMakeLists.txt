@@ -354,6 +354,7 @@ set(
     rendersettings.cpp
     renderinstancesettings.cpp
     videoencoder.cpp
+    svgo.cpp
 )
 
 set(
@@ -696,6 +697,7 @@ set(
     renderinstancesettings.h
     videoencoder.h
     formatoptions.h
+    svgo.h
 )
 
 if(NOT WIN32)
