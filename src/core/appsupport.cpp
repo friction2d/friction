@@ -365,44 +365,6 @@ const QString AppSupport::getAppUserExPresetsPath()
     return path;
 }
 
-const QString AppSupport::getSVGO()
-{
-#if defined(Q_OS_WIN)
-    const QString svgo = "svgo-win.exe";
-#elif defined(Q_OS_LINUX)
-    const QString svgo = "svgo-linux";
-#elif defined(Q_OS_MAC)
-    const QString svgo = "svgo-macos";
-#else
-    const QString svgo = "svgo";
-#endif
-    const QString path = QString("%1/%2").arg(getAppPath(), svgo);
-    if (QFile::exists(path)) { return path; }
-    return QStandardPaths::findExecutable("svgo");
-}
-
-const QString AppSupport::getSVGOConfig()
-{
-    QString filename = "svgo.config.js";
-    QString path = getAppConfigPath() + QDir::separator() + filename;
-    if (!QFile::exists(path)) {
-        QString config;
-        QFile file(":/config/" + filename);
-        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            config = file.readAll();
-            file.close();
-        }
-        if (!config.isEmpty()) {
-            QFile file(path);
-            if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-                file.write(config.toUtf8());
-                file.close();
-            }
-        }
-    }
-    return path;
-}
-
 const QString AppSupport::getFileMimeType(const QString &path)
 {
     QMimeDatabase db;
