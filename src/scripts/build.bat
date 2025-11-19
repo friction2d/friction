@@ -96,20 +96,12 @@ echo "Delete this file if you want to disable portable mode" > "%OUTPUT_DIR%\por
 
 cd "%BUILD_OUTPUT%"
 
-copy "%SDK_DIR%\bin\svgo-win.exe" "%BUILD_OUTPUT%\"
-if not exist "svgo-license.txt" ( 
-    curl -OL "https://raw.githubusercontent.com/friction2d/friction-svgo/main/svgo-license.txt"
-)
-
-7z a -mx9 friction-svgo-windows-x64.7z svgo-win.exe svgo-license.txt
 7z a -mx9 friction-%VERSION%-windows-x64.7z friction-%VERSION%
 
 copy "%CWD%\build\src\app\%BDIR%\friction.iss" "%OUTPUT_DIR%\"
 copy "%CWD%\src\app\icons\friction.ico" "%OUTPUT_DIR%\"
 copy "%CWD%\src\app\icons\friction.bmp" "%OUTPUT_DIR%\"
 copy "%CWD%\LICENSE.md" "%OUTPUT_DIR%\"
-copy "%BUILD_OUTPUT%\svgo-win.exe" "%OUTPUT_DIR%\"
-copy "%BUILD_OUTPUT%\svgo-license.txt" "%OUTPUT_DIR%\"
 
 cd "%OUTPUT_DIR%"
 

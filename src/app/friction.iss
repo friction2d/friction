@@ -33,16 +33,12 @@ WizardImageStretch=yes
 Name: "friction"; Description: "Friction"; Types: full compact custom; Flags: fixed
 Name: "ffmpeg"; Description: "FFmpeg"; Types: full compact custom; Flags: fixed
 Name: "qt"; Description: "Qt"; Types: full compact custom; Flags: fixed
-Name: "svgo"; Description: "SVG Optimizer"; Types: full
 
 [Files]
 Source: "{#MyAppExeName}"; DestDir: "{app}"; Components: friction ; Flags: ignoreversion
 Source: "frictioncore.dll"; DestDir: "{app}"; Components: friction ; Flags: ignoreversion
 Source: "frictionui.dll"; DestDir: "{app}"; Components: friction ; Flags: ignoreversion
 Source: "skia.dll"; DestDir: "{app}"; Components: friction ; Flags: ignoreversion
-
-Source: "svgo-win.exe"; DestDir: "{app}"; Components: svgo ; Flags: ignoreversion
-Source: "svgo-license.txt"; DestDir: "{app}"; Components: svgo ; Flags: ignoreversion
 
 Source: "avcodec-58.dll"; DestDir: "{app}"; Components: ffmpeg ; Flags: ignoreversion
 Source: "avdevice-58.dll"; DestDir: "{app}"; Components: ffmpeg ; Flags: ignoreversion
