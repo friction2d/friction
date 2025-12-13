@@ -79,8 +79,7 @@ private:
     stdsptr<CircleRadiusPoint> mVerticalRadiusPoint;
 
     qsptr<QPointFAnimator> mCenterAnimator;
-    qsptr<QPointFAnimator> mHorizontalRadiusAnimator;
-    qsptr<QPointFAnimator> mVerticalRadiusAnimator;
+    qsptr<QPointFAnimator> mRadiusAnimator;
 };
 
 #endif // CIRCLE_H
