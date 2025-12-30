@@ -32,6 +32,7 @@ void Canvas::renderGizmos(SkCanvas * const canvas,
                           const qreal qInvZoom,
                           const float invZoom)
 {
+    if (!mGizmos.fState.visible) { return; }
     updateRotateHandleGeometry(qInvZoom);
     auto drawAxisLine = [&](const Gizmos::LineGeometry &geom,
                              const QColor &baseColor,
@@ -399,6 +400,10 @@ void Canvas::setGizmoVisibility(const Gizmos::Interact &ti,
             setShearGizmoHover(Gizmos::ShearHandle::Y, false);
         }
         break;
+    case Gizmos::Interact::All:
+        if (mGizmos.fState.visible == visibility) { return; }
+        mGizmos.fState.visible = visibility;
+        break;
     default: return;
     }
 
@@ -411,16 +416,14 @@ bool Canvas::getGizmoVisibility(const Gizmos::Interact &ti)
     switch (ti) {
     case Gizmos::Interact::Position:
         return mGizmos.fState.showPosition;
-        break;
     case Gizmos::Interact::Rotate:
         return mGizmos.fState.showRotate;
-        break;
     case Gizmos::Interact::Scale:
         return mGizmos.fState.showScale;
-        break;
     case Gizmos::Interact::Shear:
         return mGizmos.fState.showShear;
-        break;
+    case Gizmos::Interact::All:
+        return mGizmos.fState.visible;
     default:;
     }
     return false;
@@ -593,14 +596,21 @@ void Canvas::updateRotateHandleGeometry(qreal invScale)
         mGizmos.fState.xLineGeom = Gizmos::LineGeometry();
         mGizmos.fState.yLineGeom = Gizmos::LineGeometry();
 
+        const bool hadConstraint =
+                mGizmos.fState.axisConstraint != Gizmos::AxisConstraint::None ||
+                mGizmos.fState.scaleConstraint != Gizmos::ScaleHandle::None ||
+                mGizmos.fState.shearConstraint != Gizmos::ShearHandle::None;
+
         mGizmos.fState.axisConstraint = Gizmos::AxisConstraint::None;
         mGizmos.fState.scaleConstraint = Gizmos::ScaleHandle::None;
         mGizmos.fState.shearConstraint = Gizmos::ShearHandle::None;
         mGizmos.fState.axisHandleActive = false;
         mGizmos.fState.scaleHandleActive = false;
         mGizmos.fState.shearHandleActive = false;
-        mValueInput.setForce1D(false);
-        mValueInput.setXYMode();
+        if (hadConstraint) {
+            mValueInput.setForce1D(false);
+            mValueInput.setXYMode();
+        }
         mGizmos.fState.rotateHandlePolygon.clear();
         mGizmos.fState.rotateHandleHitPolygon.clear();
     };

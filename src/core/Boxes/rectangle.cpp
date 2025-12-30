@@ -45,7 +45,7 @@ RectangleBox::RectangleBox() : PathBox("RectangleBox", eBoxType::rectangle) {
                 mBottomRightAnimator.get(), mTransformAnimator.data(),
                 TYPE_PATH_POINT);
     getPointsHandler()->appendPt(mBottomRightPoint);
-    mBottomRightPoint->setRelativePos(QPointF(10, 10));
+    mBottomRightPoint->setRelativePos(QPointF(0, 0));
 
     //mTopLeftPoint->setBottomRightPoint(mBottomRightPoint);
     //mBottomRightPoint->setRadiusPoint(mRadiusPoint);

@@ -45,9 +45,18 @@ qreal calculateTrackAngle(const QPointF& parentPos,
     return trackAngle;
 }
 
-void TrackEffect::setRotScaleAfterTargetChange(
-        BoundingBox* const oldTarget, BoundingBox* const newTarget) {
-    const auto parent = getFirstAncestor<BoundingBox>();
+void TrackEffect::setRotScaleAfterTargetChange(BoundingBox* const oldTarget,
+                                               BoundingBox* const newTarget)
+{
+    Q_UNUSED(oldTarget)
+    Q_UNUSED(newTarget)
+
+    // https://github.com/friction2d/friction/issues/591
+
+    // I see no reason to apply the rotation here (or anywhere else)
+    // it only breaks the original state of the bounding box.
+
+    /*const auto parent = getFirstAncestor<BoundingBox>();
     if(!parent) return;
 
     const qreal infl = mInfluence->getEffectiveValue();
@@ -70,7 +79,7 @@ void TrackEffect::setRotScaleAfterTargetChange(
     }
 
     parent->startRotTransform();
-    parent->rotateBy(rot);
+    parent->rotateBy(rot);*/
 }
 
 void TrackEffect::applyEffect(

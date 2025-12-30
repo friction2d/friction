@@ -638,26 +638,6 @@ void MainWindow::setupMenuBar()
     mDynamicQuality->setCheckable(true);
     mDynamicQuality->setChecked(eFilterSettings::sSmartDisplat());
 
-    const auto menuGizmo = mViewMenu->addMenu(QIcon::fromTheme("gizmos"),
-                                              tr("Transform Interacts"));
-    setupMenuGizmo(menuGizmo, Core::Gizmos::Interact::Position);
-    setupMenuGizmo(menuGizmo, Core::Gizmos::Interact::Rotate);
-    setupMenuGizmo(menuGizmo, Core::Gizmos::Interact::Scale);
-    setupMenuGizmo(menuGizmo, Core::Gizmos::Interact::Shear);
-    {
-        const auto controls = enve_cast<Ui::ToolControls*>(mToolBox->getToolBar(Ui::ToolBox::Controls));
-        if (controls) {
-            const auto act = menuGizmo->addAction(tr("Show in Controls"));
-            act->setCheckable(true);
-            act->setChecked(controls->getTransformInteractVisibility());
-            connect(act, &QAction::triggered,
-                    this, [controls](bool checked) {
-                if (!controls) { return; }
-                controls->setTransformInteractVisibility(checked);
-            });
-        }
-    }
-
     mClipViewToCanvas = mViewMenu->addAction(
         tr("Clip to Scene", "MenuBar_View"));
     mClipViewToCanvas->setCheckable(true);

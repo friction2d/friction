@@ -27,19 +27,39 @@
 #define PARENTEFFECT_H
 
 #include "followobjecteffectbase.h"
+#include "transformvalues.h"
 
-class ParentEffect : public FollowObjectEffectBase {
+class ParentEffect : public FollowObjectEffectBase
+{
 public:
     ParentEffect();
 
     void applyEffect(const qreal relFrame,
-                     qreal &pivotX, qreal &pivotY,
-                     qreal &posX, qreal &posY,
+                     qreal &pivotX,
+                     qreal &pivotY,
+                     qreal &posX,
+                     qreal &posY,
                      qreal &rot,
-                     qreal &scaleX, qreal &scaleY,
-                     qreal &shearX, qreal &shearY,
+                     qreal &scaleX,
+                     qreal &scaleY,
+                     qreal &shearX,
+                     qreal &shearY,
                      QMatrix& postTransform,
                      BoundingBox* const parent) override;
+
+private:
+    bool validateInfluenceValues(const qreal posXInfl,
+                                 const qreal posYInfl,
+                                 const qreal scaleXInfl,
+                                 const qreal scaleYInfl,
+                                 const qreal rotInfl) const;
+
+    void applyInfluenceToTransform(TransformValues& values,
+                                   const TransformValues& targetValues,
+                                   const qreal posXInfl,
+                                   const qreal posYInfl,
+                                   const qreal scaleXInfl,
+                                   const qreal scaleYInfl) const;
 };
 
 #endif // PARENTEFFECT_H

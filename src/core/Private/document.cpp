@@ -24,9 +24,11 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "Private/document.h"
-#include "FileCacheHandlers/filecachehandler.h"
 #include "canvas.h"
 #include "simpletask.h"
+
+#include <QVariant>
+#include <QColor>
 
 Document* Document::sInstance = nullptr;
 
@@ -36,20 +38,37 @@ Document::Document(TaskScheduler& taskScheduler)
 {
     Q_ASSERT(!sInstance);
     sInstance = this;
+
+    mGrid = new Grid(this);
+    mGrid->setSettings(eSettings::instance().fGrid);
+    connect(mGrid, &Grid::changed,
+            this, [this](const Grid::Settings &settings) {
+        qDebug() << "Grid Changed";
+        Grid::debugSettings(settings);
+        updateScenes();
+    });
+
     connect(&taskScheduler, &TaskScheduler::finishedAllQuedTasks,
             this, &Document::updateScenes);
 }
 
-void Document::updateScenes() {
+Grid* Document::getGrid()
+{
+    return mGrid;
+}
+
+void Document::updateScenes()
+{
     SimpleTask::sProcessAll();
     TaskScheduler::instance()->queTasks();
 
-    for(const auto& scene : fVisibleScenes) {
+    for (const auto& scene : fVisibleScenes) {
         emit scene.first->requestUpdate();
     }
 }
 
-void Document::actionFinished() {
+void Document::actionFinished()
+{
     updateScenes();
     for (const auto& scene : fVisibleScenes) {
         const auto newUndoRedo = scene.first->newUndoRedoSet();
@@ -60,49 +79,59 @@ void Document::actionFinished() {
     }
 }
 
-void Document::replaceClipboard(const stdsptr<Clipboard> &container) {
+void Document::replaceClipboard(const stdsptr<Clipboard> &container)
+{
     fClipboardContainer = container;
 }
 
-Clipboard *Document::getClipboard(const ClipboardType type) const {
-    if(!fClipboardContainer) return nullptr;
-    if(type == fClipboardContainer->getType())
+Clipboard *Document::getClipboard(const ClipboardType type) const
+{
+    if (!fClipboardContainer) { return nullptr; }
+    if (type == fClipboardContainer->getType()) {
         return fClipboardContainer.get();
+    }
     return nullptr;
 }
 
-DynamicPropsClipboard* Document::getDynamicPropsClipboard() const {
+DynamicPropsClipboard* Document::getDynamicPropsClipboard() const
+{
     auto contT = getClipboard(ClipboardType::dynamicProperties);
     return static_cast<DynamicPropsClipboard*>(contT);
 }
 
-PropertyClipboard* Document::getPropertyClipboard() const {
+PropertyClipboard* Document::getPropertyClipboard() const
+{
     auto contT = getClipboard(ClipboardType::property);
     return static_cast<PropertyClipboard*>(contT);
 }
 
-KeysClipboard* Document::getKeysClipboard() const {
+KeysClipboard* Document::getKeysClipboard() const
+{
     auto contT = getClipboard(ClipboardType::keys);
     return static_cast<KeysClipboard*>(contT);
 }
 
-BoxesClipboard* Document::getBoxesClipboard() const {
+BoxesClipboard* Document::getBoxesClipboard() const
+{
     auto contT = getClipboard(ClipboardType::boxes);
     return static_cast<BoxesClipboard*>(contT);
 }
 
-SmartPathClipboard* Document::getSmartPathClipboard() const {
+SmartPathClipboard* Document::getSmartPathClipboard() const
+{
     auto contT = getClipboard(ClipboardType::smartPath);
     return static_cast<SmartPathClipboard*>(contT);
 }
 
-void Document::setPath(const QString &path) {
+void Document::setPath(const QString &path)
+{
     fEvFile = path;
     emit evFilePathChanged(fEvFile);
 }
 
-QString Document::projectDirectory() const {
-    if(fEvFile.isEmpty()) {
+QString Document::projectDirectory() const
+{
+    if (fEvFile.isEmpty()) {
         return QDir::homePath();
     } else {
         QFileInfo fileInfo(fEvFile);
@@ -110,7 +139,8 @@ QString Document::projectDirectory() const {
     }
 }
 
-void Document::setCanvasMode(const CanvasMode mode) {
+void Document::setCanvasMode(const CanvasMode mode)
+{
     fCanvasMode = mode;
     emit canvasModeSet(mode);
     actionFinished();
@@ -142,6 +172,11 @@ void Document::setGizmoVisibility(const Gizmos::Interact &ti,
         key = "Shear";
         fGizmoShearVisibility = visibility;
         break;
+    case Gizmos::Interact::All:
+        if (fGizmoAllVisibility == visibility) { return; }
+        key = "All";
+        fGizmoAllVisibility = visibility;
+        break;
     default: return;
     }
 
@@ -158,16 +193,14 @@ bool Document::getGizmoVisibility(const Gizmos::Interact &ti)
     switch (ti) {
     case Gizmos::Interact::Position:
         return fGizmoPositionVisibility;
-        break;
     case Gizmos::Interact::Rotate:
         return fGizmoRotateVisibility;
-        break;
     case Gizmos::Interact::Scale:
         return fGizmoScaleVisibility;
-        break;
     case Gizmos::Interact::Shear:
         return fGizmoShearVisibility;
-        break;
+    case Gizmos::Interact::All:
+        return fGizmoAllVisibility;
     default:;
     }
     return false;
@@ -187,6 +220,8 @@ Canvas *Document::createNewScene(const bool emitCreated)
                                  fGizmoScaleVisibility);
     newScene->setGizmoVisibility(Gizmos::Interact::Shear,
                                  fGizmoShearVisibility);
+    newScene->setGizmoVisibility(Gizmos::Interact::All,
+                                 fGizmoAllVisibility);
 
     if (emitCreated) {
         emit sceneCreated(newScene.get());
@@ -194,13 +229,15 @@ Canvas *Document::createNewScene(const bool emitCreated)
     return newScene.get();
 }
 
-bool Document::removeScene(const qsptr<Canvas>& scene) {
+bool Document::removeScene(const qsptr<Canvas>& scene)
+{
     const int id = fScenes.indexOf(scene);
     return removeScene(id);
 }
 
-bool Document::removeScene(const int id) {
-    if(id < 0 || id >= fScenes.count()) return false;
+bool Document::removeScene(const int id)
+{
+    if (id < 0 || id >= fScenes.count()) { return false; }
     const auto scene = fScenes.takeAt(id);
     SWT_removeChild(scene.data());
     emit sceneRemoved(scene.data());
@@ -208,23 +245,26 @@ bool Document::removeScene(const int id) {
     return true;
 }
 
-void Document::addVisibleScene(Canvas * const scene) {
+void Document::addVisibleScene(Canvas * const scene)
+{
     fVisibleScenes[scene]++;
     updateScenes();
 }
 
-bool Document::removeVisibleScene(Canvas * const scene) {
+bool Document::removeVisibleScene(Canvas * const scene)
+{
     const auto it = fVisibleScenes.find(scene);
-    if(it == fVisibleScenes.end()) return false;
-    if(it->second == 1) fVisibleScenes.erase(it);
-    else it->second--;
+    if (it == fVisibleScenes.end()) { return false; }
+    if (it->second == 1) { fVisibleScenes.erase(it); }
+    else { it->second--; }
     return true;
 }
 
-void Document::setActiveScene(Canvas * const scene) {
-    if(scene == fActiveScene) return;
+void Document::setActiveScene(Canvas * const scene)
+{
+    if (scene == fActiveScene) { return; }
     auto& conn = fActiveScene.assign(scene);
-    if(fActiveScene) {
+    if (fActiveScene) {
         conn << connect(fActiveScene, &Canvas::currentBoxChanged,
                         this, &Document::currentBoxChanged);
         conn << connect(fActiveScene, &Canvas::selectedPaintSettingsChanged,
@@ -253,43 +293,52 @@ void Document::setActiveScene(Canvas * const scene) {
     emit activeSceneSet(scene);
 }
 
-void Document::clearActiveScene() {
+void Document::clearActiveScene()
+{
     setActiveScene(nullptr);
 }
 
-int Document::getActiveSceneFrame() const {
-    if(!fActiveScene) return 0;
+int Document::getActiveSceneFrame() const
+{
+    if (!fActiveScene) { return 0; }
     return fActiveScene->anim_getCurrentAbsFrame();
 }
 
-void Document::setActiveSceneFrame(const int frame) {
-    if(!fActiveScene) return;
-    if(fActiveScene->anim_getCurrentRelFrame() == frame) return;
+void Document::setActiveSceneFrame(const int frame)
+{
+    if (!fActiveScene) { return; }
+    if (fActiveScene->anim_getCurrentRelFrame() == frame) { return; }
     fActiveScene->anim_setAbsFrame(frame);
     emit activeSceneFrameSet(frame);
 }
 
-void Document::incActiveSceneFrame() {
+void Document::incActiveSceneFrame()
+{
     setActiveSceneFrame(getActiveSceneFrame() + 1);
 }
 
-void Document::decActiveSceneFrame() {
+void Document::decActiveSceneFrame()
+{
     setActiveSceneFrame(getActiveSceneFrame() - 1);
 }
 
-void Document::addBookmarkBrush(SimpleBrushWrapper * const brush) {
-    if(!brush) return;
+void Document::addBookmarkBrush(SimpleBrushWrapper * const brush)
+{
+    if (!brush) { return; }
     removeBookmarkBrush(brush);
     fBrushes << brush;
     emit bookmarkBrushAdded(brush);
 }
 
-void Document::removeBookmarkBrush(SimpleBrushWrapper * const brush) {
-    if(fBrushes.removeOne(brush))
+void Document::removeBookmarkBrush(SimpleBrushWrapper * const brush)
+{
+    if (fBrushes.removeOne(brush)) {
         emit bookmarkBrushRemoved(brush);
+    }
 }
 
-void Document::addBookmarkColor(const QColor &color) {
+void Document::addBookmarkColor(const QColor &color)
+{
     removeBookmarkColor(color);
     fColors << color;
     emit bookmarkColorAdded(color);
@@ -307,9 +356,10 @@ void Document::removeBookmarkColor(const QColor &color)
     }
 }
 
-void Document::setBrush(BrushContexedWrapper * const brush) {
+void Document::setBrush(BrushContexedWrapper * const brush)
+{
     fBrush = brush->getSimpleBrush();
-    if(fBrush) {
+    if (fBrush) {
         fBrush->setColor(fBrushColor);
         switch(fPaintMode) {
         case PaintMode::normal: fBrush->setNormalMode(); break;
@@ -324,33 +374,38 @@ void Document::setBrush(BrushContexedWrapper * const brush) {
     emit brushColorChanged(fBrush ? fBrush->getColor() : Qt::white);
 }
 
-void Document::setBrushColor(const QColor &color) {
+void Document::setBrushColor(const QColor &color)
+{
     fBrushColor = color;
-    if(fBrush) fBrush->setColor(fBrushColor);
+    if (fBrush) { fBrush->setColor(fBrushColor); }
     emit brushColorChanged(color);
 }
 
-void Document::incBrushRadius() {
-    if(!fBrush) return;
+void Document::incBrushRadius()
+{
+    if (!fBrush) { return; }
     fBrush->incPaintBrushSize(0.3);
     emit brushSizeChanged(fBrush->getBrushSize());
 }
 
-void Document::decBrushRadius() {
-    if(!fBrush) return;
+void Document::decBrushRadius()
+{
+    if (!fBrush) { return; }
     fBrush->decPaintBrushSize(0.3);
     emit brushSizeChanged(fBrush->getBrushSize());
 }
 
-void Document::setOnionDisabled(const bool disabled) {
+void Document::setOnionDisabled(const bool disabled)
+{
     fOnionVisible = !disabled;
     actionFinished();
 }
 
-void Document::setPaintMode(const PaintMode mode) {
-    if(mode == fPaintMode) return;
+void Document::setPaintMode(const PaintMode mode)
+{
+    if (mode == fPaintMode) { return; }
     fPaintMode = mode;
-    if(fBrush) {
+    if (fBrush) {
         switch(fPaintMode) {
         case PaintMode::normal: fBrush->setNormalMode(); break;
         case PaintMode::erase: fBrush->startEraseMode(); break;
@@ -362,10 +417,11 @@ void Document::setPaintMode(const PaintMode mode) {
     emit paintModeChanged(mode);
 }
 
-void Document::clear() {
+void Document::clear()
+{
     setPath("");
     const int nScenes = fScenes.count();
-    for(int i = 0; i < nScenes; i++) removeScene(0);
+    for (int i = 0; i < nScenes; i++) { removeScene(0); }
     replaceClipboard(nullptr);
     const auto iBrushes = fBrushes;
     for (const auto brush : iBrushes) {
@@ -377,12 +433,15 @@ void Document::clear() {
         removeBookmarkColor(color);
     }
     fColors.clear();
+
+    mGrid->setSettings(eSettings::instance().fGrid);
 }
 
 void Document::SWT_setupAbstraction(SWT_Abstraction * const abstraction,
                                     const UpdateFuncs &updateFuncs,
-                                    const int visiblePartWidgetId) {
-    for(const auto& scene : fScenes) {
+                                    const int visiblePartWidgetId)
+{
+    for (const auto& scene : fScenes) {
         auto abs = scene->SWT_abstractionForWidget(updateFuncs,
                                                    visiblePartWidgetId);
         abstraction->addChildAbstraction(abs->ref<SWT_Abstraction>());

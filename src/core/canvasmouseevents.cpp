@@ -108,8 +108,9 @@ void Canvas::mouseMoveEvent(const eMouseEvent &e)
             mPaintTarget.cropMove(e.fPos);
         }
         return;
-    } else*/ if(leftPressed || e.fMouseGrabbing) {
-        if(mMovesToSkip > 0) {
+    } else*/
+    if (leftPressed || e.fMouseGrabbing) {
+        if (mMovesToSkip > 0) {
             mMovesToSkip--;
             return;
         }
@@ -119,52 +120,62 @@ void Canvas::mouseMoveEvent(const eMouseEvent &e)
             !mGizmos.fState.axisHandleActive &&
             !mGizmos.fState.scaleHandleActive &&
             !mGizmos.fState.shearHandleActive) {
-            if((mCurrentMode == CanvasMode::pointTransform &&
+            if ((mCurrentMode == CanvasMode::pointTransform &&
                 !mPressedPoint && !mCurrentNormalSegment.isValid()) ||
                (mCurrentMode == CanvasMode::boxTransform &&
                 !mPressedBox && !mPressedPoint)) {
                 startSelectionAtPoint(e.fPos);
             }
         }
-        if(mSelecting) {
+        if (mSelecting) {
             moveSecondSelectionPoint(e.fPos);
-        } else if(mCurrentMode == CanvasMode::pointTransform) {
+        } else if (mCurrentMode == CanvasMode::pointTransform) {
             handleMovePointMouseMove(e);
-        } else if(mCurrentMode == CanvasMode::boxTransform) {
-            if(mPressedPoint) {
+        } else if (mCurrentMode == CanvasMode::boxTransform) {
+            if (mPressedPoint) {
                 handleMovePointMouseMove(e);
             } else {
                 handleMovePathMouseMove(e);
             }
-        } else if(mCurrentMode == CanvasMode::drawPath) {
+        } else if (mCurrentMode == CanvasMode::drawPath) {
             const bool manual = mDocument.fDrawPathManual;
             const bool drawing = mManualDrawPathState == ManualDrawPathState::none;
-            if(!manual || drawing) mDrawPath.lineTo(e.fPos);
+            if (!manual || drawing) { mDrawPath.lineTo(e.fPos); }
             mDrawPath.smooth(mDocument.fDrawPathSmooth);
             updateHoveredPoint(e);
-        } else if(mCurrentMode == CanvasMode::pathCreate) {
+        } else if (mCurrentMode == CanvasMode::pathCreate) {
             handleAddSmartPointMouseMove(e);
-        } else if(mCurrentMode == CanvasMode::circleCreate) {
-            if(e.shiftMod()) {
-                const qreal lenR = pointToLen(e.fPos - e.fLastPressPos);
+        } else if (mCurrentMode == CanvasMode::circleCreate) {
+            const QPointF anchor = mHasCreationPressPos ? mCreationPressPos : snapPosToGrid(e.fLastPressPos,
+                                                                                            e.fModifiers,
+                                                                                            false);
+            const QPointF current = snapEventPos(e, false);
+            const QPointF delta = current - anchor;
+            if (e.shiftMod()) {
+                const qreal lenR = pointToLen(delta);
                 mCurrentCircle->moveRadiusesByAbs({lenR, lenR});
             } else {
-                mCurrentCircle->moveRadiusesByAbs(e.fPos - e.fLastPressPos);
+                mCurrentCircle->moveRadiusesByAbs(delta);
             }
-        } else if(mCurrentMode == CanvasMode::rectCreate) {
-            if(e.shiftMod()) {
-                const QPointF trans = e.fPos - e.fLastPressPos;
+        } else if (mCurrentMode == CanvasMode::rectCreate) {
+            const QPointF anchor = mHasCreationPressPos ? mCreationPressPos : snapPosToGrid(e.fLastPressPos,
+                                                                                            e.fModifiers,
+                                                                                            false);
+            const QPointF current = snapEventPos(e, false);
+            const QPointF trans = current - anchor;
+            if (e.shiftMod()) {
                 const qreal valF = qMax(trans.x(), trans.y());
                 mCurrentRectangle->moveSizePointByAbs({valF, valF});
             } else {
-                mCurrentRectangle->moveSizePointByAbs(e.fPos - e.fLastPressPos);
+                mCurrentRectangle->moveSizePointByAbs(trans);
             }
         }
     }
     mStartTransform = false;
 
-    if(!mSelecting && !e.fMouseGrabbing && leftPressed)
+    if (!mSelecting && !e.fMouseGrabbing && leftPressed) {
         e.fGrabMouse();
+    }
 }
 
 void Canvas::mouseReleaseEvent(const eMouseEvent &e)
@@ -217,6 +228,9 @@ void Canvas::mouseReleaseEvent(const eMouseEvent &e)
     mPressedBox = nullptr;
     mHoveredPoint_d = mPressedPoint;
     mPressedPoint = nullptr;
+    if (e.fButton == Qt::LeftButton) {
+        mHasCreationPressPos = false;
+    }
 }
 
 #include "MovablePoints/smartnodepoint.h"

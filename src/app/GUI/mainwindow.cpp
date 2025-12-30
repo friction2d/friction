@@ -464,6 +464,7 @@ void MainWindow::updateSettingsForCurrentCanvas(Canvas* const scene)
 
 void MainWindow::setupToolBar()
 {
+    mToolBox = new Ui::ToolBox(mActions, mDocument, this);
     mToolbar = new Ui::ToolBar(tr("Toolbar"),
                                "MainToolBar",
                                this);
@@ -474,7 +475,6 @@ void MainWindow::setupToolBar()
             this, [this](const QString &msg){ statusBar()->showMessage(msg, 500); });
     addToolBar(mColorToolBar);
 
-    mToolBox = new Ui::ToolBox(mActions, mDocument, this);
     {
         const auto toolbar = mToolBox->getToolBar(Ui::ToolBox::Main);
         if (toolbar) { addToolBar(Qt::LeftToolBarArea, toolbar); }
@@ -495,6 +495,11 @@ void MainWindow::setupToolBar()
     mCanvasToolBar->addWidget(workspaceLayoutCombo);
 
     statusBar()->addPermanentWidget(mCanvasToolBar);
+
+    {
+        const auto toolbar = mToolBox->getToolBar(Ui::ToolBox::Interact);
+        if (toolbar) { statusBar()->addPermanentWidget(toolbar); }
+    }
 
     connect(&mAudioHandler, &AudioHandler::deviceChanged,
             this, [this]() {

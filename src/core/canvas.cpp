@@ -101,6 +101,17 @@ Canvas::Canvas(Document &document,
     //setCanvasMode(MOVE_PATH);
 }
 
+void Canvas::setWorldToScreen(const QTransform& transform,
+                              qreal devicePixelRatio)
+{
+    mWorldToScreen = transform;
+    mDevicePixelRatio = devicePixelRatio > 0.0 ? devicePixelRatio : 1.0;
+    bool invertible = false;
+    mScreenToWorld = transform.inverted(&invertible);
+    mHasWorldToScreen = invertible;
+}
+
+
 Canvas::~Canvas()
 {
     clearPointsSelection();
@@ -239,7 +250,8 @@ void drawTransparencyMesh(SkCanvas* const canvas,
 void Canvas::renderSk(SkCanvas* const canvas,
                       const QRect& drawRect,
                       const QMatrix& viewTrans,
-                      const bool mouseGrabbing) {
+                      const bool mouseGrabbing)
+{
     mDrawnSinceQue = true;
     SkPaint paint;
     paint.setStyle(SkPaint::kFill_Style);
@@ -255,13 +267,35 @@ void Canvas::renderSk(SkCanvas* const canvas,
                                 eSizesUI::widget*0.25f*invZoom};
     const auto dashPathEffect = SkDashPathEffect::Make(intervals, 2, 0);
 
+    QTransform worldToScreenTransform = mWorldToScreen;
+    QTransform screenToWorldTransform = mScreenToWorld;
+    bool haveWorldTransform = mHasWorldToScreen;
+    if (!haveWorldTransform) {
+        bool invertible = false;
+        worldToScreenTransform = QTransform(viewTrans.m11(), viewTrans.m12(), 0.0,
+                                            viewTrans.m21(), viewTrans.m22(), 0.0,
+                                            viewTrans.dx(), viewTrans.dy(), 1.0);
+        screenToWorldTransform = worldToScreenTransform.inverted(&invertible);
+        haveWorldTransform = invertible;
+    }
+    const QRectF worldViewport = haveWorldTransform ? screenToWorldTransform.mapRect(QRectF(drawRect)) : QRectF(QPointF(0.0, 0.0),
+                                                                                                                QSizeF(drawRect.width(),
+                                                                                                                       drawRect.height()));
+    QRectF gridViewport = worldViewport.normalized();
+    const qreal gridPixelRatio = haveWorldTransform ? mDevicePixelRatio : pixelRatio;
+    const auto& gridSettings = mDocument.getGrid()->getSettings();
+    const bool gridVisible = gridSettings.show && (!haveWorldTransform || !gridViewport.isEmpty());
+    const bool gridOnTop = gridSettings.drawOnTop;
+    const bool drawCanvas = mSceneFrame && mSceneFrame->fBoxState == mStateId;
+
     canvas->concat(skViewTrans);
-    if(isPreviewingOrRendering()) {
-        if(mSceneFrame) {
+    if (isPreviewingOrRendering()) {
+        if (mSceneFrame) {
             canvas->clear(SK_ColorBLACK);
             canvas->save();
-            if(bgColor.alpha() != 255)
+            if (bgColor.alpha() != 255) {
                 drawTransparencyMesh(canvas, canvasRect);
+            }
             const float reversedRes = toSkScalar(1/mSceneFrame->fResolution);
             canvas->scale(reversedRes, reversedRes);
             mSceneFrame->drawImage(canvas, filter);
@@ -269,10 +303,11 @@ void Canvas::renderSk(SkCanvas* const canvas,
         }
         return;
     }
+
     canvas->save();
-    if(mClipToCanvasSize) {
+
+    if (mClipToCanvasSize) {
         canvas->clear(SK_ColorBLACK);
-        canvas->clipRect(canvasRect);
     } else {
         canvas->clear(ThemeSupport::getThemeBaseSkColor());
         paint.setColor(SK_ColorGRAY);
@@ -280,23 +315,38 @@ void Canvas::renderSk(SkCanvas* const canvas,
         paint.setPathEffect(dashPathEffect);
         canvas->drawRect(toSkRect(getCurrentBounds()), paint);
     }
-    const bool drawCanvas = mSceneFrame && mSceneFrame->fBoxState == mStateId;
-    if(bgColor.alpha() != 255)
-        drawTransparencyMesh(canvas, canvasRect);
-
-    if(!mClipToCanvasSize || !drawCanvas) {
-        canvas->saveLayer(nullptr, nullptr);
-        if(bgColor.alpha() == 255 &&
-           skViewTrans.mapRect(canvasRect).contains(toSkRect(drawRect))) {
+    if (!mClipToCanvasSize || !drawCanvas) {
+        if (bgColor.alpha() == 255 && skViewTrans.mapRect(canvasRect).contains(toSkRect(drawRect))) {
             canvas->clear(toSkColor(bgColor));
         } else {
-            paint.setStyle(SkPaint::kFill_Style);
-            paint.setColor(toSkColor(bgColor));
-            canvas->drawRect(canvasRect, paint);
+            SkPaint bgPaint;
+            bgPaint.setStyle(SkPaint::kFill_Style);
+            bgPaint.setColor(toSkColor(bgColor));
+            canvas->drawRect(canvasRect, bgPaint);
         }
+    }
+    if (gridVisible && !gridOnTop) {
+        mDocument.getGrid()->drawGrid(canvas,
+                                      gridViewport,
+                                      worldToScreenTransform,
+                                      gridPixelRatio);
+    }
+
+    canvas->save();
+
+    if (mClipToCanvasSize) {
+        canvas->clipRect(canvasRect);
+    }
+
+    if (bgColor.alpha() != 255) {
+        drawTransparencyMesh(canvas, canvasRect);
+    }
+
+    if (!mClipToCanvasSize || !drawCanvas) {
+        canvas->saveLayer(nullptr, nullptr);
         drawContained(canvas, filter);
         canvas->restore();
-    } else if(drawCanvas) {
+    } else if (drawCanvas) {
         canvas->save();
         const float reversedRes = toSkScalar(1/mSceneFrame->fResolution);
         canvas->scale(reversedRes, reversedRes);
@@ -305,21 +355,30 @@ void Canvas::renderSk(SkCanvas* const canvas,
     }
 
     canvas->restore();
+    canvas->restore();
+
+    if (gridVisible && gridOnTop) {
+        mDocument.getGrid()->drawGrid(canvas,
+                                      gridViewport,
+                                      worldToScreenTransform,
+                                      gridPixelRatio);
+    }
 
     if (!enve_cast<Canvas*>(mCurrentContainer)) {
         mCurrentContainer->drawBoundingRect(canvas, invZoom);
     }
+
     //if(!mPaintTarget.isValid()) {
         const auto mods = QApplication::queryKeyboardModifiers();
         const bool ctrlPressed = mods & Qt::CTRL && mods & Qt::SHIFT;
-        for(int i = mSelectedBoxes.count() - 1; i >= 0; i--) {
+        for (int i = mSelectedBoxes.count() - 1; i >= 0; i--) {
             const auto& iBox = mSelectedBoxes.at(i);
             canvas->save();
             iBox->drawBoundingRect(canvas, invZoom);
             iBox->drawAllCanvasControls(canvas, mCurrentMode, invZoom, ctrlPressed);
             canvas->restore();
         }
-        for(const auto obj : mNullObjects) {
+        for (const auto obj : mNullObjects) {
             canvas->save();
             obj->drawNullObject(canvas, mCurrentMode, invZoom, ctrlPressed);
             canvas->restore();
@@ -328,17 +387,17 @@ void Canvas::renderSk(SkCanvas* const canvas,
 
     renderGizmos(canvas, qInvZoom, invZoom);
 
-    if(mCurrentMode == CanvasMode::boxTransform ||
+    if (mCurrentMode == CanvasMode::boxTransform ||
        mCurrentMode == CanvasMode::pointTransform) {
-        if(mTransMode == TransformMode::rotate ||
+        if (mTransMode == TransformMode::rotate ||
            mTransMode == TransformMode::scale ||
            mTransMode == TransformMode::shear) {
             mRotPivot->drawTransforming(canvas, mCurrentMode, invZoom,
                                         eSizesUI::widget*0.25f*invZoom);
-        } else if(!mouseGrabbing || mRotPivot->isSelected()) {
+        } else if (!mouseGrabbing || mRotPivot->isSelected()) {
             mRotPivot->drawSk(canvas, mCurrentMode, invZoom, false, false);
         }
-    } else if(mCurrentMode == CanvasMode::drawPath) {
+    } else if (mCurrentMode == CanvasMode::drawPath) {
         const SkScalar nodeSize = 0.15f*eSizesUI::widget*invZoom;
         SkPaint paint;
         paint.setStyle(SkPaint::kFill_Style);
@@ -351,40 +410,47 @@ void Canvas::renderSk(SkCanvas* const canvas,
                       drawColor.green(),
                       drawColor.blue());
         const SkScalar ptSize = 0.25*nodeSize;
-        for(const auto& pt : pts) {
+        for (const auto& pt : pts) {
             canvas->drawCircle(pt.x(), pt.y(), ptSize, paint);
         }
 
         const bool drawFitted = mDocument.fDrawPathManual &&
                                 mManualDrawPathState == ManualDrawPathState::drawn;
-        if(drawFitted) {
+        if (drawFitted) {
             paint.setARGB(255, 255, 0, 0);
             const auto& highlightPts = mDrawPath.forceSplits();
-            for(const int ptId : highlightPts) {
+            for (const int ptId : highlightPts) {
                 const auto& pt = pts.at(ptId);
                 canvas->drawCircle(pt.x(), pt.y(), nodeSize, paint);
             }
             const auto& fitted = mDrawPath.getFitted();
             paint.setARGB(255, 255, 0, 0);
-            for(const auto& seg : fitted) {
+            for (const auto& seg : fitted) {
                 const auto path = seg.toSkPath();
-                SkiaHelpers::drawOutlineOverlay(canvas, path, invZoom, SK_ColorWHITE);
+                SkiaHelpers::drawOutlineOverlay(canvas,
+                                                path,
+                                                invZoom,
+                                                SK_ColorWHITE);
                 const auto& p0 = seg.p0();
                 canvas->drawCircle(p0.x(), p0.y(), nodeSize, paint);
             }
-            if(!mDrawPathTmp.isEmpty()) {
-                SkiaHelpers::drawOutlineOverlay(canvas, mDrawPathTmp,
-                                                invZoom, SK_ColorWHITE);
+            if (!mDrawPathTmp.isEmpty()) {
+                SkiaHelpers::drawOutlineOverlay(canvas,
+                                                mDrawPathTmp,
+                                                invZoom,
+                                                SK_ColorWHITE);
             }
         }
 
         paint.setARGB(255, 0, 75, 155);
-        if(mHoveredPoint_d && mHoveredPoint_d->isSmartNodePoint()) {
+
+        if (mHoveredPoint_d && mHoveredPoint_d->isSmartNodePoint()) {
             const QPointF pos = mHoveredPoint_d->getAbsolutePos();
             const qreal r = 0.5*qInvZoom*mHoveredPoint_d->getRadius();
             canvas->drawCircle(pos.x(), pos.y(), r, paint);
         }
-        if(mDrawPathFirst) {
+
+        if (mDrawPathFirst) {
             const QPointF pos = mDrawPathFirst->getAbsolutePos();
             const qreal r = 0.5*qInvZoom*mDrawPathFirst->getRadius();
             canvas->drawCircle(pos.x(), pos.y(), r, paint);
@@ -403,7 +469,7 @@ void Canvas::renderSk(SkCanvas* const canvas,
         paint.setPathEffect(nullptr);
         canvas->restore();
     } else {*/
-        if(mSelecting) {
+        if (mSelecting) {
             paint.setStyle(SkPaint::kStroke_Style);
             paint.setPathEffect(dashPathEffect);
             paint.setStrokeWidth(2*invZoom);
@@ -415,12 +481,12 @@ void Canvas::renderSk(SkCanvas* const canvas,
             //paint.setPathEffect(nullptr);
         }
 
-        if(mHoveredPoint_d) {
+        if (mHoveredPoint_d) {
             mHoveredPoint_d->drawHovered(canvas, invZoom);
-        } else if(mHoveredNormalSegment.isValid()) {
+        } else if (mHoveredNormalSegment.isValid()) {
             mHoveredNormalSegment.drawHoveredSk(canvas, invZoom);
-        } else if(mHoveredBox) {
-            if(!mCurrentNormalSegment.isValid()) {
+        } else if (mHoveredBox) {
+            if (!mCurrentNormalSegment.isValid()) {
                 mHoveredBox->drawHoveredSk(canvas, invZoom);
             }
         }
@@ -434,8 +500,9 @@ void Canvas::renderSk(SkCanvas* const canvas,
 
     canvas->resetMatrix();
 
-    if(mTransMode != TransformMode::none || mValueInput.inputEnabled())
+    if (mTransMode != TransformMode::none || mValueInput.inputEnabled()) {
         mValueInput.draw(canvas, drawRect.height() - eSizesUI::widget);
+    }
 }
 
 void Canvas::setCanvasSize(const int width,

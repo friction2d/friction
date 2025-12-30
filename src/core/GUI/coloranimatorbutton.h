@@ -28,10 +28,14 @@
 #include "boxeslistactionbutton.h"
 #include "smartPointers/selfref.h"
 #include "conncontextptr.h"
+
 class ColorAnimator;
 
-class CORE_EXPORT ColorAnimatorButton : public BoxesListActionButton {
+class CORE_EXPORT ColorAnimatorButton : public BoxesListActionButton
+{
+    Q_OBJECT
     ColorAnimatorButton(QWidget * const parent = nullptr);
+
 public:
     ColorAnimatorButton(ColorAnimator * const colorTarget,
                         QWidget * const parent = nullptr);
@@ -43,8 +47,13 @@ public:
 
     void setColor(const QColor& color);
     QColor color() const;
+
+signals:
+    void colorChanged(const QColor &color);
+
 protected:
     void paintEvent(QPaintEvent *);
+
 private:
     QColor mColor;
     ConnContextQPtr<ColorAnimator> mColorTarget;

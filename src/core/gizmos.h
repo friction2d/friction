@@ -43,7 +43,8 @@ namespace Friction
                 Position,
                 Rotate,
                 Scale,
-                Shear
+                Shear,
+                All
             };
             enum class AxisConstraint
             {
@@ -187,6 +188,7 @@ namespace Friction
                 bool showScale = false;
                 bool showShear = false;
                 bool rotatingFromHandle = false;
+                bool visible = true;
             };
 
             Config fConfig;

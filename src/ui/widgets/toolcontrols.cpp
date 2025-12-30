@@ -27,7 +27,6 @@
 #include "Boxes/circle.h"
 #include "Boxes/rectangle.h"
 
-using namespace Friction;
 using namespace Friction::Ui;
 
 ToolControls::ToolControls(QWidget *parent)
@@ -52,9 +51,6 @@ ToolControls::ToolControls(QWidget *parent)
     , mTransformBottomRight(nullptr)
     , mTransformPivot(nullptr)
     , mTransformOpacity(nullptr)
-    , mTransformInteractVisible(AppSupport::getSettings("gizmos",
-                                                        "ShowInToolbar",
-                                                        true).toBool())
 {
     setToolButtonStyle(Qt::ToolButtonIconOnly);
     setContextMenuPolicy(Qt::NoContextMenu);
@@ -107,22 +103,6 @@ void ToolControls::setCanvasMode(const CanvasMode &mode)
     mTransformOpacity->setVisible(hasOpacity && isBoxMode);
     mTransformRadius->setVisible(hasRadius && showRadius);
     mTransformBottomRight->setVisible(hasRectangle && showRectangle);
-    mTransformInteract->setVisible(isBoxMode && mTransformInteractVisible);
-}
-
-void ToolControls::setTransformInteractVisibility(bool visible)
-{
-    mTransformInteract->setVisible(visible &&
-                                   mCanvasMode == CanvasMode::boxTransform);
-    mTransformInteractVisible = visible;
-    AppSupport::setSettings("gizmos",
-                            "ShowInToolbar",
-                            visible);
-}
-
-bool ToolControls::getTransformInteractVisibility()
-{
-    return mTransformInteractVisible;
 }
 
 void ToolControls::setTransform(BoundingBox * const target)
@@ -132,8 +112,6 @@ void ToolControls::setTransform(BoundingBox * const target)
 
     if (!target || multiple) {
         resetWidgets();
-        if (multiple &&
-            mCanvasMode == CanvasMode::boxTransform) { mTransformInteract->setVisible(true); }
         return;
     }
 
@@ -218,7 +196,6 @@ void ToolControls::resetWidgets()
     mTransformBottomRight->setVisible(false);
     mTransformPivot->setVisible(false);
     mTransformOpacity->setVisible(false);
-    mTransformInteract->setVisible(false);
 }
 
 void ToolControls::setupWidgets()
@@ -230,7 +207,6 @@ void ToolControls::setupWidgets()
     mTransformBottomRight = new QActionGroup(this);
     mTransformPivot = new QActionGroup(this);
     mTransformOpacity = new QActionGroup(this);
-    mTransformInteract = new QActionGroup(this);
 
     setupTransform();
 }
@@ -295,15 +271,6 @@ void ToolControls::setupTransform()
     mTransformRadius->addAction(addSeparator());
     mTransformRadius->addAction(addWidget(mTransformRY));
 
-    mTransformInteract->setExclusionPolicy(QActionGroup::ExclusionPolicy::None);
-    mTransformInteract->addAction(addSpacer(true, true));
-    mTransformInteract->addAction(addAction(QIcon::fromTheme("gizmos"),
-                                            tr("Transform Interacts")));
-    setupTransformInteract(Core::Gizmos::Interact::Position);
-    setupTransformInteract(Core::Gizmos::Interact::Rotate);
-    setupTransformInteract(Core::Gizmos::Interact::Scale);
-    setupTransformInteract(Core::Gizmos::Interact::Shear);
-
     resetWidgets();
 
     mTransformX->setValueRange(0, 1);
@@ -330,75 +297,4 @@ void ToolControls::setupTransform()
     mTransformPY->setDisplayedValue(0);
     mTransformOX->setValueRange(0, 100);
     mTransformOX->setDisplayedValue(100);
-}
-
-void ToolControls::setupTransformInteract(const Core::Gizmos::Interact &ti)
-{
-    mTransformInteract->addAction(addSeparator());
-
-    const auto mDocument = Document::sInstance;
-
-    const bool visible = mDocument->getGizmoVisibility(ti);
-    QIcon iconOn;
-    QIcon iconOff;
-    QString textOn;
-    QString textOff;
-
-    switch(ti) {
-    case Core::Gizmos::Interact::Position:
-        iconOn = QIcon::fromTheme("gizmo_translate_on");
-        iconOff = QIcon::fromTheme("gizmo_translate_off");
-        textOn = tr("Hide Position Interact");
-        textOff = tr("Show Position Interact");
-        break;
-    case Core::Gizmos::Interact::Rotate:
-        iconOn = QIcon::fromTheme("gizmo_rotate_on");
-        iconOff = QIcon::fromTheme("gizmo_rotate_off");
-        textOn = tr("Hide Rotate Interact");
-        textOff = tr("Show Rotate Interact");
-        break;
-    case Core::Gizmos::Interact::Scale:
-        iconOn = QIcon::fromTheme("gizmo_scale_on");
-        iconOff = QIcon::fromTheme("gizmo_scale_off");
-        textOn = tr("Hide Scale Interact");
-        textOff = tr("Show Scale Interact");
-        break;
-    case Core::Gizmos::Interact::Shear:
-        iconOn = QIcon::fromTheme("gizmo_shear_on");
-        iconOff = QIcon::fromTheme("gizmo_shear_off");
-        textOn = tr("Hide Shear Interact");
-        textOff = tr("Show Shear Interact");
-        break;
-    default: return;
-    }
-
-    const auto interact = mTransformInteract->addAction(addAction(visible ? iconOn : iconOff, visible ? textOn : textOff));
-
-    interact->setCheckable(true);
-    interact->setChecked(visible);
-
-    ThemeSupport::setToolbarButtonStyle("ToolBoxGizmo", this, interact);
-
-    connect(interact, &QAction::triggered,
-            this, [this, mDocument, ti]() {
-        if (!mTransformInteractVisible) { return; }
-        mDocument->setGizmoVisibility(ti, !mDocument->getGizmoVisibility(ti));
-    });
-
-    connect(mDocument, &Document::gizmoVisibilityChanged,
-            this, [this,
-                   interact,
-                   iconOn,
-                   iconOff,
-                   textOn,
-                   textOff,
-                   ti](Core::Gizmos::Interact i,
-                       bool visible) {
-        if (ti != i || !mTransformInteractVisible) { return; }
-        interact->blockSignals(true);
-        interact->setChecked(visible);
-        interact->blockSignals(false);
-        interact->setText(visible ? textOn : textOff);
-        interact->setIcon(visible ? iconOn : iconOff);
-    });
 }

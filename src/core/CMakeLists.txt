@@ -54,6 +54,7 @@ include_directories(
 set(
     SOURCES
     appsupport.cpp
+    grid.cpp
     Boxes/nullobject.cpp
     Expressions/expression.cpp
     Expressions/expressionpresets.cpp
@@ -255,6 +256,7 @@ set(
     canvasmouseevents.cpp
     canvasmouseinteractions.cpp
     canvasgizmos.cpp
+    canvasgrid.cpp
     canvasselectedboxesactions.cpp
     canvasselectedpointsactions.cpp
     clipboardcontainer.cpp
@@ -360,6 +362,7 @@ set(
 set(
     HEADERS
     appsupport.h
+    grid.h
     Boxes/nullobject.h
     Expressions/expression.h
     Expressions/expressionpresets.h

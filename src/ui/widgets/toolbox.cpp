@@ -36,6 +36,7 @@ ToolBox::ToolBox(Actions &actions,
     , mMain(nullptr)
     , mControls(nullptr)
     , mExtra(nullptr)
+    , mInteract(nullptr)
     , mGroupMain(nullptr)
     , mGroupNodes(nullptr)
     , mGroupDraw(nullptr)
@@ -52,14 +53,17 @@ ToolBox::ToolBox(Actions &actions,
 QToolBar *ToolBox::getToolBar(const Type &type)
 {
     switch (type) {
+    case Type::Main:
+        return mMain;
     case Type::Controls:
         return mControls;
     case Type::Extra:
         return mExtra;
+    case Type::Interact:
+        return mInteract;
     default:
-        return mMain;
+        return nullptr;
     }
-    return nullptr;
 }
 
 const QList<QAction*> ToolBox::getMainActions()
@@ -88,6 +92,7 @@ void ToolBox::setupToolBox(QWidget *parent)
                         parent,
                         true);
     mControls = new ToolControls(parent);
+    mInteract = new ToolInteract(parent);
     // disable for now
     /*mExtra = new ToolboxToolBar(tr("Extra Tools"),
                                 "ToolBoxExtra",
@@ -324,7 +329,6 @@ void ToolBox::setupNodesAction(const QIcon &icon,
         }
     });
     mControls->addAction(mGroupNodes->addAction(act));
-    mGroupNodes->addAction(mControls->addSeparator());
     ThemeSupport::setToolbarButtonStyle("ToolBoxButton", mControls, act);
 }
 

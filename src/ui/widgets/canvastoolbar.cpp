@@ -69,7 +69,7 @@ CanvasToolBar::CanvasToolBar(QWidget *parent)
     }
 
     mMemoryLabel = addAction(QIcon::fromTheme("memory"), tr("0 MB"));
-    mMemoryLabel->setToolTip(tr("Memory used"));
+    mMemoryLabel->setToolTip(tr("0 MB used"));
 
     setupDimensions();
     setupResolution();
@@ -110,6 +110,7 @@ QComboBox *CanvasToolBar::getResolutionComboBox()
 
 void CanvasToolBar::setMemoryUsage(const intMB &usage)
 {
+    mMemoryLabel->setToolTip(tr("%1 MB used").arg(usage.fValue));
     mMemoryLabel->setText(tr("%1 MB").arg(usage.fValue));
 }
 

@@ -46,6 +46,7 @@
 #include "ReadWrite/ewritestream.h"
 #include "gizmos.h"
 #include "appsupport.h"
+#include "grid.h"
 
 class SceneBoundGradient;
 class FileDataCacheHandler;
@@ -70,6 +71,8 @@ public:
 
     static Document* sInstance;
 
+    Friction::Core::Grid* getGrid();
+
     stdsptr<Clipboard> fClipboardContainer;
 
     QString fEvFile;
@@ -78,10 +81,21 @@ public:
 
     bool fLocalPivot = true;
 
-    bool fGizmoPositionVisibility = AppSupport::getSettings("gizmos", "Position", true).toBool();
-    bool fGizmoRotateVisibility = AppSupport::getSettings("gizmos", "Rotate", true).toBool();
-    bool fGizmoScaleVisibility = AppSupport::getSettings("gizmos", "Scale", false).toBool();
-    bool fGizmoShearVisibility = AppSupport::getSettings("gizmos", "Shear", false).toBool();
+    bool fGizmoPositionVisibility = AppSupport::getSettings("gizmos",
+                                                            "Position",
+                                                            true).toBool();
+    bool fGizmoRotateVisibility = AppSupport::getSettings("gizmos",
+                                                          "Rotate",
+                                                          true).toBool();
+    bool fGizmoScaleVisibility = AppSupport::getSettings("gizmos",
+                                                         "Scale",
+                                                         false).toBool();
+    bool fGizmoShearVisibility = AppSupport::getSettings("gizmos",
+                                                         "Shear",
+                                                         false).toBool();
+    bool fGizmoAllVisibility = AppSupport::getSettings("gizmos",
+                                                       "All",
+                                                       true).toBool();
 
     CanvasMode fCanvasMode;
 
@@ -108,6 +122,8 @@ public:
     SimpleBrushWrapper* fBrush = nullptr;
     bool fOnionVisible = false;
     PaintMode fPaintMode = PaintMode::normal;
+
+    Friction::Core::Grid *mGrid;
 
     QList<qsptr<Canvas>> fScenes;
     std::map<Canvas*, int> fVisibleScenes;
@@ -200,11 +216,14 @@ private:
     void readBookmarked(eReadStream &src);
 
     void readGradients(eReadStream& src);
+
 signals:
+
     void canvasModeSet(CanvasMode);
 
     void gizmoVisibilityChanged(const Friction::Core::Gizmos::Interact &ti,
                                 const bool &visible);
+    void gridChanged(const Friction::Core::Grid::Settings &settings);
 
     void sceneCreated(Canvas*);
     void sceneRemoved(Canvas*);

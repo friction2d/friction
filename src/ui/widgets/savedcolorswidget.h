@@ -31,7 +31,6 @@
 #include <QWidget>
 
 #include "widgets/flowlayout.h"
-#include "colorhelpers.h"
 
 class SavedColorButton;
 
@@ -47,8 +46,11 @@ public:
     void setColor(const QColor& color);
 
 private:
+    void addBookmarkButton();
+
     FlowLayout *mMainLayout = nullptr;
     QList<SavedColorButton*> mButtons;
+    QColor mCurrentColor;
 
 signals:
     void colorSet(QColor);

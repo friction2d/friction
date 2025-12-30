@@ -105,6 +105,7 @@ set(
     widgets/toolbar.cpp
     widgets/toolbox.cpp
     widgets/toolcontrols.cpp
+    widgets/toolinteract.cpp
     widgets/twocolumnlayout.cpp
     widgets/uilayout.cpp
     widgets/toolboxtoolbar.cpp
@@ -181,6 +182,7 @@ set(
     widgets/toolbox.h
     widgets/toolbutton.h
     widgets/toolcontrols.h
+    widgets/toolinteract.h
     widgets/twocolumnlayout.h
     widgets/uilayout.h
     widgets/vlabel.h

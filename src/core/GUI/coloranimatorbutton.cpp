@@ -112,8 +112,7 @@ void ColorAnimatorButton::openColorSettingsDialog()
                                              mColorTarget);
     } else {
         const auto colOp = [this](const ColorSetting& setting) {
-            mColor = setting.getColor();
-            update();
+            setColor(setting.getColor());
         };
         colorWidget = eWidgets::sColorWidget(dialog,
                                              mColor,
@@ -130,6 +129,8 @@ void ColorAnimatorButton::setColor(const QColor &color)
 {
     mColor = color;
     update();
+
+    emit colorChanged(color);
 }
 
 QColor ColorAnimatorButton::color() const
