@@ -36,6 +36,10 @@ ColorAnimatorButton::ColorAnimatorButton(QWidget * const parent)
 {
     connect(this, &BoxesListActionButton::pressed,
             this, &ColorAnimatorButton::openColorSettingsDialog);
+    eSizesUI::widget.add(this, [this](const int size) {
+        setFixedHeight(size);
+        setFixedWidth(size * 3 - 2);
+    });
 }
 
 ColorAnimatorButton::ColorAnimatorButton(ColorAnimator * const colorTarget,
