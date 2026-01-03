@@ -36,6 +36,10 @@ ColorAnimatorButton::ColorAnimatorButton(QWidget * const parent)
 {
     connect(this, &BoxesListActionButton::pressed,
             this, &ColorAnimatorButton::openColorSettingsDialog);
+    eSizesUI::widget.add(this, [this](const int size) {
+        setFixedHeight(size);
+        setFixedWidth(size * 3 - 2);
+    });
 }
 
 ColorAnimatorButton::ColorAnimatorButton(ColorAnimator * const colorTarget,
@@ -73,6 +77,7 @@ void ColorAnimatorButton::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
 
+    const QColor currentColor = color();
     const QRectF rect(0.0, 0.0, width(), height());
     const float borderWidth = 2.0;
     const QRectF innerRect = rect.adjusted(borderWidth,
@@ -81,19 +86,19 @@ void ColorAnimatorButton::paintEvent(QPaintEvent *)
                                            -borderWidth);
 
     if (mHover) {
-        const QColor color = ThemeSupport::getLightDarkColor(mColor, 130);
+        const QColor color = ThemeSupport::getLightDarkColor(currentColor, 130);
         p.setPen(color);
         p.setBrush(color);
         p.drawRoundedRect(rect,
                           borderWidth + 2,
                           borderWidth + 2);
-        p.setBrush(mColor);
+        p.setBrush(currentColor);
         p.drawRoundedRect(innerRect,
                           borderWidth,
                           borderWidth);
     } else {
-        p.setPen(mColor);
-        p.setBrush(mColor);
+        p.setPen(currentColor);
+        p.setBrush(currentColor);
         p.drawRoundedRect(rect,
                           borderWidth + 2,
                           borderWidth + 2);

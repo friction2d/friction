@@ -264,8 +264,8 @@ BoxSingleWidget::BoxSingleWidget(BoxScroller * const parent)
 
     mColorButton = new ColorAnimatorButton(nullptr, this);
     mMainLayout->addWidget(mColorButton, Qt::AlignRight);
-    mColorButton->setFixedHeight(mColorButton->height() - 6);
-    mColorButton->setContentsMargins(0, 3, 0, 3);
+    mColorButton->setFixedHeight(mColorButton->height() - 2);
+    mColorButton->setContentsMargins(0, 1, 0, 1);
 
     mPropertyComboBox = createCombo(this);
     mMainLayout->addWidget(mPropertyComboBox);
