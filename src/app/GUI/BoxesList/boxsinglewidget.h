@@ -123,6 +123,8 @@ protected:
     void clearAndHideValueAnimators();
     void updateValueSlidersForQPointFAnimator();
 private:
+    QString getDisplayName(Property* const prop) const;
+
     ContainerBox *getPromoteTargetGroup();
 
     void clearSelected() { setSelected(false); }
