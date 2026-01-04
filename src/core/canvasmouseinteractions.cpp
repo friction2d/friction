@@ -60,8 +60,14 @@
 #include <QMenu>
 #include <QInputDialog>
 #include <QApplication>
+#include <cmath>
 
 using namespace Friction::Core;
+
+namespace {
+constexpr qreal kDegToRad = static_cast<qreal>(0.017453292519943295769);
+constexpr qreal kRadToDeg = static_cast<qreal>(57.2957795130823208768);
+}
 
 void Canvas::handleMovePathMousePressEvent(const eMouseEvent& e)
 {
@@ -211,6 +217,7 @@ void Canvas::handleLeftButtonMousePress(const eMouseEvent& e)
     //mMovesToSkip = 2;
     mStartTransform = true;
     mHasCreationPressPos = false;
+    mLastPointMoveBy = QPointF();
 
     const qreal invScale = 1/e.fScale;
     const qreal invScaleUi = (qApp ? qApp->devicePixelRatio() : 1.0) * invScale;
@@ -709,44 +716,72 @@ void Canvas::handleMovePointMouseMove(const eMouseEvent &e)
                 }
             }
 
+            QPointF moveBy = getMoveByValueForEvent(e);
+            QPointF finalMoveBy = moveBy;
+            if ((mods & Qt::ShiftModifier) && mPressedPoint->isCtrlPoint()) {
+                const auto ctrlPoint = enve_cast<SmartCtrlPoint*>(mPressedPoint.data());
+                if (ctrlPoint) {
+                    const auto parentPoint = ctrlPoint->getParentPoint();
+                    if (parentPoint) {
+                        const QPointF parentAbs = parentPoint->getAbsolutePos();
+                        const QPointF startAbs = ctrlPoint->getAbsolutePos() - mLastPointMoveBy;
+                        QPointF targetAbs = startAbs + moveBy;
+                        const QPointF dir = targetAbs - parentAbs;
+                        const qreal len = pointToLen(dir);
+                        if (len > 0.0) {
+                            constexpr qreal snapStep = 15.0;
+                            const qreal angleDeg = std::atan2(dir.y(), dir.x()) * kRadToDeg;
+                            const qreal snappedDeg = std::round(angleDeg / snapStep) * snapStep;
+                            const qreal snappedRad = snappedDeg * kDegToRad;
+                            const QPointF snappedVec(len * std::cos(snappedRad),
+                                                     len * std::sin(snappedRad));
+                            targetAbs = parentAbs + snappedVec;
+                            finalMoveBy = targetAbs - startAbs;
+                        }
+                    }
+                }
+            }
+
             if (!mPressedPoint->selectionEnabled()) {
                 if (mStartTransform) {
                     mPressedPoint->startTransform();
                     mGridMoveStartPivot = mPressedPoint->getAbsolutePos();
                 }
-
-                auto moveBy = getMoveByValueForEvent(e);
                 if (snappingActive) {
                     const auto snapped = moveBySnapTargets(e.fModifiers,
-                                                           moveBy,
+                                                           finalMoveBy,
                                                            gridSettings,
                                                            includeSelectedBounds,
                                                            false,
                                                            false);
-                    if (snapped.first) { moveBy = snapped.second; }
+                    if (snapped.first) { finalMoveBy = snapped.second; }
                 }
 
-                mPressedPoint->moveByAbs(moveBy);
+                mPressedPoint->moveByAbs(finalMoveBy);
+                mLastPointMoveBy = finalMoveBy;
                 return;
             }
-        }
 
-        if (mStartTransform && !mSelectedPoints_d.isEmpty()) {
-            mGridMoveStartPivot = getSelectedPointsAbsPivotPos();
-        }
+            if (mStartTransform && !mSelectedPoints_d.isEmpty()) {
+                mGridMoveStartPivot = getSelectedPointsAbsPivotPos();
+            }
+            if (snappingActive && !mSelectedPoints_d.isEmpty()) {
+                const auto snapped = moveBySnapTargets(e.fModifiers,
+                                                       finalMoveBy,
+                                                       gridSettings,
+                                                       includeSelectedBounds,
+                                                       false,
+                                                       false);
+                if (snapped.first) { finalMoveBy = snapped.second; }
+            }
 
-        auto moveBy = getMoveByValueForEvent(e);
-        if (snappingActive && !mSelectedPoints_d.isEmpty()) {
-            const auto snapped = moveBySnapTargets(e.fModifiers,
-                                                   moveBy,
-                                                   gridSettings,
-                                                   includeSelectedBounds,
-                                                   false,
-                                                   false);
-            if (snapped.first) { moveBy = snapped.second; }
+            moveSelectedPointsByAbs(finalMoveBy, mStartTransform);
+            mLastPointMoveBy = finalMoveBy;
+        } else {
+            const QPointF moveBy = getMoveByValueForEvent(e);
+            moveSelectedPointsByAbs(moveBy, mStartTransform);
+            mLastPointMoveBy = moveBy;
         }
-
-        moveSelectedPointsByAbs(moveBy, mStartTransform);
     }
 }
 
@@ -851,6 +886,16 @@ void Canvas::rotateSelected(const eMouseEvent& e)
         rot = d_rot + mRotHalfCycles*180;
     }
 
+    if (!mValueInput.inputEnabled()) {
+        if (e.ctrlMod()) {
+            constexpr qreal snapStep = 1.0;
+            rot = std::round(rot / snapStep) * snapStep;
+        } else if (e.shiftMod()) {
+            constexpr qreal snapStep = 15.0;
+            rot = std::round(rot / snapStep) * snapStep;
+        }
+    }
+
     if (mCurrentMode == CanvasMode::boxTransform) {
         rotateSelectedBy(rot, absPos, mStartTransform);
     } else {
@@ -883,6 +928,7 @@ bool Canvas::prepareRotation(const QPointF &startPos,
     mTransMode = TransformMode::rotate;
     mRotHalfCycles = 0;
     mLastDRot = 0;
+    mLastPointMoveBy = QPointF();
 
     mDoubleClick = false;
     mStartTransform = true;
