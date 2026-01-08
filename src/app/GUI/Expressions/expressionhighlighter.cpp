@@ -32,7 +32,7 @@
 #include "expressioneditor.h"
 
 ExpressionHighlighter::ExpressionHighlighter(
-        QrealAnimator * const target,
+        Property * const target,
         ExpressionEditor * const editor,
         QTextDocument *parent) :
     QSyntaxHighlighter(parent),

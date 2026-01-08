@@ -26,20 +26,62 @@
 #ifndef QSTRINGANIMATOR_H
 #define QSTRINGANIMATOR_H
 #include "Animators/steppedanimator.h"
+#include "../conncontextptr.h"
 
 typedef KeyT<QString> QStringKey;
+
+class Expression;
 
 class CORE_EXPORT QStringAnimator : public SteppedAnimator<QString> {
     e_OBJECT
 protected:
     QStringAnimator(const QString& name);
 
-    void prp_readPropertyXEV_impl(const QDomElement& ele, const XevImporter& imp);
-    QDomElement prp_writePropertyXEV_impl(const XevExporter& exp) const;
+    void prp_writeProperty_impl(eWriteStream& dst) const override;
+    void prp_readProperty_impl(eReadStream& src) override;
+
+    void prp_readPropertyXEV_impl(const QDomElement& ele, const XevImporter& imp) override;
+    QDomElement prp_writePropertyXEV_impl(const XevExporter& exp) const override;
 public:
     using PropSetter = std::function<void(QDomElement&)>;
     void saveSVG(SvgExporter& exp, QDomElement& parent,
                  const PropSetter& propSetter) const;
+
+    QJSValue prp_getBaseJSValue(QJSEngine& e) const override;
+    QJSValue prp_getBaseJSValue(QJSEngine& e, const qreal relFrame) const override;
+    QJSValue prp_getEffectiveJSValue(QJSEngine& e) const override;
+    QJSValue prp_getEffectiveJSValue(QJSEngine& e, const qreal relFrame) const override;
+
+    void prp_setupTreeViewMenu(PropertyMenu * const menu) override;
+
+    FrameRange prp_getIdenticalRelRange(const int relFrame) const override;
+    FrameRange prp_nextNonUnaryIdenticalRelRange(const int relFrame) const override;
+    void prp_afterFrameShiftChanged(const FrameRange& oldAbsRange,
+                                    const FrameRange& newAbsRange) override;
+    void anim_setAbsFrame(const int frame) override;
+
+    bool prp_dependsOn(const Property* const prop) const override;
+    bool hasValidExpression() const;
+    bool hasExpression() const { return mExpression; }
+    void clearExpressionAction() { setExpressionAction(nullptr); }
+
+    QString getExpressionBindingsString() const;
+    QString getExpressionDefinitionsString() const;
+    QString getExpressionScriptString() const;
+
+    void setExpression(const qsptr<Expression>& expression);
+    void setExpressionAction(const qsptr<Expression>& expression);
+    void applyExpression(const FrameRange& relRange, const bool action);
+
+    QString getValueAtRelFrame(const qreal frame) const;
+private:
+    QString getBaseValueAtRelFrame(const qreal frame) const;
+    QString getEffectiveValue(const qreal relFrame) const;
+    bool updateExpressionRelFrame();
+    bool updateCurrentEffectiveValue();
+
+    QString mCurrentEffectiveValue;
+    ConnContextQSPtr<Expression> mExpression;
 };
 
 #endif // QSTRINGANIMATOR_H
