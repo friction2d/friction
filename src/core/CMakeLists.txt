@@ -39,7 +39,6 @@ add_definitions(-DPROJECT_BRANCH="${GIT_BRANCH}")
 add_definitions(-DCORE_LIBRARY)
 
 if(UNIX AND NOT APPLE)
-    option(USE_EGL "Use EGL" ON)
     if(${USE_EGL})
         add_definitions(-DFRICTION_EGL)
     endif()
