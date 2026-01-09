@@ -20,6 +20,7 @@
 
 set -e -x
 
+GLX=${GLX:-0}
 SDK=${SDK:-"/opt/friction"}
 DISTFILES=${DISTFILES:-"/mnt"}
 BUILD=${BUILD:-"${HOME}"}
@@ -34,6 +35,11 @@ if [ "${VERSION}" = "" ]; then
     echo "Missing version"
     exit 1
 fi
+
+if [ "${GLX}" = 1 ]; then
+    VERSION="${VERSION}-GLX"
+fi
+
 PKG_VERSION=`echo ${VERSION} | sed 's/-/./g'`
 
 if [ ! -d "${BUILD}/${FRICTION_PKG}" ]; then
@@ -70,17 +76,23 @@ done
 
 mkdir -p ${PLUG_DIR}/platforms
 cp -a ${SDK}/plugins/platforms/libqxcb.so ${PLUG_DIR}/platforms/
-cp -a ${SDK}/plugins/platforms/libqwayland-generic.so ${PLUG_DIR}/platforms/
-cp -a ${SDK}/plugins/platforms/libqwayland-egl.so ${PLUG_DIR}/platforms/
+
+mkdir -p ${PLUG_DIR}/xcbglintegrations
+cp -a ${SDK}/plugins/xcbglintegrations/libqxcb-glx-integration.so ${PLUG_DIR}/xcbglintegrations/
 
 mkdir -p ${PLUG_DIR}/platformthemes
 cp -a ${SDK}/plugins/platformthemes/libqxdgdesktopportal.so ${PLUG_DIR}/platformthemes/
 
 cp -a ${SDK}/plugins/audio ${PLUG_DIR}/
-cp -a ${SDK}/plugins/xcbglintegrations ${PLUG_DIR}/
-cp -a ${SDK}/plugins/wayland-graphics-integration-client ${PLUG_DIR}/
-cp -a ${SDK}/plugins/wayland-shell-integration ${PLUG_DIR}/
-cp -a ${SDK}/plugins/wayland-decoration-client ${PLUG_DIR}/
+
+if [ "${GLX}" = 0 ]; then
+    cp -a ${SDK}/plugins/platforms/libqwayland-generic.so ${PLUG_DIR}/platforms/
+    cp -a ${SDK}/plugins/platforms/libqwayland-egl.so ${PLUG_DIR}/platforms/
+    cp -a ${SDK}/plugins/wayland-graphics-integration-client ${PLUG_DIR}/
+    cp -a ${SDK}/plugins/wayland-shell-integration ${PLUG_DIR}/
+    cp -a ${SDK}/plugins/wayland-decoration-client ${PLUG_DIR}/
+    cp -a ${SDK}/plugins/xcbglintegrations/libqxcb-egl-integration.so ${PLUG_DIR}/xcbglintegrations/
+fi
 
 for so in ${PLUG_DIR}/*/*.so; do
     DEPENDS=`ldd ${so} | awk '{print $3}'`
@@ -157,9 +169,11 @@ wayland-shell-integration
 wayland-decoration-client
 "
 for pdir in ${PLUGS}; do
-    for so in ${BUILD}/${FRICTION_PKG}/opt/friction/plugins/${pdir}/*.so; do
-        patchelf --set-rpath '$ORIGIN/../../lib' ${so}
-    done
+    if [ -d "${BUILD}/${FRICTION_PKG}/opt/friction/plugins/${pdir}" ]; then
+        for so in ${BUILD}/${FRICTION_PKG}/opt/friction/plugins/${pdir}/*.so; do
+            patchelf --set-rpath '$ORIGIN/../../lib' ${so}
+        done
+    fi
 done
 
 # RPM

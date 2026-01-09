@@ -35,6 +35,7 @@ ONLY_SDK=${ONLY_SDK:-0}
 SDK_TAR="${DISTFILES}/sdk/friction-sdk-${SDK_VERSION}r9-linux-x86_64.tar"
 TAR_VERSION=${TAR_VERSION:-""}
 HEAD_REPO_URL=${HEAD_REPO_URL:-""}
+GLX=${GLX:-0}
 
 # Build SDK
 if [ ! -d "${SDK}" ]; then
@@ -70,6 +71,7 @@ TAG=${TAG} \
 CUSTOM=${CUSTOM} \
 TAR_VERSION=${TAR_VERSION} \
 HEAD_REPO_URL=${HEAD_REPO_URL} \
+GLX=${GLX} \
 ${BUILD}/build_vfxplatform_friction.sh
 
 # Get Friction version
@@ -87,4 +89,5 @@ SDK=${SDK} \
 DISTFILES=${DISTFILES} \
 BUILD=${BUILD} \
 VERSION=${VERSION} \
+GLX=${GLX} \
 ${BUILD}/build_vfxplatform_package.sh
