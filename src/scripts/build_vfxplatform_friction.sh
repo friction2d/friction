@@ -121,6 +121,10 @@ if [ "${REL}" != 1 ]; then
     VERSION="${VERSION}-${GIT_COMMIT}"
 fi
 
+if [ "${GLX}" = 1 ]; then
+    VERSION="${VERSION}-GLX"
+fi
+
 cmake --build .
 
 FRICTION_INSTALL_DIR=friction-${VERSION}

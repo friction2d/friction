@@ -26,6 +26,11 @@ DISTFILES=${DISTFILES:-"/mnt"}
 BUILD=${BUILD:-"${HOME}"}
 VERSION=${VERSION:-""}
 APPID="graphics.friction.Friction"
+
+if [ "${GLX}" = 1 ]; then
+    VERSION="${VERSION}-GLX"
+fi
+
 FRICTION_PKG=friction-${VERSION}
 
 APPIMAGETOOL=bfe6e0c
@@ -34,10 +39,6 @@ APPIMAGERUNTIME=1bb1157
 if [ "${VERSION}" = "" ]; then
     echo "Missing version"
     exit 1
-fi
-
-if [ "${GLX}" = 1 ]; then
-    VERSION="${VERSION}-GLX"
 fi
 
 PKG_VERSION=`echo ${VERSION} | sed 's/-/./g'`
