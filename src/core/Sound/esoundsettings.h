@@ -34,6 +34,8 @@ extern "C" {
 
 #include "../core_global.h"
 
+#include "utils/ffmpeghelper.h"
+
 struct CORE_EXPORT eSoundSettingsData {
 #ifdef Q_OS_MAC
     int fSampleRate = 22050;
@@ -48,7 +50,7 @@ struct CORE_EXPORT eSoundSettingsData {
     }
 
     int channelCount() const {
-        return av_get_channel_layout_nb_channels(fChannelLayout);
+        return Friction::Utils::FFmpegHelper::getNbChannels(fChannelLayout);
     }
 
     int bytesPerSample() const {

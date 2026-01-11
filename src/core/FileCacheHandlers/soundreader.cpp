@@ -28,6 +28,7 @@
 #include "CacheHandlers/soundcachehandler.h"
 #include "CacheHandlers/soundcachecontainer.h"
 #include "Sound/soundcomposition.h"
+#include "utils/ffmpeghelper.h"
 
 void SoundReader::beforeProcessing(const Hardware) {
     mOpenedAudio->lock();
@@ -73,7 +74,7 @@ void SoundReader::readFrame() {
     const AVSampleFormat dstSampleFormat = mSettings.fSampleFormat;
     const uint64_t dstChLayout = mSettings.fChannelLayout;
     const uint dstSampleSize = static_cast<uint>(mSettings.bytesPerSample());
-    const int dstChCount = av_get_channel_layout_nb_channels(dstChLayout);
+    const int dstChCount = Friction::Utils::FFmpegHelper::getNbChannels(dstChLayout);
     const bool dstPlanar = mSettings.planarFormat();
 
     const auto formatContext = mOpenedAudio->fFormatContext;

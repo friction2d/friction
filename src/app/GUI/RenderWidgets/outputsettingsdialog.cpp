@@ -775,22 +775,13 @@ void OutputSettingsDialog::updateAvailableAudioChannelLayouts() {
         currentCodec = mAudioCodecsList.at(codecId);
     }
     if(!currentCodec) return;
-    const uint64_t *layouts = currentCodec->channel_layouts;
-    if(!layouts) {
-        mAudioChannelLayoutsList << AV_CH_LAYOUT_MONO;
-        mAudioChannelLayoutsList << AV_CH_LAYOUT_STEREO;
-        mAudioChannelLayoutsComboBox->addItem("Mono");
-        mAudioChannelLayoutsComboBox->addItem("Stereo");
-    } else {
-        uint64_t layout = *layouts;
-        while(layout != 0) {
-            const QString layoutName = OutputSettings::sGetChannelsLayoutName(layout);
-            mAudioChannelLayoutsList << layout;
-            mAudioChannelLayoutsComboBox->addItem(layoutName);
-            layouts++;
-            layout = *layouts;
-        }
+
+    const auto layouts = Friction::Utils::FFmpegHelper::getSupportedLayouts(currentCodec);
+    for (const auto& info : layouts) {
+        mAudioChannelLayoutsList << info.mask;
+        mAudioChannelLayoutsComboBox->addItem(info.name);
     }
+
     if(mAudioChannelLayoutsComboBox->findText(lastSet) != -1) {
         mAudioChannelLayoutsComboBox->setCurrentText(lastSet);
     } else if(mAudioChannelLayoutsComboBox->findText("Stereo")) {

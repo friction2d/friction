@@ -357,6 +357,7 @@ set(
     renderinstancesettings.cpp
     videoencoder.cpp
     svgo.cpp
+    utils/ffmpeghelper.cpp
 )
 
 set(
@@ -701,6 +702,7 @@ set(
     videoencoder.h
     formatoptions.h
     svgo.h
+    utils/ffmpeghelper.h
 )
 
 if(NOT WIN32)

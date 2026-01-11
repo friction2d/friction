@@ -45,29 +45,45 @@ stdsptr<const AudioStreamsData> AudioStreamsData::sOpen(
     return result;
 }
 
-void AudioStreamsData::updateSwrContext() {
-    if(mLocked) {
+void AudioStreamsData::updateSwrContext()
+{
+    if (mLocked) {
         mUpdateSwrPlanned = true;
         return;
     }
     mUpdateSwrPlanned = false;
 
     const auto audCodecPars = fAudioStream->codecpar;
-    const auto sampleFormat = static_cast<AVSampleFormat>(audCodecPars->format);
 
-    if(fSwrContext) swr_free(&fSwrContext);
-    fSwrContext = swr_alloc();
-    av_opt_set_int(fSwrContext, "in_channel_count",  audCodecPars->channels, 0);
-    av_opt_set_int(fSwrContext, "out_channel_count", eSoundSettings::sChannelCount(), 0);
-    av_opt_set_int(fSwrContext, "in_channel_layout",  audCodecPars->channel_layout, 0);
-    av_opt_set_int(fSwrContext, "out_channel_layout", eSoundSettings::sChannelLayout(), 0);
-    av_opt_set_int(fSwrContext, "in_sample_rate", audCodecPars->sample_rate, 0);
-    av_opt_set_int(fSwrContext, "out_sample_rate", eSoundSettings::sSampleRate(), 0);
-    av_opt_set_sample_fmt(fSwrContext, "in_sample_fmt", sampleFormat, 0);
-    av_opt_set_sample_fmt(fSwrContext, "out_sample_fmt", eSoundSettings::sSampleFormat(),  0);
-    swr_init(fSwrContext);
-    if(!swr_is_initialized(fSwrContext)) {
-        RuntimeThrow("Resampler has not been properly initialized");
+    AVChannelLayout out_layout;
+    uint64_t out_mask = eSoundSettings::sChannelLayout();
+    if (out_mask == 0) out_mask = AV_CH_LAYOUT_STEREO;
+    av_channel_layout_from_mask(&out_layout, out_mask);
+
+    if (fSwrContext) { swr_free(&fSwrContext); }
+
+    int ret = swr_alloc_set_opts2(&fSwrContext,
+                                  &out_layout,
+                                  eSoundSettings::sSampleFormat(),
+                                  eSoundSettings::sSampleRate(),
+                                  &audCodecPars->ch_layout,
+                                  static_cast<AVSampleFormat>(audCodecPars->format),
+                                  audCodecPars->sample_rate,
+                                  0, nullptr);
+
+    av_channel_layout_uninit(&out_layout);
+
+    if (ret < 0) {
+        char errbuf[256];
+        av_strerror(ret, errbuf, sizeof(errbuf));
+        RuntimeThrow(QString("Resampler allocation failed: %1").arg(errbuf).toStdString().c_str());
+    }
+
+    ret = swr_init(fSwrContext);
+    if (ret < 0) {
+        char errbuf[256];
+        av_strerror(ret, errbuf, sizeof(errbuf));
+        RuntimeThrow(QString("Resampler init failed: %1").arg(errbuf).toStdString().c_str());
     }
 }
 

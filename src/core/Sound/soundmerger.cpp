@@ -24,6 +24,7 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "soundmerger.h"
+#include "utils/ffmpeghelper.h"
 
 template <typename T>
 void mergePlanarDataUnsigned(T const * const * const src,
@@ -363,7 +364,7 @@ void SoundMerger::process() {
 
             const AVSampleFormat sampleFormat = mSettings.fSampleFormat;
             const uint64_t chLayout = mSettings.fChannelLayout;
-            const int chCount = av_get_channel_layout_nb_channels(chLayout);
+            const int chCount = Friction::Utils::FFmpegHelper::getNbChannels(chLayout);
 
             struct SwrContext * swrContext = swr_alloc();
             av_opt_set_int(swrContext, "in_channel_count", chCount, 0);
