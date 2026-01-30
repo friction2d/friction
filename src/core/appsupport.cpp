@@ -1031,6 +1031,9 @@ void AppSupport::initEnv(const bool &isRenderer)
     if (registry.value("AppsUseLightTheme", 0).toInt() == 0) { qputenv("QT_QPA_PLATFORM", "windows:darkmode=1"); }
 #endif
 #elif defined(Q_OS_LINUX)
+#ifdef LINUX_DEPLOY
+    qputenv("KDE_NO_GLOBAL_MENU", "1");
+#endif
 #ifndef FRICTION_EGL
     qputenv("QT_QPA_PLATFORM", "xcb");
 #endif

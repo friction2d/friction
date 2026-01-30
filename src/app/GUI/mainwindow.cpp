@@ -181,11 +181,6 @@ MainWindow::MainWindow(Document& document,
 
     installEventFilter(this);
 
-#ifdef LINUX_DEPLOY
-    // ignore global menu state
-    menuBar()->setHidden(false);
-#endif
-
     setupLayout();
     readSettings(openProject);
 }
@@ -868,6 +863,11 @@ void MainWindow::readSettings(const QString &openProject)
                            [this,
                            openProject]() { openFile(openProject); });
     } else { openWelcomeDialog(); }
+
+#ifdef LINUX_DEPLOY
+    // ignore global menu state
+    menuBar()->setHidden(false);
+#endif
 }
 
 void MainWindow::writeSettings()
