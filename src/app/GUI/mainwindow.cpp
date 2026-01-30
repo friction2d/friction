@@ -181,6 +181,11 @@ MainWindow::MainWindow(Document& document,
 
     installEventFilter(this);
 
+#ifdef LINUX_DEPLOY
+    // ignore global menu state
+    menuBar()->setHidden(false);
+#endif
+
     setupLayout();
     readSettings(openProject);
 }
