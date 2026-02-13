@@ -812,11 +812,10 @@ void MainWindow::setupMenuBar()
 
     help->addAction(QIcon::fromTheme("dialog-information"),
                     tr("Documentation"), this, []() {
-                        const QString docUrl = AppSupport::hasOfflineDocs() ?
-                                                   AppSupport::getOfflineDocs() :
-                                                   AppSupport::getOnlineDocs();
-                        QDesktopServices::openUrl(QUrl(docUrl));
-                    });
+        const QString offline = AppSupport::getOfflineDocs();
+        const QString docs = offline.isEmpty() ? AppSupport::getOnlineDocs() : offline;
+        QDesktopServices::openUrl(QUrl(docs));
+    });
 
     help->addSeparator();
     help->addAction(QIcon::fromTheme("renderlayers"),

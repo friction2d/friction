@@ -142,7 +142,6 @@ public:
     static const QColor adjustColorVisibility(const QColor &color,
                                               const QColor &background);
     static void setFont(const QString &path);
-    static bool hasOfflineDocs();
     static QString getOfflineDocs();
     static QString getOnlineDocs();
 };

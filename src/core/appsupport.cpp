@@ -1125,16 +1125,24 @@ void AppSupport::setFont(const QString &path)
     QApplication::setFont(font);
 }
 
-bool AppSupport::hasOfflineDocs()
-{
-    const QString html = QString("%1/html/index.html").arg(getAppPath());
-    return QFile::exists(html);
-}
-
 QString AppSupport::getOfflineDocs()
 {
-    const QString html = QString("%1/html/index.html").arg(getAppPath());
-    if (QFile::exists(html)) { return html; }
+#ifdef Q_OS_LINUX
+    if (isFlatpak()) {
+        // we can't have offline docs in a flatpak
+        return QString();
+    }
+#endif
+    const QStringList paths{QString("%1/docs/index.html").arg(getAppPath()).trimmed(),
+                            QString("%1/../share/docs/friction-%2/html/index.html").arg(getAppPath(),
+                                                                                        getAppVersion()).trimmed(),
+                            QString("%1/../docs/index.html").arg(getAppPath()).trimmed(),
+                            QString("%1/../Resources/docs/index.html").arg(getAppPath()).trimmed(),
+                            QString("%1/../share/docs/index.html").arg(getAppPath()).trimmed()};
+    for (const auto &path : paths) {
+        qDebug() << "Checking for docs ..." << path;
+        if (QFile::exists(path)) { return path; }
+    }
     return QString();
 }
 
