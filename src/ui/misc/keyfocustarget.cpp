@@ -57,7 +57,7 @@ bool KeyFocusTarget::KFT_handleKeyEvent(QKeyEvent *e) {
             return true;
         }
     }
-    for(const auto target : KFT_mAllTargets) {
+    for(const auto target : qAsConst(KFT_mAllTargets)) {
         if(target == KFT_mCurrentTarget) continue;
         if((target->*func)(e)) {
             target->KFT_setFocus();

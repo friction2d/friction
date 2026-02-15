@@ -46,7 +46,7 @@ SceneChooser::SceneChooser(Document& document, const bool active,
             }
         });
     }
-    for(const auto& scene : mDocument.fScenes)
+    for(const auto& scene : qAsConst(mDocument.fScenes))
         addScene(scene.get());
 
     connect(&mDocument, qOverload<Canvas*>(&Document::sceneRemoved),

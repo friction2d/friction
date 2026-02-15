@@ -116,7 +116,7 @@ OutputProfilesDialog::OutputProfilesDialog(
     mStatusBar = new QStatusBar(this);
     mainLayout->addWidget(mStatusBar);
 
-    for(const auto& profile : OutputSettingsProfile::sOutputProfiles) {
+    for(const auto& profile : qAsConst(OutputSettingsProfile::sOutputProfiles)) {
         mProfilesComboBox->addItem(profile->getName());
     }
 

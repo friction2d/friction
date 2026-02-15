@@ -166,13 +166,13 @@ void WordRenderData::applyTransform(const QMatrix &transform) {
     fTotalTransform = fRelTransform*fInheritedTransform;
     fWordPos = transform.map(fWordPos);
 
-    for(const auto& letter : fLetters) {
+    for(const auto& letter : qAsConst(fLetters)) {
         letter->applyTransform(transform);
     }
 }
 
 void WordRenderData::queAllLetters() {
-    for(const auto& letter : fLetters) {
+    for(const auto& letter : qAsConst(fLetters)) {
         letter->queTask();
         letter->addDependent(this);
     }
@@ -232,13 +232,13 @@ void LineRenderData::applyTransform(const QMatrix &transform) {
     fTotalTransform = fRelTransform*fInheritedTransform;
     fLinePos = transform.map(fLinePos);
 
-    for(const auto& word : fWords) {
+    for(const auto& word : qAsConst(fWords)) {
         word->applyTransform(transform);
     }
 }
 
 void LineRenderData::queAllWords() {
-    for(const auto& word : fWords) {
+    for(const auto& word : qAsConst(fWords)) {
         word->queAllLetters();
         word->queTask();
         word->addDependent(this);
@@ -298,7 +298,7 @@ void TextBoxRenderData::initialize(const QString &text,
 }
 
 void TextBoxRenderData::queAllLines() {
-    for(const auto& line : fLines) {
+    for(const auto& line : qAsConst(fLines)) {
         line->queAllWords();
         line->queTask();
         line->addDependent(this);

@@ -93,7 +93,7 @@ SettingsDialog::SettingsDialog(QWidget * const parent)
 
     connect(applyButton, &QPushButton::released,
             this, [this, statusBar]() {
-        for (const auto widget : mSettingWidgets) {
+        for (const auto widget : qAsConst(mSettingWidgets)) {
             widget->applySettings();
         }
         emit eSettings::sInstance->settingsChanged();
@@ -127,7 +127,7 @@ void SettingsDialog::addSettingsWidget(SettingsWidget * const widget,
 
 void SettingsDialog::updateSettings(bool restore)
 {
-    for (const auto widget : mSettingWidgets) {
+    for (const auto widget : qAsConst(mSettingWidgets)) {
         widget->updateSettings(restore);
     }
 }

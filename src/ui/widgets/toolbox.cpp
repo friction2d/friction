@@ -261,7 +261,7 @@ void ToolBox::setupMainActions()
     connect(mLocalPivot, &QAction::triggered,
             this, [this]() {
         mDocument.fLocalPivot = !mDocument.fLocalPivot;
-        for (const auto& scene : mDocument.fScenes) { scene->updatePivot(); }
+        for (const auto& scene : qAsConst(mDocument.fScenes)) { scene->updatePivot(); }
         Document::sInstance->actionFinished();
         mLocalPivot->setIcon(mDocument.fLocalPivot ?
                          QIcon::fromTheme("pivotLocal") :

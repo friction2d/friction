@@ -231,7 +231,7 @@ void BoxRenderData::dataSet() {
 void BoxRenderData::updateGlobalRect() {
     fScaledTransform = fTotalTransform*fResolutionScale;
     QRectF baseRectF = fScaledTransform.mapRect(fRelBoundingRect);
-    for(const QRectF &rectT : fOtherGlobalRects) {
+    for(const QRectF &rectT : qAsConst(fOtherGlobalRects)) {
         baseRectF = baseRectF.united(rectT);
     }
     baseRectF.adjust(-fBaseMargin.left(), -fBaseMargin.top(),

@@ -96,7 +96,7 @@ public:
     using CCreator = Creator<ShaderEffect>;
     using CAdder = Func<void(const QString&, const QString&, const CCreator&)>;
     static void sForEveryEffect(const CAdder& add) {
-        for(const auto& creator : sEffectCreators) {
+        for(const auto& creator : qAsConst(sEffectCreators)) {
             const auto cCreator = [creator]() { return creator->create(); };
             add(creator->fName, creator->fMenuPath, cCreator);
         }

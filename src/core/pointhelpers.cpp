@@ -307,7 +307,7 @@ qreal gGetClosestTValueOnBezier(const qCubicSegment1D &seg,
     qreal bestT = 0.;
     qreal bestPos = seg.p0();;
     qreal minErrorT = DBL_MAX;
-    for(const qreal &val : values) {
+    for(const qreal &val : qAsConst(values)) {
         qreal posT = gCubicValueAtT(seg, val);
         qreal errorT = qAbs(posT - p);
         if(errorT < minErrorT) {

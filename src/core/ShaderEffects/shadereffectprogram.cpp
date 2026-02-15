@@ -54,7 +54,7 @@ void ShaderEffectProgram::reloadFragmentShader(
         } else propUniLocs.append(-1);
     }
     QList<GLint> valueLocs;
-    for(const auto& value : fValueHandlers) {
+    for(const auto& value : qAsConst(fValueHandlers)) {
         const GLint loc = gl->glGetUniformLocation(newProgram, value->fName.toLatin1());
         if(loc < 0) {
             gl->glDeleteProgram(newProgram);

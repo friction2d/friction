@@ -55,7 +55,7 @@ void KeysView::graphEasingAction(const QString &easing)
 {
     if (mSelectedKeysAnimators.isEmpty()) { return; }
     if (mGraphViewed) {
-        for (const auto& anim : mGraphAnimators) {
+        for (const auto& anim : qAsConst(mGraphAnimators)) {
             const auto segments = anim->anim_getSelectedKeys();
             if (segments.count() < 2) { continue; }
             auto firstKey = segments.first();
@@ -66,7 +66,7 @@ void KeysView::graphEasingAction(const QString &easing)
                              easing);
         }
     } else {
-        for (const auto& anim : mSelectedKeysAnimators) {
+        for (const auto& anim : qAsConst(mSelectedKeysAnimators)) {
             const auto &segments = anim->anim_getSelectedKeys();
             if (segments.count() < 2) { continue; }
             auto firstKey = segments.first();
@@ -84,7 +84,7 @@ void KeysView::graphEasingApply(QrealAnimator *anim,
                                 const QString &easing)
 {
     if (!anim) { return; }
-    if (const auto spa = enve_cast<SmartPathAnimator*>(anim)) {
+    if (enve_cast<SmartPathAnimator*>(anim)) {
         emit statusMessage(tr("Smart paths does not support easing"));
         return;
     }
@@ -162,12 +162,12 @@ void KeysView::graphSetCornerCtrlAction() {
 void KeysView::graphMakeSegmentsSmoothAction(const bool smooth) {
     if(mSelectedKeysAnimators.isEmpty()) return;
     QList<QList<GraphKey*>> segments;
-    for(const auto& anim : mGraphAnimators) {
+    for(const auto& anim : qAsConst(mGraphAnimators)) {
         //if(!mAnimators.contains(anim)) continue;
         anim->graph_getSelectedSegments(segments);
     }
 
-    for(const auto& segment : segments) {
+    for(const auto& segment : qAsConst(segments)) {
         Q_ASSERT(segment.length() > 1);
         auto firstKey = segment.first();
         auto lastKey = segment.last();
@@ -311,7 +311,7 @@ void KeysView::graphGetAnimatorsMinMaxValue(qreal &minVal, qreal &maxVal) {
         minVal = 1000000;
         maxVal = -1000000;
 
-        for(const auto& anim : mGraphAnimators) {
+        for(const auto& anim : qAsConst(mGraphAnimators)) {
             const auto valRange = anim->graph_getMinAndMaxValues();
             minVal = qMin(minVal, valRange.fMin);
             maxVal = qMax(maxVal, valRange.fMax);
@@ -425,9 +425,9 @@ void KeysView::gMouseRelease() {
             clearKeySelection();
 
         QList<GraphKey*> keysList;
-        for(const auto& anim : mGraphAnimators)
+        for(const auto& anim : qAsConst(mGraphAnimators))
             anim->gAddKeysInRectToList(mSelectionRect, keysList);
-        for(const auto& key : keysList)
+        for(const auto& key : qAsConst(keysList))
             addKeyToSelection(key);
 
         mSelecting = false;
@@ -454,7 +454,7 @@ void KeysView::graphMiddleMove(const QPointF &movePos) {
 }
 
 void KeysView::graphConstrainAnimatorCtrlsFrameValues() {
-    for(const auto& anim : mGraphAnimators) {
+    for(const auto& anim : qAsConst(mGraphAnimators)) {
         anim->graph_constrainCtrlsFrameValues();
     }
 }
@@ -462,7 +462,7 @@ void KeysView::graphConstrainAnimatorCtrlsFrameValues() {
 void KeysView::graphSetCtrlsModeForSelected(const CtrlsMode mode) {
     if(mSelectedKeysAnimators.isEmpty()) return;
 
-    for(const auto& anim : mGraphAnimators) {
+    for(const auto& anim : qAsConst(mGraphAnimators)) {
         if(!anim->anim_hasSelectedKeys()) continue;
         anim->graph_startSelectedKeysTransform();
         anim->graph_enableCtrlPtsForSelected();
@@ -650,7 +650,7 @@ void KeysView::keyframeZoomHorizontalAction()
         int minFrame = INT_MAX;
         int maxFrame = INT_MIN;
         
-        for (const auto& anim : mSelectedKeysAnimators) {
+        for (const auto& anim : qAsConst(mSelectedKeysAnimators)) {
             const int animMin = anim->anim_getLowestAbsFrameForSelectedKey(); 
             const int animMax = anim->anim_getHighestAbsFrameForSelectedKey();
             

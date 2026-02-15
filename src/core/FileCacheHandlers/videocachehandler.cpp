@@ -163,7 +163,7 @@ void VideoFileHandler::replace() {
 }
 
 void VideoDataHandler::afterSourceChanged() {
-    for(const auto& handler : mFrameHandlers) {
+    for(const auto& handler : qAsConst(mFrameHandlers)) {
         handler->afterSourceChanged();
     }
 }

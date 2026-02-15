@@ -503,7 +503,7 @@ void OutputProfilesListButton::mousePressEvent(QMouseEvent *e) {
         QMenu menu;
         int i = 0;
         for(const auto& profile :
-            OutputSettingsProfile::sOutputProfiles) {
+            qAsConst(OutputSettingsProfile::sOutputProfiles)) {
             QAction *actionT = new QAction(profile->getName());
             actionT->setData(QVariant(i));
             menu.addAction(actionT);

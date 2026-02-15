@@ -85,7 +85,7 @@ SavedColorsWidget::SavedColorsWidget(QWidget *parent)
             this, &SavedColorsWidget::addBookmarkButton);
     mMainLayout->addWidget(addButton);
 
-    for (const auto& color : Document::sInstance->fColors) { addColor(color); }
+    for (const auto& color : qAsConst(Document::sInstance->fColors)) { addColor(color); }
 
     connect(Document::sInstance, &Document::bookmarkColorAdded,
             this, &SavedColorsWidget::addColor);
@@ -111,7 +111,7 @@ void SavedColorsWidget::addColor(const QColor& color)
 void SavedColorsWidget::removeColor(const QColor &color)
 {
     const auto rgba = color.rgba();
-    for (const auto wid : mButtons) {
+    for (const auto wid : qAsConst(mButtons)) {
         if (wid->getColor().rgba() == rgba) {
             mButtons.removeOne(wid);
             wid->deleteLater();
@@ -123,7 +123,7 @@ void SavedColorsWidget::removeColor(const QColor &color)
 void SavedColorsWidget::setColor(const QColor &color)
 {
     mCurrentColor = color;
-    for (const auto wid : mButtons) {
+    for (const auto wid : qAsConst(mButtons)) {
         wid->setSelected(wid->getColor().rgba() == color.rgba());
     }
 }

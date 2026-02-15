@@ -144,7 +144,7 @@ void KeysView::deleteSelectedKeys() {
     if(mHoveredKey && mHoveredKey->isSelected()) {
         clearHoveredKey();
     }
-    for(const auto& anim : mSelectedKeysAnimators)
+    for(const auto& anim : qAsConst(mSelectedKeysAnimators))
         anim->anim_deleteSelectedKeys();
 }
 
@@ -181,17 +181,17 @@ void KeysView::getKeysInRect(QRectF selectionRect,
 void KeysView::selectKeysInSelectionRect() {
     if(mGraphViewed) {
         QList<GraphKey*> keysList;
-        for(const auto& anim : mGraphAnimators) {
+        for(const auto& anim : qAsConst(mGraphAnimators)) {
             anim->gAddKeysInRectToList(mSelectionRect, keysList);
         }
-        for(const auto& key : keysList) {
+        for(const auto& key : qAsConst(keysList)) {
             addKeyToSelection(key);
         }
     } else {
         QList<Key*> listKeys;
         getKeysInRect(mSelectionRect.translated(-0.5, 0),
                       mPixelsPerFrame, listKeys);
-        for(const auto& key : listKeys) {
+        for(const auto& key : qAsConst(listKeys)) {
             addKeyToSelection(key);
         }
     }
@@ -242,7 +242,7 @@ void KeysView::wheelEvent(QWheelEvent *e)
     }
 #endif
 
-    const QPoint pos = e->pos();
+    const QPoint pos = e->position().toPoint();
     const QPoint posU = pos + QPoint(-eSizesUI::widget/2, 0);
     const qreal currentHoverFrame = static_cast<qreal>(posU.x()) / mPixelsPerFrame + mMinViewedFrame;
     // qDebug() << "currentHoverFrame" << currentHoverFrame;
@@ -263,11 +263,11 @@ void KeysView::wheelEvent(QWheelEvent *e)
 void KeysView::cancelTransform() {
     if(!mFirstMove) {
         if(mGraphViewed) {
-            for(const auto& anim : mGraphAnimators) {
+            for(const auto& anim : qAsConst(mGraphAnimators)) {
                 anim->graph_cancelSelectedKeysTransform();
             }
         } else {
-            for(const auto& anim : mSelectedKeysAnimators) {
+            for(const auto& anim : qAsConst(mSelectedKeysAnimators)) {
                 anim->anim_cancelSelectedKeysTransform();
             }
         }
@@ -282,12 +282,12 @@ void KeysView::finishTransform() {
             if(mGPressedPoint && mGPressedPoint->isCtrlPt()) {
                 mGPressedPoint->finishTransform();
             } else {
-                for(const auto& anim : mGraphAnimators) {
+                for(const auto& anim : qAsConst(mGraphAnimators)) {
                     anim->graph_finishSelectedKeysTransform();
                 }
             }
         } else {
-            for(const auto& anim : mSelectedKeysAnimators) {
+            for(const auto& anim : qAsConst(mSelectedKeysAnimators)) {
                 anim->anim_finishSelectedKeysTransform();
             }
         }
@@ -396,7 +396,7 @@ void KeysView::mousePressEvent(QMouseEvent *e) {
 stdsptr<KeysClipboard> KeysView::getSelectedKeysClipboardContainer() {
     stdsptr<KeysClipboard> container =
             enve::make_shared<KeysClipboard>();
-    for(const auto& anim : mSelectedKeysAnimators) {
+    for(const auto& anim : qAsConst(mSelectedKeysAnimators)) {
         QByteArray keyData;
         QBuffer buffer(&keyData);
         buffer.open(QIODevice::WriteOnly);
@@ -465,7 +465,7 @@ bool KeysView::KFT_keyPressEvent(QKeyEvent *event)
                   event->key() == Qt::Key_D) {
             auto container = getSelectedKeysClipboardContainer();
             int lowestKey = FrameRange::EMAX;
-            for(const auto& anim : mSelectedKeysAnimators) {
+            for(const auto& anim : qAsConst(mSelectedKeysAnimators)) {
                 const int animLowest = anim->anim_getLowestAbsFrameForSelectedKey();
                 if(animLowest < lowestKey) {
                     lowestKey = animLowest;
@@ -495,12 +495,12 @@ bool KeysView::KFT_keyPressEvent(QKeyEvent *event)
             update();
         } else if(event->modifiers() & Qt::CTRL &&
                   event->key() == Qt::Key_Right) {
-            for(const auto& anim : mSelectedKeysAnimators) {
+            for(const auto& anim : qAsConst(mSelectedKeysAnimators)) {
                 anim->anim_incSelectedKeysFrame(1);
             }
         } else if(event->modifiers() & Qt::CTRL &&
                   event->key() == Qt::Key_Left) {
-            for(const auto& anim : mSelectedKeysAnimators) {
+            for(const auto& anim : qAsConst(mSelectedKeysAnimators)) {
                 anim->anim_incSelectedKeysFrame(-1);
             }
         } else return false;
@@ -817,11 +817,11 @@ void KeysView::handleMouseMove(const QPoint &pos,
         } else if(mMovingKeys) {
             if(mFirstMove) {
                 if(mGraphViewed) {
-                    for(const auto& anim : mGraphAnimators) {
+                    for(const auto& anim : qAsConst(mGraphAnimators)) {
                         anim->graph_startSelectedKeysTransform();
                     }
                 } else {
-                    for(const auto& anim : mSelectedKeysAnimators) {
+                    for(const auto& anim : qAsConst(mSelectedKeysAnimators)) {
                         anim->anim_startSelectedKeysTransform();
                     }
                 }
@@ -836,11 +836,11 @@ void KeysView::handleMouseMove(const QPoint &pos,
                 }
                 const int absFrame = mCurrentScene->getCurrentFrame();
                 if(mGraphViewed) {
-                    for(const auto& anim : mGraphAnimators) {
+                    for(const auto& anim : qAsConst(mGraphAnimators)) {
                         anim->anim_scaleSelectedKeysFrame(absFrame, keysScale);
                     }
                 } else {
-                    for(const auto& anim : mSelectedKeysAnimators) {
+                    for(const auto& anim : qAsConst(mSelectedKeysAnimators)) {
                         anim->anim_scaleSelectedKeysFrame(absFrame, keysScale);
                     }
                 }
@@ -850,12 +850,12 @@ void KeysView::handleMouseMove(const QPoint &pos,
                     const qreal dValue = mValueInput.xOnlyMode() ? 0 :
                                 dY/mPixelsPerValUnit;
                     const qreal dFrameV = mValueInput.yOnlyMode() ? 0 : dFrame;
-                    for(const auto& anim : mGraphAnimators) {
+                    for(const auto& anim : qAsConst(mGraphAnimators)) {
                         anim->graph_changeSelectedKeysFrameAndValue(
                                         {dFrameV, dValue});
                     }
                 } else if(iDDFrame != 0) {
-                    for(const auto& anim : mSelectedKeysAnimators) {
+                    for(const auto& anim : qAsConst(mSelectedKeysAnimators)) {
                         anim->anim_incSelectedKeysFrame(iDDFrame);
                     }
                 }
@@ -973,7 +973,7 @@ void KeysView::mouseReleaseEvent(QMouseEvent *e) {
                         addKeyToSelection(mLastPressedKey);
                     }
                 }
-                for(const auto& anim : mSelectedKeysAnimators) {
+                for(const auto& anim : qAsConst(mSelectedKeysAnimators)) {
                     anim->anim_finishSelectedKeysTransform();
                 }
             } else if(mMovingRect) {
@@ -1058,7 +1058,7 @@ void KeysView::addKeyToSelection(Key * const key) {
     if(!key) return;
     QList<Animator*> toSelect;
     key->addToSelection(toSelect);
-    for(const auto& anim : toSelect) {
+    for(const auto& anim : qAsConst(toSelect)) {
         connect(anim, &QObject::destroyed, this, [this, anim]() {
             mSelectedKeysAnimators.removeOne(anim);
         });
@@ -1069,14 +1069,14 @@ void KeysView::addKeyToSelection(Key * const key) {
 void KeysView::removeKeyFromSelection(Key * const key) {
     QList<Animator*> toRemove;
     key->removeFromSelection(toRemove);
-    for(const auto& anim : toRemove) {
+    for(const auto& anim : qAsConst(toRemove)) {
         disconnect(anim, &QObject::destroyed, this, nullptr);
         mSelectedKeysAnimators.removeOne(anim);
     }
 }
 
 void KeysView::clearKeySelection() {
-    for(const auto& anim : mSelectedKeysAnimators) {
+    for(const auto& anim : qAsConst(mSelectedKeysAnimators)) {
         anim->anim_deselectAllKeys();
     }
     mSelectedKeysAnimators.clear();

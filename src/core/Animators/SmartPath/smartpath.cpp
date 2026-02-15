@@ -384,7 +384,7 @@ QString SmartPath::toXEV() const {
 
             const int ctrlMode = static_cast<int>(node->getCtrlsMode());
 
-            result += blueprint.arg(c0x).arg(c0y).
+            result += blueprint.arg(c0x, c0y).
                                 arg(p1.x()).arg(p1.y()).
                                 arg(c2x, c2y).arg(ctrlMode);
         }

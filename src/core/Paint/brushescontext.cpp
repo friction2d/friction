@@ -31,7 +31,7 @@ BrushesContext::BrushesContext(const QList<BrushCollectionData> &raw) {
 
 BrushContexedWrapper *BrushesContext::brushWrapper(
         const SimpleBrushWrapper * const brush) {
-    for(const auto& coll : fCollections) {
+    for(const auto& coll : qAsConst(fCollections)) {
         for(auto& wrapper : coll.fBrushes) {
             if(wrapper->getSimpleBrush() == brush) {
                 return wrapper.get();
@@ -42,7 +42,7 @@ BrushContexedWrapper *BrushesContext::brushWrapper(
 }
 
 bool BrushesContext::setSelectedWrapper(SimpleBrushWrapper * const wrapper) {
-    for(const auto& coll : fCollections) {
+    for(const auto& coll : qAsConst(fCollections)) {
         for(auto& brush : coll.fBrushes) {
             if(brush->getSimpleBrush() == wrapper) {
                 brush->setSelected(true);
@@ -54,7 +54,7 @@ bool BrushesContext::setSelectedWrapper(SimpleBrushWrapper * const wrapper) {
 }
 
 bool BrushesContext::setSelectedName(const QString &name) {
-    for(const auto& coll : fCollections) {
+    for(const auto& coll : qAsConst(fCollections)) {
         for(auto& brush : coll.fBrushes) {
             if(brush->getBrushData().fName == name) {
                 brush->setSelected(true);

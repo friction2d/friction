@@ -20,7 +20,7 @@ RenderSettingsDialog::RenderSettingsDialog(const RenderInstanceSettings &setting
     const auto sceneLay = new QHBoxLayout;
     mSceneLabel = new QLabel(tr("Scene"));
     mSceneCombo = new QComboBox();
-    for (const auto& canvas : Document::sInstance->fScenes) {
+    for (const auto& canvas : qAsConst(Document::sInstance->fScenes)) {
         mSceneCombo->addItem(canvas->prp_getName());
     }
     if (mCurrentScene) {  mSceneCombo->setCurrentText(mCurrentScene->prp_getName()); }

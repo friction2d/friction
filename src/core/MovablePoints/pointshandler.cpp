@@ -116,6 +116,6 @@ BasicTransformAnimator *PointsHandler::transform() const {
 
 void PointsHandler::setTransform(BasicTransformAnimator * const trans) {
     if(trans == mTrans) return;
-    for(const auto& pt : mPts) pt->setTransform(trans);
+    for(const auto& pt : qAsConst(mPts)) pt->setTransform(trans);
     mTrans = trans;
 }

@@ -63,5 +63,5 @@ void FileCacheHandler::setMissing(const bool missing) {
 }
 
 void FileCacheHandler::updateFileMissing() {
-    mFileMissing = !QFileInfo(mPath).exists();
+    mFileMissing = !QFileInfo::exists(mPath);
 }

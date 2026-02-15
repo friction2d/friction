@@ -587,7 +587,7 @@ void OutputSettingsDialog::updateAvailableOutputFormats() {
             }
         }
     } else {
-        for(const FormatCodecs &formatT : mSupportedFormats) {
+        for(const FormatCodecs &formatT : qAsConst(mSupportedFormats)) {
             const auto currentFormat = formatT.mFormat;
             if(!currentFormat) break;
             //if(!currentFormat->codec_tag || !currentFormat->codec_tag[0]) continue;

@@ -51,7 +51,7 @@ const QList<ExpressionPresets::Expr> ExpressionPresets::getDefinitions()
 const QList<ExpressionPresets::Expr> ExpressionPresets::getCore(const QString &category)
 {
     QList<ExpressionPresets::Expr> list;
-    for (const auto &expr : mExpr) {
+    for (const auto &expr : qAsConst(mExpr)) {
         if (!expr.valid || !expr.core || !expr.enabled) { continue; }
         if (!category.isEmpty()) {
             if (!expr.categories.contains(category)) { continue; }
@@ -76,7 +76,7 @@ const QList<ExpressionPresets::Expr> ExpressionPresets::getUser(const QString &c
                                                                 const bool &defs)
 {
     QList<ExpressionPresets::Expr> list;
-    for (const auto &expr : mExpr) {
+    for (const auto &expr : qAsConst(mExpr)) {
         if (!expr.valid ||
             expr.core ||
             !expr.enabled ||
@@ -243,7 +243,7 @@ bool ExpressionPresets::hasExpr(const int &index)
 bool ExpressionPresets::hasExpr(const QString &id)
 {
     if (id.isEmpty()) { return false; }
-    for (const auto &expr : mExpr) {
+    for (const auto &expr : qAsConst(mExpr)) {
         if (!expr.valid) { continue; }
         if (expr.id == id) { return true; }
     }
@@ -265,7 +265,7 @@ const ExpressionPresets::Expr ExpressionPresets::getExpr(const QString &id)
     noExpr.valid = false;
     if (id.isEmpty()) { return noExpr; }
 
-    for (const auto &expr : mExpr) {
+    for (const auto &expr : qAsConst(mExpr)) {
         if (!expr.valid) { continue; }
         if (expr.id == id) { return expr; }
     }
@@ -382,7 +382,7 @@ void ExpressionPresets::firstRun()
     presets << "wave.fexpr";
     presets << "wiggle.fexpr";
 
-    for (const auto &preset : presets) {
+    for (const auto &preset : qAsConst(presets)) {
         const auto expr = readExpr(QString(":/expressions/%1").arg(preset));
         if (!expr.valid) { continue; }
         QFile file(QString("%1/%2.fexpr").arg(path, expr.id));

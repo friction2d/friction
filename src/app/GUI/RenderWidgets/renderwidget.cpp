@@ -298,7 +298,7 @@ void RenderWidget::read(eReadStream &src)
 
 void RenderWidget::updateRenderSettings()
 {
-    for (const auto &wid: mRenderInstanceWidgets) {
+    for (const auto &wid: qAsConst(mRenderInstanceWidgets)) {
         wid->updateRenderSettings();
     }
 }
@@ -332,7 +332,7 @@ void RenderWidget::render(RenderInstanceSettings &settings)
 void RenderWidget::render()
 {
     int c = 0;
-    for (RenderInstanceWidget *wid : mRenderInstanceWidgets) {
+    for (RenderInstanceWidget *wid : qAsConst(mRenderInstanceWidgets)) {
         if (!wid->isChecked()) { continue; }
         mAwaitingSettings << wid;
         wid->getSettings().setCurrentState(RenderState::waiting);
@@ -355,7 +355,7 @@ void RenderWidget::stopRendering()
 
 void RenderWidget::clearAwaitingRender()
 {
-    for (RenderInstanceWidget *wid : mAwaitingSettings) {
+    for (RenderInstanceWidget *wid : qAsConst(mAwaitingSettings)) {
         wid->getSettings().setCurrentState(RenderState::none);
     }
     handleRenderState(RenderState::none);

@@ -112,7 +112,7 @@ AboutWidget::AboutWidget(QWidget *parent)
 
     QList<AboutWidgetTab> tabs;
     tabs << tab1 << tab2 << tab3;
-    for (const auto &tab: tabs) {
+    for (const auto &tab: qAsConst(tabs)) {
         QFile file(tab.path);
         if (!file.open(QIODevice::Text | QIODevice::ReadOnly)) { continue; }
         const auto browser = new QTextBrowser(this);
@@ -153,7 +153,7 @@ AboutWidget::AboutWidget(QWidget *parent)
     parties << "icons";
     parties << "easing";
 
-    for (const auto &doc: parties) {
+    for (const auto &doc: qAsConst(parties)) {
         QFile file(doc == "friction" ? QString(":/docs/LICENSE") : QString(":/docs/3rdparty/%1.html").arg(doc));
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) { continue; }
         const auto browser = new QTextBrowser(this);

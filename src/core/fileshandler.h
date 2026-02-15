@@ -50,7 +50,7 @@ signals:
 
 template <typename T>
 T *FilesHandler::getFileHandler(const QString &filePath) {
-    for(const auto& fh : mFileHandlers) {
+    for(const auto& fh : qAsConst(mFileHandlers)) {
         if(filePath == fh->path()) return static_cast<T*>(fh.get());
     }
     const auto fh = enve::make_shared<T>();

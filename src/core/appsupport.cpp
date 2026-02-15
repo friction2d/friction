@@ -683,7 +683,7 @@ const QPair<QStringList, bool> AppSupport::hasWriteAccess()
     dirs << getAppConfigPath();
     dirs << getAppOutputProfilesPath();
     dirs << getAppShaderEffectsPath();
-    for (const auto &dir : dirs) {
+    for (const auto &dir : qAsConst(dirs)) {
         if (dir.isEmpty()) { continue; }
         QFileInfo info(dir);
         if (!info.isDir() ||
@@ -748,7 +748,7 @@ bool AppSupport::hasXDGDesktopIntegration()
     files << "icons/hicolor/scalable/mimetypes/application-x-graphics.friction.Friction.svg";
     files << "icons/hicolor/256x256/mimetypes/application-x-graphics.friction.Friction.png";
 
-    for (const auto &file : files) {
+    for (const auto &file : qAsConst(files)) {
         if (!QFile::exists(QString("%1/%2").arg(path, file))) {
             qDebug() << "not found!" << file;
             return false;
@@ -930,7 +930,7 @@ bool AppSupport::removeXDGDesktopIntegration()
     files << "icons/hicolor/scalable/mimetypes/application-x-graphics.friction.Friction.svg";
     files << "icons/hicolor/256x256/mimetypes/application-x-graphics.friction.Friction.png";
 
-    for (const auto &file : files) {
+    for (const auto &file : qAsConst(files)) {
         QFile fileName(QString("%1/%2").arg(path, file));
         if (fileName.exists()) {
             if (!fileName.remove()) {

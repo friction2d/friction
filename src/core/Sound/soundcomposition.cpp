@@ -109,7 +109,7 @@ SoundMerger *SoundComposition::scheduleSecond(const int secondId) {
     const qreal fps = mParent->getFps();
 
     const auto task = enve::make_shared<SoundMerger>(secondId, sampleRange, this);
-    for(const auto &sound : mSounds) {
+    for(const auto &sound : qAsConst(mSounds)) {
         if(!sound->isVisible()) continue;
         const auto enabledFrameRange = sound->prp_absInfluenceRange();
         const iValueRange enabledSecRange{qFloor(enabledFrameRange.fMin/fps),

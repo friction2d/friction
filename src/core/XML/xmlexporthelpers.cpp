@@ -169,7 +169,7 @@ QString XevExportHelpers::getAbsAndRelFileSrc(const QDomElement& ele,
                                               const XevImporter& imp) {
     const auto relSrc = ele.attribute("relSrc");
     const auto absRelSrc = imp.relPathToAbsPath(relSrc);
-    if(QFileInfo(absRelSrc).exists()) {
+    if(QFileInfo::exists(absRelSrc)) {
         return absRelSrc;
     } else {
         const auto absSrc = ele.attribute("absSrc");

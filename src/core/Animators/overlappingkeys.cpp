@@ -82,7 +82,7 @@ void OverlappingKeys::addKey(const stdsptr<Key> &key) {
 void OverlappingKeys::merge() {
     if(mKeys.count() < 2) return;
     Key * target = nullptr;
-    for(const auto& iKey : mKeys) {
+    for(const auto& iKey : qAsConst(mKeys)) {
         if(iKey->isDescendantSelected()) {
             target = iKey.get();
             break;

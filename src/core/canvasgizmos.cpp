@@ -113,7 +113,7 @@ void Canvas::renderGizmos(SkCanvas * const canvas,
 
                 SkPath path;
                 bool first = true;
-                for (const QPointF &pt : mGizmos.fState.rotateHandlePolygon) {
+                for (const QPointF &pt : qAsConst(mGizmos.fState.rotateHandlePolygon)) {
                     const SkPoint skPt = SkPoint::Make(toSkScalar(pt.x()), toSkScalar(pt.y()));
                     if (first) {
                         path.moveTo(skPt);

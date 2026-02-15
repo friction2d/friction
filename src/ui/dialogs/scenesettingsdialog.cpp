@@ -288,10 +288,10 @@ void SceneSettingsDialog::populateFpsPresets()
     QStringList presets = AppSupport::getFpsPresets();
 
     QMap<double, QString> m;
-    for (auto s : presets) { m[s.toDouble()] = s; }
+    for (const auto &s : qAsConst(presets)) { m[s.toDouble()] = s; }
     presets = QStringList(m.values());
 
-    for (const auto &preset : presets) {
+    for (const auto &preset : qAsConst(presets)) {
         const auto act = new QAction(preset, this);
         connect (act, &QAction::triggered, [this, preset]() {
             mFPSSpinBox->setValue(preset.toDouble());

@@ -29,7 +29,7 @@ eReadStream::eReadStream(QIODevice * const src) :
     eReadStream(EvFormat::version, src) {}
 
 eReadStream::~eReadStream() {
-    for(const auto& task : mDoneTasks) task(*this);
+    for(const auto& task : qAsConst(mDoneTasks)) task(*this);
 }
 
 void eReadStream::addReadBox(const int readId, BoundingBox* const box) {

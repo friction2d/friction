@@ -86,11 +86,11 @@ void eTaskBase::cancel() {
 }
 
 void eTaskBase::moveDependent(eTaskBase* const to) {
-    for(const auto& dependent : mDependent) {
+    for(const auto& dependent : qAsConst(mDependent)) {
         to->mDependent << dependent;
     }
     mDependent.clear();
-    for(const auto& dependent : mDependentF) {
+    for(const auto& dependent : qAsConst(mDependentF)) {
         to->mDependentF << dependent;
     }
     mDependentF.clear();
@@ -111,22 +111,22 @@ std::exception_ptr eTaskBase::takeException() {
 }
 
 void eTaskBase::tellDependentThatFinished() {
-    for(const auto& dependent : mDependent) {
+    for(const auto& dependent : qAsConst(mDependent)) {
         if(dependent) dependent->decDependencies();
     }
     mDependent.clear();
-    for(const auto& dependent : mDependentF) {
+    for(const auto& dependent : qAsConst(mDependentF)) {
         if(dependent.fFinished) dependent.fFinished();
     }
     mDependentF.clear();
 }
 
 void eTaskBase::cancelDependent() {
-    for(const auto& dependent : mDependent) {
+    for(const auto& dependent : qAsConst(mDependent)) {
         if(dependent) dependent->cancel();
     }
     mDependent.clear();
-    for(const auto& dependent : mDependentF) {
+    for(const auto& dependent : qAsConst(mDependentF)) {
         if(dependent.fCanceled) dependent.fCanceled();
     }
     mDependentF.clear();

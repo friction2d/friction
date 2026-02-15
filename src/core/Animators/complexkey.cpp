@@ -67,7 +67,7 @@ bool ComplexKey::isSelected() const {
 }
 
 void ComplexKey::addToSelection(QList<Animator*> &selectedAnimators) {
-    for(const auto& key : mKeys) key->addToSelection(selectedAnimators);
+    for(const auto& key : qAsConst(mKeys)) key->addToSelection(selectedAnimators);
 }
 
 bool ComplexKey::hasKey(Key *key) const {
@@ -90,7 +90,7 @@ bool ComplexKey::differsFromKey(Key *otherKey) const {
 }
 
 void ComplexKey::removeFromSelection(QList<Animator *> &selectedAnimators) {
-    for(const auto& key : mKeys)
+    for(const auto& key : qAsConst(mKeys))
         key->removeFromSelection(selectedAnimators);
 }
 

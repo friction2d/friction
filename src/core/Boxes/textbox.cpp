@@ -232,7 +232,7 @@ void TextBox::setupRenderData(const qreal relFrame, const QMatrix& parentM,
                          mHAlignment, mVAlignment, this, scene);
     QList<TextEffect*> textEffects;
     mTextEffects->addEffects(textEffects);
-    for(const auto textEffect : textEffects) {
+    for(const auto textEffect : qAsConst(textEffects)) {
         textEffect->apply(textData);
     }
     textData->queAllLines();

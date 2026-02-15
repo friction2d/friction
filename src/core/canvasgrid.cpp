@@ -105,7 +105,7 @@ void Canvas::collectAnchorOffsets(const Friction::Core::Grid::Settings &settings
 
     QRectF combinedRect;
     bool hasRect = false;
-    for (const auto& box : mSelectedBoxes) {
+    for (const auto& box : qAsConst(mSelectedBoxes)) {
         const QRectF rect = box->getAbsBoundingRect();
         if (rect.width() < 0.0 || rect.height() < 0.0) { continue; }
         if (!hasRect) {
@@ -146,7 +146,7 @@ void Canvas::collectAnchorOffsets(const Friction::Core::Grid::Settings &settings
                 mGridSnapAnchorOffsets.emplace_back(node->getAbsolutePos() - mGridMoveStartPivot);
             }
         };
-        for (const auto& box : mSelectedBoxes) {
+        for (const auto& box : qAsConst(mSelectedBoxes)) {
             if (!box) { continue; }
             box->selectAllCanvasPts(gatherOffsets, CanvasMode::pointTransform);
         }

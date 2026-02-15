@@ -926,7 +926,7 @@ void loadElement(const QDomElement &element,
                 const QString stopStyle = elem.attribute("style");
                 QList<SvgAttribute> attributesList;
                 extractSvgAttributes(stopStyle, &attributesList);
-                for(const auto& attr : attributesList) {
+                for(const auto& attr : qAsConst(attributesList)) {
                     if(attr.fName == "stop-color") {
                         stopColorS = attr.fValue;
 
@@ -1246,7 +1246,7 @@ void BoxSvgAttributes::loadBoundingBoxAttributes(const QDomElement &element) {
     QList<SvgAttribute> styleAttributes;
     const QString styleAttributesStr = element.attribute("style");
     extractSvgAttributes(styleAttributesStr, &styleAttributes);
-    for(const SvgAttribute &attribute : styleAttributes) {
+    for(const SvgAttribute &attribute : qAsConst(styleAttributes)) {
         const QString name = attribute.getName();
         if(name.isEmpty()) continue;
         const QString value = attribute.getValue();

@@ -180,7 +180,7 @@ void Document::setGizmoVisibility(const Gizmos::Interact &ti,
     default: return;
     }
 
-    for (const auto &scene : fScenes) {
+    for (const auto &scene : qAsConst(fScenes)) {
         if (scene) { scene->setGizmoVisibility(ti, visibility); }
     }
 
@@ -441,7 +441,7 @@ void Document::SWT_setupAbstraction(SWT_Abstraction * const abstraction,
                                     const UpdateFuncs &updateFuncs,
                                     const int visiblePartWidgetId)
 {
-    for (const auto& scene : fScenes) {
+    for (const auto& scene : qAsConst(fScenes)) {
         auto abs = scene->SWT_abstractionForWidget(updateFuncs,
                                                    visiblePartWidgetId);
         abstraction->addChildAbstraction(abs->ref<SWT_Abstraction>());

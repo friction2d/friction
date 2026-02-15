@@ -340,7 +340,7 @@ void OutputSettingsProfile::removeFile()
 
 OutputSettingsProfile *OutputSettingsProfile::sGetByName(const QString &name)
 {
-    for (const auto& profile : sOutputProfiles) {
+    for (const auto& profile : qAsConst(sOutputProfiles)) {
         if (profile->getName() == name) { return profile.get(); }
     }
     return nullptr;

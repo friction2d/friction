@@ -79,7 +79,7 @@ EffectsLoader::~EffectsLoader()
     glDeleteProgram(BORDER_PROGRAM.fID);
     glDeleteProgram(DOUBLE_BORDER_PROGRAM.fID);
 
-    for (const auto& shaderEffect : ShaderEffectCreator::sEffectCreators) {
+    for (const auto& shaderEffect : qAsConst(ShaderEffectCreator::sEffectCreators)) {
         glDeleteProgram(shaderEffect->fProgram->fId);
     }
 

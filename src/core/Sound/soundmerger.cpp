@@ -330,7 +330,7 @@ void SoundMerger::process() {
                                           mSettings.fChannelLayout);
     mSamples->zeroAll();
     const auto dst = mSamples->fData;
-    for(const auto& sound : mSounds) {
+    for(const auto& sound : qAsConst(mSounds)) {
         const auto srcSamples = sound.fSamples;
         const qreal stretch = sound.fStretch;
 

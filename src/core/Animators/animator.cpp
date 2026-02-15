@@ -47,7 +47,7 @@ void Animator::anim_shiftAllKeys(const int shift) {
     for(const auto& key : anim_mKeys) {
         keys << key;
     }
-    for(const auto key : keys) {
+    for(const auto key : qAsConst(keys)) {
         const int targetFrame = key->getRelFrame() + shift;
         key->moveToRelFrameAction(targetFrame);
     }
@@ -220,7 +220,7 @@ void Animator::anim_readKeys(eReadStream& src) {
 void Animator::anim_writeSelectedKeys(eWriteStream &dst) {
     const int nKeys = anim_mSelectedKeys.count();
     dst << nKeys;
-    for(const auto& key : anim_mSelectedKeys) key->writeKey(dst);
+    for(const auto& key : qAsConst(anim_mSelectedKeys)) key->writeKey(dst);
 }
 
 void Animator::anim_writeKeys(eWriteStream &dst) const {
@@ -642,7 +642,7 @@ void Animator::anim_removeKeyFromSelected(Key * const key) {
 }
 
 void Animator::anim_deselectAllKeys() {
-    for(const auto& key : anim_mSelectedKeys) {
+    for(const auto& key : qAsConst(anim_mSelectedKeys)) {
         key->setSelected(false);
     }
     anim_mSelectedKeys.clear();
@@ -655,7 +655,7 @@ void Animator::anim_selectAllKeys() {
 }
 
 void Animator::anim_incSelectedKeysFrame(const int dFrame) {
-    for(const auto& key : anim_mSelectedKeys) {
+    for(const auto& key : qAsConst(anim_mSelectedKeys)) {
         const int newFrame = key->getRelFrame() + dFrame;
         anim_moveKeyToRelFrame(key, newFrame);
     }
@@ -663,32 +663,32 @@ void Animator::anim_incSelectedKeysFrame(const int dFrame) {
 
 void Animator::anim_scaleSelectedKeysFrame(const int absPivotFrame,
                                       const qreal scale) {
-    for(const auto& key : anim_mSelectedKeys) {
+    for(const auto& key : qAsConst(anim_mSelectedKeys)) {
         key->scaleFrameAndUpdateParentAnimator(absPivotFrame, scale, true);
     }
 }
 
 void Animator::anim_cancelSelectedKeysTransform() {
-    for(const auto& key : anim_mSelectedKeys) {
+    for(const auto& key : qAsConst(anim_mSelectedKeys)) {
         key->cancelFrameTransform();
     }
 }
 
 void Animator::anim_finishSelectedKeysTransform() {
-    for(const auto& key : anim_mSelectedKeys) {
+    for(const auto& key : qAsConst(anim_mSelectedKeys)) {
         key->finishFrameTransform();
     }
     anim_mergeKeysIfNeeded();
 }
 
 void Animator::anim_startSelectedKeysTransform() {
-    for(const auto& key : anim_mSelectedKeys) {
+    for(const auto& key : qAsConst(anim_mSelectedKeys)) {
         key->startFrameTransform();
     }
 }
 
 void Animator::anim_deleteSelectedKeys() {
-    for(const auto& key : anim_mSelectedKeys) {
+    for(const auto& key : qAsConst(anim_mSelectedKeys)) {
         anim_removeKeyAction(key->ref<Key>());
     }
     anim_mSelectedKeys.clear();
@@ -697,7 +697,7 @@ void Animator::anim_deleteSelectedKeys() {
 int Animator::anim_getLowestAbsFrameForSelectedKey()
 {
     int lowestKey = FrameRange::EMAX;
-    for (const auto& key : anim_mSelectedKeys) {
+    for (const auto& key : qAsConst(anim_mSelectedKeys)) {
         int keyAbsFrame = key->getAbsFrame();
         if (keyAbsFrame < lowestKey) { lowestKey = keyAbsFrame; }
     }
@@ -707,7 +707,7 @@ int Animator::anim_getLowestAbsFrameForSelectedKey()
 int Animator::anim_getHighestAbsFrameForSelectedKey()
 {
     int highestKey = FrameRange::EMIN;
-    for (const auto& key : anim_mSelectedKeys) {
+    for (const auto& key : qAsConst(anim_mSelectedKeys)) {
         int keyAbsFrame = key->getAbsFrame();
         if (keyAbsFrame > highestKey) { highestKey = keyAbsFrame; }
     }

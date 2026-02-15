@@ -225,7 +225,7 @@ BoxSingleWidget::BoxSingleWidget(BoxScroller * const parent)
     connect(mHwSupportButton, &BoxesListActionButton::pressed, this, [this]() {
         if (!mTarget) { return; }
         const auto target = mTarget->getTarget();
-        if (const auto sEff = enve_cast<ShaderEffect*>(target)) { return; }
+        if (enve_cast<ShaderEffect*>(target)) { return; }
         if (const auto rEff = enve_cast<RasterEffect*>(target)) {
             rEff->switchInstanceHwSupport();
             Document::sInstance->actionFinished();

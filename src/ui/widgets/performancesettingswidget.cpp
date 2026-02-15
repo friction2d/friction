@@ -291,7 +291,7 @@ void PerformanceSettingsWidget::setupRasterEffectWidgets()
 
 void PerformanceSettingsWidget::saveRasterEffectsSupport()
 {
-    for (const auto &box : mRasterEffectsHardwareSupport) {
+    for (const auto &box : qAsConst(mRasterEffectsHardwareSupport)) {
         AppSupport::setSettings("RasterEffects",
                                 QString("%1HardwareSupport")
                                     .arg(box->itemData(0, RASTER_HW_SUPPORT_ID).toString()),
@@ -301,7 +301,7 @@ void PerformanceSettingsWidget::saveRasterEffectsSupport()
 
 void PerformanceSettingsWidget::restoreDefaultRasterEffectsSupport()
 {
-    for (const auto &box : mRasterEffectsHardwareSupport) {
+    for (const auto &box : qAsConst(mRasterEffectsHardwareSupport)) {
         box->setCurrentText(tr("GPU preferred"));
     }
 }

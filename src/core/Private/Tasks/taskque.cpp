@@ -29,10 +29,10 @@
 TaskQue::TaskQue() {}
 
 TaskQue::~TaskQue() {
-    for(const auto& task : mCpuOnly) task->cancel();
-    for(const auto& task : mCpuPreffered) task->cancel();
-    for(const auto& task : mGpuPreffered) task->cancel();
-    for(const auto& task : mGpuOnly) task->cancel();
+    for(const auto& task : qAsConst(mCpuOnly)) task->cancel();
+    for(const auto& task : qAsConst(mCpuPreffered)) task->cancel();
+    for(const auto& task : qAsConst(mGpuPreffered)) task->cancel();
+    for(const auto& task : qAsConst(mGpuOnly)) task->cancel();
 }
 
 int TaskQue::countQued() const {

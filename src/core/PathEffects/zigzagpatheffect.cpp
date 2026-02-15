@@ -90,7 +90,7 @@ void ZigZagEffectCaller::apply(SkPath &path) {
             path.lineTo(toSkPoint(currLine.p1()));
             path.lineTo(toSkPoint(currLine.p2()));
         } else {
-            for(const auto& line : currLines) {
+            for(const auto& line : qAsConst(currLines)) {
                 path.moveTo(toSkPoint(line.p1()));
                 path.lineTo(toSkPoint(line.p2()));
             }

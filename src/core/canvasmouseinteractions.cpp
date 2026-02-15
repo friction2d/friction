@@ -84,7 +84,7 @@ void Canvas::addActionsToMenu(QMenu *const menu)
     const auto sceneIcon = QIcon::fromTheme("sequence");
     QMenu * const linkCanvasMenu = menu->addMenu(sceneIcon,
                                                  tr("Link Scene"));
-    for (const auto& canvas : mDocument.fScenes) {
+    for (const auto& canvas : qAsConst(mDocument.fScenes)) {
         const auto slot = [this, canvas]() {
             auto newLink = canvas->createLink(false);
             mCurrentContainer->addContained(newLink);
@@ -144,7 +144,7 @@ void Canvas::handleRightButtonMouseRelease(const eMouseEvent& e)
                     if (!e.shiftMod()) { clearPointsSelection(); }
                     addPointToSelection(mPressedPoint);
                 }
-                for (const auto& pt : mSelectedPoints_d) { pt->canvasContextMenu(&menu); }
+                for (const auto& pt : qAsConst(mSelectedPoints_d)) { pt->canvasContextMenu(&menu); }
             } else { mPressedPoint->canvasContextMenu(&menu); }
             qMenu.exec(e.fGlobalPos);
         } else if (mPressedBox) {
@@ -155,7 +155,7 @@ void Canvas::handleRightButtonMouseRelease(const eMouseEvent& e)
 
             QMenu qMenu(e.fWidget);
             PropertyMenu menu(&qMenu, this, e.fWidget);
-            for (const auto& box : mSelectedBoxes) { box->setupCanvasMenu(&menu); }
+            for (const auto& box : qAsConst(mSelectedBoxes)) { box->setupCanvasMenu(&menu); }
             qMenu.exec(e.fGlobalPos);
         } else {
             clearPointsSelection();
@@ -560,7 +560,7 @@ void Canvas::applyPixelColor(const QColor &color,
                              const bool &fill)
 {
     if (!color.isValid()) { return; }
-    for (const auto& box : mSelectedBoxes) {
+    for (const auto& box : qAsConst(mSelectedBoxes)) {
         if (fill) {
             auto settings = box->getFillSettings();
             if (settings) {
@@ -673,7 +673,7 @@ void Canvas::handleMovePointMouseMove(const eMouseEvent &e)
                     if (nodePt->isNormal()) {
                         SmartNodePoint* closestNode = nullptr;
                         qreal minDist = 10/e.fScale;
-                        for (const auto& sBox : mSelectedBoxes) {
+                        for (const auto& sBox : qAsConst(mSelectedBoxes)) {
                             if (!enve_cast<SmartVectorPath*>(sBox)) { continue; }
                             const auto sPatBox = static_cast<SmartVectorPath*>(sBox);
                             const auto sAnim = sPatBox->getPathAnimator();

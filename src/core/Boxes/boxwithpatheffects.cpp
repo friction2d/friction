@@ -255,28 +255,28 @@ void BoxWithPathEffects::applyBasePathEffects(const qreal relFrame, SkPath& path
                                               const qreal influence) const {
     QList<stdsptr<PathEffectCaller>> effects;
     addBasePathEffects(relFrame, effects, influence);
-    for(const auto& effect : effects) effect->apply(path);
+    for(const auto& effect : qAsConst(effects)) effect->apply(path);
 }
 
 void BoxWithPathEffects::applyFillEffects(const qreal relFrame, SkPath& path,
                                           const qreal influence) const {
     QList<stdsptr<PathEffectCaller>> effects;
     addFillEffects(relFrame, effects, influence);
-    for(const auto& effect : effects) effect->apply(path);
+    for(const auto& effect : qAsConst(effects)) effect->apply(path);
 }
 
 void BoxWithPathEffects::applyOutlineBaseEffects(const qreal relFrame, SkPath& path,
                                                  const qreal influence) const {
     QList<stdsptr<PathEffectCaller>> effects;
     addOutlineBaseEffects(relFrame, effects, influence);
-    for(const auto& effect : effects) effect->apply(path);
+    for(const auto& effect : qAsConst(effects)) effect->apply(path);
 }
 
 void BoxWithPathEffects::applyOutlineEffects(const qreal relFrame, SkPath& path,
                                              const qreal influence) const {
     QList<stdsptr<PathEffectCaller>> effects;
     addOutlineEffects(relFrame, effects, influence);
-    for(const auto& effect : effects) effect->apply(path);
+    for(const auto& effect : qAsConst(effects)) effect->apply(path);
 }
 
 void BoxWithPathEffects::addBasePathEffects(const qreal relFrame,

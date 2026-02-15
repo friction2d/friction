@@ -11,7 +11,7 @@ struct CORE_EXPORT BrushCollectionData {
     static QList<BrushCollectionData> sData;
     static SimpleBrushWrapper * sGetBrush(const QString& collectionName,
                                           const QString& brushName) {
-        for(const auto& coll : sData) {
+        for(const auto& coll : qAsConst(sData)) {
             if(coll.fName != collectionName) continue;
             for(const auto& brush : coll.fBrushes) {
                 if(brush.fName == brushName) return brush.fWrapper.get();

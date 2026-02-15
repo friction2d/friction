@@ -128,7 +128,7 @@ public:
     const QColor& getPathColor() const
     { return mPathColor; }
 signals:
-    void pathBlendModeChagned(Mode);
+    void pathBlendModeChagned(SmartPathAnimator::Mode);
     void emptied();
 private:
     int actionAddFirstNode(const QPointF &relPos);

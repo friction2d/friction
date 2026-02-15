@@ -37,6 +37,6 @@ ConnContext &ConnContext::operator<<(const QMetaObject::Connection &connection) 
 }
 
 void ConnContext::clear() {
-    for(const auto& conn : mConns)
+    for(const auto& conn : qAsConst(mConns))
         QObject::disconnect(conn);
 }

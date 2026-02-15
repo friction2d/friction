@@ -453,9 +453,9 @@ void TextEffect::apply(TextBoxRenderData * const textData) const {
                                         getGuideLineWidth());
     switch(target()) {
     case TextFragmentType::letter: {
-        for(const auto& line : textData->fLines) {
-            for(const auto& word : line->fWords) {
-                for(const auto& letter : word->fLetters) {
+        for(const auto& line : qAsConst(textData->fLines)) {
+            for(const auto& word : qAsConst(line->fWords)) {
+                for(const auto& letter : qAsConst(word->fLetters)) {
                     const qreal xPos = letter->fOriginalPos.x();
                     const qreal baseInfl = baseGuide.getValue(xPos)*dimInfl + inflSum - dimInfl;
                     const qreal sinInfl = sinGuide.getValue(xPos)*perInfl + inflSum - perInfl;
@@ -466,8 +466,8 @@ void TextEffect::apply(TextBoxRenderData * const textData) const {
         }
     } break;
     case TextFragmentType::word: {
-        for(const auto& line : textData->fLines) {
-            for(const auto& word : line->fWords) {
+        for(const auto& line : qAsConst(textData->fLines)) {
+            for(const auto& word : qAsConst(line->fWords)) {
                 const qreal xPos = word->fOriginalPos.x();
                 const qreal baseInfl = baseGuide.getValue(xPos)*dimInfl + inflSum - dimInfl;
                 const qreal sinInfl = sinGuide.getValue(xPos)*perInfl + inflSum - perInfl;
@@ -477,7 +477,7 @@ void TextEffect::apply(TextBoxRenderData * const textData) const {
         }
     } break;
     case TextFragmentType::line: {
-        for(const auto& line : textData->fLines) {
+        for(const auto& line : qAsConst(textData->fLines)) {
             const qreal yPos = line->fOriginalPos.y();
             const qreal baseInfl = baseGuide.getValue(yPos)*dimInfl + inflSum - dimInfl;
             const qreal sinInfl = sinGuide.getValue(yPos)*perInfl + inflSum - perInfl;

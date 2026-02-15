@@ -326,7 +326,7 @@ void InterOptimalAnimatorT<T, K>::writeValuesXEV(
             const auto ctrlMode = smKey->getCtrlsMode();
             ctrlModes += QString::number(static_cast<int>(ctrlMode));
             if(!ctrlValues.isEmpty()) ctrlValues += ';';
-            ctrlValues += ctrlValsBP.arg(vc0Str).arg(vc1Str);
+            ctrlValues += ctrlValsBP.arg(vc0Str, vc1Str);
         }
         ele.setAttribute("values", values);
         ele.setAttribute("frames", frames);

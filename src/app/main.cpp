@@ -271,7 +271,7 @@ int main(int argc, char *argv[])
     }
     QObject::connect(&effectsLoader, &EffectsLoader::programChanged,
     [&document](ShaderEffectProgram * program) {
-        for (const auto& scene : document.fScenes) {
+        for (const auto& scene : qAsConst(document.fScenes)) {
             scene->updateIfUsesProgram(program);
         }
         document.actionFinished();

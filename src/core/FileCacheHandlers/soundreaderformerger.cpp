@@ -9,9 +9,9 @@ SoundReaderForMerger::SoundReaderForMerger(
     SoundReader(cacheHandler, openedAudio, secondId, sampleRange) {}
 
 void SoundReaderForMerger::afterProcessing() {
-    for(const auto& merger : mMergers) {
+    for(const auto& merger : qAsConst(mMergers)) {
         if(!merger) continue;
-        for(const auto& ss : mSSAbsRanges) {
+        for(const auto& ss : qAsConst(mSSAbsRanges)) {
             merger->addSoundToMerge({ss.fSampleShift, ss.fSamplesRange,
                                      ss.fVolume, ss.fSpeed,
                                      enve::make_shared<Samples>(getSamples())});

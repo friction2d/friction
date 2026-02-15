@@ -57,7 +57,7 @@ bool SWT_Abstraction::setAbstractions(
     }
     const bool childrenVisible = (satisfiesRule && mContentVisible) ||
                                  mIsMainTarget;
-    for(const auto& abs : mChildren) {
+    for(const auto& abs : qAsConst(mChildren)) {
         if(abs->setAbstractions(minY, maxY, currY, currX,
                                 swtHeight, setAbsFunc, rules,
                                 childrenVisible, mIsMainTarget)) {
@@ -80,7 +80,7 @@ int SWT_Abstraction::updateHeight(const SWT_RulesCollection &rules,
             mHeight += swtHeight;
         const bool childrenVisible = (satisfiesRule && mContentVisible) ||
                                      mIsMainTarget;
-        for(const auto& abs : mChildren) {
+        for(const auto& abs : qAsConst(mChildren)) {
             mHeight += abs->updateHeight(rules, childrenVisible,
                                          mIsMainTarget, swtHeight);
         }
@@ -106,7 +106,7 @@ void SWT_Abstraction::addChildAbstractionAt(
 
 SWT_Abstraction *SWT_Abstraction::getChildAbsFor(
         const SingleWidgetTarget* const target) {
-    for(const auto& abs : mChildren) {
+    for(const auto& abs : qAsConst(mChildren)) {
         if(abs->getTarget() == target) return abs.get();
     }
     return nullptr;
@@ -160,7 +160,7 @@ void SWT_Abstraction::afterContentVisibilityChanged() {
 }
 
 void SWT_Abstraction::removeAlongWithAllChildren_k() {
-    for(const auto& child : mChildren) child->removeAlongWithAllChildren_k();
+    for(const auto& child : qAsConst(mChildren)) child->removeAlongWithAllChildren_k();
     mChildren.clear();
     if(mTarget_k) mTarget_k->SWT_removeAbstractionForWidget(mVisiblePartWidgetId);
 }

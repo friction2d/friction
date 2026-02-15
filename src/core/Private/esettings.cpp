@@ -361,14 +361,14 @@ void eSettings::loadFromFile()
 
 void eSettings::saveToFile()
 {
-    for (const auto& setting : gSettings) {
+    for (const auto& setting : qAsConst(gSettings)) {
         setting->writeValue();
     }
 }
 
 void eSettings::saveKeyToFile(const QString &key)
 {
-    for (const auto& setting : gSettings) {
+    for (const auto& setting : qAsConst(gSettings)) {
         if (key == setting->fName) {
             setting->writeValue();
             return;

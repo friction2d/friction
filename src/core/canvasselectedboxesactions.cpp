@@ -55,7 +55,7 @@ bool Canvas::anim_nextRelFrameWithKey(const int relFrame,
     const bool thisHasNext = BoundingBox::anim_nextRelFrameWithKey(
                 relFrame, thisNext);
     int minNextFrame = FrameRange::EMAX;
-    for(const auto &box : mSelectedBoxes) {
+    for(const auto &box : qAsConst(mSelectedBoxes)) {
         const int boxRelFrame = box->prp_absFrameToRelFrame(relFrame);
         int boxNext;
         if(box->anim_nextRelFrameWithKey(boxRelFrame, boxNext)) {
@@ -78,7 +78,7 @@ bool Canvas::anim_prevRelFrameWithKey(const int relFrame,
     const bool thisHasPrev = BoundingBox::anim_prevRelFrameWithKey(
                 relFrame, thisPrev);
     int minPrevFrame = FrameRange::EMIN;
-    for(const auto &box : mSelectedBoxes) {
+    for(const auto &box : qAsConst(mSelectedBoxes)) {
         const int boxRelFrame = box->prp_absFrameToRelFrame(relFrame);
         int boxPrev;
         if(box->anim_prevRelFrameWithKey(boxRelFrame, boxPrev)) {
@@ -97,40 +97,40 @@ bool Canvas::anim_prevRelFrameWithKey(const int relFrame,
 
 void Canvas::shiftAllPointsForAllKeys(const int by) {
     Q_UNUSED(by)
-    for(const auto &box : mSelectedBoxes) {
+    /*for(const auto &box : qAsConst(mSelectedBoxes)) {
         if(const auto svp = enve_cast<SmartVectorPath*>(box)) {
 //            svp->shiftAllPointsForAllKeys(by);
         }
-    }
+    }*/
 }
 
 void Canvas::revertAllPointsForAllKeys() {
-    for(const auto &box : mSelectedBoxes) {
+    /*for(const auto &box : qAsConst(mSelectedBoxes)) {
         if(const auto svp = enve_cast<SmartVectorPath*>(box)) {
             //svp->revertAllPointsForAllKeys();
         }
-    }
+    }*/
 }
 
 void Canvas::shiftAllPoints(const int by) {
     Q_UNUSED(by)
-    for(const auto &box : mSelectedBoxes) {
+    /*for(const auto &box : qAsConst(mSelectedBoxes)) {
         if(const auto svp = enve_cast<SmartVectorPath*>(box)) {
             //svp->shiftAllPoints(by);
         }
-    }
+    }*/
 }
 
 void Canvas::revertAllPoints() {
-    for(const auto &box : mSelectedBoxes) {
+    /*for(const auto &box : qAsConst(mSelectedBoxes)) {
         if(const auto svp = enve_cast<SmartVectorPath*>(box)) {
             //svp->revertAllPoints();
         }
-    }
+    }*/
 }
 
 void Canvas::flipSelectedBoxesHorizontally() {
-    for(const auto &box : mSelectedBoxes) {
+    for(const auto &box : qAsConst(mSelectedBoxes)) {
         box->startScaleTransform();
         box->scale(-1, 1);
         box->finishTransform();
@@ -138,7 +138,7 @@ void Canvas::flipSelectedBoxesHorizontally() {
 }
 
 void Canvas::flipSelectedBoxesVertically() {
-    for(const auto &box : mSelectedBoxes) {
+    for(const auto &box : qAsConst(mSelectedBoxes)) {
         box->startScaleTransform();
         box->scale(1, -1);
         box->finishTransform();
@@ -146,12 +146,12 @@ void Canvas::flipSelectedBoxesVertically() {
 }
 
 void Canvas::convertSelectedBoxesToPath() {
-    for(const auto &box : mSelectedBoxes)
+    for(const auto &box : qAsConst(mSelectedBoxes))
         box->objectToVectorPathBox();
 }
 
 void Canvas::convertSelectedPathStrokesToPath() {
-    for(const auto &box : mSelectedBoxes) {
+    for(const auto &box : qAsConst(mSelectedBoxes)) {
         box->strokeToVectorPathBox();
     }
 }
@@ -174,14 +174,14 @@ void Canvas::setSelectedFontFamilyAndStyle(const QString& family,
                                            const SkFontStyle& style)
 {
     pushUndoRedoName("Change Font");
-    for(const auto &box : mSelectedBoxes) {
+    for(const auto &box : qAsConst(mSelectedBoxes)) {
         box->setFontFamilyAndStyle(family, style);
     }
 }
 
 void Canvas::setSelectedFontSize(const qreal size) {
     pushUndoRedoName("Change Font Size");
-    for(const auto &box : mSelectedBoxes) {
+    for(const auto &box : qAsConst(mSelectedBoxes)) {
         box->setFontSize(size);
     }
 }
@@ -189,7 +189,7 @@ void Canvas::setSelectedFontSize(const qreal size) {
 void Canvas::setSelectedFontText(const QString &text)
 {
     pushUndoRedoName("Change Text Value");
-    for (const auto &box : mSelectedBoxes) {
+    for (const auto &box : qAsConst(mSelectedBoxes)) {
         if (const auto txtBox = enve_cast<TextBox*>(box)) {
             txtBox->prp_startTransform();
             txtBox->setCurrentValue(text);
@@ -200,86 +200,86 @@ void Canvas::setSelectedFontText(const QString &text)
 
 void Canvas::resetSelectedTranslation() {
     pushUndoRedoName("Reset Translation");
-    for(const auto &box : mSelectedBoxes)
+    for(const auto &box : qAsConst(mSelectedBoxes))
         box->resetTranslation();
 }
 
 void Canvas::resetSelectedScale() {
     pushUndoRedoName("Reset Scale");
-    for(const auto &box : mSelectedBoxes)
+    for(const auto &box : qAsConst(mSelectedBoxes))
         box->resetScale();
 }
 
 void Canvas::resetSelectedRotation() {
     pushUndoRedoName("Reset Rotation");
-    for(const auto &box : mSelectedBoxes)
+    for(const auto &box : qAsConst(mSelectedBoxes))
         box->resetRotation();
 }
 
 void Canvas::applyPaintSettingToSelected(const PaintSettingsApplier &setting) {
-    for(const auto &box : mSelectedBoxes) {
+    for(const auto &box : qAsConst(mSelectedBoxes)) {
         box->applyPaintSetting(setting);
     }
 }
 
 void Canvas::setSelectedCapStyle(const SkPaint::Cap capStyle) {
     pushUndoRedoName("Set Cap Style");
-    for(const auto &box : mSelectedBoxes) {
+    for(const auto &box : qAsConst(mSelectedBoxes)) {
         box->setStrokeCapStyle(capStyle);
     }
 }
 
 void Canvas::setSelectedJoinStyle(const SkPaint::Join joinStyle) {
     pushUndoRedoName("Set Join Style");
-    for(const auto &box : mSelectedBoxes) {
+    for(const auto &box : qAsConst(mSelectedBoxes)) {
         box->setStrokeJoinStyle(joinStyle);
     }
 }
 
 void Canvas::setSelectedStrokeBrush(SimpleBrushWrapper * const brush) {
     pushUndoRedoName("Set Stroke Brush");
-    for(const auto &box : mSelectedBoxes) {
+    for(const auto &box : qAsConst(mSelectedBoxes)) {
         box->setStrokeBrush(brush);
     }
 }
 
 void Canvas::applyStrokeBrushWidthActionToSelected(const SegAction& action) {
-    for(const auto &box : mSelectedBoxes) {
+    for(const auto &box : qAsConst(mSelectedBoxes)) {
         box->applyStrokeBrushWidthAction(action);
     }
 }
 
 void Canvas::applyStrokeBrushPressureActionToSelected(const SegAction& action) {
-    for(const auto &box : mSelectedBoxes) {
+    for(const auto &box : qAsConst(mSelectedBoxes)) {
         box->applyStrokeBrushPressureAction(action);
     }
 }
 
 void Canvas::applyStrokeBrushSpacingActionToSelected(const SegAction& action) {
-    for(const auto &box : mSelectedBoxes) {
+    for(const auto &box : qAsConst(mSelectedBoxes)) {
         box->applyStrokeBrushSpacingAction(action);
     }
 }
 
 void Canvas::applyStrokeBrushTimeActionToSelected(const SegAction& action) {
-    for(const auto &box : mSelectedBoxes) {
+    for(const auto &box : qAsConst(mSelectedBoxes)) {
         box->applyStrokeBrushTimeAction(action);
     }
 }
 
 void Canvas::strokeWidthAction(const QrealAction& action) {
-    for(const auto &box : mSelectedBoxes)
+    for(const auto &box : qAsConst(mSelectedBoxes))
         box->strokeWidthAction(action);
 }
 
 void Canvas::startSelectedStrokeColorTransform() {
-    for(const auto &box : mSelectedBoxes) {
+    for(const auto &box : qAsConst(mSelectedBoxes)) {
         box->startSelectedStrokeColorTransform();
     }
 }
 
 void Canvas::startSelectedFillColorTransform() {
-    for(const auto &box : mSelectedBoxes) {
+    for(const auto &box : qAsConst(mSelectedBoxes)) {
         box->startSelectedFillColorTransform();
     }
 }
@@ -297,14 +297,14 @@ NormalSegment Canvas::getSegment(const eMouseEvent& e) const {
 void Canvas::rotateSelectedBoxesStartAndFinish(const qreal rotBy,
                                                bool inc) {
     if(mDocument.fLocalPivot) {
-        for(const auto &box : mSelectedBoxes) {
+        for(const auto &box : qAsConst(mSelectedBoxes)) {
             box->startRotTransform();
             if (inc) { box->rotateBy(rotBy); }
             else { box->setRotate(rotBy); }
             box->finishTransform();
         }
     } else {
-        for(const auto &box : mSelectedBoxes) {
+        for(const auto &box : qAsConst(mSelectedBoxes)) {
             box->startRotTransform();
             box->startPosTransform();
             box->saveTransformPivotAbsPos(mRotPivot->getAbsolutePos());
@@ -317,13 +317,13 @@ void Canvas::rotateSelectedBoxesStartAndFinish(const qreal rotBy,
 void Canvas::scaleSelectedBoxesStartAndFinish(const qreal scaleBy)
 {
     if (mDocument.fLocalPivot) {
-        for(const auto &box : mSelectedBoxes) {
+        for(const auto &box : qAsConst(mSelectedBoxes)) {
             box->startScaleTransform();
             box->setScale(scaleBy);
             box->finishTransform();
         }
     } else {
-        for (const auto &box : mSelectedBoxes) {
+        for (const auto &box : qAsConst(mSelectedBoxes)) {
             box->startRotTransform();
             box->startPosTransform();
             box->saveTransformPivotAbsPos(mRotPivot->getAbsolutePos());
@@ -335,7 +335,7 @@ void Canvas::scaleSelectedBoxesStartAndFinish(const qreal scaleBy)
 
 void Canvas::moveSelectedBoxesStartAndFinish(const QPointF moveBy)
 {
-    for (const auto &box : mSelectedBoxes) {
+    for (const auto &box : qAsConst(mSelectedBoxes)) {
         box->startPosTransform();
         box->moveByAbs(moveBy);
         box->finishTransform();
@@ -347,25 +347,25 @@ void Canvas::rotateSelectedBy(const qreal rotBy,
                               const bool startTrans) {
     if(mDocument.fLocalPivot) {
         if(startTrans) {
-            for(const auto &box : mSelectedBoxes) {
+            for(const auto &box : qAsConst(mSelectedBoxes)) {
                 box->startRotTransform();
                 box->rotateBy(rotBy);
             }
         } else {
-            for(const auto &box : mSelectedBoxes) {
+            for(const auto &box : qAsConst(mSelectedBoxes)) {
                 box->rotateBy(rotBy);
             }
         }
     } else {
         if(startTrans) {
-            for(const auto &box : mSelectedBoxes) {
+            for(const auto &box : qAsConst(mSelectedBoxes)) {
                 box->startRotTransform();
                 box->startPosTransform();
                 box->saveTransformPivotAbsPos(absOrigin);
                 box->rotateRelativeToSavedPivot(rotBy);
             }
         } else {
-            for(const auto &box : mSelectedBoxes) {
+            for(const auto &box : qAsConst(mSelectedBoxes)) {
                 box->rotateRelativeToSavedPivot(rotBy);
             }
         }
@@ -384,25 +384,25 @@ void Canvas::scaleSelectedBy(const qreal scaleXBy,
                              const bool startTrans) {
     if(mDocument.fLocalPivot) {
         if(startTrans) {
-            for(const auto &box : mSelectedBoxes) {
+            for(const auto &box : qAsConst(mSelectedBoxes)) {
                 box->startScaleTransform();
                 box->scale(scaleXBy, scaleYBy);
             }
         } else {
-            for(const auto &box : mSelectedBoxes) {
+            for(const auto &box : qAsConst(mSelectedBoxes)) {
                 box->scale(scaleXBy, scaleYBy);
             }
         }
     } else {
         if(startTrans) {
-            for(const auto &box : mSelectedBoxes) {
+            for(const auto &box : qAsConst(mSelectedBoxes)) {
                 box->startScaleTransform();
                 box->startPosTransform();
                 box->saveTransformPivotAbsPos(absOrigin);
                 box->scaleRelativeToSavedPivot(scaleXBy, scaleYBy);
             }
         } else {
-            for(const auto &box : mSelectedBoxes) {
+            for(const auto &box : qAsConst(mSelectedBoxes)) {
                 box->scaleRelativeToSavedPivot(scaleXBy, scaleYBy);
             }
         }
@@ -416,12 +416,12 @@ void Canvas::shearSelectedBy(const qreal shearXBy,
 {
     if (mSelectedBoxes.isEmpty()) { return; }
     if (mDocument.fLocalPivot) {
-        for(const auto &box : mSelectedBoxes) {
+        for(const auto &box : qAsConst(mSelectedBoxes)) {
             if (startTrans) { box->startShearTransform(); }
             box->shear(shearXBy, shearYBy);
         }
     } else {
-        for(const auto &box : mSelectedBoxes) {
+        for(const auto &box : qAsConst(mSelectedBoxes)) {
             if (startTrans) {
                 box->startShearTransform();
                 box->startPosTransform();
@@ -436,7 +436,7 @@ QPointF Canvas::getSelectedBoxesAbsPivotPos() {
     if(mSelectedBoxes.isEmpty()) return QPointF(0, 0);
     QPointF posSum(0, 0);
     const int count = mSelectedBoxes.count();
-    for(const auto &box : mSelectedBoxes)
+    for(const auto &box : qAsConst(mSelectedBoxes))
         posSum += box->getPivotAbsPos();
     return posSum/count;
 }
@@ -451,7 +451,7 @@ bool Canvas::isBoxSelectionEmpty() const {
 }
 
 void Canvas::ungroupSelectedBoxes() {
-    for(const auto &box : mSelectedBoxes) {
+    for(const auto &box : qAsConst(mSelectedBoxes)) {
         if(const auto cont = enve_cast<ContainerBox*>(box)) {
             if(cont->isLink()) continue;
             cont->ungroupAction_k();
@@ -461,7 +461,7 @@ void Canvas::ungroupSelectedBoxes() {
 
 void Canvas::centerPivotForSelected() {
     pushUndoRedoName("Center pivot");
-    for(const auto &box : mSelectedBoxes)
+    for(const auto &box : qAsConst(mSelectedBoxes))
         box->centerPivotPositionAction();
 }
 
@@ -527,7 +527,7 @@ void Canvas::removeBoxFromSelection(BoundingBox * const box) {
 }
 
 void Canvas::clearBoxesSelection() {
-    for(const auto &box : mSelectedBoxes) box->setSelected(false);
+    for(const auto &box : qAsConst(mSelectedBoxes)) box->setSelected(false);
     clearBoxesSelectionList();
     schedulePivotUpdate();
     setCurrentBox(nullptr);
@@ -632,7 +632,7 @@ void Canvas::raiseSelectedBoxesToTop() {
 }
 
 void Canvas::lowerSelectedBoxesToBottom() {
-    for(const auto &box : mSelectedBoxes) {
+    for(const auto &box : qAsConst(mSelectedBoxes)) {
         box->bringToEnd();
     }
     sortSelectedBoxesDesc();
@@ -656,7 +656,7 @@ void Canvas::lowerSelectedBoxes() {
 void Canvas::raiseSelectedBoxes() {
     int lastZ = -10000;
     bool lastBoxChanged = true;
-    for(const auto &box : mSelectedBoxes) {
+    for(const auto &box : qAsConst(mSelectedBoxes)) {
         const int boxZ = box->getZIndex();
         if(boxZ - 1 != lastZ || lastBoxChanged) box->moveUp();
         lastZ = boxZ;
@@ -666,7 +666,7 @@ void Canvas::raiseSelectedBoxes() {
 }
 
 void Canvas::deselectAllBoxes() {
-    for(const auto &box : mSelectedBoxes)
+    for(const auto &box : qAsConst(mSelectedBoxes))
         removeBoxFromSelection(box);
 }
 
@@ -680,7 +680,7 @@ MovablePoint *Canvas::getPointAtAbsPos(const QPointF &absPos,
     }
     if(mode == CanvasMode::pointTransform || mode == CanvasMode::pathCreate ||
        mode == CanvasMode::drawPath || mode == CanvasMode::boxTransform) {
-        for(const auto &box : mSelectedBoxes) {
+        for(const auto &box : qAsConst(mSelectedBoxes)) {
             const auto pointAtPos = box->getPointAtAbsPos(absPos, mode, invScale);
             if(pointAtPos) return pointAtPos;
         }
@@ -689,13 +689,13 @@ MovablePoint *Canvas::getPointAtAbsPos(const QPointF &absPos,
 }
 
 void Canvas::finishSelectedBoxesTransform() {
-    for(const auto &box : mSelectedBoxes) {
+    for(const auto &box : qAsConst(mSelectedBoxes)) {
         box->finishTransform();
     }
 }
 
 void Canvas::cancelSelectedBoxesTransform() {
-    for(const auto &box : mSelectedBoxes) {
+    for(const auto &box : qAsConst(mSelectedBoxes)) {
         box->cancelTransform();
     }
 }
@@ -703,12 +703,12 @@ void Canvas::cancelSelectedBoxesTransform() {
 void Canvas::moveSelectedBoxesByAbs(const QPointF &by,
                                     const bool startTransform) {
     if(startTransform) {
-        for(const auto &box : mSelectedBoxes) {
+        for(const auto &box : qAsConst(mSelectedBoxes)) {
             box->startPosTransform();
             box->moveByAbs(by);
         }
     } else {
-        for(const auto &box : mSelectedBoxes) {
+        for(const auto &box : qAsConst(mSelectedBoxes)) {
             box->moveByAbs(by);
         }
     }
@@ -727,7 +727,7 @@ void Canvas::moveSelectedBoxesByAbs(const QPointF &by,
 #include "Boxes/internallinkbox.h"
 void Canvas::createLinkBoxForSelected() {
     pushUndoRedoName("Create Link");
-    for(const auto& selectedBox : mSelectedBoxes)
+    for(const auto& selectedBox : qAsConst(mSelectedBoxes))
         mCurrentContainer->addContained(selectedBox->createLink(false));
 }
 
@@ -766,7 +766,7 @@ SmartVectorPath *Canvas::getPathResultingFromOperation(const SkPathOp& pathOp)
 
 SmartVectorPath *Canvas::getPathResultingFromCombine() {
     SmartVectorPath *newPath = nullptr;
-    for(const auto &box : mSelectedBoxes) {
+    for(const auto &box : qAsConst(mSelectedBoxes)) {
         if(const auto path = enve_cast<SmartVectorPath*>(box)) {
             newPath = path;
             break;
@@ -781,7 +781,7 @@ SmartVectorPath *Canvas::getPathResultingFromCombine() {
 
     const auto targetVP = newPath->getPathAnimator();
     const QMatrix firstTranf = newPath->getTotalTransform();
-    for(const auto &box : mSelectedBoxes) {
+    for(const auto &box : qAsConst(mSelectedBoxes)) {
         if(box == newPath) continue;
         if(const auto boxPath = enve_cast<SmartVectorPath*>(box)) {
             const QMatrix relTransf = boxPath->getTotalTransform()*
@@ -847,12 +847,12 @@ void Canvas::selectedPathsBreakApart() {
     if(mSelectedBoxes.isEmpty()) return;
 
     QList<qsptr<SmartVectorPath>> created;
-    for(const auto &box : mSelectedBoxes) {
+    for(const auto &box : qAsConst(mSelectedBoxes)) {
         if(const auto path = enve_cast<SmartVectorPath*>(box)) {
             created << path->breakPathsApart_k();
         }
     }
-    for(const auto& path : created) {
+    for(const auto& path : qAsConst(created)) {
         mCurrentContainer->addContained(path);
         addBoxToSelection(path.get());
     }
@@ -903,7 +903,7 @@ void Canvas::alignSelectedBoxes(const Qt::Alignment align,
     }
 
     pushUndoRedoName(pivot == AlignPivot::pivotItself ? "pivot align" : "box align");
-    for (const auto &box : mSelectedBoxes) {
+    for (const auto &box : qAsConst(mSelectedBoxes)) {
         if (box == skip) { continue; }
         switch(pivot) {
         case AlignPivot::pivot:

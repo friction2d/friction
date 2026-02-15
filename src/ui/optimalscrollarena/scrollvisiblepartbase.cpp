@@ -59,7 +59,7 @@ void ScrollVisiblePartBase::setVisibleHeight(const int height) {
 }
 
 void ScrollVisiblePartBase::updateWidgetsWidth() {
-    for(const auto& widget : mSingleWidgets) {
+    for(const auto& widget : qAsConst(mSingleWidgets)) {
         widget->setFixedWidth(width() - widget->x());
     }
 }
@@ -132,7 +132,7 @@ void ScrollVisiblePartBase::updateVisibleWidgets() {
     }
 
     int y = 0;
-    for(const auto& widget : mSingleWidgets) {
+    for(const auto& widget : qAsConst(mSingleWidgets)) {
         widget->move(widget->x(), y);
         widget->setFixedWidth(width() - widget->x());
         y += eSizesUI::widget;

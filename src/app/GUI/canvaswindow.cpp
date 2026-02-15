@@ -536,6 +536,7 @@ bool CanvasWindow::handleRevertPathKeyPress(QKeyEvent *event)
 {
     if (event->modifiers() & Qt::ControlModifier &&
        (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down)) {
+#pragma GCC warning "This does nothing! (revertAllPointsForAllKeys and revertAllPoints)"
        if (event->modifiers() & Qt::ShiftModifier) {
            mCurrentCanvas->revertAllPointsForAllKeys();
        } else {

@@ -378,7 +378,7 @@ void Canvas::renderSk(SkCanvas* const canvas,
             iBox->drawAllCanvasControls(canvas, mCurrentMode, invZoom, ctrlPressed);
             canvas->restore();
         }
-        for (const auto obj : mNullObjects) {
+        for (const auto obj : qAsConst(mNullObjects)) {
             canvas->save();
             obj->drawNullObject(canvas, mCurrentMode, invZoom, ctrlPressed);
             canvas->restore();
@@ -1324,7 +1324,7 @@ void Canvas::selectAllPointsAction()
     const auto adder = [this](MovablePoint* const pt) {
         addPointToSelection(pt);
     };
-    for (const auto& box : mSelectedBoxes) {
+    for (const auto& box : qAsConst(mSelectedBoxes)) {
         box->selectAllCanvasPts(adder, mCurrentMode);
     }
 }
@@ -1387,70 +1387,70 @@ HddCachableCacheHandler &Canvas::getSoundCacheHandler()
 
 void Canvas::startDurationRectPosTransformForAllSelected()
 {
-    for (const auto &box : mSelectedBoxes) {
+    for (const auto &box : qAsConst(mSelectedBoxes)) {
         box->startDurationRectPosTransform();
     }
 }
 
 void Canvas::finishDurationRectPosTransformForAllSelected()
 {
-    for (const auto &box : mSelectedBoxes) {
+    for (const auto &box : qAsConst(mSelectedBoxes)) {
         box->finishDurationRectPosTransform();
     }
 }
 
 void Canvas::cancelDurationRectPosTransformForAllSelected()
 {
-    for (const auto &box : mSelectedBoxes) {
+    for (const auto &box : qAsConst(mSelectedBoxes)) {
         box->cancelDurationRectPosTransform();
     }
 }
 
 void Canvas::moveDurationRectForAllSelected(const int dFrame)
 {
-    for (const auto& box : mSelectedBoxes) {
+    for (const auto& box : qAsConst(mSelectedBoxes)) {
         box->moveDurationRect(dFrame);
     }
 }
 
 void Canvas::startMinFramePosTransformForAllSelected()
 {
-    for (const auto& box : mSelectedBoxes) {
+    for (const auto& box : qAsConst(mSelectedBoxes)) {
         box->startMinFramePosTransform();
     }
 }
 
 void Canvas::finishMinFramePosTransformForAllSelected()
 {
-    for (const auto& box : mSelectedBoxes) {
+    for (const auto& box : qAsConst(mSelectedBoxes)) {
         box->finishMinFramePosTransform();
     }
 }
 
 void Canvas::cancelMinFramePosTransformForAllSelected()
 {
-    for (const auto& box : mSelectedBoxes) {
+    for (const auto& box : qAsConst(mSelectedBoxes)) {
         box->cancelMinFramePosTransform();
     }
 }
 
 void Canvas::moveMinFrameForAllSelected(const int dFrame)
 {
-    for (const auto& box : mSelectedBoxes) {
+    for (const auto& box : qAsConst(mSelectedBoxes)) {
         box->moveMinFrame(dFrame);
     }
 }
 
 void Canvas::startMaxFramePosTransformForAllSelected()
 {
-    for (const auto& box : mSelectedBoxes) {
+    for (const auto& box : qAsConst(mSelectedBoxes)) {
         box->startMaxFramePosTransform();
     }
 }
 
 void Canvas::finishMaxFramePosTransformForAllSelected()
 {
-    for (const auto& box : mSelectedBoxes) {
+    for (const auto& box : qAsConst(mSelectedBoxes)) {
         box->finishMaxFramePosTransform();
     }
 }
@@ -1458,14 +1458,14 @@ void Canvas::finishMaxFramePosTransformForAllSelected()
 
 void Canvas::cancelMaxFramePosTransformForAllSelected()
 {
-    for (const auto& box : mSelectedBoxes) {
+    for (const auto& box : qAsConst(mSelectedBoxes)) {
         box->cancelMaxFramePosTransform();
     }
 }
 
 void Canvas::moveMaxFrameForAllSelected(const int dFrame)
 {
-    for (const auto& box : mSelectedBoxes) {
+    for (const auto& box : qAsConst(mSelectedBoxes)) {
         box->moveMaxFrame(dFrame);
     }
 }
@@ -1725,8 +1725,8 @@ SceneBoundGradient *Canvas::getGradientWithDocumentId(const int id) const
 
 SceneBoundGradient *Canvas::getGradientWithDocumentSceneId(const int id) const
 {
-    for (const auto &scene : mDocument.fScenes) {
-        for (const auto &grad : scene->mGradients) {
+    for (const auto &scene : qAsConst(mDocument.fScenes)) {
+        for (const auto &grad : qAsConst(scene->mGradients)) {
             if (grad->getDocumentId() == id) { return grad.get(); }
         }
     }

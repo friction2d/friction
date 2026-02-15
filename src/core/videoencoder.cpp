@@ -853,11 +853,11 @@ void VideoEncoder::beforeProcessing(const Hardware) {
     if(_mContainers.isEmpty()) {
         _mContainers.swap(mNextContainers);
     } else {
-        for(const auto& cont : mNextContainers)
+        for(const auto& cont : qAsConst(mNextContainers))
             _mContainers.append(cont);
         mNextContainers.clear();
     }
-    for(const auto& sound : mNextSoundConts)
+    for(const auto& sound : qAsConst(mNextSoundConts))
         mSoundIterator.add(sound);
     mNextSoundConts.clear();
     _mRenderRange = {mRenderSettings.fMinFrame, mRenderSettings.fMaxFrame};

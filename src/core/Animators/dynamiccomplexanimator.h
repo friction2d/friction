@@ -184,7 +184,7 @@ public:
         QStringList result;
         QList<Property*> matches;
         allStartingWith(text, matches);
-        for(const auto match : matches) {
+        for(const auto match : qAsConst(matches)) {
             if(match == skip) continue;
             result << match->prp_getName();
         }

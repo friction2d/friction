@@ -82,7 +82,7 @@ void ComplexAnimator::SWT_setupAbstraction(
         SWT_Abstraction* abstraction,
         const UpdateFuncs &updateFuncs,
         const int visiblePartWidgetId) {
-    for(const auto &property : ca_mChildren) {
+    for(const auto &property : qAsConst(ca_mChildren)) {
         auto newAbs = property->SWT_createAbstraction(updateFuncs,
                                                       visiblePartWidgetId);
         abstraction->addChildAbstraction(newAbs->ref<SWT_Abstraction>());
@@ -127,7 +127,7 @@ bool ComplexAnimator::SWT_shouldBeVisible(const SWT_RulesCollection &rules,
 }
 
 void ComplexAnimator::SWT_setChildrenAncestorDisabled(const bool bT) {
-    for(const auto& prop : ca_mChildren) {
+    for(const auto& prop : qAsConst(ca_mChildren)) {
         prop->SWT_setAncestorDisabled(bT);
     }
 }
@@ -320,7 +320,7 @@ void ComplexAnimator::ca_removeAllChildren() {
 }
 
 void ComplexAnimator::anim_addKeyAtRelFrame(const int relFrame) {
-    for(const auto &property : ca_mChildren) {
+    for(const auto &property : qAsConst(ca_mChildren)) {
         if(const auto asAnim = enve_cast<Animator*>(property.get())) {
             asAnim->anim_addKeyAtRelFrame(relFrame);
         }
@@ -346,7 +346,7 @@ bool ComplexAnimator::ca_hasChildren() const {
 }
 
 void ComplexAnimator::prp_startTransform() {
-    for(const auto &property : ca_mChildren)
+    for(const auto &property : qAsConst(ca_mChildren))
         property->prp_startTransform();
 }
 
@@ -354,7 +354,7 @@ void ComplexAnimator::prp_afterFrameShiftChanged(const FrameRange &oldAbsRange,
                                                  const FrameRange &newAbsRange) {
     Animator::prp_afterFrameShiftChanged(oldAbsRange, newAbsRange);
     const int thisShift = prp_getTotalFrameShift();
-    for(const auto &property : ca_mChildren)
+    for(const auto &property : qAsConst(ca_mChildren))
         property->prp_setInheritedFrameShift(thisShift, this);
 }
 
@@ -362,7 +362,7 @@ void ComplexAnimator::anim_setAbsFrame(const int frame) {
     //if(!anim_isDescendantRecording()) return;
     Animator::anim_setAbsFrame(frame);
 
-    for(const auto &property : ca_mChildren) {
+    for(const auto &property : qAsConst(ca_mChildren)) {
         if(const auto asAnim = enve_cast<Animator*>(property.get())) {
             asAnim->anim_setAbsFrame(frame);
         }
@@ -370,12 +370,12 @@ void ComplexAnimator::anim_setAbsFrame(const int frame) {
 }
 
 void ComplexAnimator::prp_finishTransform() {
-    for(const auto &property : ca_mChildren)
+    for(const auto &property : qAsConst(ca_mChildren))
         property->prp_finishTransform();
 }
 
 void ComplexAnimator::prp_cancelTransform() {
-    for(const auto &property : ca_mChildren)
+    for(const auto &property : qAsConst(ca_mChildren))
         property->prp_cancelTransform();
 }
 
@@ -384,7 +384,7 @@ bool ComplexAnimator::anim_isDescendantRecording() const {
 }
 
 void ComplexAnimator::anim_setRecording(const bool rec) {
-    for(const auto &property : ca_mChildren) {
+    for(const auto &property : qAsConst(ca_mChildren)) {
         if(const auto asAnim = enve_cast<Animator*>(property.get())) {
             asAnim->anim_setRecording(rec);
         }
@@ -395,7 +395,7 @@ void ComplexAnimator::anim_setRecording(const bool rec) {
 void ComplexAnimator::ca_childIsRecordingChanged() {
     bool rec = true;
     bool childRec = false;
-    for(const auto &property : ca_mChildren) {
+    for(const auto &property : qAsConst(ca_mChildren)) {
         if(const auto asAnim = enve_cast<Animator*>(property.get())) {
             const bool isChildRec = asAnim->anim_isRecording();
             const bool isChildDescRec = asAnim->anim_isDescendantRecording();
@@ -435,7 +435,7 @@ void ComplexAnimator::ca_addChild(const qsptr<Property> &child) {
 }
 
 void ComplexAnimator::anim_shiftAllKeys(const int shift) {
-    for(const auto &property : ca_mChildren) {
+    for(const auto &property : qAsConst(ca_mChildren)) {
         if(const auto asAnim = enve_cast<Animator*>(property.get())) {
             asAnim->anim_shiftAllKeys(shift);
         }

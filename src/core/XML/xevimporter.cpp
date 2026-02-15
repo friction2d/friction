@@ -28,7 +28,7 @@
 #include "../zipfileloader.h"
 
 XevReadBoxesHandler::~XevReadBoxesHandler() {
-    for(const auto& task : mDoneTasks) task(*this);
+    for(const auto& task : qAsConst(mDoneTasks)) task(*this);
 }
 
 void XevReadBoxesHandler::addReadBox(const int readId, BoundingBox* const box) {

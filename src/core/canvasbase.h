@@ -42,7 +42,7 @@ public:
     template <class T = BoundingBox>
     void execOpOnSelectedBoxes(const std::function<void(const QList<T*>&)> &op) {
         QList<T*> all;
-        for(const auto& box : mSelectedBoxes) {
+        for(const auto& box : qAsConst(mSelectedBoxes)) {
             const auto boxT = enve_cast<T*>(box);
             if(boxT) all << boxT;
         }
@@ -51,7 +51,7 @@ public:
 
     template <class T = BoundingBox>
     void execOpOnSelectedBoxes(const std::function<void(T*)> &op) {
-        for(const auto& box : mSelectedBoxes) {
+        for(const auto& box : qAsConst(mSelectedBoxes)) {
             const auto boxT = enve_cast<T*>(box);
             if(boxT) op(boxT);
         }
@@ -60,7 +60,7 @@ public:
     template <class T = MovablePoint>
     void execOpOnSelectedPoints(const std::function<void(const QList<T*>&)> &op) {
         QList<T*> all;
-        for(const auto& pt : mSelectedPoints_d) {
+        for(const auto& pt : qAsConst(mSelectedPoints_d)) {
             const auto ptT = enve_cast<T*>(pt);
             if(ptT) all << ptT;
         }
@@ -79,7 +79,7 @@ public:
                 }
             }
         }
-        for(const auto& pt : mSelectedPoints_d) {
+        for(const auto& pt : qAsConst(mSelectedPoints_d)) {
             const auto ptT = enve_cast<T*>(pt);
             if(ptT) {
                 op(ptT);
@@ -90,7 +90,7 @@ public:
 
     template <class T = Property>
     void execOpOnSelectedProperties(const std::function<void(T*)> &op) {
-        for(const auto prop : mSelectedProps) {
+        for(const auto prop : qAsConst(mSelectedProps)) {
             const auto t = enve_cast<T*>(prop);
             if(t) op(t);
         }

@@ -33,7 +33,7 @@
 
 QList<SmartNodePoint*> Canvas::getSortedSelectedNodes() {
     QList<SmartNodePoint*> nodes;
-    for(const auto& point : mSelectedPoints_d) {
+    for(const auto& point : qAsConst(mSelectedPoints_d)) {
         if(point->isSmartNodePoint()) {
             nodes << static_cast<SmartNodePoint*>(point);
         }
@@ -297,7 +297,7 @@ void Canvas::reverseSelectedNodesOrder()
 }
 
 void Canvas::setPointCtrlsMode(const CtrlsMode mode) {
-    for(const auto& point : mSelectedPoints_d) {
+    for(const auto& point : qAsConst(mSelectedPoints_d)) {
         if(point->isSmartNodePoint()) {
             auto asNodePt = static_cast<SmartNodePoint*>(point);
             asNodePt->setCtrlsMode(mode);
@@ -309,7 +309,7 @@ void Canvas::makeSegmentCurve()
 {
     prp_pushUndoRedoName(tr("Make Segments Curves"));
     QList<SmartNodePoint*> selectedSNodePoints;
-    for (const auto& point : mSelectedPoints_d) {
+    for (const auto& point : qAsConst(mSelectedPoints_d)) {
         if (point->isSmartNodePoint()) {
             const auto asNodePt = static_cast<SmartNodePoint*>(point);
             selectedSNodePoints.append(asNodePt);
@@ -331,7 +331,7 @@ void Canvas::makeSegmentLine()
 {
     prp_pushUndoRedoName(tr("Make Segments Lines"));
     QList<SmartNodePoint*> selectedSNodePoints;
-    for (const auto& point : mSelectedPoints_d) {
+    for (const auto& point : qAsConst(mSelectedPoints_d)) {
         if (point->isSmartNodePoint()) {
             auto asNodePt = static_cast<SmartNodePoint*>(point);
             selectedSNodePoints.append(asNodePt);
@@ -350,19 +350,19 @@ void Canvas::makeSegmentLine()
 }
 
 void Canvas::finishSelectedPointsTransform() {
-    for(const auto& point : mSelectedPoints_d) {
+    for(const auto& point : qAsConst(mSelectedPoints_d)) {
         point->finishTransform();
     }
 }
 
 void Canvas::startSelectedPointsTransform() {
-    for(const auto& point : mSelectedPoints_d) {
+    for(const auto& point : qAsConst(mSelectedPoints_d)) {
         point->startTransform();
     }
 }
 
 void Canvas::cancelSelectedPointsTransform() {
-    for(const auto& point : mSelectedPoints_d) {
+    for(const auto& point : qAsConst(mSelectedPoints_d)) {
         point->cancelTransform();
     }
 }
@@ -371,11 +371,11 @@ void Canvas::moveSelectedPointsByAbs(const QPointF &by,
                                      const bool startTransform) {
     if(startTransform) {
         startSelectedPointsTransform();
-        for(const auto& point : mSelectedPoints_d) {
+        for(const auto& point : qAsConst(mSelectedPoints_d)) {
             point->moveByAbs(by);
         }
     } else {
-        for(const auto& point : mSelectedPoints_d) {
+        for(const auto& point : qAsConst(mSelectedPoints_d)) {
             point->moveByAbs(by);
         }
     }
@@ -385,7 +385,7 @@ void Canvas::selectAndAddContainedPointsToSelection(const QRectF& absRect) {
     const auto adder = [this](MovablePoint* const pt) {
         addPointToSelection(pt);
     };
-    for(const auto& box : mSelectedBoxes) {
+    for(const auto& box : qAsConst(mSelectedBoxes)) {
         box->selectAndAddContainedPointsToList(absRect, adder, mCurrentMode);
     }
 }
@@ -468,7 +468,7 @@ void Canvas::removeSelectedPointsApprox()
 
 
 void Canvas::clearPointsSelection() {
-    for(const auto& point : mSelectedPoints_d) {
+    for(const auto& point : qAsConst(mSelectedPoints_d)) {
         if(point) point->setSelected(false);
     }
 
@@ -492,7 +492,7 @@ void Canvas::clearLastPressedPoint() {
 QPointF Canvas::getSelectedPointsAbsPivotPos() {
     if(mSelectedPoints_d.isEmpty()) return QPointF(0, 0);
     QPointF posSum(0, 0);
-    for(const auto& point : mSelectedPoints_d) {
+    for(const auto& point : qAsConst(mSelectedPoints_d)) {
         posSum += point->getAbsolutePos();
     }
     const qreal invCount = 1./mSelectedPoints_d.count();
@@ -513,20 +513,20 @@ void Canvas::rotateSelectedPointsBy(const qreal rotBy,
     if(mSelectedPoints_d.isEmpty()) return;
     if(startTrans) {
         if(mDocument.fLocalPivot) {
-            for(const auto& point : mSelectedPoints_d) {
+            for(const auto& point : qAsConst(mSelectedPoints_d)) {
                 point->startTransform();
                 point->saveTransformPivotAbsPos(point->getAbsolutePos());
                 point->rotateRelativeToSavedPivot(rotBy);
             }
         } else {
-            for(const auto& point : mSelectedPoints_d) {
+            for(const auto& point : qAsConst(mSelectedPoints_d)) {
                 point->startTransform();
                 point->saveTransformPivotAbsPos(absOrigin);
                 point->rotateRelativeToSavedPivot(rotBy);
             }
         }
     } else {
-        for(const auto& point : mSelectedPoints_d) {
+        for(const auto& point : qAsConst(mSelectedPoints_d)) {
             point->rotateRelativeToSavedPivot(rotBy);
         }
     }
@@ -539,20 +539,20 @@ void Canvas::scaleSelectedPointsBy(const qreal scaleXBy,
     if(mSelectedPoints_d.isEmpty()) return;
     if(startTrans) {
         if(mDocument.fLocalPivot) {
-            for(const auto& point : mSelectedPoints_d) {
+            for(const auto& point : qAsConst(mSelectedPoints_d)) {
                 point->startTransform();
                 point->saveTransformPivotAbsPos(point->getAbsolutePos());
                 point->scaleRelativeToSavedPivot(scaleXBy, scaleYBy);
             }
         } else {
-            for(const auto& point : mSelectedPoints_d) {
+            for(const auto& point : qAsConst(mSelectedPoints_d)) {
                 point->startTransform();
                 point->saveTransformPivotAbsPos(absOrigin);
                 point->scaleRelativeToSavedPivot(scaleXBy, scaleYBy);
             }
         }
     } else {
-        for(const auto& point : mSelectedPoints_d) {
+        for(const auto& point : qAsConst(mSelectedPoints_d)) {
             point->scaleRelativeToSavedPivot(scaleXBy, scaleYBy);
         }
     }
@@ -566,20 +566,20 @@ void Canvas::shearSelectedPointsBy(const qreal shearXBy,
     if (mSelectedPoints_d.isEmpty()) { return; }
     if (startTrans) {
         if (mDocument.fLocalPivot) {
-            for (const auto& point : mSelectedPoints_d) {
+            for (const auto& point : qAsConst(mSelectedPoints_d)) {
                 point->startTransform();
                 point->saveTransformPivotAbsPos(point->getAbsolutePos());
                 point->shearRelativeToSavedPivot(shearXBy, shearYBy);
             }
         } else {
-            for (const auto& point : mSelectedPoints_d) {
+            for (const auto& point : qAsConst(mSelectedPoints_d)) {
                 point->startTransform();
                 point->saveTransformPivotAbsPos(absOrigin);
                 point->shearRelativeToSavedPivot(shearXBy, shearYBy);
             }
         }
     } else {
-        for (const auto& point : mSelectedPoints_d) {
+        for (const auto& point : qAsConst(mSelectedPoints_d)) {
             point->shearRelativeToSavedPivot(shearXBy, shearYBy);
         }
     }

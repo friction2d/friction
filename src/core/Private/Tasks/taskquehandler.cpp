@@ -37,7 +37,7 @@ void TaskQueHandler::clear() {
 
 stdsptr<eTask> TaskQueHandler::takeQuedForGpuProcessing() {
     int queId = 0;
-    for(const auto& que : mQues) {
+    for(const auto& que : qAsConst(mQues)) {
         const auto task = que->takeQuedForGpuProcessing();
         if(task) {
             if(que->allDone()) queDone(que.get(), queId);
@@ -51,7 +51,7 @@ stdsptr<eTask> TaskQueHandler::takeQuedForGpuProcessing() {
 
 stdsptr<eTask> TaskQueHandler::takeQuedForCpuProcessing() {
     int queId = 0;
-    for(const auto& que : mQues) {
+    for(const auto& que : qAsConst(mQues)) {
         const auto task = que->takeQuedForCpuProcessing();
         if(task) {
             if(que->allDone()) queDone(que.get(), queId);

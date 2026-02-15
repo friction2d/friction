@@ -52,8 +52,8 @@ qsptr<PropertyBinding> PropertyBinding::sCreate(
         const Property* const context) {
     const auto prop = sFindPropertyToBind(binding, validator, context);
     if(!prop) return nullptr;
-    if(const auto qa = enve_cast<QrealAnimator*>(prop)) {
-    } else if(const auto pa = enve_cast<QPointFAnimator*>(prop)) {
+    if (enve_cast<QrealAnimator*>(prop)) {
+    } else if (enve_cast<QPointFAnimator*>(prop)) {
     } else return nullptr;
     const auto result = new PropertyBinding(validator, context);
     result->bindProperty(binding, prop);

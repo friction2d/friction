@@ -110,5 +110,5 @@ QMargins ShaderEffectCaller::getMargin(const SkIRect &srcRect)
 void ShaderEffectCaller::setupProgram(QGL33 * const gl)
 {
     gl->glUseProgram(mProgramId);
-    for (const auto& uni : mUniformSpecifiers) { uni(gl); }
+    for (const auto& uni : qAsConst(mUniformSpecifiers)) { uni(gl); }
 }

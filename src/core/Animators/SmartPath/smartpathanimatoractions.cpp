@@ -519,7 +519,7 @@ void SmartPathAnimator::actionReplaceSegments(int beginNodeId,
                 if(replaceIds.contains(i)) continue;
                 removeIds << i;
             }
-            for (int relId : removeIds) {
+            for (int relId : qAsConst(removeIds)) {
                 const int idValue = beginNodeId + iInc + iInc*relId;
                 const int nodeId = WrappedInt(idValue, totalCount, reverse).toInt();
                 edited->actionDemoteToDissolved(nodeId, false);

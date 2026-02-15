@@ -107,7 +107,7 @@ void KeysClipboard::paste(const int pasteFrame, const bool merge,
     int firstKeyFrame = FrameRange::EMAX;
 
     QList<QList<stdsptr<Key>>> animatorKeys;
-    for(const auto &animData : mAnimatorData) {
+    for(const auto &animData : qAsConst(mAnimatorData)) {
         Animator * const animator = animData.first;
         if(!animator) continue;
         QList<stdsptr<Key>> keys;
@@ -130,7 +130,7 @@ void KeysClipboard::paste(const int pasteFrame, const bool merge,
     const int dFrame = pasteFrame - firstKeyFrame;
 
     int keysId = 0;
-    for(const auto &animData : mAnimatorData) {
+    for(const auto &animData : qAsConst(mAnimatorData)) {
         Animator * const animator = animData.first;
         if(!animator) continue;
         const auto& keys = animatorKeys.at(keysId);

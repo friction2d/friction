@@ -64,7 +64,7 @@ void UndoRedoSet::undo() {
 }
 
 void UndoRedoSet::redo() {
-    for(const auto& undoRedo : mSet)
+    for(const auto& undoRedo : qAsConst(mSet))
         undoRedo->fRedo();
 }
 

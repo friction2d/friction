@@ -39,7 +39,7 @@ void ContainerBoxRenderData::transformRenderCanvas(SkCanvas &canvas) const {
 void ContainerBoxRenderData::updateRelBoundingRect() {
     fRelBoundingRect = QRectF();
     const auto invTrans = fTotalTransform.inverted();
-    for(const auto &child : fChildrenRenderData) {
+    for(const auto &child : qAsConst(fChildrenRenderData)) {
         if(child->fRelBoundingRect.isEmpty()) continue;
         QPointF tl = child->fRelBoundingRect.topLeft();
         QPointF tr = child->fRelBoundingRect.topRight();
@@ -74,7 +74,7 @@ void ContainerBoxRenderData::updateRelBoundingRect() {
 }
 
 void ContainerBoxRenderData::drawSk(SkCanvas * const canvas) {
-    for(const auto &child : fChildrenRenderData) {
+    for(const auto &child : qAsConst(fChildrenRenderData)) {
         canvas->save();
         if(!child.fClip.fClipOps.isEmpty()) {
             const SkMatrix transform = canvas->getTotalMatrix();

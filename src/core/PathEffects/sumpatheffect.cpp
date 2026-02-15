@@ -45,7 +45,7 @@ void SumEffectCaller::apply(SkPath &path) {
     path.reset();
     path.setFillType(srcFillType);
     SkOpBuilder builder;
-    for(const auto &subPath : paths) {
+    for(const auto &subPath : qAsConst(paths)) {
         builder.add(subPath, SkPathOp::kUnion_SkPathOp);
     }
     builder.resolve(&path);

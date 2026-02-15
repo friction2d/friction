@@ -60,8 +60,8 @@ public:
     void addWidget(QWidget *widget);
 
 signals:
-    void changePosition(const Position &pos,
-                        const Position &trigger);
+    void changePosition(const UIDock::Position &pos,
+                        const UIDock::Position &trigger);
 
 private:
     QVBoxLayout *mLayout;

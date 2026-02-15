@@ -250,79 +250,79 @@ void ContainerBox::saveSVG(SvgExporter& exp, DomEleTask* const eleTask) const {
 }
 
 void ContainerBox::setStrokeCapStyle(const SkPaint::Cap capStyle) {
-    for(const auto& box : mContainedBoxes) {
+    for(const auto& box : qAsConst(mContainedBoxes)) {
         box->setStrokeCapStyle(capStyle);
     }
 }
 
 void ContainerBox::setStrokeJoinStyle(const SkPaint::Join joinStyle) {
-    for(const auto& box : mContainedBoxes) {
+    for(const auto& box : qAsConst(mContainedBoxes)) {
         box->setStrokeJoinStyle(joinStyle);
     }
 }
 
 void ContainerBox::setStrokeBrush(SimpleBrushWrapper * const brush) {
-    for(const auto& box : mContainedBoxes) {
+    for(const auto& box : qAsConst(mContainedBoxes)) {
         box->setStrokeBrush(brush);
     }
 }
 
 void ContainerBox::applyStrokeBrushWidthAction(const SegAction& action) {
-    for(const auto& box : mContainedBoxes) {
+    for(const auto& box : qAsConst(mContainedBoxes)) {
         box->applyStrokeBrushWidthAction(action);
     }
 }
 
 void ContainerBox::applyStrokeBrushPressureAction(const SegAction& action) {
-    for(const auto& box : mContainedBoxes) {
+    for(const auto& box : qAsConst(mContainedBoxes)) {
         box->applyStrokeBrushPressureAction(action);
     }
 }
 
 void ContainerBox::applyStrokeBrushSpacingAction(const SegAction& action) {
-    for(const auto& box : mContainedBoxes) {
+    for(const auto& box : qAsConst(mContainedBoxes)) {
         box->applyStrokeBrushSpacingAction(action);
     }
 }
 
 void ContainerBox::applyStrokeBrushTimeAction(const SegAction& action) {
-    for(const auto& box : mContainedBoxes) {
+    for(const auto& box : qAsConst(mContainedBoxes)) {
         box->applyStrokeBrushTimeAction(action);
     }
 }
 
 void ContainerBox::setFontSize(const qreal fontSize) {
-    for(const auto& box : mContainedBoxes) {
+    for(const auto& box : qAsConst(mContainedBoxes)) {
         box->setFontSize(fontSize);
     }
 }
 
 void ContainerBox::setFontFamilyAndStyle(const QString& family,
                                          const SkFontStyle& style) {
-    for(const auto& box : mContainedBoxes) {
+    for(const auto& box : qAsConst(mContainedBoxes)) {
         box->setFontFamilyAndStyle(family, style);
     }
 }
 
 void ContainerBox::strokeWidthAction(const QrealAction& action) {
-    for(const auto& box : mContainedBoxes)
+    for(const auto& box : qAsConst(mContainedBoxes))
         box->strokeWidthAction(action);
 }
 
 void ContainerBox::startSelectedStrokeColorTransform() {
-    for(const auto& box : mContainedBoxes) {
+    for(const auto& box : qAsConst(mContainedBoxes)) {
         box->startSelectedStrokeColorTransform();
     }
 }
 
 void ContainerBox::startSelectedFillColorTransform() {
-    for(const auto& box : mContainedBoxes) {
+    for(const auto& box : qAsConst(mContainedBoxes)) {
         box->startSelectedFillColorTransform();
     }
 }
 
 void ContainerBox::applyPaintSetting(const PaintSettingsApplier &setting) {
-    for(const auto& box : mContainedBoxes) {
+    for(const auto& box : qAsConst(mContainedBoxes)) {
         box->applyPaintSetting(setting);
     }
 }
@@ -334,21 +334,21 @@ const QList<BoundingBox*> &ContainerBox::getContainedBoxes() const {
 void ContainerBox::anim_scaleTime(const int pivotAbsFrame, const qreal scale) {
     BoundingBox::anim_scaleTime(pivotAbsFrame, scale);
 
-    for(const auto& box : mContained) {
+    for(const auto& box : qAsConst(mContained)) {
         box->anim_scaleTime(pivotAbsFrame, scale);
     }
 }
 
 void ContainerBox::updateAllChildPaths(const UpdateReason reason,
                                        const PathUpdater func) {
-    for(const auto& box : mContainedBoxes) {
+    for(const auto& box : qAsConst(mContainedBoxes)) {
         if(const auto path = enve_cast<PathBox*>(box)) {
             (path->*func)(reason);
         } else if(const auto cont = enve_cast<ContainerBox*>(box)) {
             cont->updateAllChildPaths(reason, func);
         } else if(const auto link = enve_cast<InternalLinkBox*>(box)) {
             const auto target = link->getFinalTarget();
-            if(const auto path = enve_cast<PathBox*>(target)) {
+            if(enve_cast<PathBox*>(target)) {
                 link->planUpdate(reason);
             }
         }
@@ -364,7 +364,7 @@ void ContainerBox::forcedMarginMeaningfulChange() {
     mForcedMargin.setLeft(qMax(inheritedMargin.left(), thisMargin.left()));
     mForcedMargin.setBottom(qMax(inheritedMargin.bottom(), thisMargin.bottom()));
     mForcedMargin.setRight(qMax(inheritedMargin.right(), thisMargin.right()));
-    for(const auto& box : mContainedBoxes) {
+    for(const auto& box : qAsConst(mContainedBoxes)) {
         if(const auto cont = enve_cast<ContainerBox*>(box)) {
             cont->forcedMarginMeaningfulChange();
         } else box->planUpdate(UpdateReason::userChange);
@@ -382,7 +382,7 @@ QRect ContainerBox::currentGlobalBounds() const {
 }
 
 void ContainerBox::queChildrenTasks() {
-    for(const auto &child : mContainedBoxes)
+    for(const auto &child : qAsConst(mContainedBoxes))
         child->queTasks();
 }
 
@@ -458,7 +458,7 @@ void ContainerBox::demoteToGroup()
 }
 
 void ContainerBox::updateAllBoxes(const UpdateReason reason) {
-    for(const auto &child : mContainedBoxes) {
+    for(const auto &child : qAsConst(mContainedBoxes)) {
         child->updateAllBoxes(reason);
     }
     planUpdate(reason);
@@ -468,7 +468,7 @@ void ContainerBox::prp_afterFrameShiftChanged(const FrameRange &oldAbsRange,
                                               const FrameRange &newAbsRange) {
     ComplexAnimator::prp_afterFrameShiftChanged(oldAbsRange, newAbsRange);
     const int thisShift = prp_getTotalFrameShift();
-    for(const auto &child : mContained)
+    for(const auto &child : qAsConst(mContained))
         child->prp_setInheritedFrameShift(thisShift, this);
 }
 
@@ -506,7 +506,7 @@ QStringList ContainerBox::allDescendantsNamesStartingWith(
     QStringList result;
     QList<eBoxOrSound*> matches;
     allDescendantsStartingWith(text, matches);
-    for(const auto match : matches) {
+    for(const auto match : qAsConst(matches)) {
         if(match == skip) continue;
         result << match->prp_getName();
     }
@@ -518,7 +518,7 @@ QStringList ContainerBox::allContainedNamesStartingWith(
     QStringList result;
     QList<eBoxOrSound*> matches;
     allContainedStartingWith(text, matches);
-    for(const auto match : matches) {
+    for(const auto match : qAsConst(matches)) {
         if(match == skip) continue;
         result << match->prp_getName();
     }
@@ -527,7 +527,7 @@ QStringList ContainerBox::allContainedNamesStartingWith(
 
 void ContainerBox::allDescendantsStartingWith(
         const QString &text, QList<eBoxOrSound*> &result) {
-    for(const auto &child : mContained) {
+    for(const auto &child : qAsConst(mContained)) {
         if(enve_cast<BlendEffectBoxShadow*>(child.get())) continue;
         const bool nameMatch = child->prp_getName().startsWith(text);
         if(nameMatch) result << child.get();
@@ -540,7 +540,7 @@ void ContainerBox::allDescendantsStartingWith(
 
 void ContainerBox::allContainedStartingWith(
         const QString &text, QList<eBoxOrSound*> &result) {
-    for(const auto &child : mContained) {
+    for(const auto &child : qAsConst(mContained)) {
         if(enve_cast<BlendEffectBoxShadow*>(child.get())) continue;
         const bool nameMatch = child->prp_getName().startsWith(text);
         if(nameMatch) result << child.get();
@@ -549,7 +549,7 @@ void ContainerBox::allContainedStartingWith(
 
 void ContainerBox::addAllChildBoxesWithBlendEffects(
         ContainerBox * const layer) {
-    for(const auto &child : mContainedBoxes) {
+    for(const auto &child : qAsConst(mContainedBoxes)) {
         if(child->blendEffectsEnabled()) {
             layer->addBoxWithBlendEffects(child);
         }
@@ -562,7 +562,7 @@ void ContainerBox::addAllChildBoxesWithBlendEffects(
 
 void ContainerBox::removeAllChildBoxesWithBlendEffects(
         ContainerBox * const layer) {
-    for(const auto &child : mContainedBoxes) {
+    for(const auto &child : qAsConst(mContainedBoxes)) {
         if(child->blendEffectsEnabled()) {
             layer->removeBoxWithBlendEffects(child);
         }
@@ -603,7 +603,7 @@ void ContainerBox::shiftAll(const int shift) {
         durRect->changeFramePosBy(shift);
     } else {
         anim_shiftAllKeys(shift);
-        for(const auto& box : mContained) {
+        for(const auto& box : qAsConst(mContained)) {
             box->shiftAll(shift);
         }
     }
@@ -652,7 +652,7 @@ FrameRange ContainerBox::getMotionBlurIdenticalRange(
                            relFrame, inheritedTransform);
     if(isVisible() && isFrameInDurationRect(relFrame)) {
         const qreal absFrame = prp_relFrameToAbsFrameF(relFrame);
-        for(const auto &child : mContainedBoxes) {
+        for(const auto &child : qAsConst(mContainedBoxes)) {
             if(range.isUnary()) return range;
             const qreal childRel = child->prp_absFrameToRelFrameF(absFrame);
             auto childRange = child->getMotionBlurIdenticalRange(childRel, false);
@@ -701,7 +701,7 @@ bool ContainerBox::isFlipBook() const {
 
 void ContainerBox::updateContainedBoxes() {
     mContainedBoxes.clear();
-    for(const auto& child : mContained) {
+    for(const auto& child : qAsConst(mContained)) {
         if(const auto box = enve_cast<BoundingBox*>(child)) {
             mContainedBoxes << box;
         }
@@ -736,7 +736,7 @@ BoundingBox *ContainerBox::getBoxAtFromAllDescendents(const QPointF &absPos) {
 }
 
 bool ContainerBox::areAllChildrenStatic() {
-    for(const auto& box : mContainedBoxes) {
+    for(const auto& box : qAsConst(mContainedBoxes)) {
         const bool boxStatic = box->isTransformationStatic();
         if(!boxStatic) return false;
     }
@@ -749,7 +749,7 @@ void ContainerBox::ungroupAction_k() {
 }
 
 void ContainerBox::ungroupKeepTransform_k() {
-    for(const auto& box : mContainedBoxes) {
+    for(const auto& box : qAsConst(mContainedBoxes)) {
         box->applyParentTransform();
     }
     ungroupAbandomTransform_k();
@@ -862,7 +862,7 @@ void ContainerBox::handleUIDelayed(
 }
 
 void ContainerBox::clearBlendEffectUI() {
-    for(const auto& shadow : mBlendShadows) {
+    for(const auto& shadow : qAsConst(mBlendShadows)) {
         removeContained(shadow);
     }
     mBlendShadows.clear();
@@ -1035,7 +1035,7 @@ void ContainerBox::processChildrenData(const qreal relFrame,
         auto& iClip = del.fClip;
         if(!iClip.fTargetBox) continue;
         const ChildRenderData* target = nullptr;
-        for(const auto& child : groupData->fChildrenRenderData) {
+        for(const auto& child : qAsConst(groupData->fChildrenRenderData)) {
             if(!child.fIsMain) continue;
             const auto iIdentifier = child.fData->fBlendEffectIdentifier;
             if(iIdentifier == iClip.fTargetBox) {
@@ -1078,7 +1078,7 @@ void ContainerBox::setupRenderData(const qreal relFrame,
 
 void ContainerBox::selectAllBoxesFromBoxesGroup() {
     const auto pScene = getParentScene();
-    for(const auto& box : mContainedBoxes) {
+    for(const auto& box : qAsConst(mContainedBoxes)) {
         if(box->isSelected()) continue;
         pScene->addBoxToSelection(box);
     }
@@ -1086,7 +1086,7 @@ void ContainerBox::selectAllBoxesFromBoxesGroup() {
 
 void ContainerBox::deselectAllBoxesFromBoxesGroup() {
     const auto pScene = getParentScene();
-    for(const auto& box : mContainedBoxes) {
+    for(const auto& box : qAsConst(mContainedBoxes)) {
         if(box->isSelected()) {
             pScene->removeBoxFromSelection(box);
         }
@@ -1130,9 +1130,9 @@ void ContainerBox::anim_setAbsFrame(const int frame) {
     BoundingBox::anim_setAbsFrame(frame);
 
     updateDrawRenderContainerTransform();;
-    for(const auto& cont : mBoxesWithBlendEffects)
+    for(const auto& cont : qAsConst(mBoxesWithBlendEffects))
         cont->anim_setAbsFrame(frame);
-    for(const auto& cont : mContained)
+    for(const auto& cont : qAsConst(mContained))
         cont->anim_setAbsFrame(frame);
 }
 
@@ -1424,7 +1424,7 @@ void ContainerBox::SWT_setupAbstraction(SWT_Abstraction* abstraction,
     BoundingBox::SWT_setupAbstraction(abstraction, updateFuncs,
                                       visiblePartWidgetId);
     if(isLink()) return;
-    for(const auto& cont : mContained) {
+    for(const auto& cont : qAsConst(mContained)) {
         auto abs = cont->SWT_abstractionForWidget(updateFuncs, visiblePartWidgetId);
         abstraction->addChildAbstraction(abs->ref<SWT_Abstraction>());
     }
@@ -1627,7 +1627,7 @@ void ContainerBox::readAllContainedXEV(
     });
     const QString childPath = path + "objects/%1/";
     int id = 0;
-    for(const auto& cont : mContained) {
+    for(const auto& cont : qAsConst(mContained)) {
         cont->readBoxOrSoundXEV(boxReadHandler, fileLoader,
                                 childPath.arg(id++), objListIdConv);
     }

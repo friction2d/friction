@@ -58,7 +58,7 @@ TaskScheduler::TaskScheduler() {
 }
 
 TaskScheduler::~TaskScheduler() {
-    for(const auto& exec : mCpuExecs) {
+    for(const auto& exec : qAsConst(mCpuExecs)) {
         exec->stopAndWait();
     }
     mHddExec->stopAndWait();
@@ -116,7 +116,7 @@ void TaskScheduler::queCpuTask(const stdsptr<eTask>& task) {
 void TaskScheduler::clearTasks() {
     mQuedCGTasks.clear();
 
-    for(const auto& hddTask : mQuedHddTasks)
+    for(const auto& hddTask : qAsConst(mQuedHddTasks))
         hddTask->cancel();
     mQuedHddTasks.clear();
 

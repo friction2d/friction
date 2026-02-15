@@ -150,7 +150,7 @@ QDomElement BoundingBox::prp_writePropertyXEV_impl(const XevExporter& exp) const
 }
 
 BoundingBox *BoundingBox::sGetBoxByDocumentId(const int documentId) {
-    for(const auto& box : sDocumentBoxes) {
+    for(const auto& box : qAsConst(sDocumentBoxes)) {
         if(box->getDocumentId() == documentId) return box;
     }
     return nullptr;
@@ -271,7 +271,7 @@ void BoundingBox::drawAllCanvasControls(SkCanvas * const canvas,
                                         const CanvasMode mode,
                                         const float invScale,
                                         const bool ctrlPressed) {
-    for(const auto& prop : mCanvasProps)
+    for(const auto& prop : qAsConst(mCanvasProps))
         prop->prp_drawCanvasControls(canvas, mode, invScale, ctrlPressed);
 }
 
@@ -328,9 +328,9 @@ const QStringList BoundingBox::checkRasterEffectsForSVGSupport()
         if (!effect) { continue; }
         if (!effect->isVisible()) { continue; }
         bool isSafeForSVG = false;
-        if (const auto blur = enve_cast<BlurEffect*>(effect)) {
+        if (enve_cast<BlurEffect*>(effect)) {
             isSafeForSVG = true;
-        } else if (const auto shadow = enve_cast<ShadowEffect*>(effect)) {
+        } else if (enve_cast<ShadowEffect*>(effect)) {
             isSafeForSVG = true;
         }
         if (!isSafeForSVG) { result.append(effect->prp_getName()); }
@@ -368,7 +368,7 @@ const QStringList BoundingBox::checkTransformEffectsForSVGSupport()
         if (!effect) { continue; }
         if (!effect->isVisible()) { continue; }
         bool isSafeForSVG = false;
-        if (const auto followPath = enve_cast<FollowPathEffect*>(effect)) {
+        if (enve_cast<FollowPathEffect*>(effect)) {
             isSafeForSVG = true;
         }
         if (!isSafeForSVG) { result.append(effect->prp_getName()); }
@@ -1399,7 +1399,7 @@ FrameRange BoundingBox::getMotionBlurIdenticalRange(const qreal relFrame,
         if (isFrameFInDurationRect(relFrame)) {
             QList<Property*> props;
             getMotionBlurProperties(props);
-            for (const auto& child : props) {
+            for (const auto& child : qAsConst(props)) {
                 if(range.isUnary()) break;
                 auto childRange = child->prp_getIdenticalRelRange(relFrame);
                 range *= childRange;
@@ -1449,7 +1449,7 @@ void BoundingBox::clearWriteId() const {
 }
 
 void BoundingBox::sClearWriteBoxes() {
-    for(const auto& box : sBoxesWithWriteIds) {
+    for(const auto& box : qAsConst(sBoxesWithWriteIds)) {
         box->clearWriteId();
     }
     sNextWriteId = 0;
@@ -1462,7 +1462,7 @@ void BoundingBox::selectAndAddContainedPointsToList(
         const QRectF &absRect,
         const MovablePoint::PtOp &adder,
         const CanvasMode mode) {
-    for(const auto& desc : mCanvasProps) {
+    for(const auto& desc : qAsConst(mCanvasProps)) {
         const auto handler = desc->getPointsHandler();
         if(!handler) continue;
         handler->addInRectForSelection(absRect, adder, mode);
@@ -1471,7 +1471,7 @@ void BoundingBox::selectAndAddContainedPointsToList(
 
 void BoundingBox::selectAllCanvasPts(const MovablePoint::PtOp &adder,
                                      const CanvasMode mode) {
-    for(const auto& desc : mCanvasProps) {
+    for(const auto& desc : qAsConst(mCanvasProps)) {
         const auto handler = desc->getPointsHandler();
         if(!handler) continue;
         handler->addAllPointsToSelection(adder, mode);

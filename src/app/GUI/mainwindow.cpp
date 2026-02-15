@@ -335,7 +335,7 @@ void MainWindow::initRenderPresets(const bool reinstall)
     presets << "005-friction-preset-png.conf";
     presets << "006-friction-preset-tiff.conf";
 
-    for (const auto &preset : presets) {
+    for (const auto &preset : qAsConst(presets)) {
         QString filePath(QString("%1/%2").arg(path, preset));
         if (QFile::exists(filePath) && !reinstall) { continue; }
         QFile file(filePath);
@@ -1191,7 +1191,7 @@ void MainWindow::saveBackup()
 const QString MainWindow::checkBeforeExportSVG()
 {
     QStringList result;
-    for (const auto& scene : mDocument.fScenes) {
+    for (const auto& scene : qAsConst(mDocument.fScenes)) {
         const auto warnings = scene->checkForUnsupportedSVG();
         if (!warnings.isEmpty()) { result.append(warnings); }
     }
@@ -1462,7 +1462,7 @@ void MainWindow::showEvent(QShowEvent *e)
 void MainWindow::updateRecentMenu()
 {
     mRecentMenu->clear();
-    for (const auto &path : mRecentFiles) {
+    for (const auto &path : qAsConst(mRecentFiles)) {
         QFileInfo info(path);
         if (!info.exists()) { continue; }
         mRecentMenu->addAction(QIcon::fromTheme(AppSupport::getAppID()), info.baseName(), [path, this]() {
@@ -1494,7 +1494,7 @@ void MainWindow::readRecentFiles()
 void MainWindow::writeRecentFiles()
 {
     QStringList files;
-    for (const auto &file : mRecentFiles) { files.append(file); }
+    for (const auto &file : qAsConst(mRecentFiles)) { files.append(file); }
     AppSupport::setSettings("files", "recentSaved", files);
 }
 

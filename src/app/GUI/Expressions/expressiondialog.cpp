@@ -850,7 +850,7 @@ void ExpressionDialog::populatePresets(const bool &clear)
                                     const auto &b) {
         return a.title.toLower() < b.title.toLower();
     });
-    for (const auto &expr : expressions) {
+    for (const auto &expr : qAsConst(expressions)) {
         mPresetsCombo->addItem(expr.title, expr.id);
     }
 }
@@ -940,7 +940,7 @@ void ExpressionDialog::importPreset(const QString& path)
         expr.path = newPath;
         mSettings->fExpressions.addExpr(expr);
         if (!expr.highlighters.isEmpty()) {
-            for (const auto &highlight : expr.highlighters) {
+            for (const auto &highlight : qAsConst(expr.highlighters)) {
                 mScriptApi->add(highlight);
             }
         }
@@ -1003,7 +1003,7 @@ void ExpressionDialog::savePreset()
     } else {
         mSettings->fExpressions.addExpr(expr);
         if (!expr.highlighters.isEmpty()) {
-            for (const auto &highlight : expr.highlighters) {
+            for (const auto &highlight : qAsConst(expr.highlighters)) {
                 mScriptApi->add(highlight);
             }
         }

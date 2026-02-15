@@ -128,7 +128,7 @@ void SingleWidgetTarget::SWT_writeAbstraction(eWriteStream& dst) const {
         if(vis) absOpen << writeId;
     }
     dst << absOpen.count();
-    for(const int& open : absOpen) dst << open;
+    for(const int& open : qAsConst(absOpen)) dst << open;
 }
 
 void SingleWidgetTarget::SWT_readAbstraction(eReadStream& src) const {

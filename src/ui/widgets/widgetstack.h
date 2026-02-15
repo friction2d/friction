@@ -316,7 +316,7 @@ protected:
 
     void updatePercent() {
         int totDim = 0;
-        for(const auto wid : mWidgets) {
+        for(const auto wid : qAsConst(mWidgets)) {
             const int widDim = (wid->*DimGetter)();
             totDim += qMax(minDim(), widDim);
         }

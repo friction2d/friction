@@ -400,7 +400,7 @@ void QrealAnimator::applyExpression(const FrameRange& relRange,
                 i = nextNonUnary.fMax;
             }
 
-            for (const auto& range : ranges) {
+            for (const auto& range : qAsConst(ranges)) {
                 applyExpressionSub(range, sampleInc, action, accuracy);
             }
         }

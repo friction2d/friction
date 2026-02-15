@@ -550,7 +550,7 @@ stdsptr<ShaderEffectCreator> ShaderEffectCreator::sLoadFromFile(
 
 stdsptr<ShaderEffectCreator>
     ShaderEffectCreator::sWithGrePath(const QString &grePath) {
-    for(const auto& effectC : sEffectCreators) {
+    for(const auto& effectC : qAsConst(sEffectCreators)) {
         if(effectC->fGrePath == grePath) return effectC;
     }
     return nullptr;
@@ -569,7 +569,7 @@ stdsptr<ShaderEffectCreator>
 QList<stdsptr<ShaderEffectCreator>>
     ShaderEffectCreator::sWithName(const QString &name) {
     QList<stdsptr<ShaderEffectCreator>> named;
-    for(const auto& effectC : sEffectCreators) {
+    for(const auto& effectC : qAsConst(sEffectCreators)) {
         if(effectC->fName == name) named << effectC;
     }
     return named;
@@ -579,7 +579,7 @@ QList<stdsptr<ShaderEffectCreator>>
     ShaderEffectCreator::sWithNameAndCompatible(
         const QString &name, const QList<ShaderPropertyType> &props) {
     QList<stdsptr<ShaderEffectCreator>> comp;
-    for(const auto& effectC : sEffectCreators) {
+    for(const auto& effectC : qAsConst(sEffectCreators)) {
         if(effectC->fName != name) continue;
         if(effectC->compatible(props)) comp << effectC;
     }
@@ -590,7 +590,7 @@ QList<stdsptr<ShaderEffectCreator>>
     ShaderEffectCreator::sWithCompatibleProps(
         const QList<ShaderPropertyType> &props) {
     QList<stdsptr<ShaderEffectCreator>> comp;
-    for(const auto& effectC : sEffectCreators) {
+    for(const auto& effectC : qAsConst(sEffectCreators)) {
         if(effectC->compatible(props)) comp << effectC;
     }
     return comp;
