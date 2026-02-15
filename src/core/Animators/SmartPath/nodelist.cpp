@@ -454,15 +454,17 @@ SkPath NodeList::toSkPath() const {
                 result.moveTo(toSkPoint(node->p1()));
                 move = false;
             } else {
-                gCubicTo(*prevNormalNode, *node,
-                         dissolvedTs, result);
+                if (prevNormalNode) {
+                    gCubicTo(*prevNormalNode, *node,
+                             dissolvedTs, result);
+                }
             }
             prevNormalNode = node.get();
         } else {
             RuntimeThrow("Unrecognized node type");
         }
     }
-    if(isClosed()) {
+    if (isClosed() && prevNormalNode && firstNode) {
         gCubicTo(*prevNormalNode, *firstNode, dissolvedTs, result);
         result.close();
     }
@@ -495,13 +497,15 @@ void NodeList::setPath(const SkPath &path) {
             }
                 break;
             case SkPath::kLine_Verb: {
+                if (!prevNode) { break; }
+
                 const QPointF qPt = toQPointF(pts[1]);
 
                 prevNode->setC2Enabled(false);
                 prevNode->mC2 = prevNode->mP1;
 
                 bool appendNode;
-                if(iter.peek() == SkPath::kClose_Verb) {
+                if(iter.peek() == SkPath::kClose_Verb && firstNode) {
                     firstNode->setC0Enabled(false);
                     firstNode->mC0 = firstNode->mP1;
                     appendNode = !isZero4Dec(pointToLen(firstNode->p1() - qPt));
@@ -531,6 +535,8 @@ void NodeList::setPath(const SkPath &path) {
                 continue;
             }
             case SkPath::kCubic_Verb: {
+                if (!prevNode) { break; }
+
                 const QPointF c0Pt = toQPointF(pts[1]);
                 const QPointF c1Pt = toQPointF(pts[2]);
                 const QPointF p2Pt = toQPointF(pts[3]);
@@ -541,7 +547,7 @@ void NodeList::setPath(const SkPath &path) {
                 prevNode->guessCtrlsMode();
 
                 bool appendNode;
-                if(iter.peek() == SkPath::kClose_Verb && quadsCount == 0) {
+                if(iter.peek() == SkPath::kClose_Verb && quadsCount == 0 && firstNode) {
                     appendNode = !isZero4Dec(pointToLen(firstNode->p1() - p2Pt));
                     if(!appendNode) {
                         firstNode->setC0Enabled(true);
