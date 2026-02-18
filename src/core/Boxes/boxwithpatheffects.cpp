@@ -323,6 +323,14 @@ void BoxWithPathEffects::addOutlineEffects(const qreal relFrame,
     parent->addOutlineEffects(parentRelFrame, list, influence);
 }
 
+void BoxWithPathEffects::onPivotChanged(const UpdateReason reason) {
+    BoundingBox::onPivotChanged(reason);
+    mPathEffectsAnimators->prp_afterChangedCurrent(reason);
+    mFillPathEffectsAnimators->prp_afterChangedCurrent(reason);
+    mOutlineBasePathEffectsAnimators->prp_afterChangedCurrent(reason);
+    mOutlinePathEffectsAnimators->prp_afterChangedCurrent(reason);
+}
+
 void BoxWithPathEffects::getMotionBlurProperties(QList<Property*> &list) const {
     BoundingBox::getMotionBlurProperties(list);
     list.append(mPathEffectsAnimators.get());

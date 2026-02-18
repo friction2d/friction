@@ -423,9 +423,11 @@ void AdvancedTransformAnimator::setPivotFixedTransform(
     } else if(posAnimated && !pivotAnimated) {
         mPosAnimator->incAllBaseValues(posXInc, posYInc);
         mPivotAnimator->setBaseValueWithoutCallingUpdater(newPivot);
+        mPivotAnimator->prp_afterChangedCurrent(UpdateReason::userChange);
     } else { // if(!posAnimated && !pivotAnimated) {
         mPosAnimator->incBaseValuesWithoutCallingUpdater(posXInc, posYInc);
         mPivotAnimator->setBaseValueWithoutCallingUpdater(newPivot);
+        mPivotAnimator->prp_afterChangedCurrent(UpdateReason::userChange);
     }
 }
 
