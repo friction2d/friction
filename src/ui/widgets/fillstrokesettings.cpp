@@ -32,8 +32,11 @@
 #include "Animators/gradient.h"
 #include "Private/esettings.h"
 #include "Private/document.h"
+#include "actions.h"
 
 #include "GUI/global.h"
+
+#include <QSignalBlocker>
 
 FillStrokeSettingsWidget::FillStrokeSettingsWidget(Document &document,
                                                    QWidget * const parent,
@@ -394,10 +397,23 @@ void FillStrokeSettingsWidget::setFlatFillAction()
 
 void FillStrokeSettingsWidget::setNoneFillAction()
 {
-    if (mTarget == PaintSetting::OUTLINE) { mStrokeJoinCapWidget->show(); }
+    const bool isStrokeTarget = (mTarget == PaintSetting::OUTLINE);
+    if (isStrokeTarget) { mStrokeJoinCapWidget->show(); }
     mFillGradientButton->setChecked(false);
     mFillFlatButton->setChecked(false);
     mFillNoneButton->setChecked(true);
+    if (isStrokeTarget) {
+        if (mLineWidthSpin) {
+            QSignalBlocker blocker(mLineWidthSpin);
+            mLineWidthSpin->setDisplayedValue(0.0);
+        }
+        if (const auto actions = Actions::sInstance) {
+            actions->strokeWidthAction(QrealAction::sMakeStart());
+            actions->strokeWidthAction(QrealAction::sMakeSet(0.0));
+            actions->strokeWidthAction(QrealAction::sMakeFinish());
+        }
+        eSettings::sInstance->fLastUsedStrokeWidth = 0.0;
+    }
     paintTypeSet(NOPAINT);
     mDocument.actionFinished();
 }
