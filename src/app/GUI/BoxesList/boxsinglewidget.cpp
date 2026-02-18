@@ -690,7 +690,7 @@ void BoxSingleWidget::mouseMoveEvent(QMouseEvent *event) {
     const auto drag = new QDrag(this);
     {
         const auto prop = static_cast<Property*>(mTarget->getTarget());
-        const QString name = prop->prp_getName();
+        const QString name = getDisplayName(prop);
         const int nameWidth = QApplication::fontMetrics().horizontalAdvance(name);
         QPixmap pixmap(mFillWidget->x() + nameWidth + eSizesUI::widget, height());
         render(&pixmap);
@@ -886,7 +886,7 @@ void BoxSingleWidget::paintEvent(QPaintEvent *) {
     }
 
     const QRect textRect(nameX, 0, width() - nameX - eSizesUI::widget, eSizesUI::widget);
-    const QString& name = prop->prp_getName();
+    const QString name = getDisplayName(prop);
     QTextOption opts(Qt::AlignVCenter);
     opts.setWrapMode(QTextOption::NoWrap);
     p.drawText(textRect, name, opts);
@@ -945,6 +945,27 @@ void BoxSingleWidget::switchBoxLockedAction() {
     static_cast<BoundingBox*>(mTarget->getTarget())->switchLocked();
     Document::sInstance->actionFinished();
     update();
+}
+
+QString BoxSingleWidget::getDisplayName(Property* const prop) const {
+    if(!prop) return QString();
+
+    QString name = prop->prp_getName();
+
+    const auto rules = mParent->getRulesCollection();
+    if(rules.fParamRule != SWT_ParamRule::animatedOnly) return name;
+
+    const auto vecParent = prop->getFirstAncestor<QPointFAnimator>();
+    if(!vecParent) return name;
+    const auto xAnim = vecParent->getXAnimator();
+    const auto yAnim = vecParent->getYAnimator();
+    if(!xAnim || !yAnim) return name;
+    if(prop != xAnim && prop != yAnim) return name;
+
+    const auto parentName = vecParent->prp_getName();
+    if(parentName.isEmpty()) return name;
+
+    return parentName + " / " + name;
 }
 
 void BoxSingleWidget::updateValueSlidersForQPointFAnimator() {

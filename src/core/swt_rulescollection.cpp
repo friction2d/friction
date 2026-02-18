@@ -31,10 +31,12 @@ SWT_RulesCollection::SWT_RulesCollection(const SWT_BoxRule rule,
                                          const bool alwaysShowChildren,
                                          const SWT_Target target,
                                          const SWT_Type type,
+                                         const SWT_ParamRule paramRule,
                                          const QString &searchString) {
     fRule = rule;
     fAlwaysShowChildren = alwaysShowChildren;
     fTarget = target;
     fType = type;
+    fParamRule = paramRule;
     fSearchString = searchString;
 }

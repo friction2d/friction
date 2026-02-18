@@ -53,18 +53,26 @@ enum class SWT_Type : short {
     sound
 };
 
+enum class SWT_ParamRule : short {
+    all,
+    animated,
+    animatedOnly
+};
+
 struct CORE_EXPORT SWT_RulesCollection {
     SWT_RulesCollection();
     SWT_RulesCollection(const SWT_BoxRule rule,
                         const bool alwaysShowChildren,
                         const SWT_Target target,
                         const SWT_Type type,
+                        const SWT_ParamRule paramRule,
                         const QString &searchString);
 
     SWT_BoxRule fRule = SWT_BoxRule::all;
     bool fAlwaysShowChildren = false;
     SWT_Target fTarget = SWT_Target::canvas;
     SWT_Type fType = SWT_Type::all;
+    SWT_ParamRule fParamRule = SWT_ParamRule::all;
     QString fSearchString = "";
 };
 
