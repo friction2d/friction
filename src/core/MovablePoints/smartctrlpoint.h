@@ -35,6 +35,7 @@ protected:
     SmartCtrlPoint(SmartNodePoint * const parentPoint,
                    const Type &type);
 public:
+    SmartNodePoint* getParentPoint() const { return mParentPoint_k; }
     void drawSk(SkCanvas* const canvas,
                 const CanvasMode mode,
                 const float invScale,

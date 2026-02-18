@@ -42,6 +42,8 @@
 #include "timelinehighlightwidget.h"
 #include "GUI/dialogsinterface.h"
 #include "themesupport.h"
+#include <QtMath>
+#include <cmath>
 
 KeysView::KeysView(BoxScrollWidget *boxesListVisible,
                    QWidget *parent) :
@@ -792,7 +794,9 @@ void KeysView::handleMouseMove(const QPoint &pos,
             dFrame = dX/mPixelsPerFrame;
             mValueInput.setDisplayedValue(dFrame);
         }
+        const auto mods = QApplication::keyboardModifiers();
         const bool ctrlPt = mGPressedPoint && mGPressedPoint->isCtrlPt();
+        const bool shiftPressed = mods & Qt::ShiftModifier;
         if(!ctrlPt) dFrame = round(dFrame);
         const qreal dDFrame = dFrame - mMoveDFrame;
         const int iDDFrame = qRound(dDFrame);
@@ -809,8 +813,31 @@ void KeysView::handleMouseMove(const QPoint &pos,
             const QPointF saved = mGPressedPoint->getSavedFrameAndValue();
             const qreal rawFrame = saved.x() + dFrameV;
             const qreal rawValue = saved.y() + dValue;
-            const qreal newFrame = qBound(mMinMoveFrame, rawFrame, mMaxMoveFrame);
-            const qreal newValue = qBound(mMinMoveVal, rawValue, mMaxMoveVal);
+            qreal newFrame = qBound(mMinMoveFrame, rawFrame, mMaxMoveFrame);
+            qreal newValue = qBound(mMinMoveVal, rawValue, mMaxMoveVal);
+            if(shiftPressed) {
+                if(const auto parentKey = mGPressedPoint->getParentKey()) {
+                    const qreal keyFrame = parentKey->getRelFrame();
+                    const qreal keyValue = parentKey->getValueForGraph();
+                    const qreal dx = newFrame - keyFrame;
+                    const qreal dy = newValue - keyValue;
+                    const qreal dxPx = dx * mPixelsPerFrame;
+                    const qreal dyPx = -dy * mPixelsPerValUnit;
+                    const qreal lengthPx = qSqrt(dxPx*dxPx + dyPx*dyPx);
+                    if(lengthPx > 0.0) {
+                        constexpr qreal snapStep = 15.0;
+                        const qreal angleDeg = qRadiansToDegrees(qAtan2(dyPx, dxPx));
+                        const qreal snappedDeg = std::round(angleDeg / snapStep) * snapStep;
+                        const qreal snappedRad = qDegreesToRadians(snappedDeg);
+                        const qreal snappedDxPx = lengthPx * qCos(snappedRad);
+                        const qreal snappedDyPx = lengthPx * qSin(snappedRad);
+                        newFrame = keyFrame + snappedDxPx / mPixelsPerFrame;
+                        newValue = keyValue - snappedDyPx / mPixelsPerValUnit;
+                    }
+                }
+            }
+            newFrame = qBound(mMinMoveFrame, newFrame, mMaxMoveFrame);
+            newValue = qBound(mMinMoveVal, newValue, mMaxMoveVal);
             mGPressedPoint->setFrameAndValue(newFrame, newValue,
                                              mPixelsPerFrame,
                                              mPixelsPerValUnit);
