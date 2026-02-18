@@ -27,6 +27,15 @@
 
 using namespace Friction;
 
+namespace {
+struct FrameMappingEntry {
+    const SvgExporter* exp;
+    SvgExporter::FrameMapping mapping;
+};
+
+static thread_local QList<FrameMappingEntry> sFrameMappingStack;
+}
+
 SvgExporter::SvgExporter(const QString& path,
                          Canvas* const scene,
                          const FrameRange& frameRange,
@@ -59,6 +68,55 @@ SvgExporter::SvgExporter(const QString& path,
     , mDefs(createElement("defs"))
 {
 
+}
+
+SvgExporter::FrameMappingScope::FrameMappingScope(SvgExporter& exp,
+                                                  const FrameMapping& mapping) :
+    mExp(exp) {
+    if(mapping.active) {
+        mExp.pushFrameMapping(mapping);
+        mActive = true;
+    }
+}
+
+SvgExporter::FrameMappingScope::~FrameMappingScope() {
+    if(mActive) mExp.popFrameMapping();
+}
+
+SvgExporter::FrameMapping SvgExporter::currentFrameMapping() const {
+    for(int i = sFrameMappingStack.size() - 1; i >= 0; --i) {
+        if(sFrameMappingStack.at(i).exp == this) {
+            return sFrameMappingStack.at(i).mapping;
+        }
+    }
+    return {};
+}
+
+qreal SvgExporter::mapRelFrame(const qreal frame) const {
+    const auto mapping = currentFrameMapping();
+    if(!mapping.active || !mapping.mapper) return frame;
+    return mapping.mapper(frame);
+}
+
+bool SvgExporter::hasFrameMapping() const {
+    return currentFrameMapping().active;
+}
+
+bool SvgExporter::forceDiscreteMapping() const {
+    return currentFrameMapping().discrete;
+}
+
+void SvgExporter::pushFrameMapping(const FrameMapping& mapping) {
+    sFrameMappingStack.append({this, mapping});
+}
+
+void SvgExporter::popFrameMapping() {
+    for(int i = sFrameMappingStack.size() - 1; i >= 0; --i) {
+        if(sFrameMappingStack.at(i).exp == this) {
+            sFrameMappingStack.removeAt(i);
+            return;
+        }
+    }
 }
 
 void SvgExporter::nextStep()

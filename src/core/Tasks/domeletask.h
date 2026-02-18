@@ -29,10 +29,9 @@
 #include "updatable.h"
 
 #include "framerange.h"
+#include "svgexporter.h"
 
 #include <QDomElement>
-
-class SvgExporter;
 
 class CORE_EXPORT DomEleTask : public eCpuTask {
 public:
@@ -44,10 +43,12 @@ public:
     QDomElement& element();
 
     const FrameRange& visRange() const { return mVisRange; }
+    const SvgExporter::FrameMapping& frameMapping() const { return mFrameMapping; }
 private:
     SvgExporter& mExp;
     QDomElement mEle;
     const FrameRange mVisRange;
+    const SvgExporter::FrameMapping mFrameMapping;
 };
 
 #endif // DOMELETASK_H

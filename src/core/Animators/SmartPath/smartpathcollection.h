@@ -43,7 +43,7 @@ public:
     void prp_writeProperty_impl(eWriteStream& dst) const;
     void prp_readProperty_impl(eReadStream& src);
 
-    using EffectApplier = std::function<void(const int relFrame,
+    using EffectApplier = std::function<void(const qreal relFrame,
                                              SkPath& path)>;
     void savePathsSVG(SvgExporter& exp,
                       QDomElement& parent,

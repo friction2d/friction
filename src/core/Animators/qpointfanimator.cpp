@@ -244,7 +244,7 @@ void QPointFAnimator::saveQPointFSVG(SvgExporter& exp,
                                      const bool transform,
                                      const QString& type) const {
     Animator::saveSVG(exp, parent, visRange, name,
-                      [this](const int relFrame) {
+                      [this](const qreal relFrame) {
         const auto value = getEffectiveValue(relFrame);
         return QString::number(value.x()) + " " +
                QString::number(value.y());
