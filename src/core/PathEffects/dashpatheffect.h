@@ -35,6 +35,9 @@ public:
     stdsptr<PathEffectCaller> getEffectCaller(
             const qreal relFrame, const qreal influence) const;
 private:
+    qsptr<QrealAnimator> mDashLength;
+    qsptr<QrealAnimator> mSpaceLength;
+    qsptr<QrealAnimator> mOffset;
     qsptr<QrealAnimator> mSize;
 };
 
