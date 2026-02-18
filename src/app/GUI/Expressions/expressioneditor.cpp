@@ -30,11 +30,7 @@
 #include "expressionhighlighter.h"
 #include "themesupport.h"
 
-ExpressionEditor::ExpressionEditor(QrealAnimator * const target,
-                                   QWidget * const parent) :
-    ExpressionEditor(target, target->getExpressionBindingsString(), parent) {}
-
-ExpressionEditor::ExpressionEditor(QrealAnimator * const target,
+ExpressionEditor::ExpressionEditor(Property * const target,
                                    const QString &text,
                                    QWidget * const parent)
     : QTextEdit(parent)
@@ -197,4 +193,3 @@ QString ExpressionEditor::textUnderCursor() const {
     }
     return result;
 }
-
