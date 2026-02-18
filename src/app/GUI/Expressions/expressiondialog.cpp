@@ -686,9 +686,10 @@ QWidget *ExpressionDialog::setupPresetsUi()
     mPresetsCombo->setFocusPolicy(Qt::ClickFocus);
     mPresetsCombo->setSizePolicy(QSizePolicy::Expanding,
                                  QSizePolicy::Preferred);
-    mPresetsCombo->setToolTip(tr("Select a Preset from the list to fill Bindings, Definitions\n"
-                                 "and Calculate fields. In case there is no Preset available,\n"
-                                 "you can create a new one by clicking on the '+' button."));
+    const QString genericPresetTooltip = tr("Select a Preset from the list to fill Bindings, Definitions\n"
+                                            "and Calculate fields. In case there is no Preset available,\n"
+                                            "you can create a new one by clicking on the '+' button.");
+    mPresetsCombo->setToolTip(genericPresetTooltip);
 
     const auto presetLabel = new QLabel(tr("Preset"), this);
 
@@ -759,12 +760,31 @@ QWidget *ExpressionDialog::setupPresetsUi()
         fixLeaveEvent(mPresetsCombo);
     });
 
+    const auto updatePresetTooltip = [this, genericPresetTooltip](int index) {
+        const QString id = mPresetsCombo->itemData(index).toString();
+        if (id.isEmpty()) {
+            mPresetsCombo->setToolTip(genericPresetTooltip);
+            return;
+        }
+        const QString header = "Preset description:";
+        const auto expr = mSettings->fExpressions.getExpr(id);
+        const QString separator = QString(20, '-');
+        mPresetsCombo->setToolTip(QString("%1\n%2\n\n%3\n\n%4")
+                                      .arg(header,
+                                           expr.description,
+                                           separator,
+                                           genericPresetTooltip));
+    };
+
     connect(mPresetsCombo,
             QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, [this](int index) {
+            this, [this, updatePresetTooltip](int index) {
         const QString id = mPresetsCombo->itemData(index).toString();
         if (!id.isEmpty()) { applyPreset(id); }
+        updatePresetTooltip(index);
     });
+
+    updatePresetTooltip(mPresetsCombo->currentIndex());
 
     connect(editPresetBtn,
             &QPushButton::released,
