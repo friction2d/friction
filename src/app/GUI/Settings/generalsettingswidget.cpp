@@ -117,6 +117,26 @@ GeneralSettingsWidget::GeneralSettingsWidget(QWidget *parent)
 
     mScaleContainerLayout->addWidget(mDefaultInterfaceScaling);
 
+    // setting for HiDPI scale factor
+    const auto passThroughInterfaceScaling = new QCheckBox(this);
+    passThroughInterfaceScaling->setText(tr("HiDPI PassThrough"));
+    passThroughInterfaceScaling->setToolTip(tr("If enabled the scaling factor for the UI will not be rounded, recommended for HiDPI displays.\n"
+                                               "If you use a negative font/display system scaling and/or see artifacts on UI elements "
+                                               "then disable this option.\nThe scaling factor will then round up for .75 and above."));
+    passThroughInterfaceScaling->setChecked(AppSupport::getSettings("settings",
+                                                                    "interfaceScalingPassThrough",
+                                                                    true).toBool());
+    connect(passThroughInterfaceScaling, &QCheckBox::stateChanged,
+            this, [passThroughInterfaceScaling]() {
+        // we just save on change, we don't care to integrate
+        // this setting with the rest of the system
+        // as qApp/eSettings etc is not available when this setting is needed
+        AppSupport::setSettings("settings",
+                                "interfaceScalingPassThrough",
+                                passThroughInterfaceScaling->isChecked());
+    });
+    mScaleContainerLayout->addWidget(passThroughInterfaceScaling);
+
     const auto infoLabel = new QLabel(this);
     infoLabel->setText(tr("Changes here will require a restart of Friction."));
     mScaleLayout->addWidget(infoLabel);
