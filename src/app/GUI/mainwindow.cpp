@@ -1465,7 +1465,7 @@ void MainWindow::updateRecentMenu()
     for (const auto &path : mRecentFiles) {
         QFileInfo info(path);
         if (!info.exists()) { continue; }
-        mRecentMenu->addAction(QIcon::fromTheme(AppSupport::getAppID()), info.baseName(), [path, this]() {
+        mRecentMenu->addAction(QIcon::fromTheme(ThemeSupport::getAppIconName(true)), info.baseName(), [path, this]() {
             openFile(path);
         });
     }

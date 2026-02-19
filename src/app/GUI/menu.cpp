@@ -785,7 +785,7 @@ void MainWindow::setupMenuBar()
 
     const auto help = mMenuBar->addMenu(tr("Help", "MenuBar"));
 
-    const auto aboutAct = help->addAction(QIcon::fromTheme(AppSupport::getAppID()),
+    const auto aboutAct = help->addAction(QIcon::fromTheme(ThemeSupport::getAppIconName(true)),
                                           tr("About", "MenuBar_Help"),
                                           this,
                                           &MainWindow::openAboutWindow);
@@ -876,7 +876,7 @@ void MainWindow::setupMenuBar()
 #ifndef Q_OS_MAC
     const auto frictionButton = new QPushButton(this);
     frictionButton->setFlat(true);
-    frictionButton->setIcon(QIcon::fromTheme(AppSupport::getAppID()));
+    frictionButton->setIcon(QIcon::fromTheme(ThemeSupport::getAppIconName(true)));
     frictionButton->setObjectName("AboutButton");
     frictionButton->setFocusPolicy(Qt::NoFocus);
 

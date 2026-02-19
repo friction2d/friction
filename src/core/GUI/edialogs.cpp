@@ -31,12 +31,12 @@
 #include <QFileIconProvider>
 #include <QFileSystemModel>
 #include <QSortFilterProxyModel>
-#include "appsupport.h"
+#include "themesupport.h"
 
 class evIconProvider : public QFileIconProvider {
 public:
     evIconProvider() {
-        mEvIcon = QIcon::fromTheme(AppSupport::getAppID());
+        mEvIcon = QIcon::fromTheme(ThemeSupport::getAppIconName(true));
     }
 
     QIcon icon(const QFileInfo & info) const {
