@@ -28,12 +28,27 @@
 #include "memoryhandler.h"
 #include "misc/noshortcutaction.h"
 #include "dialogs/scenesettingsdialog.h"
+#ifdef Q_OS_MAC
+#include "GUI/macpasteboarddump.h"
+#endif
 
 #include <QDesktopServices>
 #include <QClipboard>
+#include <QMimeData>
 #include <QStatusBar>
+#include <QStringList>
 
 using namespace Friction;
+
+namespace {
+
+QString extractSvg(const QByteArray& data) {
+    const int pos = data.indexOf("<svg");
+    if (pos < 0) return {};
+    return QString::fromUtf8(data.mid(pos));
+}
+
+} // namespace
 
 void MainWindow::setupMenuBar()
 {
@@ -233,9 +248,44 @@ void MainWindow::setupMenuBar()
                                  const auto clipboard = QGuiApplication::clipboard();
                                  if (clipboard) {
                                      const auto mime = clipboard->mimeData();
-                                     qDebug() << mime->formats() << mime->text();
+                                     QString svg;
                                      if (mime->hasText() && mime->text().contains("<svg")) {
-                                         const QString svg = mime->text();
+                                         svg = mime->text();
+                                     }
+#ifdef Q_OS_MAC
+                                     if (svg.isEmpty()) {
+                                         readNativeMacSvgFromPasteboard(svg);
+                                     }
+#endif
+                                     if (svg.isEmpty()) {
+                                         static const QStringList svgFormats = {
+                                             "image/svg+xml",
+                                             "public.svg-image",
+                                             "com.adobe.svg",
+                                             "com.adobe.illustrator.svg",
+                                             "com.adobe.illustrator.svgm"
+                                         };
+                                         for (const auto &fmt : svgFormats) {
+                                             if (mime->hasFormat(fmt)) {
+                                                 const QByteArray data = mime->data(fmt);
+                                                 svg = extractSvg(data);
+                                                 if (!svg.isEmpty()) {
+                                                     break;
+                                                 }
+                                             }
+                                         }
+
+                                         if (svg.isEmpty()) {
+                                             for (const auto& fmt : mime->formats()) {
+                                                 const QByteArray data = mime->data(fmt);
+                                                 svg = extractSvg(data);
+                                                 if (!svg.isEmpty()) {
+                                                     break;
+                                                 }
+                                             }
+                                         }
+                                     }
+                                     if (!svg.isEmpty()) {
                                          try { mActions.importClipboard(svg); }
                                          catch (const std::exception& e) { gPrintExceptionCritical(e); }
                                      }
