@@ -312,15 +312,10 @@ void RenderWidget::render(RenderInstanceSettings &settings)
     handleRenderState(RenderState::waiting);
     mCurrentRenderedSettings = &settings;
 
-    // the scene we want to render MUST be current if multiple scenes are in queue
-    const auto scene = mCurrentRenderedSettings->getTargetCanvas();
-    if (scene) {
-        const auto handler = MainWindow::sGetInstance()->getLayoutHandler();
-        const int index = handler->getSceneId(scene);
-        if (index > -1 && !handler->isCurrentScene(index)) {
-            handler->setCurrentScene(index);
-        }
-    }
+    // the scene we want to render MUST be current
+    // this is a workaround until we detach the renderer from the app
+    const auto lay = MainWindow::sGetInstance()->getLayoutHandler();
+    lay->setCurrentScene(mCurrentRenderedSettings->getTargetCanvas());
 
     RenderHandler::sInstance->renderFromSettings(&settings);
     connect(&settings, &RenderInstanceSettings::renderFrameChanged,

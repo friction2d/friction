@@ -186,9 +186,11 @@ public:
                                                  mNumberLayouts - nCLays + relCurrentId;
         setCurrent(absId);
     }
-    int getSceneId(const Canvas* const scene) { return sceneId(scene); };
-    bool isCurrentScene(const int index) { return index == mCurrentId; };
-    void setCurrentScene(const int index) { setCurrent(index); };
+    void setCurrentScene(const Canvas* const scene) {
+        if (!scene) { return; }
+        resetCurrentScene();
+        setCurrent(sceneId(scene));
+    };
 
 private:
     void rename(const int id, const QString& newName) {
