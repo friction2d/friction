@@ -139,6 +139,13 @@ OutputSettingsDialog::OutputSettingsDialog(const OutputSettings &settings,
     mShowLayout = new QHBoxLayout();
     mShowLabel = new QLabel(tr("Show all formats and codecs"), this);
     mShowAllFormatsAndCodecsCheckBox = new QCheckBox(this);
+
+    if (settings.fAudioEnabled || settings.fVideoEnabled) {
+        const bool supported = isSupported(settings);
+        mShowAllFormatsAndCodecsCheckBox->setChecked(!supported);
+        mShowAllFormatsAndCodecs = !supported;
+    }
+
     connect(mShowAllFormatsAndCodecsCheckBox, &QCheckBox::toggled,
             this, &OutputSettingsDialog::setShowAllFormatsAndCodecs);
     mShowLayout->addWidget(mShowAllFormatsAndCodecsCheckBox);
@@ -310,6 +317,25 @@ void OutputSettingsDialog::addAudioCodec(const AVCodecID &codecId,
     if(codecName == currentCodecName) {
         mAudioCodecsComboBox->setCurrentText(codecName);
     }
+}
+bool OutputSettingsDialog::isSupported(const OutputSettings &settings) const
+{
+    for (const FormatCodecs &supported : mSupportedFormats) {
+        if (supported.mFormat == settings.fOutputFormat) {
+            if (settings.fVideoEnabled && settings.fVideoCodec) {
+                if (!supported.mVidCodecs.contains(settings.fVideoCodec->id)) {
+                    return false;
+                }
+            }
+            if (settings.fAudioEnabled && settings.fAudioCodec) {
+                if (!supported.mAudioCodecs.contains(settings.fAudioCodec->id)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+    return false;
 }
 
 void OutputSettingsDialog::updateAvailableCodecs() {
