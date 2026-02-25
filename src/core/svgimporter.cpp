@@ -97,6 +97,7 @@ struct SvgGradient {
     qreal fY2;
     QMatrix fTrans;
     GradientType fType;
+    QString fUnits;
 };
 
 class FillSvgAttributes {
@@ -731,21 +732,52 @@ void applyGradientToAttributes(const QDomElement &element,
     if (!gradId.isEmpty() && gGradients.contains(gradId)) {
         const SvgGradient &templateGrad = gGradients[gradId];
 
-        QMatrix correction;
-        if (!offset.isNull()) {
-            correction.translate(-offset.x(), -offset.y());
+        QPointF p1, p2;
+        QMatrix finalTransform;
+
+        if (templateGrad.fUnits == "objectBoundingBox") {
+            qreal w = element.attribute("width").toDouble();
+            qreal h = element.attribute("height").toDouble();
+
+            w += element.attribute("x").toDouble();
+            h += element.attribute("y").toDouble();
+
+            qreal divX = (templateGrad.fX2 > 1.0) ? templateGrad.fX2 : 1.0;
+            qreal divY = (templateGrad.fY2 > 1.0) ? templateGrad.fY2 : 1.0;
+
+            p1 = QPointF((templateGrad.fX1 / divX) * w,
+                         (templateGrad.fY1 / divY) * h);
+            p2 = QPointF((templateGrad.fX2 / divX) * w,
+                         (templateGrad.fY2 / divY) * h);
+
+            QMatrix m = templateGrad.fTrans;
+            finalTransform.setMatrix(m.m11(), m.m12(),
+                                     m.m21(), m.m22(),
+                                     m.dx() * w, m.dy() * h);
         }
+        else { // userSpaceOnUse
+            QPointF p1_world = templateGrad.fTrans.map(QPointF(templateGrad.fX1,
+                                                               templateGrad.fY1));
+            QPointF p2_world = templateGrad.fTrans.map(QPointF(templateGrad.fX2,
+                                                               templateGrad.fY1));
 
-        QPointF p1 = correction.map(QPointF(templateGrad.fX1,
-                                            templateGrad.fY1));
-        QPointF p2 = correction.map(QPointF(templateGrad.fX2,
-                                            templateGrad.fY2));
+            p1 = p1_world - offset;
+            p2 = p2_world - offset;
 
-        QMatrix adjustedTrans = templateGrad.fTrans;
-        if (!offset.isNull()) {
-            QMatrix invCorrection;
-            invCorrection.translate(offset.x(), offset.y());
-            adjustedTrans = invCorrection * templateGrad.fTrans * correction;
+            if (templateGrad.fType == GradientType::RADIAL) {
+                QMatrix trans = templateGrad.fTrans;
+                qreal scaleX = qSqrt(trans.m11()*trans.m11() + trans.m12()*trans.m12());
+                qreal scaleY = qSqrt(trans.m21()*trans.m21() + trans.m22()*trans.m22());
+
+                if (scaleX > 0) {
+                    qreal ratio = scaleY / scaleX;
+                    if (qAbs(ratio - 1.0) > 0.001) {
+                        finalTransform.translate(p1.x(), p1.y());
+                        finalTransform.scale(1.0, ratio);
+                        finalTransform.translate(-p1.x(), -p1.y());
+                    }
+                }
+            }
         }
 
         Gradient* newGradInstance = gradientCreator();
@@ -762,8 +794,11 @@ void applyGradientToAttributes(const QDomElement &element,
 
         SvgGradient instance = {
             newGradInstance,
-            p1.x(), p1.y(), p2.x(), p2.y(),
-            adjustedTrans, templateGrad.fType
+            p1.x(), p1.y(),
+            p2.x(), p2.y(),
+            finalTransform,
+            templateGrad.fType,
+            templateGrad.fUnits
         };
 
         if (isFill) {
@@ -775,11 +810,6 @@ void applyGradientToAttributes(const QDomElement &element,
             stroke.setGradient(instance);
             stroke.setPaintType(GRADIENTPAINT);
         }
-
-        qDebug() << "--- Gradient Debug ---";
-        qDebug() << "ID:" << gradId << "Offset:" << offset;
-        qDebug() << "Raw P1:" << QPointF(templateGrad.fX1, templateGrad.fY1);
-        qDebug() << "Final Matrix Translation:" << adjustedTrans.dx() << adjustedTrans.dy();
     }
 }
 
@@ -1008,10 +1038,9 @@ void loadElement(const QDomElement &element,
                     qreal cy = element.attribute("cy", "0").toDouble();
                     qreal r  = element.attribute("r", "1").toDouble();
                     p1 = QPointF(cx, cy);
-                    p2 = QPointF(cx + r, cy);
+                    p2 = QPointF(cx + r, cy + r);
                 }
-            } else {
-                // objectBoundingBox:
+            } else { // objectBoundingBox:
                 if (type == GradientType::LINEAR) {
                     p1 = QPointF(parseSvgUnit(element.attribute("x1"), viewW),
                                  parseSvgUnit(element.attribute("y1"), viewH));
@@ -1025,22 +1054,11 @@ void loadElement(const QDomElement &element,
                     p1 = QPointF(cx, cy);
                     p2 = QPointF(cx + r, cy + r);
                 }
-
-                if (!gradTrans.isEmpty()) {
-                    p1 = QPointF(p1.x() / viewW, p1.y() / viewH);
-                    p2 = QPointF(p2.x() / viewW, p2.y() / viewH);
-                    p1 = trans.map(p1);
-                    p2 = trans.map(p2);
-                    p1 = QPointF(p1.x() * viewW, p1.y() * viewH);
-                    p2 = QPointF(p2.x() * viewW, p2.y() * viewH);
-
-                    trans = QMatrix();
-                }
             }
             gGradients.insert(id, {gradient,
                                    p1.x(), p1.y(),
                                    p2.x(), p2.y(),
-                                   trans, type});
+                                   trans, type, units});
             break;
         }
         }
