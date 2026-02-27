@@ -22,6 +22,10 @@
 cmake_minimum_required(VERSION 3.12)
 project(friction LANGUAGES CXX)
 
+if(APPLE)
+    enable_language(OBJCXX)
+endif()
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
 
 include(friction-version)
@@ -270,6 +274,15 @@ set(
     GUI/window.h
 )
 
+if(APPLE)
+    list(APPEND SOURCES
+        GUI/macpasteboarddump.mm
+    )
+    list(APPEND HEADERS
+        GUI/macpasteboarddump.h
+    )
+endif()
+
 set(
     RESOURCES
     resources.qrc
@@ -354,6 +367,14 @@ target_link_libraries(
     ${FFMPEG_LIBRARIES}
     ${SKIA_LIBRARIES}
 )
+
+if(APPLE)
+    target_link_libraries(
+        ${PROJECT_NAME}
+        PRIVATE
+        "-framework AppKit"
+    )
+endif()
 
 if(${SKIA_USE_SYSTEM_LIBS} AND UNIX)
     target_link_libraries(

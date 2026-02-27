@@ -30,13 +30,37 @@
 #include "paintsettingsapplier.h"
 #include "Sound/eindependentsound.h"
 #include "Boxes/externallinkboxt.h"
+#include "Boxes/containerbox.h"
 #include "GUI/dialogsinterface.h"
 #include "svgimporter.h"
 
+#include <cmath>
+#include <limits>
 #include <QMessageBox>
+#include <QRegularExpression>
 #include <QStandardItemModel>
 
 Actions* Actions::sInstance = nullptr;
+
+namespace {
+
+bool extractInkscapeClipboardMin(const QString& svg, QPointF& minPos) {
+    if (!svg.contains("<inkscape:clipboard")) return false;
+    const QRegularExpression rx(
+        "inkscape:clipboard[^>]*\\bmin\\s*=\\s*\"\\s*([^\\s,]+)\\s*,\\s*([^\\s,\"]+)\\s*\"");
+    const auto m = rx.match(svg);
+    if (!m.hasMatch()) return false;
+
+    bool okX = false;
+    bool okY = false;
+    const qreal x = m.captured(1).toDouble(&okX);
+    const qreal y = m.captured(2).toDouble(&okY);
+    if (!okX || !okY) return false;
+    minPos = QPointF(x, y);
+    return true;
+}
+
+} // namespace
 
 Actions::Actions(Document &document) : mDocument(document) {
     Q_ASSERT(!sInstance);
@@ -823,7 +847,13 @@ eBoxOrSound *Actions::importFile(const QString &path,
 eBoxOrSound *Actions::importClipboard(const QString &content)
 {
     if (!mActiveScene) { return nullptr; }
-    return importClipboard(content, mActiveScene->getCurrentGroup());
+    QPointF pastePos;
+    if (!extractInkscapeClipboardMin(content, pastePos)) {
+        const qreal nan = std::numeric_limits<qreal>::quiet_NaN();
+        pastePos = QPointF(nan, nan);
+    }
+    return importClipboard(content, mActiveScene->getCurrentGroup(),
+                           0, pastePos, 0);
 }
 
 eBoxOrSound *Actions::importClipboard(const QString &content,
@@ -848,20 +878,32 @@ eBoxOrSound *Actions::importClipboard(const QString &content,
         gPrintExceptionCritical(e);
     }
 
+    bool flattenedContainer = false;
     if (result) {
         if (frame) { result->shiftAll(frame); }
         block.reset();
         target->prp_pushUndoRedoName(tr("Import from Clipboard"));
         target->insertContained(insertId, result);
         if (const auto importedBox = enve_cast<BoundingBox*>(result)) {
-            importedBox->planCenterPivotPosition();
-            importedBox->startPosTransform();
-            importedBox->moveByAbs(relDropPos);
-            importedBox->finishTransform();
+            if (std::isfinite(relDropPos.x()) && std::isfinite(relDropPos.y())) {
+                importedBox->planCenterPivotPosition();
+                importedBox->startPosTransform();
+                importedBox->moveByAbs(relDropPos);
+                importedBox->finishTransform();
+            }
+        }
+
+        // Clipboard SVG imports may be wrapped in an extra root group/layer.
+        // Flatten it into the target to avoid adding an unnecessary extra layer.
+        if (const auto importedGroup = enve_cast<ContainerBox*>(result.get())) {
+            if (!importedGroup->isLink() && importedGroup->getContainedBoxesCount() > 0) {
+                importedGroup->ungroupKeepTransform_k();
+                flattenedContainer = true;
+            }
         }
     }
     afterAction();
-    return result.get();
+    return flattenedContainer ? nullptr : result.get();
 }
 
 #include "Boxes/internallinkbox.h"
