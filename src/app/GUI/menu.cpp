@@ -28,6 +28,7 @@
 #include "memoryhandler.h"
 #include "misc/noshortcutaction.h"
 #include "dialogs/scenesettingsdialog.h"
+#include "system/svgclipboard.h"
 
 #include <QDesktopServices>
 #include <QClipboard>
@@ -230,15 +231,10 @@ void MainWindow::setupMenuBar()
         mEditMenu->addAction(QIcon::fromTheme("paste"),
                              tr("Paste from Clipboard"),
                              [this]() {
-                                 const auto clipboard = QGuiApplication::clipboard();
-                                 if (clipboard) {
-                                     const auto mime = clipboard->mimeData();
-                                     qDebug() << mime->formats() << mime->text();
-                                     if (mime->hasText() && mime->text().contains("<svg")) {
-                                         const QString svg = mime->text();
+                                 const QString svg = Ui::SvgClipBoard::getContent();
+                                 if (!svg.isEmpty()) {
                                          try { mActions.importClipboard(svg); }
                                          catch (const std::exception& e) { gPrintExceptionCritical(e); }
-                                     }
                                  }
                              }, QKeySequence(tr("Ctrl+Shift+V")));
     }

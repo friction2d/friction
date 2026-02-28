@@ -20,6 +20,10 @@
 cmake_minimum_required(VERSION 3.12)
 project(frictionui LANGUAGES CXX)
 
+if(APPLE)
+    enable_language(OBJCXX)
+endif()
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
 
 include(friction-version)
@@ -60,6 +64,7 @@ set(
     optimalscrollarena/scrollwidget.cpp
     optimalscrollarena/scrollwidgetvisiblepart.cpp
     optimalscrollarena/singlewidget.cpp
+    system/svgclipboard.cpp
     widgets/aboutwidget.cpp
     widgets/actionbutton.cpp
     widgets/alignwidget.cpp
@@ -111,6 +116,10 @@ set(
     widgets/wrappernode.cpp
 )
 
+if(APPLE)
+    list(APPEND SOURCES system/svgclipboard.mm)
+endif()
+
 set(
     HEADERS
     ui_global.h
@@ -136,6 +145,7 @@ set(
     optimalscrollarena/scrollwidget.h
     optimalscrollarena/scrollwidgetvisiblepart.h
     optimalscrollarena/singlewidget.h
+    system/svgclipboard.h
     widgets/aboutwidget.h
     widgets/actionbutton.h
     widgets/alignwidget.h
@@ -216,6 +226,14 @@ target_link_directories(
     ${FFMPEG_LIBRARIES_DIRS}
     ${SKIA_LIBRARIES_DIRS}
 )
+
+if(APPLE)
+    target_link_libraries(
+        ${PROJECT_NAME}
+        PRIVATE
+        "-framework AppKit"
+    )
+endif()
 
 target_link_libraries(
     ${PROJECT_NAME}

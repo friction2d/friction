@@ -401,6 +401,14 @@ if(${SKIA_STATIC})
     endif()
 endif()
 
+if(APPLE)
+    target_link_libraries(
+        ${PROJECT_NAME}
+        PRIVATE
+        "-framework AppKit"
+    )
+endif()
+
 if(UNIX AND NOT APPLE)
     target_link_libraries(
         ${PROJECT_NAME}
