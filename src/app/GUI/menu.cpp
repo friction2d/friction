@@ -810,7 +810,7 @@ void MainWindow::setupMenuBar()
                     tr("Documentation"), this, []() {
         const QString offline = AppSupport::getOfflineDocs();
         const QString docs = offline.isEmpty() ? AppSupport::getOnlineDocs() : offline;
-        QDesktopServices::openUrl(QUrl(docs));
+        QDesktopServices::openUrl(QUrl::fromUserInput(docs));
     });
 
     help->addSeparator();

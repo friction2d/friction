@@ -84,9 +84,17 @@ macdeployqt src/app/Friction.app
 rm -f src/app/Friction.app/Contents/Frameworks/{libQt5MultimediaWidgets.5.dylib,libQt5Svg.5.dylib}
 rm -rf src/app/Friction.app/Contents/PlugIns/{bearer,iconengines,imageformats,mediaservice,printsupport,styles}
 
+if [ -f "${CWD}/docs/offline/index.html" ]; then
+    cp -a ${CWD}/docs/offline src/app/Friction.app/Contents/Resources/docs
+fi
+
 mkdir dmg
 mv src/app/Friction.app dmg/
 (cd dmg ; ln -sf /Applications Applications)
+
+if [ -f "${CWD}/docs/offline/index.html" ]; then
+    (cd dmg ; ln -sf Friction.app/Contents/Resources/docs/index.html Documentation.html)
+fi
 
 # https://github.com/actions/runner-images/issues/7522
 max_tries=10

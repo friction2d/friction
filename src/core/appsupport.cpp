@@ -1134,11 +1134,8 @@ QString AppSupport::getOfflineDocs()
     }
 #endif
     const QStringList paths{QString("%1/docs/index.html").arg(getAppPath()).trimmed(),
-                            QString("%1/../share/docs/friction-%2/html/index.html").arg(getAppPath(),
-                                                                                        getAppVersion()).trimmed(),
-                            QString("%1/../docs/index.html").arg(getAppPath()).trimmed(),
-                            QString("%1/../Resources/docs/index.html").arg(getAppPath()).trimmed(),
-                            QString("%1/../share/docs/index.html").arg(getAppPath()).trimmed()};
+                            QString("%1/../share/doc/friction/html/index.html").arg(getAppPath()).trimmed(),
+                            QString("%1/../Resources/docs/index.html").arg(getAppPath()).trimmed()};
     for (const auto &path : paths) {
         qDebug() << "Checking for docs ..." << path;
         if (QFile::exists(path)) { return path; }

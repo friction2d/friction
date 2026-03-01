@@ -483,6 +483,12 @@ if(UNIX AND NOT APPLE)
         ${CMAKE_CURRENT_SOURCE_DIR}/../../LICENSE.md
         ${CMAKE_CURRENT_SOURCE_DIR}/../../README.md
         DESTINATION
-        ${CMAKE_INSTALL_DOCDIR}-${PROJECT_VERSION}
+        ${CMAKE_INSTALL_DOCDIR}
+    )
+    install(
+        DIRECTORY
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../docs/offline/
+        DESTINATION
+        ${CMAKE_INSTALL_DOCDIR}/html
     )
 endif()
