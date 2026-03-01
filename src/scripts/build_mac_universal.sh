@@ -69,6 +69,11 @@ mkdir dmg
 mv Friction.app dmg/
 (cd dmg ; ln -sf /Applications Applications)
 
+DOC=Friction.app/Contents/Resources/docs/index.html
+if [ -f "dmg/${DOC}" ]; then
+    (cd dmg ; ln -sf ${DOC} Documentation.html)
+fi
+
 # https://github.com/actions/runner-images/issues/7522
 max_tries=10
 i=0
