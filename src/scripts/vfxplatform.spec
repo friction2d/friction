@@ -3,7 +3,7 @@ Version: __FRICTION_PKG_VERSION__
 Release: 1
 Summary: Motion graphics and animation
 Group: System Environment/Base
-License: GPL3
+License: GPL-3.0-only
 Source0: friction-__FRICTION_VERSION__.tar
 
 AutoReq: no
@@ -12,7 +12,7 @@ AutoReq: no
 %global __os_install_post %{nil}
 
 %description
-Powerful and versatile motion graphics and animation application that allows you to create stunning vector and raster animations for web and video platforms with ease.
+Powerful and versatile motion graphics and animation application that allows you to create vector and raster animations for web and video.
 
 %prep
 %setup -n friction-__FRICTION_VERSION__
@@ -23,7 +23,6 @@ Powerful and versatile motion graphics and animation application that allows you
 
 cp -rfa opt %{buildroot}/
 cp -rfa usr %{buildroot}/
-rm -rf %{buildroot}/opt/friction/share/doc
 
 %files
 %defattr(-,root,root,-)
