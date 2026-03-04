@@ -410,6 +410,7 @@ if(APPLE)
 endif()
 
 if(UNIX AND NOT APPLE)
+    option(INSTALL_DOCS "Install documentation on Linux/BSD" ON)
     target_link_libraries(
         ${PROJECT_NAME}
         PRIVATE
@@ -478,17 +479,19 @@ if(UNIX AND NOT APPLE)
         RENAME
         application-x-${PROJECT_FREEDESKTOP}.svg
     )
-    install(
-        FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../LICENSE.md
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../README.md
-        DESTINATION
-        ${CMAKE_INSTALL_DOCDIR}
-    )
-    install(
-        DIRECTORY
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../docs/offline/
-        DESTINATION
-        ${CMAKE_INSTALL_DOCDIR}/html
-    )
+    if(${INSTALL_DOCS})
+        install(
+            FILES
+            ${CMAKE_CURRENT_SOURCE_DIR}/../../LICENSE.md
+            ${CMAKE_CURRENT_SOURCE_DIR}/../../README.md
+            DESTINATION
+            ${CMAKE_INSTALL_DOCDIR}
+        )
+        install(
+            DIRECTORY
+            ${CMAKE_CURRENT_SOURCE_DIR}/../../docs/offline/
+            DESTINATION
+            ${CMAKE_INSTALL_DOCDIR}/html
+        )
+    endif()
 endif()
