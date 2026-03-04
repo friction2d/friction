@@ -9,7 +9,7 @@
   </developer>
   <developer_name translate="no">@FRICTION_DISPLAY_NAME@</developer_name>
   <branding>
-    <color type="primary" scheme_preference="light">#a89fc1</color>
+    <color type="primary" scheme_preference="light">#5433a7</color>
     <color type="primary" scheme_preference="dark">#2a0162</color>
   </branding>
   <summary>@PROJECT_SUMMARY@</summary>
@@ -94,7 +94,7 @@
   </releases>
   <screenshots>
     <screenshot type="default">
-      <image>https://friction.graphics//assets/screenshots/100/friction-100rc3-screenshot.png</image>
+      <image>https://friction.graphics//assets/screenshots/100/friction-100-linux-screenshot.png</image>
       <caption>Default user interface</caption>
     </screenshot>
   </screenshots>
@@ -111,6 +111,11 @@
     <control>keyboard</control>
     <control>pointing</control>
   </supports>
+  <requires>
+    <control>keyboard</control>
+    <control>pointing</control>
+    <display_length compare="ge">768</display_length>
+  </requires>
   <categories>
     <category>Graphics</category>
     <category>AudioVideo</category>
