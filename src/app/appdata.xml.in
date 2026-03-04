@@ -7,7 +7,6 @@
   <developer id="@PROJECT_IDENTIFIER@">
     <name>@FRICTION_DISPLAY_NAME@</name>
   </developer>
-  <developer_name translate="no">@FRICTION_DISPLAY_NAME@</developer_name>
   <branding>
     <color type="primary" scheme_preference="light">#5433a7</color>
     <color type="primary" scheme_preference="dark">#2a0162</color>
