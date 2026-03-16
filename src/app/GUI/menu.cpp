@@ -307,7 +307,11 @@ void MainWindow::setupMenuBar()
                                           const auto scene = *mDocument.fActiveScene;
                                           if (!scene) { return; }
                                           scene->addKeySelectedProperties();
+#ifndef Q_OS_MAC
                                       }, QKeySequence(tr("Insert")));
+#else
+                                      }, QKeySequence(tr("K")));
+#endif
     mAddKeyAct->setEnabled(false);
     cmdAddAction(mAddKeyAct);
 
