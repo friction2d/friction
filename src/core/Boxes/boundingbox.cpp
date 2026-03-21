@@ -85,8 +85,14 @@ BoundingBox::BoundingBox(const QString& name, const eBoxType type) :
 
     ca_addChild(mTransformAnimator);
     const auto pivotAnim = mTransformAnimator->getPivotAnimator();
-    connect(pivotAnim, &Property::prp_currentFrameChanged,
-            this, &BoundingBox::requestGlobalPivotUpdateIfSelected);
+    if(pivotAnim) {
+        connect(pivotAnim, &Property::prp_currentFrameChanged,
+                this, [this](const UpdateReason reason) {
+                    requestGlobalPivotUpdateIfSelected();
+                    planUpdate(reason);
+                    onPivotChanged(reason);
+                });
+    }
 
     ca_addChild(mRasterEffectsAnimators);
     mRasterEffectsAnimators->SWT_hide();
@@ -1035,6 +1041,8 @@ void BoundingBox::setAbsolutePos(const QPointF &pos) {
 void BoundingBox::setRelativePos(const QPointF &relPos) {
     mTransformAnimator->setPosition(relPos.x(), relPos.y());
 }
+
+void BoundingBox::onPivotChanged(const UpdateReason) {}
 
 void BoundingBox::setOpacity(const qreal opacity) {
     mTransformAnimator->setOpacity(opacity);
