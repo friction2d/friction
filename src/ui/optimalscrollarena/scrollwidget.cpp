@@ -77,6 +77,10 @@ void ScrollWidget::setCurrentType(const SWT_Type type) {
     mVisiblePartWidget->setCurrentType(type);
 }
 
+void ScrollWidget::setCurrentParamRule(const SWT_ParamRule rule) {
+    mVisiblePartWidget->setCurrentParamRule(rule);
+}
+
 SWT_RulesCollection ScrollWidget::getRulesCollection()
 { return mVisiblePartWidget->getRulesCollection(); }
 

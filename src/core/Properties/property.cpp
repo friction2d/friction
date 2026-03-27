@@ -190,6 +190,48 @@ QMatrix Property::getTransform(const qreal relFrame) const {
     return QMatrix();
 }
 
+bool Property::SWT_shouldBeVisible(const SWT_RulesCollection &rules,
+                                   const bool parentSatisfies,
+                                   const bool parentMainTarget) const {
+    if(!parentSatisfies || parentMainTarget) return false;
+
+    const auto paramRule = rules.fParamRule;
+    if(paramRule == SWT_ParamRule::all) return true;
+
+    if(enve_cast<const eBoxOrSound*>(this) || enve_cast<const Canvas*>(this)) {
+        return true;
+    }
+
+    const auto animator = enve_cast<const Animator*>(this);
+    const bool animated = animator && animator->anim_isDescendantRecording();
+
+    if(paramRule == SWT_ParamRule::animated) {
+        return animated;
+    }
+
+    if(paramRule == SWT_ParamRule::animatedOnly) {
+        if(!animated) return false;
+        if(const auto cAnim = enve_cast<const ComplexAnimator*>(this)) {
+            if(cAnim->ca_hasChildren()) return false;
+        }
+        return true;
+    }
+
+    return true;
+}
+
+bool Property::SWT_shouldPassThrough(const SWT_RulesCollection &rules) const {
+    if(rules.fParamRule != SWT_ParamRule::animatedOnly) return false;
+    if(enve_cast<const eBoxOrSound*>(this) || enve_cast<const Canvas*>(this)) {
+        return false;
+    }
+    const auto animator = enve_cast<const Animator*>(this);
+    const auto complexAnimator = enve_cast<const ComplexAnimator*>(this);
+    if(!animator || !complexAnimator) return false;
+    if(!complexAnimator->ca_hasChildren()) return false;
+    return animator->anim_isDescendantRecording();
+}
+
 void Property::prp_setSelected(const bool selected) {
     if(prp_mSelected == selected) return;
     prp_mSelected = selected;
