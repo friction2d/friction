@@ -33,6 +33,12 @@ Expression::ResultTester Expression::sQrealAnimatorTester =
             if(!val.isNumber()) PrettyRuntimeThrow("Invalid return type");
         };
 
+Expression::ResultTester Expression::sQStringAnimatorTester =
+        [](const QJSValue& val) {
+            if(val.isNull() || val.isUndefined())
+                PrettyRuntimeThrow("Invalid return type");
+        };
+
 Expression::Expression(const QString& definitionsStr,
                        const QString& scriptStr,
                        PropertyBindingMap&& bindings,
