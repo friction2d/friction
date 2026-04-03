@@ -65,6 +65,7 @@ if(UNIX AND NOT APPLE)
     add_subdirectory(src/gperftools)
 endif()
 add_subdirectory(src/core)
+add_subdirectory(src/copilot)
 add_subdirectory(src/ui)
 add_subdirectory(src/app)
 
