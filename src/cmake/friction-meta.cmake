@@ -19,9 +19,9 @@
 # See 'README.md' for more information.
 #
 
-set(FRICTION_NAME "friction")
-set(FRICTION_NAME_GENERIC "Friction Graphics")
-set(FRICTION_DISPLAY_NAME "Friction")
+set(FRICTION_NAME "splatter")
+set(FRICTION_NAME_GENERIC "Splatter")
+set(FRICTION_DISPLAY_NAME "Splatter")
 set(PROJECT_COPYRIGHT "Friction contributors")
 set(PROJECT_IDENTIFIER "graphics.friction")
 set(PROJECT_SUMMARY "Motion graphics and animation")
