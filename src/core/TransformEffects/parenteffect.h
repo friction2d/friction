@@ -82,6 +82,9 @@ private:
                                    const qreal scaleXInfl,
                                    const qreal scaleYInfl) const;
 
+    TransformValues getCurrentBaseValues(BoxTransformAnimator* const transform,
+                                         const qreal relFrame) const;
+
     QPointF mPrevPosInfluence;
     QPointF mPrevScaleInfluence;
     qreal mPrevRotInfluence = 0.0;
