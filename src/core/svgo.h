@@ -40,6 +40,9 @@ namespace Friction
         private:
             static bool recursiveOptimize(QDomElement &element);
             static void removeUselessDefs(QDomDocument &doc);
+            static bool isIdReferenced(const QDomElement &currentElement,
+                                       const QString &id,
+                                       const QDomElement &originalDef);
             static void removeProcessingInstructions(QDomDocument &doc);
             static int countElementChildren(const QDomElement &element);
             static QString minify(const QString &xml);
