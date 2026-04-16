@@ -67,6 +67,7 @@ void InternalLinkCanvas::setupRenderData(const qreal relFrame,
                                          const QMatrix& parentM,
                                          BoxRenderData * const data,
                                          Canvas* const scene) {
+    if (!scene) { return; }
     {
         BoundingBox::setupRenderData(relFrame, parentM, data, scene);
         const qreal remapped = mFrameRemapping->frame(relFrame);
@@ -77,6 +78,8 @@ void InternalLinkCanvas::setupRenderData(const qreal relFrame,
     ContainerBox* finalTarget = getFinalTarget();
     auto canvasData = static_cast<LinkCanvasRenderData*>(data);
     const auto canvasTarget = static_cast<Canvas*>(finalTarget);
+    if (!canvasTarget) { return; }
+
     canvasData->fBgColor = toSkColor(canvasTarget->getBgColorAnimator()->
             getColor(relFrame));
     //qreal res = mParentScene->getResolution();
@@ -92,6 +95,11 @@ void InternalLinkCanvas::setupRenderData(const qreal relFrame,
 
 bool InternalLinkCanvas::clipToCanvas() {
     return mClipToCanvas->getValue();
+}
+
+BoundingBox *InternalLinkCanvas::getLinkTarget()
+{
+    return mBoxTarget->getTarget();
 }
 
 qsptr<BoundingBox> InternalLinkCanvas::createLink(const bool inner) {

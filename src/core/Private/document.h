@@ -157,6 +157,8 @@ public:
     bool removeScene(const qsptr<Canvas>& scene);
     bool removeScene(const int id);
 
+    bool sceneIsLinked(const qsptr<Canvas> &scene);
+
     void addVisibleScene(Canvas * const scene);
     bool removeVisibleScene(Canvas * const scene);
 

@@ -24,6 +24,7 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "Private/document.h"
+#include "Boxes/internallinkcanvas.h"
 #include "canvas.h"
 #include "simpletask.h"
 
@@ -243,6 +244,20 @@ bool Document::removeScene(const int id)
     emit sceneRemoved(scene.data());
     emit sceneRemoved(id);
     return true;
+}
+
+bool Document::sceneIsLinked(const qsptr<Canvas> &scene)
+{
+    for (const auto &canvas : fScenes) {
+        for (const auto &box : canvas->getContainedBoxes()) {
+            if (const auto &link = enve_cast<InternalLinkCanvas*>(box)) {
+                if (const auto &target = link->getLinkTarget()) {
+                    if (target->getParentScene() == scene) { return true; }
+                }
+            }
+        }
+    }
+    return false;
 }
 
 void Document::addVisibleScene(Canvas * const scene)
