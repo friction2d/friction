@@ -97,6 +97,13 @@ void DialogsInterfaceImpl::showExpressionDialog(QrealAnimator* const target) con
     dialog->show();
 }
 
+void DialogsInterfaceImpl::showExpressionDialog(QStringAnimator* const target) const {
+    const auto parent = MainWindow::sGetInstance();
+    const auto dialog = new ExpressionDialog(target, parent);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->show();
+}
+
 void DialogsInterfaceImpl::showApplyExpressionDialog(QrealAnimator* const target) const {
     const auto parent = MainWindow::sGetInstance();
     const auto dialog = new ApplyExpressionDialog(target, parent);
