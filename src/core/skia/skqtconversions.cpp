@@ -100,7 +100,7 @@ SkPaint::Join QJoinToSkJoin(const Qt::PenJoinStyle &join) {
 }
 #include <QPainterPath>
 SkPath toSkPath(const QPainterPath &qPath) {
-    SkPath path;
+    SkPathBuilder builder;
     bool firstOther = false;
     SkPoint movePt{0, 0};
     SkPoint endPt{0, 0};
@@ -111,21 +111,21 @@ SkPath toSkPath(const QPainterPath &qPath) {
         const SkPoint toPt{toSkScalar(elem.x), toSkScalar(elem.y)};
         if(elem.isMoveTo()) { // move
             movePt = toPt;
-            path.moveTo(movePt);
+            builder.moveTo(movePt);
         } else if(elem.isLineTo()) { // line
-            path.lineTo(toPt);
+            builder.lineTo(toPt);
         } else if(elem.isCurveTo()) { // curve
             endPt = toPt;
             firstOther = true;
         } else { // other
             if(firstOther) startPt = toPt;
-            else path.cubicTo(endPt, startPt, toPt);
+            else builder.cubicTo(endPt, startPt, toPt);
             firstOther = !firstOther;
         }
         if(i == iMax && SkPoint::Distance(movePt, toPt) < 0.001f)
-            path.close();
+            builder.close();
     }
-    return path;
+    return builder.detach();
 }
 
 QPainterPath toQPainterPath(const SkPath& path) {
