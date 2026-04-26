@@ -141,6 +141,8 @@ private:
 
     QList<TimelineWidget*> mTimelineWidgets;
     //AnimationDockWidget *mAnimationDockWidget;
+
+    QPair<bool,int> mPausedPreviewState;
 };
 
 #endif // BOXESLISTANIMATIONDOCKWIDGET_H

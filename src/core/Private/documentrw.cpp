@@ -32,7 +32,7 @@
 #include "Paint/brushescontext.h"
 #include "simpletask.h"
 #include "canvas.h"
-#include "appsupport.h"
+#include "grid.h"
 
 using namespace Friction;
 
@@ -48,6 +48,9 @@ void Document::writeBookmarked(eWriteStream &dst) const
 void Document::writeScenes(eWriteStream& dst) const
 {
     writeBookmarked(dst);
+    dst.writeCheckpoint();
+
+    mGrid->writeDocument(dst);
     dst.writeCheckpoint();
 
     const int nScenes = fScenes.count();
@@ -91,6 +94,10 @@ void Document::readScenes(eReadStream& src)
         readGradients(src);
         src.readCheckpoint("Error reading gradients");
     }
+    if (src.evFileVersion() >= EvFormat::grid) {
+        mGrid->readDocument(src);
+        src.readCheckpoint("Error reading grid");
+    }
 
     int nScenes;
     src.read(&nScenes, sizeof(int));
@@ -127,6 +134,8 @@ void Document::writeDoxumentXML(QDomDocument& doc) const
         bBrushes.appendChild(brush);
     }
     document.appendChild(bBrushes);*/
+
+    mGrid->writeXML(doc);
 
     auto scenes = doc.createElement("Scenes");
     for (const auto &s : fScenes) {
@@ -206,9 +215,9 @@ void Document::readDocumentXML(const QDomDocument& doc,
     /*auto bBrushes = document.firstChildElement("BrushBookmarks");
     const auto brushes = bBrushes.elementsByTagName("Brush");
     const int nBrushes = brushes.count();
-    for(int i = 0; i < nBrushes; i++) {
+    for (int i = 0; i < nBrushes; i++) {
         const auto brush = brushes.at(i);
-        if(!brush.isElement()) continue;
+        if (!brush.isElement()) { continue; }
         const auto brushEle = brush.toElement();
         const auto brushPtr = Core::XmlExportHelpers::brushFromElement(brushEle);
         if(brushPtr) addBookmarkBrush(brushPtr);

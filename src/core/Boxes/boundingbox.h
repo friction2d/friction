@@ -285,7 +285,10 @@ public:
     void moveByAbs(const QPointF &trans);
     void rotateBy(const qreal rot);
     void scale(const qreal scaleBy);
-    void scale(const qreal scaleXBy, const qreal scaleYBy);
+    void scale(const qreal scaleXBy,
+               const qreal scaleYBy);
+    void shear(const qreal shearXBy,
+               const qreal shearYBy);
     void setScale(const qreal scale);
     void setRotate(const qreal rot);
     void saveTransformPivotAbsPos(const QPointF &absPivot);
@@ -293,6 +296,7 @@ public:
     void startPosTransform();
     void startRotTransform();
     void startScaleTransform();
+    void startShearTransform();
 
     void startTransform();
     void finishTransform();
@@ -350,6 +354,8 @@ public:
     void scaleRelativeToSavedPivot(const qreal scaleXBy,
                                    const qreal scaleYBy);
     void startPivotTransform();
+    void shearRelativeToSavedPivot(const qreal shearXBy,
+                                   const qreal shearYBy);
     void finishPivotTransform();
     void resetScale();
     void resetTranslation();

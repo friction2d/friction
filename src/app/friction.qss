@@ -206,7 +206,8 @@ QComboBox,
 QPushButton,
 QToolButton,
 QAction,
-#ToolBoxButton
+#ToolBoxButton,
+#ToolBoxGizmo
 {
     background-color: %1;
     border-radius: 2%;
@@ -236,7 +237,8 @@ QToolButton:hover,
 QPushButton:checked,
 QToolButton:checked,
 QAction:checked,
-#ToolBoxButton:hover
+#ToolBoxButton:hover,
+#ToolBoxGizmo:hover
 {
     background-color: %3;
     border-color: %4;
@@ -293,6 +295,7 @@ QToolButton::menu-button {
 
 QPushButton::menu-indicator,
 QToolButton#ToolButton::menu-indicator,
+QPushButton#NoButton::menu-indicator,
 QToolButton#FlatButton::menu-indicator { width: 0px; }
 
 QLineEdit#SearchLine {
@@ -339,7 +342,8 @@ QPushButton#WelcomeRecentButton:hover {
 
 QPushButton#FlatButton,
 QPushButton#AboutButton,
-QToolButton#FlatButton {
+QToolButton#FlatButton,
+QPushButton#NoButton {
     background-color: none;
     border: 0;
     border-radius: 2%;
@@ -347,7 +351,8 @@ QToolButton#FlatButton {
 
 QPushButton#FlatButton,
 QPushButton#AboutButton,
-QToolButton#FlatButton {
+QToolButton#FlatButton,
+QPushButton#NoButton {
     border-radius: 2%;
 }
 
@@ -355,6 +360,10 @@ QPushButton#FlatButton:hover,
 QToolButton#FlatButton:hover {
     background-color: rgb(19, 19, 21);
     border-color: rgb(104, 144, 206);
+}
+
+QPushButton#NoButton:hover {
+    background-color: none;
 }
 
 QPushButton#AboutButton:hover {
@@ -673,6 +682,26 @@ ExpressionEditor {
     margin-right: .1em;
 }
 
-#ToolBoxButton:disabled {
+#ToolBoxGizmo {
+    margin-left: .1em;
+    margin-right: .1em;
+}
+
+#ToolBoxButton:disabled,
+#ToolBoxGizmo:!checked {
     background: transparent;
+}
+
+QToolButton#ToolBoxGizmo[popupMode="1"] {
+    padding-right: %10px;
+}
+
+QToolButton#ToolBoxGizmo[popupMode="1"]::menu-button {
+    width: %10px;
+}
+
+QToolButton#ToolBoxGizmo[popupMode="1"]::menu-arrow {
+    image: url(:/icons/hicolor/%11x%11/actions/go-down.png);
+    width: %10px;
+    height: %10px;
 }

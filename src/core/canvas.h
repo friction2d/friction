@@ -44,6 +44,12 @@
 #include "drawpath.h"
 #include <QMouseEvent>
 #include <QTabletEvent>
+#include <QSizeF>
+#include <QVector>
+#include <QTransform>
+#include <vector>
+
+#include "gizmos.h"
 
 class AnimatedSurface;
 //class PaintBox;
@@ -156,6 +162,11 @@ public:
                          const QPointF &absOrigin,
                          const bool startTrans);
     void cancelSelectedBoxesTransform();
+    void shearSelectedBy(const qreal shearXBy,
+                         const qreal shearYBy,
+                         const QPointF &absOrigin,
+                         const bool startTrans);
+
     void cancelSelectedPointsTransform();
 
     void setSelectedCapStyle(const SkPaint::Cap capStyle);
@@ -178,6 +189,8 @@ public:
                          const bool startTrans);
 
     qreal getResolution() const;
+    void setWorldToScreen(const QTransform& transform,
+                          qreal devicePixelRatio);
     void setResolution(const qreal percent);
 
     void applyCurrentTransformToSelected();
@@ -187,6 +200,11 @@ public:
                                const qreal scaleYBy,
                                const QPointF &absOrigin,
                                const bool startTrans);
+    void shearSelectedPointsBy(const qreal shearXBy,
+                               const qreal shearYBy,
+                               const QPointF &absOrigin,
+                               const bool startTrans);
+
     void rotateSelectedPointsBy(const qreal rotBy,
                                 const QPointF &absOrigin,
                                 const bool startTrans);
@@ -199,9 +217,12 @@ public:
     void startSelectedPointsTransform();
 
     void mergePoints();
+    void splitPoints();
     void disconnectPoints();
     bool connectPoints();
     void subdivideSegments();
+    void makeSelectedNodeFirst();
+    void reverseSelectedNodesOrder();
 
     void setSelectedTextAlignment(const Qt::Alignment alignment) const;
     void setSelectedTextVAlignment(const Qt::Alignment alignment) const;
@@ -210,6 +231,7 @@ public:
     void setSelectedFontSize(const qreal size);
     void setSelectedFontText(const QString &text);
     void removeSelectedPointsAndClearList();
+    void removeSelectedPointsApprox();
     void removeSelectedBoxesAndClearList();
 
     BoundingBox* getCurrentBox() const { return mCurrentBox; }
@@ -314,6 +336,9 @@ public:
                   const QRect &drawRect,
                   const QMatrix &viewTrans,
                   const bool mouseGrabbing);
+    void renderGizmos(SkCanvas* const canvas,
+                      const qreal qInvZoom,
+                      const float invZoom);
 
     void setCanvasSize(const int width,
                        const int height);
@@ -419,6 +444,10 @@ public:
     {
         mPathEffectsVisible = bT;
     }
+
+    void setGizmoVisibility(const Friction::Core::Gizmos::Interact &ti,
+                            const bool visibility);
+    bool getGizmoVisibility(const Friction::Core::Gizmos::Interact &ti);
 
     void setEasingAction(const QString &easing)
     {
@@ -688,6 +717,8 @@ public:
         mSceneFramesHandler.clearUseRange();
     }
 
+    void setGizmosSuppressed(bool suppressed);
+
     //! Used for clip to canvas, when frames are not really changed.
     void sceneFramesUpToDate() const
     {
@@ -737,7 +768,65 @@ private:
     //void openTextEditorForTextBox(TextBox *textBox);
 
     void scaleSelected(const eMouseEvent &e);
+    void shearSelected(const eMouseEvent &e);
     void rotateSelected(const eMouseEvent &e);
+
+    bool prepareRotation(const QPointF &startPos,
+                         bool fromHandle = false);
+
+    void updateRotateHandleHover(const QPointF &pos,
+                                 qreal invScale);
+    bool pointOnRotateGizmo(const QPointF &pos,
+                            qreal invScale) const;
+    void setRotateHandleHover(bool hovered);
+    bool shouldShowXLineGizmo() const;
+    bool shouldShowYLineGizmo() const;
+    bool updateLineGizmoVisibility();
+
+    void updateRotateHandleGeometry(qreal invScale);
+
+    bool tryStartRotateWithGizmo(const eMouseEvent &e,
+                                 qreal invScale);
+    bool tryStartScaleGizmo(const eMouseEvent &e,
+                            qreal invScale);
+    bool tryStartShearGizmo(const eMouseEvent &e,
+                            qreal invScale);
+    bool tryStartAxisGizmo(const eMouseEvent &e,
+                           qreal invScale);
+
+    bool startScaleConstrainedMove(const eMouseEvent &e,
+                                   Friction::Core::Gizmos::ScaleHandle handle);
+    bool startShearConstrainedMove(const eMouseEvent &e,
+                                   Friction::Core::Gizmos::ShearHandle handle);
+    bool startAxisConstrainedMove(const eMouseEvent &e,
+                                  Friction::Core::Gizmos::AxisConstraint axis);
+
+    bool pointOnScaleGizmo(Friction::Core::Gizmos::ScaleHandle handle,
+                           const QPointF &pos, qreal invScale) const;
+    bool pointOnShearGizmo(Friction::Core::Gizmos::ShearHandle handle,
+                           const QPointF &pos, qreal invScale) const;
+    bool pointOnAxisGizmo(Friction::Core::Gizmos::AxisConstraint axis,
+                          const QPointF &pos, qreal invScale) const;
+
+    void setScaleGizmoHover(Friction::Core::Gizmos::ScaleHandle handle,
+                            bool hovered);
+    void setShearGizmoHover(Friction::Core::Gizmos::ShearHandle handle,
+                            bool hovered);
+    void setAxisGizmoHover(Friction::Core::Gizmos::AxisConstraint axis,
+                           bool hovered);
+
+    QPointF snapPosToGrid(const QPointF& pos,
+                          Qt::KeyboardModifiers modifiers,
+                          bool forceSnap) const;
+    QPointF snapEventPos(const eMouseEvent& e,
+                         bool forceSnap) const;
+    void collectAnchorOffsets(const Friction::Core::Grid::Settings &settings);
+    const QPair<bool, QPointF> moveBySnapTargets(const Qt::KeyboardModifiers &modifiers,
+                                                 const QPointF &moveBy,
+                                                 const Friction::Core::Grid::Settings &settings,
+                                                 const bool &includeSelectedBounds = false,
+                                                 const bool &useAnchorOffsets = true,
+                                                 const bool &mustHaveSelected = true);
 
     void drawPathClear();
     void drawPathFinish(const qreal invScale);
@@ -755,6 +844,16 @@ private:
 
 protected:
     Document& mDocument;
+
+    QTransform mWorldToScreen;
+    QTransform mScreenToWorld;
+    bool mHasWorldToScreen = false;
+    qreal mDevicePixelRatio = 1.0;
+    QPointF mGridMoveStartPivot;
+    std::vector<QPointF> mGridSnapAnchorOffsets;
+    bool mHasCreationPressPos = false;
+    QPointF mCreationPressPos;
+
     bool mDrawnSinceQue = true;
 
     qsptr<UndoRedoStack> mUndoRedoStack;
@@ -808,6 +907,8 @@ protected:
 
     ValueInput mValueInput;
 
+    Friction::Core::Gizmos mGizmos;
+
     bool mPreviewing = false;
     bool mRenderingPreview = false;
     bool mRenderingOutput = false;
@@ -851,6 +952,7 @@ protected:
     void handleMovePathMouseMove(const eMouseEvent &e);
 
     void handleLeftMouseRelease(const eMouseEvent &e);
+    void handleLeftMouseGizmos();
 
     void handleAddSmartPointMousePress(const eMouseEvent &e);
     void handleAddSmartPointMouseMove(const eMouseEvent &e);
@@ -859,6 +961,15 @@ protected:
     void updateTransformation(const eKeyEvent &e);
     QPointF getMoveByValueForEvent(const eMouseEvent &e);
     void cancelCurrentTransform();
+    void cancelCurrentTransformGimzos();
+
+    void collectSnapTargets(bool includePivots,
+                            bool includeBounds,
+                            bool includeNodes,
+                            std::vector<QPointF>& pivotTargets,
+                            std::vector<QPointF>& boxTargets,
+                            std::vector<QPointF>& nodeTargets,
+                            bool includeSelectedBounds = false) const;
 };
 
 #endif // CANVAS_H

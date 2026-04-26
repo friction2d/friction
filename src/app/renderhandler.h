@@ -62,6 +62,8 @@ public:
     void renderPreview();
     void renderFromSettings(RenderInstanceSettings * const settings);
 
+    void setPreviewFrame(const int &frame);
+
     void setLoop(const bool loop);
 
     PreviewState currentPreviewState() const

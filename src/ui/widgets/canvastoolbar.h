@@ -44,6 +44,7 @@ namespace Friction
             explicit CanvasToolBar(QWidget *parent = nullptr);
             void setCurrentCanvas(Canvas * const target);
             QComboBox* getResolutionComboBox();
+            void setMemoryUsage(const intMB &usage);
 
         private:
             void setupDimensions();
@@ -60,6 +61,7 @@ namespace Friction
             QSpinBox *mSpinWidth;
             QSpinBox *mSpinHeight;
             QComboBox *mComboResolution;
+            QAction *mMemoryLabel;
 
             ConnContextQPtr<Canvas> mCanvas;
             bool mIconsOnly;

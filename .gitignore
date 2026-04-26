@@ -15,7 +15,6 @@ quazip
 snapshots
 .vscode
 build-*
-*.diff
 *.patch
 ffmpeg
 *.7z
@@ -37,3 +36,4 @@ src/scripts/flatpak/repo
 src/scripts/flatpak/remote
 *.app
 
+*.AppImage

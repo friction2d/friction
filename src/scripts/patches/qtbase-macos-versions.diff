@@ -1,0 +1,15 @@
+--- qtbase/src/corelib/global/qglobal.cpp.orig	2025-06-11 18:07:02
++++ qtbase/src/corelib/global/qglobal.cpp	2025-06-11 18:09:20
+@@ -2137,6 +2137,12 @@
+ static const char *osVer_helper(QOperatingSystemVersion version = QOperatingSystemVersion::current())
+ {
+ #ifdef Q_OS_MACOS
++    if (version.majorVersion() == 16 || version.majorVersion() == 26)
++        return "Tahoe";
++    if (version.majorVersion() == 15)
++        return "Sequoia";
++    if (version.majorVersion() == 14)
++        return "Sonoma";
+     if (version.majorVersion() == 13)
+         return "Ventura";
+     if (version.majorVersion() == 12)

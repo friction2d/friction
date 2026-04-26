@@ -63,6 +63,7 @@ TimelineDockWidget::TimelineDockWidget(Document& document,
     , mRenderProgressAct(nullptr)
     , mRenderProgress(nullptr)
     , mStepPreviewTimer(nullptr)
+    , mPausedPreviewState({false, 0})
 {
     connect(RenderHandler::sInstance, &RenderHandler::previewFinished,
             this, &TimelineDockWidget::previewFinished);
@@ -438,6 +439,10 @@ bool TimelineDockWidget::processKeyPress(QKeyEvent *event)
 
 void TimelineDockWidget::previewFinished()
 {
+    mPausedPreviewState.first = false;
+    if (const auto scene = *mDocument.fActiveScene) {
+        scene->setGizmosSuppressed(false);
+    }
     //setPlaying(false);
     mFrameStartSpin->setEnabled(true);
     mFrameEndSpin->setEnabled(true);
@@ -454,6 +459,9 @@ void TimelineDockWidget::previewFinished()
 
 void TimelineDockWidget::previewBeingPlayed()
 {
+    if (const auto scene = *mDocument.fActiveScene) {
+        scene->setGizmosSuppressed(true);
+    }
     mFrameStartSpin->setEnabled(false);
     mFrameEndSpin->setEnabled(false);
     mCurrentFrameSpinAct->setEnabled(false);
@@ -484,6 +492,11 @@ void TimelineDockWidget::previewBeingRendered()
 
 void TimelineDockWidget::previewPaused()
 {
+    mPausedPreviewState = {true, mDocument.getActiveSceneFrame()};
+
+    if (const auto scene = *mDocument.fActiveScene) {
+        scene->setGizmosSuppressed(false);
+    }
     mFrameStartSpin->setEnabled(true);
     mFrameEndSpin->setEnabled(true);
     mCurrentFrameSpinAct->setEnabled(true);
@@ -534,6 +547,14 @@ bool TimelineDockWidget::setPrevKeyframe()
 void TimelineDockWidget::resumePreview()
 {
     if (eSettings::instance().fPreviewCache) {
+        if (mPausedPreviewState.first) {
+            const int frame = mDocument.getActiveSceneFrame();
+            if (mPausedPreviewState.second != frame) {
+                qDebug() << "set new start frame for preview" << frame;
+                RenderHandler::sInstance->setPreviewFrame(frame);
+                mPausedPreviewState.first = false;
+            }
+        }
         RenderHandler::sInstance->resumePreview();
     } else { setStepPreviewStart(); }
 }

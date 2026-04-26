@@ -508,9 +508,12 @@ void FrameScrollBar::setDisplayedFrameRange(const FrameRange& range) {
     setViewedFrameRange({mFirstViewedFrame, mFirstViewedFrame + mViewedFramesSpan});
 }
 
-void FrameScrollBar::setViewedFrameRange(const FrameRange& range) {
-    setFirstViewedFrame(range.fMin);
-    setFramesSpan(range.span() - 1);
+void FrameScrollBar::setViewedFrameRange(const FrameRange& range)
+{
+    // setFirstViewedFrame(range.fMin);
+    // setFramesSpan(range.span() - 1);
+    mFirstViewedFrame = range.fMin;
+    mViewedFramesSpan = clampInt(range.span() - 1, mMinSpan, mMaxSpan);
     update();
     emitChange();
 }
@@ -520,7 +523,8 @@ void FrameScrollBar::setCanvasFrameRange(const FrameRange &range) {
     update();
 }
 
-void FrameScrollBar::callWheelEvent(QWheelEvent *event)
+void FrameScrollBar::callWheelEvent(QWheelEvent *event,
+                                    const qreal &frame)
 {
     if (!mRange) { return; }
     bool triggered = false;
@@ -528,7 +532,8 @@ void FrameScrollBar::callWheelEvent(QWheelEvent *event)
         int newFramesSpan = mViewedFramesSpan;
         if (event->angleDelta().y() > 0) { newFramesSpan *= 0.85; }
         else { newFramesSpan *= 1.15; }
-        setFramesSpan(newFramesSpan);
+        // setFramesSpan(newFramesSpan);
+        zoomViewedRange(newFramesSpan, frame);
         triggered = true;
    } else if (event->modifiers() & Qt::SHIFT) {
         if (event->angleDelta().y() > 0) {
@@ -545,8 +550,28 @@ void FrameScrollBar::callWheelEvent(QWheelEvent *event)
     update();
 }
 
+void FrameScrollBar::zoomViewedRange(const int &span,
+                                     const qreal &frame)
+{
+    const qreal oldStartFrame = mFirstViewedFrame;
+    const qreal oldSpan = mViewedFramesSpan;
+
+    mViewedFramesSpan = clampInt(span, mMinSpan, mMaxSpan);
+    const qreal newSpan = mViewedFramesSpan;
+
+    if (oldSpan == 0) {
+        mFirstViewedFrame = static_cast<int>(qRound(frame - newSpan / 2.0));
+        return;
+    }
+
+    qreal hoverRatio = (frame - oldStartFrame) / oldSpan;
+    qreal newStartFrame = frame - (hoverRatio * newSpan);
+    mFirstViewedFrame = static_cast<int>(qRound(newStartFrame));
+}
+
 #ifdef Q_OS_MAC
-void FrameScrollBar::callNativeGestures(QNativeGestureEvent *e)
+void FrameScrollBar::callNativeGestures(QNativeGestureEvent *e,
+                                        const qreal &frame)
 {
     if (!e || !mRange) { return; }
     bool triggered = false;
@@ -555,7 +580,8 @@ void FrameScrollBar::callNativeGestures(QNativeGestureEvent *e)
         int newFramesSpan = mViewedFramesSpan;
         if (e->value() < 0) { newFramesSpan *= 0.85; }
         else { newFramesSpan *= 1.15; }
-        setFramesSpan(newFramesSpan);
+        // setFramesSpan(newFramesSpan);
+        zoomViewedRange(newFramesSpan, frame);
         triggered = true;
     } else if (e->gestureType() == Qt::SmartZoomNativeGesture) {
         setFramesSpan(mFrameRange.EMAX);

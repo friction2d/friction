@@ -58,7 +58,7 @@ SceneSettingsDialog::SceneSettingsDialog(const QString &defName,
                                                    0).toInt(),
                            AppSupport::getSettings("scene",
                                                    "DefaultMax",
-                                                   300).toInt()},
+                                                   299).toInt()},
                           AppSupport::getSettings("scene",
                                                   "DefaultFps",
                                                   30.).toDouble(),
@@ -132,11 +132,11 @@ SceneSettingsDialog::SceneSettingsDialog(const QString &name,
 
     mFrameRangeLabel = new QLabel(tr("Duration"), this);
     mMinFrameSpin = new QSpinBox(this);
-    mMinFrameSpin->setRange(0, INT_MAX);
+    mMinFrameSpin->setRange(-INT_MAX, INT_MAX);
     mMinFrameSpin->setValue(range.fMin);
 
     mMaxFrameSpin = new QSpinBox(this);
-    mMaxFrameSpin->setRange(0, INT_MAX);
+    mMaxFrameSpin->setRange(-INT_MAX, INT_MAX);
     mMaxFrameSpin->setValue(range.fMax);
 
     mTypeTime = new QComboBox(this);
@@ -260,14 +260,18 @@ FrameRange SceneSettingsDialog::getFrameRange() const
 {
     FrameRange range;
     const QString typetime = mTypeTime->currentData().toString();
+    const qreal fpsFrame = mFPSSpinBox->value();
+    const qreal minVal = mMinFrameSpin->value();
+    const qreal maxVal = mMaxFrameSpin->value();
+
     if (typetime == "Frames") {
-        range = {mMinFrameSpin->value(), mMaxFrameSpin->value()};
+        range = {static_cast<int>(qRound(minVal)),
+                 static_cast<int>(qRound(maxVal))};
     } else {
-        const int maxFrame = mMaxFrameSpin->value();
-        const int minFrame = mMinFrameSpin->value();
-        const qreal fpsFrame = mFPSSpinBox->value();
-        range = {qRound(minFrame*fpsFrame),
-                 qRound(maxFrame*fpsFrame)};
+        qreal minFrame = qRound(minVal * fpsFrame);
+        qreal maxFrame = qRound(maxVal * fpsFrame) - 1;
+        range = {static_cast<int>(minFrame),
+                 static_cast<int>(qMax(minFrame, maxFrame))};
     }
     range.fixOrder();
     return range;
@@ -362,6 +366,7 @@ void SceneSettingsDialog::sNewSceneDialog(Document& document,
         const auto newCanvas = docPtr->createNewScene();
         const auto block = newCanvas->blockUndoRedo();
         dialog->applySettingsToCanvas(newCanvas);
+        newCanvas->anim_setAbsFrame(newCanvas->getFrameRange().fMin);
         dialog->close();
         docPtr->actionFinished();
     });
@@ -372,15 +377,30 @@ void SceneSettingsDialog::sNewSceneDialog(Document& document,
 void SceneSettingsDialog::updateDuration(int index)
 {
     const qreal fps = mFPSSpinBox->value();
+    if (fps <= 0) { return; }
+    qreal minVal = mMinFrameSpin->value();
+    qreal maxVal = mMaxFrameSpin->value();
+
     switch (index) {
-        case 0: // Convert seconds to frames
-            mMinFrameSpin->setValue(qRound(mMinFrameSpin->value() * fps));
-            mMaxFrameSpin->setValue(qRound(mMaxFrameSpin->value() * fps));
-            break;
-        case 1: // Convert frames to seconds
-            mMinFrameSpin->setValue(qRound(mMinFrameSpin->value() / fps));
-            mMaxFrameSpin->setValue(qRound(mMaxFrameSpin->value() / fps));
-            break;
-        default:;
+    case 0: // Convert seconds to frames
+    {
+        qreal newMinFrame = qRound(minVal * fps);
+        qreal newMaxFrame = qRound(maxVal * fps) - 1;
+
+        mMinFrameSpin->setValue(newMinFrame);
+        mMaxFrameSpin->setValue(qMax(newMinFrame, newMaxFrame));
+        break;
+    }
+    case 1: // Convert frames to seconds
+    {
+        qreal newStartTime = minVal / fps;
+        qreal frameCount = (maxVal - minVal) + 1.0;
+        qreal newEndTime = frameCount / fps;
+
+        mMinFrameSpin->setValue(newStartTime);
+        mMaxFrameSpin->setValue(newEndTime);
+        break;
+    }
+    default:;
     }
 }

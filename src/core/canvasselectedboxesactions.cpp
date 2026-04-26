@@ -409,6 +409,29 @@ void Canvas::scaleSelectedBy(const qreal scaleXBy,
     }
 }
 
+void Canvas::shearSelectedBy(const qreal shearXBy,
+                             const qreal shearYBy,
+                             const QPointF &absOrigin,
+                             const bool startTrans)
+{
+    if (mSelectedBoxes.isEmpty()) { return; }
+    if (mDocument.fLocalPivot) {
+        for(const auto &box : mSelectedBoxes) {
+            if (startTrans) { box->startShearTransform(); }
+            box->shear(shearXBy, shearYBy);
+        }
+    } else {
+        for(const auto &box : mSelectedBoxes) {
+            if (startTrans) {
+                box->startShearTransform();
+                box->startPosTransform();
+                box->saveTransformPivotAbsPos(absOrigin);
+            }
+            box->shearRelativeToSavedPivot(shearXBy, shearYBy);
+        }
+    }
+}
+
 QPointF Canvas::getSelectedBoxesAbsPivotPos() {
     if(mSelectedBoxes.isEmpty()) return QPointF(0, 0);
     QPointF posSum(0, 0);

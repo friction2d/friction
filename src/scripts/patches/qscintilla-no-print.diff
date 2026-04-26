@@ -1,0 +1,28 @@
+--- src/qscintilla.pro.orig	2025-12-31 04:33:33.363453591 +0100
++++ src/qscintilla.pro	2025-12-31 04:34:13.068107461 +0100
+@@ -53,7 +53,6 @@
+ DEFINES += SCINTILLA_QT SCI_LEXER INCLUDE_DEPRECATED_FEATURES
+ 
+ QT += widgets
+-!ios:QT += printsupport
+ macx:lessThan(QT_MAJOR_VERSION, 6) {
+     QT += macextras
+ }
+@@ -218,8 +217,6 @@
+     ../scintilla/src/ViewStyle.h \
+     ../scintilla/src/XPM.h
+ 
+-!ios:HEADERS += ./Qsci/qsciprinter.h
+-
+ SOURCES = \
+     qsciscintilla.cpp \
+     qsciscintillabase.cpp \
+@@ -435,8 +432,6 @@
+     ../scintilla/src/ViewStyle.cpp \
+     ../scintilla/src/XPM.cpp
+ 
+-!ios:SOURCES += qsciprinter.cpp
+-
+ TRANSLATIONS = \
+     qscintilla_cs.ts \
+     qscintilla_de.ts \

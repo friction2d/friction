@@ -120,6 +120,11 @@ void RenderHandler::renderFromSettings(RenderInstanceSettings * const settings) 
     }
 }
 
+void RenderHandler::setPreviewFrame(const int &frame)
+{
+    mCurrentPreviewFrame = frame;
+}
+
 void RenderHandler::setLoop(const bool loop) {
     mLoop = loop;
 }

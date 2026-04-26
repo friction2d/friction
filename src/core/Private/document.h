@@ -44,6 +44,9 @@
 #include "Boxes/videobox.h"
 #include "ReadWrite/ereadstream.h"
 #include "ReadWrite/ewritestream.h"
+#include "gizmos.h"
+#include "appsupport.h"
+#include "grid.h"
 
 class SceneBoundGradient;
 class FileDataCacheHandler;
@@ -68,12 +71,32 @@ public:
 
     static Document* sInstance;
 
+    Friction::Core::Grid* getGrid();
+
     stdsptr<Clipboard> fClipboardContainer;
 
     QString fEvFile;
 
     NodeVisiblity fNodeVisibility = NodeVisiblity::dissolvedAndNormal;
+
     bool fLocalPivot = true;
+
+    bool fGizmoPositionVisibility = AppSupport::getSettings("gizmos",
+                                                            "Position",
+                                                            true).toBool();
+    bool fGizmoRotateVisibility = AppSupport::getSettings("gizmos",
+                                                          "Rotate",
+                                                          true).toBool();
+    bool fGizmoScaleVisibility = AppSupport::getSettings("gizmos",
+                                                         "Scale",
+                                                         false).toBool();
+    bool fGizmoShearVisibility = AppSupport::getSettings("gizmos",
+                                                         "Shear",
+                                                         false).toBool();
+    bool fGizmoAllVisibility = AppSupport::getSettings("gizmos",
+                                                       "All",
+                                                       true).toBool();
+
     CanvasMode fCanvasMode;
 
     // bookmarked
@@ -100,10 +123,16 @@ public:
     bool fOnionVisible = false;
     PaintMode fPaintMode = PaintMode::normal;
 
+    Friction::Core::Grid *mGrid;
+
     QList<qsptr<Canvas>> fScenes;
     std::map<Canvas*, int> fVisibleScenes;
     ConnContextPtr<Canvas> fActiveScene;
     qptr<BoundingBox> fCurrentBox;
+
+    // gizmo pivot state
+    QPointF fPivotPosForGizmos = QPointF(0,0);
+    bool fPivotPosForGizmosValid = false;
 
     void updateScenes();
     void actionFinished();
@@ -120,9 +149,15 @@ public:
 
     void setCanvasMode(const CanvasMode mode);
 
+    void setGizmoVisibility(const Friction::Core::Gizmos::Interact &ti,
+                            const bool visibility);
+    bool getGizmoVisibility(const Friction::Core::Gizmos::Interact &ti);
+
     Canvas * createNewScene(const bool emitCreated = true);
     bool removeScene(const qsptr<Canvas>& scene);
     bool removeScene(const int id);
+
+    bool sceneIsLinked(const qsptr<Canvas> &scene);
 
     void addVisibleScene(Canvas * const scene);
     bool removeVisibleScene(Canvas * const scene);
@@ -183,8 +218,14 @@ private:
     void readBookmarked(eReadStream &src);
 
     void readGradients(eReadStream& src);
+
 signals:
+
     void canvasModeSet(CanvasMode);
+
+    void gizmoVisibilityChanged(const Friction::Core::Gizmos::Interact &ti,
+                                const bool &visible);
+    void gridChanged(const Friction::Core::Grid::Settings &settings);
 
     void sceneCreated(Canvas*);
     void sceneRemoved(Canvas*);

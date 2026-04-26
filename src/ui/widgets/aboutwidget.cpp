@@ -35,6 +35,10 @@
 #include <QFile>
 #include <QSysInfo>
 
+extern "C" {
+#include <libavutil/avutil.h>
+}
+
 AboutWidget::AboutWidget(QWidget *parent)
     : QWidget{parent}
 {
@@ -53,17 +57,18 @@ AboutWidget::AboutWidget(QWidget *parent)
 #endif
 
     QString label = QString::fromUtf8("<div style=\"margin: 0; padding: 0; text-align: center; font-weight: normal;\">"
-                                      "<img src=\":/icons/hicolor/%5x%5/apps/%4.png\" width=\"%2\" height=\"%2\">"
+                                      "<img src=\":/icons/hicolor/%5x%5/mimetypes/%4.png\" width=\"%2\" height=\"%2\">"
                                       "<h1 style=\"font-weight: normal; margin-top: 0; padding-top: 0;\">%3"
                                       "<br><span style=\"font-size: large;\">%1</span>"
-                                      "<br><span style=\"font-size: medium;\">%6<br>%7<br>Qt %8</span></h1>"
+                                      "<br><span style=\"font-size: medium;\">%6<br>%7<br>FFmpeg %8<br>Qt %9</span></h1>"
                                       "</div>").arg(AppSupport::getAppVersion(),
                                                     QString::number(ThemeSupport::getIconSize(logoSize).width()),
                                                     AppSupport::getAppDisplayName(),
-                                                    AppSupport::getAppID(),
+                                                    ThemeSupport::getAppIconName(true),
                                                     QString::number(ThemeSupport::getIconSize(qRound(logoSize * devicePixelRatioF())).width()),
                                                     osName,
                                                     HardwareInfo::sGpuRendererString(),
+                                                    av_version_info(),
                                                     qVersion());
     const auto buildInfo = AppSupport::getAppBuildInfo(true);
     if (!buildInfo.isEmpty()) {

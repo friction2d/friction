@@ -30,6 +30,12 @@
 #include <QDesktopWidget>
 #include <QToolButton>
 
+const QString ThemeSupport::getAppIconName(const bool alt)
+{
+    const QString name = alt ? "application-x-graphics.friction.Friction" : "graphics.friction.Friction";
+    return name;
+}
+
 const QColor ThemeSupport::getQColor(int r,
                                      int g,
                                      int b,
@@ -292,4 +298,35 @@ void ThemeSupport::setToolbarButtonStyle(const QString &name,
             button->setObjectName(name);
         }
     }
+}
+
+const QColor ThemeSupport::getLightDarkColor(const QColor &color,
+                                             const int &factor)
+{
+    const float lightness = color.lightnessF();
+    if (lightness < 0.5f) {
+        const QColor col = color.lighter(factor);
+        const float minLightness = 0.3f;
+        if (col.lightnessF() < minLightness) {
+            QColor hslColor = color.toHsl();
+            hslColor.setHslF(hslColor.hslHueF(),
+                             hslColor.hslSaturationF(),
+                             minLightness,
+                             hslColor.alphaF());
+            return hslColor.toRgb();
+        }
+        return col;
+    }
+
+    const QColor col = color.darker(factor);
+    const float maxLightness = 0.7f;
+    if (col.lightnessF() > maxLightness) {
+        QColor hslColor = color.toHsl();
+        hslColor.setHslF(hslColor.hslHueF(),
+                         hslColor.hslSaturationF(),
+                         maxLightness,
+                         hslColor.alphaF());
+        return hslColor.toRgb();
+    }
+    return col;
 }

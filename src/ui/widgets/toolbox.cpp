@@ -36,6 +36,7 @@ ToolBox::ToolBox(Actions &actions,
     , mMain(nullptr)
     , mControls(nullptr)
     , mExtra(nullptr)
+    , mInteract(nullptr)
     , mGroupMain(nullptr)
     , mGroupNodes(nullptr)
     , mGroupDraw(nullptr)
@@ -52,14 +53,17 @@ ToolBox::ToolBox(Actions &actions,
 QToolBar *ToolBox::getToolBar(const Type &type)
 {
     switch (type) {
+    case Type::Main:
+        return mMain;
     case Type::Controls:
         return mControls;
     case Type::Extra:
         return mExtra;
+    case Type::Interact:
+        return mInteract;
     default:
-        return mMain;
+        return nullptr;
     }
-    return nullptr;
 }
 
 const QList<QAction*> ToolBox::getMainActions()
@@ -88,6 +92,7 @@ void ToolBox::setupToolBox(QWidget *parent)
                         parent,
                         true);
     mControls = new ToolControls(parent);
+    mInteract = new ToolInteract(parent);
     // disable for now
     /*mExtra = new ToolboxToolBar(tr("Extra Tools"),
                                 "ToolBoxExtra",
@@ -285,8 +290,25 @@ void ToolBox::setupNodesAction(const QIcon &icon,
         case NodeMerge:
             mActions.mergePointsSlot();
             break;
+        case NodeSplit:
+            mActions.splitPointsSlot();
+            break;
+        case NodeFirst:
+            mActions.makeSelectedNodeFirstSlot();
+            break;
+        case NodeReverse:
+            mActions.reverseNodesOrderSlot();
+            break;
         case NodeNew:
             mActions.subdivideSegments();
+            break;
+        case NodeRemove:
+            if (mActions.deleteAction) {
+                (*mActions.deleteAction)();
+            }
+            break;
+        case NodeRemoveApprox:
+            mActions.removePointsApprox();
             break;
         case NodeSymmetric:
             mActions.makePointCtrlsSymmetric();
@@ -316,14 +338,24 @@ void ToolBox::setupNodesActions()
     mControls->addAction(mGroupNodes->addAction(QIcon::fromTheme("pointTransform"),
                                                 tr("Nodes")));
 
+    setupNodesAction(QIcon::fromTheme("nodeNew"),
+                     tr("New Node"), NodeNew);
+    setupNodesAction(QIcon::fromTheme("nodeRemove"),
+                     tr("Remove Node"), NodeRemove);
+    setupNodesAction(QIcon::fromTheme("nodeRemoveApprox"),
+                     tr("Remove Node Approx."), NodeRemoveApprox);
     setupNodesAction(QIcon::fromTheme("nodeConnect"),
                      tr("Connect Nodes"), NodeConnect);
     setupNodesAction(QIcon::fromTheme("nodeDisconnect"),
                      tr("Disconnect Nodes"), NodeDisconnect);
     setupNodesAction(QIcon::fromTheme("nodeMerge"),
                      tr("Merge Nodes"), NodeMerge);
-    setupNodesAction(QIcon::fromTheme("nodeNew"),
-                     tr("New Node"), NodeNew);
+    setupNodesAction(QIcon::fromTheme("nodeSplit"),
+                     tr("Split Nodes"), NodeSplit);
+    setupNodesAction(QIcon::fromTheme("nodeReverse"),
+                     tr("Reverse Nodes Order"), NodeReverse);
+    setupNodesAction(QIcon::fromTheme("nodeFirst"),
+                     tr("Set First Node"), NodeFirst);
     setupNodesAction(QIcon::fromTheme("nodeSymmetric"),
                      tr("Symmetric Nodes"), NodeSymmetric);
     setupNodesAction(QIcon::fromTheme("nodeSmooth"),

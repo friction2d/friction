@@ -49,6 +49,8 @@
 
 void setDefaultFormat()
 {
+    QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+    QApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
     QSurfaceFormat format;
     format.setVersion(3, 3);
     format.setProfile(QSurfaceFormat::CoreProfile);
@@ -74,6 +76,21 @@ void generateAlphaMesh(QPixmap& alphaMesh,
     p.end();
 }
 
+void setScaleFactor()
+{
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+#endif
+    bool passThrough = true;
+    QSettings settings("friction", "friction");
+    const QString key = "settings/interfaceScalingPassThrough";
+    if (settings.contains(key)) { passThrough = settings.value(key).toBool(); }
+    QApplication::setHighDpiScaleFactorRoundingPolicy(passThrough ?
+                                                          Qt::HighDpiScaleFactorRoundingPolicy::PassThrough :
+                                                          Qt::HighDpiScaleFactorRoundingPolicy::RoundPreferFloor);
+}
+
 int main(int argc, char *argv[])
 {
     // check if cli renderer (not supported yet)
@@ -92,15 +109,9 @@ int main(int argc, char *argv[])
     QApplication::setOrganizationDomain(AppSupport::getAppDomain());
     QApplication::setApplicationVersion(AppSupport::getAppVersion());
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-#endif
-    QApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
-    QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
-    QApplication::setAttribute(isRenderer ? Qt::AA_UseSoftwareOpenGL : Qt::AA_UseDesktopOpenGL);
-
+    setScaleFactor();
     setDefaultFormat();
+
     QApplication app(argc, argv);
     setlocale(LC_NUMERIC, "C");
 

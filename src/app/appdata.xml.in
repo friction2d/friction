@@ -7,6 +7,10 @@
   <developer id="@PROJECT_IDENTIFIER@">
     <name>@FRICTION_DISPLAY_NAME@</name>
   </developer>
+  <branding>
+    <color type="primary" scheme_preference="light">#5433a7</color>
+    <color type="primary" scheme_preference="dark">#2a0162</color>
+  </branding>
   <summary>@PROJECT_SUMMARY@</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-only</project_license>
@@ -14,6 +18,12 @@
     <p>@PROJECT_DESCRIPTION@</p>
   </description>
   <releases>
+    <release date="2025-12-31" version="1.0.0-rc.3">
+      <description>
+        <p>Third release candidate for v1.0.0 is now available. Features gizmos, snapping and grid. And of course many fixes!</p>
+      </description>
+      <url type="details">https://friction.graphics/releases/friction-100-rc3.html</url>
+    </release>
     <release date="2025-08-06" version="1.0.0-rc.2">
       <description>
         <p>Second release candidate for v1.0.0 is now available.</p>
@@ -83,7 +93,7 @@
   </releases>
   <screenshots>
     <screenshot type="default">
-      <image>https://friction.graphics/assets/screenshots/100/friction-100b2-screenshot.png</image>
+      <image>https://friction.graphics//assets/screenshots/100/friction-100-linux-screenshot.png</image>
       <caption>Default user interface</caption>
     </screenshot>
   </screenshots>
@@ -100,22 +110,23 @@
     <control>keyboard</control>
     <control>pointing</control>
   </supports>
+  <requires>
+    <control>keyboard</control>
+    <control>pointing</control>
+    <display_length compare="ge">768</display_length>
+  </requires>
   <categories>
-    <category>AudioVideo</category>
     <category>Graphics</category>
+    <category>AudioVideo</category>
   </categories>
   <keywords>
-    <keyword>2d</keyword>
     <keyword>graphics</keyword>
     <keyword>motion graphics</keyword>
-    <keyword>mograph</keyword>
     <keyword>animation</keyword>
     <keyword>web animation</keyword>
     <keyword>video</keyword>
     <keyword>svg</keyword>
     <keyword>vector</keyword>
-    <keyword>raster</keyword>
     <keyword>vfx</keyword>
-    <keyword>editing</keyword>
   </keywords>
 </component>

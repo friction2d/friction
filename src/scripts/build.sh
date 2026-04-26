@@ -22,16 +22,17 @@ set -e -x
 
 CWD=`pwd`
 MKJOBS=${MKJOBS:-2}
-COMMIT=`git rev-parse --short=8 HEAD`
-BRANCH=`git rev-parse --abbrev-ref HEAD`
+COMMIT=${COMMIT:-`git rev-parse --short=8 HEAD`}
+BRANCH=${BRANCH:-`git rev-parse --abbrev-ref HEAD`}
 CUSTOM=${CUSTOM:-"CI"}
+HEAD_REPO_URL=${HEAD_REPO_URL:-""}
 
 REL=${REL:-0}
 APPIMG=20240401
 SDK=1.0.0
 URL=https://github.com/friction2d/friction-sdk/releases/download/v${SDK}
 APPIMAGE_TAR=friction-appimage-tools-${APPIMG}.tar.xz
-SDK_TAR=friction-sdk-${SDK}r7-linux-x86_64.tar.xz
+SDK_TAR=friction-sdk-${SDK}r9-linux-x86_64.tar.xz
 
 mkdir -p distfiles/sdk || true
 
@@ -50,4 +51,4 @@ fi
 
 cd ${CWD}
 
-LOCAL_BUILD=0 MKJOBS=${MKJOBS} REL=${REL} BRANCH=${BRANCH} COMMIT=${COMMIT} CUSTOM=${CUSTOM} ./src/scripts/run_docker.sh
+HEAD_REPO_URL=${HEAD_REPO_URL} LOCAL_BUILD=0 MKJOBS=${MKJOBS} REL=${REL} BRANCH=${BRANCH} COMMIT=${COMMIT} CUSTOM=${CUSTOM} ./src/scripts/run_docker.sh

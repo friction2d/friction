@@ -29,11 +29,12 @@ BRANCH=${BRANCH:-""}
 COMMIT=${COMMIT:-""}
 TAG=${TAG:-""}
 CUSTOM=${CUSTOM:-""}
-MKJOBS=${MKJOBS:-32}
+MKJOBS=${MKJOBS:-4}
 SDK_VERSION=${SDK_VERSION:-""}
 ONLY_SDK=${ONLY_SDK:-0}
-SDK_TAR="${DISTFILES}/sdk/friction-sdk-${SDK_VERSION}r7-linux-x86_64.tar"
+SDK_TAR="${DISTFILES}/sdk/friction-sdk-${SDK_VERSION}r9-linux-x86_64.tar"
 TAR_VERSION=${TAR_VERSION:-""}
+HEAD_REPO_URL=${HEAD_REPO_URL:-""}
 
 # Build SDK
 if [ ! -d "${SDK}" ]; then
@@ -68,6 +69,7 @@ COMMIT=${COMMIT} \
 TAG=${TAG} \
 CUSTOM=${CUSTOM} \
 TAR_VERSION=${TAR_VERSION} \
+HEAD_REPO_URL=${HEAD_REPO_URL} \
 ${BUILD}/build_vfxplatform_friction.sh
 
 # Get Friction version

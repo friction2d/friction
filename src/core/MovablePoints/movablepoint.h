@@ -64,7 +64,10 @@ public:
     virtual void setRelativePos(const QPointF &relPos) = 0;
 
     virtual void scale(const qreal scaleXBy, const qreal scaleYBy);
-    virtual void scaleRelativeToSavedPivot(const qreal sx, const qreal sy);
+    virtual void scaleRelativeToSavedPivot(const qreal sx,
+                                           const qreal sy);
+    virtual void shearRelativeToSavedPivot(const qreal shearX,
+                                           const qreal shearY);
     virtual void rotateRelativeToSavedPivot(const qreal rot);
     virtual void saveTransformPivotAbsPos(const QPointF &absPivot);
 
@@ -175,4 +178,5 @@ private:
     QPointF mSavedRelPos;
     BasicTransformAnimator * mTrans_cv = nullptr;
 };
+
 #endif // MOVABLEPOINT_H

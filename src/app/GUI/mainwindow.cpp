@@ -168,6 +168,7 @@ MainWindow::MainWindow(Document& document,
     setupAutoSave();
 
     setupMainWidgets();
+    setupMemoryWidgets();
     setupPropertiesWidgets();
 
     setupToolBar();
@@ -463,6 +464,7 @@ void MainWindow::updateSettingsForCurrentCanvas(Canvas* const scene)
 
 void MainWindow::setupToolBar()
 {
+    mToolBox = new Ui::ToolBox(mActions, mDocument, this);
     mToolbar = new Ui::ToolBar(tr("Toolbar"),
                                "MainToolBar",
                                this);
@@ -473,7 +475,6 @@ void MainWindow::setupToolBar()
             this, [this](const QString &msg){ statusBar()->showMessage(msg, 500); });
     addToolBar(mColorToolBar);
 
-    mToolBox = new Ui::ToolBox(mActions, mDocument, this);
     {
         const auto toolbar = mToolBox->getToolBar(Ui::ToolBox::Main);
         if (toolbar) { addToolBar(Qt::LeftToolBarArea, toolbar); }
@@ -494,6 +495,11 @@ void MainWindow::setupToolBar()
     mCanvasToolBar->addWidget(workspaceLayoutCombo);
 
     statusBar()->addPermanentWidget(mCanvasToolBar);
+
+    {
+        const auto toolbar = mToolBox->getToolBar(Ui::ToolBox::Interact);
+        if (toolbar) { statusBar()->addPermanentWidget(toolbar); }
+    }
 
     connect(&mAudioHandler, &AudioHandler::deviceChanged,
             this, [this]() {
@@ -913,6 +919,21 @@ void MainWindow::setupStackWidgets()
     mStackWidget = new QStackedWidget(this);
     mStackIndexScene = mStackWidget->addWidget(mLayoutHandler->sceneLayout());
     mStackIndexWelcome = mStackWidget->addWidget(mWelcomeDialog);
+}
+
+void MainWindow::setupMemoryWidgets()
+{
+    const auto timer = new QTimer(this);
+    connect(timer, &QTimer::timeout,
+            this, [this]() {
+        if (mShutdown || !mCanvasToolBar) { return; }
+        mCanvasToolBar->setMemoryUsage(mMemoryUsed);
+    });
+    timer->start(5000);
+
+    const auto handler = MemoryHandler::sInstance;
+    connect(handler, &MemoryHandler::memoryUsed,
+            this, [this](intMB used) { mMemoryUsed = used; });
 }
 
 void MainWindow::setupPropertiesWidgets()
@@ -1446,7 +1467,7 @@ void MainWindow::updateRecentMenu()
     for (const auto &path : mRecentFiles) {
         QFileInfo info(path);
         if (!info.exists()) { continue; }
-        mRecentMenu->addAction(QIcon::fromTheme(AppSupport::getAppID()), info.baseName(), [path, this]() {
+        mRecentMenu->addAction(QIcon::fromTheme(ThemeSupport::getAppIconName(true)), info.baseName(), [path, this]() {
             openFile(path);
         });
     }

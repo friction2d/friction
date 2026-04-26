@@ -59,6 +59,10 @@
 #include "widgets/uilayout.h"
 #include "widgets/toolbox.h"
 
+#ifndef Q_OS_MAC
+#include "widgets/persistentmenu.h"
+#endif
+
 class VideoEncoder;
 class RenderWidget;
 class ActionButton;
@@ -280,7 +284,11 @@ private:
     QMenu *mPathMenu;
     QMenu *mEffectsMenu;
     QMenu *mSceneMenu;
+#ifndef Q_OS_MAC
+    Friction::Ui::PersistentMenu *mViewMenu;
+#else
     QMenu *mViewMenu;
+#endif
     QMenu *mPanelsMenu;
     QMenu *mRenderMenu;
 
@@ -305,6 +313,7 @@ private:
 
     void setupMainWidgets();
     void setupStackWidgets();
+    void setupMemoryWidgets();
     void setupPropertiesWidgets();
     void setupLayout();
     void setupToolBar();
@@ -370,6 +379,8 @@ private:
 
     QAction *mToolBarMainAct;
     QAction *mToolBarColorAct;
+
+    intMB mMemoryUsed;
 
 protected:
     void keyPressEvent(QKeyEvent *event);

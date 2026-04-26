@@ -1,0 +1,12 @@
+--- qtbase/src/corelib/global/qglobal.cpp.orig	2025-10-08 17:39:42
++++ qtbase/src/corelib/global/qglobal.cpp	2025-10-08 18:15:27
+@@ -1186,7 +1186,8 @@
+ 
+ const char *qVersion() noexcept
+ {
+-    return QT_VERSION_STR;
++    static const QByteArray versionString = QStringLiteral("%1-20251101-d8220074-f1").arg(QLatin1String(QT_VERSION_STR)).toUtf8();
++    return versionString.constData();
+ }
+ 
+ bool qSharedBuild() noexcept

@@ -55,14 +55,21 @@ Actions::Actions(Document &document) : mDocument(document) {
             return static_cast<bool>(mActiveScene);
         };
         const auto deleteSceneActionExec = [this]() {
-            if(!mActiveScene) return false;
+            if (!mActiveScene) { return false; }
             const auto sceneName = mActiveScene->prp_getName();
-            const int buttonId = QMessageBox::question(
-                        nullptr, "Delete " + sceneName,
-                        QString("Are you sure you want to delete "
-                        "%1? This action cannot be undone.").arg(sceneName),
-                        "Cancel", "Delete");
-            if(buttonId == 0) return false;
+            const bool isLinked = mDocument.sceneIsLinked(mActiveScene->ref<Canvas>());
+            if (isLinked) {
+                QMessageBox::information(nullptr,
+                                         tr("Scene is linked"),
+                                         tr("Can't delete %1, it's linked in a different scene.").arg(sceneName));
+                return false;
+            }
+            const int buttonId = QMessageBox::question(nullptr,
+                                                       tr("Delete %1").arg(sceneName),
+                                                       tr("Are you sure you want to delete "
+                                                          "%1? This action cannot be undone.").arg(sceneName),
+                                                       tr("Cancel"), tr("Delete"));
+            if (buttonId == 0) { return false; }
             return mDocument.removeScene(mActiveScene->ref<Canvas>());
         };
         const auto deleteSceneActionText = [this]() {
@@ -512,11 +519,43 @@ void Actions::mergePointsSlot() const
     afterAction();
 }
 
+void Actions::splitPointsSlot() const
+{
+    qDebug() << "splitPointsSlot";
+    if (!mActiveScene) { return; }
+    mActiveScene->splitPoints();
+    afterAction();
+}
+
+void Actions::makeSelectedNodeFirstSlot() const
+{
+    qDebug() << "makeSelectedNodeFirstSlot";
+    if (!mActiveScene) { return; }
+    mActiveScene->makeSelectedNodeFirst();
+    afterAction();
+}
+
+void Actions::reverseNodesOrderSlot() const
+{
+    qDebug() << "reverseNodesOrderSlot";
+    if (!mActiveScene) { return; }
+    mActiveScene->reverseSelectedNodesOrder();
+    afterAction();
+}
+
 void Actions::subdivideSegments() const
 {
     qDebug() << "subdivideSegments";
     if (!mActiveScene) { return; }
     mActiveScene->subdivideSegments();
+    afterAction();
+}
+
+void Actions::removePointsApprox() const
+{
+    qDebug() << "removePointsApprox";
+    if (!mActiveScene) { return; }
+    mActiveScene->removeSelectedPointsApprox();
     afterAction();
 }
 

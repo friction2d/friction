@@ -41,7 +41,8 @@ public:
     ScrollArea(QWidget * const parent = nullptr);
 
     void scrollBy(const int x, const int y);
-    void callWheelEvent(QWheelEvent *event);
+    void callWheelEvent(QWheelEvent *event,
+                        const qreal &frame);
 
 signals:
     void heightChanged(int);

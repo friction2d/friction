@@ -488,7 +488,8 @@ void KeysView::graphDeletePressed() {
     mGPressedPoint = nullptr;
 }
 
-void KeysView::graphWheelEvent(QWheelEvent *event)
+void KeysView::graphWheelEvent(QWheelEvent *event,
+                               const qreal &hframe)
 {
 #ifdef Q_OS_MAC
     if (event->angleDelta().y() == 0) { return; }
@@ -496,10 +497,10 @@ void KeysView::graphWheelEvent(QWheelEvent *event)
     const bool ctrl = (event->modifiers() & Qt::ControlModifier);
     const bool shift = (event->modifiers() & Qt::ShiftModifier);
     if (ctrl && !shift) {
-        emit wheelEventSignal(event);
+        emit wheelEventSignal(event, hframe);
         return;
     } else if (ctrl || shift) {
-        if (ctrl) { emit wheelEventSignal(event); }
+        if (ctrl) { emit wheelEventSignal(event, hframe); }
         qreal valUnderMouse;
         qreal frame;
         const auto ePos = event->position();

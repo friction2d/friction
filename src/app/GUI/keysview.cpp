@@ -136,6 +136,8 @@ void KeysView::middleMove(const QPointF &movePos) {
     const int roundX = qRound(diffFrame);
     setFramesRange({mSavedMinViewedFrame - roundX,
                     mSavedMaxViewedFrame - roundX});
+
+    emit changedViewedFrames({mMinViewedFrame, mMaxViewedFrame});
 }
 
 void KeysView::deleteSelectedKeys() {
@@ -239,10 +241,16 @@ void KeysView::wheelEvent(QWheelEvent *e)
         if (mPanEvent) { emit panEventSignal(e); }
     }
 #endif
+
+    const QPoint pos = e->pos();
+    const QPoint posU = pos + QPoint(-eSizesUI::widget/2, 0);
+    const qreal currentHoverFrame = static_cast<qreal>(posU.x()) / mPixelsPerFrame + mMinViewedFrame;
+    // qDebug() << "currentHoverFrame" << currentHoverFrame;
+
     if (mGraphViewed) {
-        if (!mPanEvent) { graphWheelEvent(e); }
+        if (!mPanEvent) { graphWheelEvent(e, currentHoverFrame); }
     } else {
-        if (!mPanEvent) { emit wheelEventSignal(e); }
+        if (!mPanEvent) { emit wheelEventSignal(e, currentHoverFrame); }
         if (mSelecting) {
             const QPointF posU = mapFromGlobal(QCursor::pos()) +
                            QPointF(-eSizesUI::widget/2, 0.);
@@ -507,7 +515,12 @@ bool KeysView::event(QEvent *e)
         auto g = dynamic_cast<QNativeGestureEvent*>(e);
         if (g->gestureType() == Qt::ZoomNativeGesture ||
             g->gestureType() == Qt::SmartZoomNativeGesture) {
-            emit nativeEventSignal(g);
+            const QPoint globalMousePos = QCursor::pos();
+            const QPoint localMousePos = mapFromGlobal(globalMousePos);
+            const QPoint posU = localMousePos + QPoint(-eSizesUI::widget/2, 0);
+            const qreal currentHoverFrame = static_cast<qreal>(posU.x()) / mPixelsPerFrame + mMinViewedFrame;
+            // qDebug() << "currentHoverFrame" << currentHoverFrame;
+            emit nativeEventSignal(g, currentHoverFrame);
             return true;
         }
     }

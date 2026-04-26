@@ -95,12 +95,6 @@ ExportSvgDialog::ExportSvgDialog(QWidget* const parent,
     mOptimize->setChecked(AppSupport::getSettings("exportSVG",
                                                   "optimize",
                                                   false).toBool());
-    bool hasSVGO = !AppSupport::getSVGO().isEmpty();
-    mOptimize->setEnabled(hasSVGO);
-    if (!hasSVGO) {
-        mOptimize->setChecked(false);
-        mOptimize->setToolTip(tr("SVG Optimizer is missing."));
-    }
 
     mNotify = new QCheckBox(tr("Notify when done"), this);
     mNotify->setChecked(AppSupport::getSettings("exportSVG",
@@ -262,17 +256,6 @@ ExportSvgDialog::ExportSvgDialog(QWidget* const parent,
                                 saveInfo.absoluteDir().absolutePath());
         const bool success = exportTo(saveAs);
         if (success) {
-            if (mOptimize->isEnabled() &&
-                mOptimize->isChecked()) {
-                if (!QProcess::startDetached(AppSupport::getSVGO(),
-                                             QStringList() << "--config"
-                                                           << AppSupport::getSVGOConfig()
-                                                           << saveAs)) {
-                    QMessageBox::warning(this,
-                                         tr("Optimizer Failed"),
-                                         tr("Failed to launch SVG optimizer."));
-                }
-            }
             if (mNotify->isChecked()) { finishedDialog(saveAs); }
             accept();
         }
@@ -354,6 +337,7 @@ ComplexTask* ExportSvgDialog::exportTo(const QString& file,
         const bool loop = mLoop->isChecked();
         const bool blend = mBlendMix->isChecked();
         const bool colors11 = mColors11->isChecked();
+        const bool optimize = mOptimize->isChecked();
 
         int imageQuality = mImageQuality->value();
         SkEncodedImageFormat imageFormat;
@@ -374,7 +358,7 @@ ComplexTask* ExportSvgDialog::exportTo(const QString& file,
         const auto task = new SvgExporter(file, scene, frameRange, fps,
                                           background, fixedSize, loop,
                                           imageFormat, imageQuality, preview,
-                                          blend, colors11);
+                                          blend, colors11, optimize);
         const auto taskSPtr = qsptr<SvgExporter>(task, &QObject::deleteLater);
         task->nextStep();
         TaskScheduler::instance()->addComplexTask(taskSPtr);

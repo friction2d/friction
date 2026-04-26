@@ -88,7 +88,8 @@ public:
     // graph
 
     void graphPaint(QPainter *p);
-    void graphWheelEvent(QWheelEvent *event);
+    void graphWheelEvent(QWheelEvent *event,
+                         const qreal &hframe);
     bool graphProcessFilteredKeyEvent(QKeyEvent *event);
     void graphResizeEvent(QResizeEvent *);
     void graphAddViewedAnimator(GraphAnimator * const animator);
@@ -145,11 +146,13 @@ protected:
     void dragMoveEvent(QDragMoveEvent *event);
 signals:
     void changedViewedFrames(FrameRange);
-    void wheelEventSignal(QWheelEvent*);
+    void wheelEventSignal(QWheelEvent *e,
+                          const qreal &frame);
     void statusMessage(const QString &message);
 
 #ifdef Q_OS_MAC
-    void nativeEventSignal(QNativeGestureEvent *e);
+    void nativeEventSignal(QNativeGestureEvent *e,
+                           const qreal &frame);
     void panEventSignal(QWheelEvent *e);
 #endif
 

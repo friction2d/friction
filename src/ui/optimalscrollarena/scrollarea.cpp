@@ -63,12 +63,14 @@ void ScrollArea::resizeEvent(QResizeEvent *e) {
 #ifdef Q_OS_MAC
 void ScrollArea::wheelEvent(QWheelEvent *event)
 {
-    callWheelEvent(event);
+    callWheelEvent(event, 0);
 }
 #endif
 
-void ScrollArea::callWheelEvent(QWheelEvent *event)
+void ScrollArea::callWheelEvent(QWheelEvent *event,
+                                const qreal &frame)
 {
+    Q_UNUSED(frame)
 #ifdef Q_OS_MAC
     if (event->angleDelta().y() == 0) { return; }
 #endif

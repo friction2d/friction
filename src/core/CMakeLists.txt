@@ -33,17 +33,41 @@ message("-- ffmpeg libraries: ${FFMPEG_LIBRARIES_DIRS} ${FFMPEG_LIBRARIES}")
 message("-- skia libraries: ${SKIA_LIBRARIES_DIRS} ${SKIA_LIBRARIES}")
 
 add_definitions(-DPROJECT_VERSION="${PROJECT_VERSION}")
-add_definitions(-DPROJECT_COMMIT="${GIT_COMMIT}")
-add_definitions(-DPROJECT_BRANCH="${GIT_BRANCH}")
-
 add_definitions(-DCORE_LIBRARY)
 
-if(UNIX AND NOT APPLE)
-    option(USE_EGL "Use EGL" OFF)
-    if(${USE_EGL})
-        add_definitions(-DFRICTION_EGL)
+set(GIT_BRANCH "" CACHE STRING "Git branch")
+set(GIT_COMMIT "" CACHE STRING "Git commit")
+
+if(NOT GIT_COMMIT OR NOT GIT_BRANCH)
+    if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
+        find_package(Git QUIET)
+        if(GIT_FOUND)
+            if(NOT GIT_COMMIT)
+                execute_process(
+                    COMMAND ${GIT_EXECUTABLE} rev-parse --short=8 HEAD
+                    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+                    OUTPUT_VARIABLE GIT_COMMIT_AUTO
+                    OUTPUT_STRIP_TRAILING_WHITESPACE
+                    ERROR_QUIET
+                )
+                set(GIT_COMMIT ${GIT_COMMIT_AUTO})
+            endif()
+            if(NOT GIT_BRANCH)
+                execute_process(
+                    COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
+                    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+                    OUTPUT_VARIABLE GIT_BRANCH_AUTO
+                    OUTPUT_STRIP_TRAILING_WHITESPACE
+                    ERROR_QUIET
+                )
+                set(GIT_BRANCH ${GIT_BRANCH_AUTO})
+            endif()
+        endif()
     endif()
 endif()
+
+message("-- git commit: ${GIT_COMMIT}")
+message("-- git branch: ${GIT_BRANCH}")
 
 include_directories(
     ${QUAZIP_INCLUDE_DIRS}
@@ -54,6 +78,7 @@ include_directories(
 set(
     SOURCES
     appsupport.cpp
+    grid.cpp
     Boxes/nullobject.cpp
     Expressions/expression.cpp
     Expressions/expressionpresets.cpp
@@ -256,6 +281,8 @@ set(
     canvashandlesmartpath.cpp
     canvasmouseevents.cpp
     canvasmouseinteractions.cpp
+    canvasgizmos.cpp
+    canvasgrid.cpp
     canvasselectedboxesactions.cpp
     canvasselectedpointsactions.cpp
     clipboardcontainer.cpp
@@ -353,11 +380,13 @@ set(
     rendersettings.cpp
     renderinstancesettings.cpp
     videoencoder.cpp
+    svgo.cpp
 )
 
 set(
     HEADERS
     appsupport.h
+    grid.h
     Boxes/nullobject.h
     Expressions/expression.h
     Expressions/expressionpresets.h
@@ -595,6 +624,7 @@ set(
     etextureframebuffer.h
     fileshandler.h
     filesourcescache.h
+    gizmos.h
     gpurendertools.h
     hardwareenums.h
     hardwareinfo.h
@@ -694,6 +724,7 @@ set(
     renderinstancesettings.h
     videoencoder.h
     formatoptions.h
+    svgo.h
 )
 
 if(NOT WIN32)
@@ -701,6 +732,11 @@ if(NOT WIN32)
 else()
     add_library(${PROJECT_NAME} SHARED ${HEADERS} ${SOURCES} coreresources.qrc)
 endif()
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+    PROJECT_COMMIT="${GIT_COMMIT}"
+    PROJECT_BRANCH="${GIT_BRANCH}"
+)
 
 set_target_properties(
     ${PROJECT_NAME}

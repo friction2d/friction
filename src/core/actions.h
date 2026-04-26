@@ -59,7 +59,11 @@ public:
     void connectPointsSlot() const;
     void disconnectPointsSlot() const;
     void mergePointsSlot() const;
+    void splitPointsSlot() const;
+    void makeSelectedNodeFirstSlot() const;
+    void reverseNodesOrderSlot() const;
     void subdivideSegments() const;
+    void removePointsApprox() const;
 
     void makePointCtrlsSymmetric() const;
     void makePointCtrlsSmooth() const;

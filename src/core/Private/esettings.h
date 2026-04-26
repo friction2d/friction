@@ -34,6 +34,7 @@
 #include "efiltersettings.h"
 #include "memorystructs.h"
 #include "appsupport.h"
+#include "grid.h"
 #include "themesupport.h"
 #include "Expressions/expressionpresets.h"
 
@@ -167,6 +168,9 @@ public:
 
     // expressions presets
     Friction::Core::ExpressionPresets fExpressions;
+
+    // grid settings
+    Friction::Core::Grid::Settings fGrid = Friction::Core::Grid::loadSettings();
 
     // last used stroke color
     QColor fLastUsedStrokeColor = AppSupport::getSettings("FillStroke",

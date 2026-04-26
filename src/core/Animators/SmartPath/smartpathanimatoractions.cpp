@@ -226,6 +226,27 @@ void SmartPathAnimator::actionMergeNodes(const int node1Id,
     prp_afterWholeInfluenceRangeChanged();
 }
 
+void SmartPathAnimator::actionSetFirstNode(const int nodeId)
+{
+    if (nodeId <= 0) { return; }
+
+    prp_pushUndoRedoName(tr("Make First Node"));
+
+    prp_startTransform();
+    const auto& keys = anim_getKeys();
+    for (const auto &key : keys) {
+        const auto spKey = static_cast<SmartPathKey*>(key);
+        spKey->startValueTransform();
+        spKey->getValue().actionSetFirstNode(nodeId);
+        spKey->finishValueTransform();
+    }
+
+    baseValue().actionSetFirstNode(nodeId);
+    prp_finishTransform();
+
+    prp_afterWholeInfluenceRangeChanged();
+}
+
 void SmartPathAnimator::actionMoveNodeBetween(const int nodeId,
                                               const int prevNodeId,
                                               const int nextNodeId)

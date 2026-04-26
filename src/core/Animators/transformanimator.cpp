@@ -478,8 +478,33 @@ void AdvancedTransformAnimator::startShearTransform() {
     mShearAnimator->prp_startTransform();
 }
 
-void AdvancedTransformAnimator::setShear(const qreal shearX, const qreal shearY) {
+void AdvancedTransformAnimator::setShear(const qreal shearX,
+                                         const qreal shearY)
+{
     mShearAnimator->setBaseValue(shearX, shearY);
+}
+
+void AdvancedTransformAnimator::shear(const qreal shearXBy,
+                                      const qreal shearYBy)
+{
+    mShearAnimator->incSavedValueToCurrentValue(shearXBy, shearYBy);
+}
+
+void AdvancedTransformAnimator::shearRelativeToSavedValue(const qreal shearXBy,
+                                                          const qreal shearYBy,
+                                                          const QPointF &pivot)
+{
+    QMatrix matrix;
+    matrix.translate(pivot.x(), pivot.y());
+    matrix.rotate(mRotAnimator->getEffectiveValue());
+    matrix.scale(mScaleAnimator->getEffectiveXValue(), mScaleAnimator->getEffectiveYValue());
+    matrix.shear(shearXBy, shearYBy);
+    matrix.rotate(-mRotAnimator->getEffectiveValue());
+    matrix.translate(-pivot.x() + mPosAnimator->getSavedXValue(),
+                     -pivot.y() + mPosAnimator->getSavedYValue());
+
+    shear(shearXBy, shearYBy);
+    mPosAnimator->setBaseValue(QPointF(matrix.dx(), matrix.dy()));
 }
 
 qreal AdvancedTransformAnimator::getOpacity() {

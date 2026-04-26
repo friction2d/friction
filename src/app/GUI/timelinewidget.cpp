@@ -325,10 +325,13 @@ void TimelineWidget::setCurrentScene(Canvas * const scene) {
     mBoxesListWidget->setCurrentScene(scene);
     mKeysView->setCurrentScene(scene);
     if(scene) {
-        setCanvasFrameRange(scene->getFrameRange());
+        const auto range = scene->getFrameRange();
+        setCanvasFrameRange(range);
         mFrameScrollBar->setFirstViewedFrame(scene->getCurrentFrame());
         mFrameRangeScrollBar->setFirstViewedFrame(scene->getCurrentFrame());
-        setViewedFrameRange(mFrameRangeScrollBar->getViewedRange());
+        const int padding = 2;
+        const FrameRange newRange = {range.fMin - padding, range.fMax + padding};
+        setViewedFrameRange(newRange);
 
         connect(scene, &Canvas::currentFrameChanged,
                 mFrameScrollBar, &FrameScrollBar::setFirstViewedFrame);

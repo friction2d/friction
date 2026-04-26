@@ -409,14 +409,17 @@ void RenderInstanceWidget::openOutputDestinationDialog() {
         const bool isImgSeq = (format) ? !std::strcmp(format->name, "image2") : false;
         if (isImgSeq) {
             const QString pixPath = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
+            const QString vidPath = QStandardPaths::writableLocation(QStandardPaths::MoviesLocation);
             const QString docPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
             if (!saveAs.startsWith(pixPath) &&
+                !saveAs.startsWith(vidPath) &&
                 !saveAs.startsWith(docPath)) {
                 QMessageBox box(this);
                 box.setWindowTitle(tr("Permission issue"));
                 box.setText(tr("Due to limitations in Flatpak "
-                               "you can only save image sequences to %1 or %2.").arg(pixPath,
-                                                                                     docPath));
+                               "you can only save image sequences to %1, %2 or %3.").arg(pixPath,
+                                                                                         vidPath,
+                                                                                         docPath));
                 box.exec();
                 return;
             }

@@ -28,6 +28,7 @@
 #include "memoryhandler.h"
 #include "misc/noshortcutaction.h"
 #include "dialogs/scenesettingsdialog.h"
+#include "system/svgclipboard.h"
 
 #include <QDesktopServices>
 #include <QClipboard>
@@ -230,15 +231,10 @@ void MainWindow::setupMenuBar()
         mEditMenu->addAction(QIcon::fromTheme("paste"),
                              tr("Paste from Clipboard"),
                              [this]() {
-                                 const auto clipboard = QGuiApplication::clipboard();
-                                 if (clipboard) {
-                                     const auto mime = clipboard->mimeData();
-                                     qDebug() << mime->formats() << mime->text();
-                                     if (mime->hasText() && mime->text().contains("<svg")) {
-                                         const QString svg = mime->text();
+                                 const QString svg = Ui::SvgClipBoard::getContent();
+                                 if (!svg.isEmpty()) {
                                          try { mActions.importClipboard(svg); }
                                          catch (const std::exception& e) { gPrintExceptionCritical(e); }
-                                     }
                                  }
                              }, QKeySequence(tr("Ctrl+Shift+V")));
     }
@@ -311,7 +307,11 @@ void MainWindow::setupMenuBar()
                                           const auto scene = *mDocument.fActiveScene;
                                           if (!scene) { return; }
                                           scene->addKeySelectedProperties();
+#ifndef Q_OS_MAC
                                       }, QKeySequence(tr("Insert")));
+#else
+                                      }, QKeySequence(tr("K")));
+#endif
     mAddKeyAct->setEnabled(false);
     cmdAddAction(mAddKeyAct);
 
@@ -333,7 +333,13 @@ void MainWindow::setupMenuBar()
                                                      });
     cmdAddAction(clearRecentAct);
 
+#ifndef Q_OS_MAC
+    mViewMenu = new Ui::PersistentMenu(tr("View", "MenuBar"), this);
+    mViewMenu->setOnlyCheckable(true);
+    mMenuBar->addMenu(mViewMenu);
+#else
     mViewMenu = mMenuBar->addMenu(tr("View", "MenuBar"));
+#endif
 
     mObjectMenu = mMenuBar->addMenu(tr("Object", "MenuBar"));
 
@@ -505,7 +511,13 @@ void MainWindow::setupMenuBar()
     mEffectsMenu->setEnabled(false);
     setupMenuEffects();
 
-    const auto zoomMenu = mViewMenu->addMenu(QIcon::fromTheme("zoom"), tr("Zoom","MenuBar_View"));
+#ifndef Q_OS_MAC
+    const auto zoomMenu = mViewMenu->addPersistentMenu(QIcon::fromTheme("zoom"),
+                                                       tr("Zoom","MenuBar_View"));
+#else
+    const auto zoomMenu = mViewMenu->addMenu(QIcon::fromTheme("zoom"),
+                                             tr("Zoom","MenuBar_View"));
+#endif
 
     mZoomInAction = zoomMenu->addAction(tr("Zoom In", "MenuBar_View_Zoom"));
     mZoomInAction->setIcon(QIcon::fromTheme("zoom_in"));
@@ -566,8 +578,13 @@ void MainWindow::setupMenuBar()
             });
     cmdAddAction(mResetZoomAction);
 
+#ifndef Q_OS_MAC
+    const auto filteringMenu = mViewMenu->addPersistentMenu(QIcon::fromTheme("user-desktop"),
+                                                            tr("Filtering", "MenuBar_View"));
+#else
     const auto filteringMenu = mViewMenu->addMenu(QIcon::fromTheme("user-desktop"),
                                                   tr("Filtering", "MenuBar_View"));
+#endif
 
     mNoneQuality = filteringMenu->addAction(
         tr("None", "MenuBar_View_Filtering"), [this]() {
@@ -768,7 +785,7 @@ void MainWindow::setupMenuBar()
 
     const auto help = mMenuBar->addMenu(tr("Help", "MenuBar"));
 
-    const auto aboutAct = help->addAction(QIcon::fromTheme(AppSupport::getAppID()),
+    const auto aboutAct = help->addAction(QIcon::fromTheme(ThemeSupport::getAppIconName(true)),
                                           tr("About", "MenuBar_Help"),
                                           this,
                                           &MainWindow::openAboutWindow);
@@ -795,11 +812,10 @@ void MainWindow::setupMenuBar()
 
     help->addAction(QIcon::fromTheme("dialog-information"),
                     tr("Documentation"), this, []() {
-                        const QString docUrl = AppSupport::hasOfflineDocs() ?
-                                                   AppSupport::getOfflineDocs() :
-                                                   AppSupport::getOnlineDocs();
-                        QDesktopServices::openUrl(QUrl(docUrl));
-                    });
+        const QString offline = AppSupport::getOfflineDocs();
+        const QString docs = offline.isEmpty() ? AppSupport::getOnlineDocs() : offline;
+        QDesktopServices::openUrl(QUrl::fromUserInput(docs));
+    });
 
     help->addSeparator();
     help->addAction(QIcon::fromTheme("renderlayers"),
@@ -860,7 +876,7 @@ void MainWindow::setupMenuBar()
 #ifndef Q_OS_MAC
     const auto frictionButton = new QPushButton(this);
     frictionButton->setFlat(true);
-    frictionButton->setIcon(QIcon::fromTheme(AppSupport::getAppID()));
+    frictionButton->setIcon(QIcon::fromTheme(ThemeSupport::getAppIconName(true)));
     frictionButton->setObjectName("AboutButton");
     frictionButton->setFocusPolicy(Qt::NoFocus);
 

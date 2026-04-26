@@ -28,6 +28,8 @@
 #include "Animators/SmartPath/smartpathanimator.h"
 #include "MovablePoints/pathpointshandler.h"
 #include "Private/document.h"
+#include <QVector>
+#include <algorithm>
 
 QList<SmartNodePoint*> Canvas::getSortedSelectedNodes() {
     QList<SmartNodePoint*> nodes;
@@ -115,6 +117,89 @@ void Canvas::mergePoints()
     }
 }
 
+void Canvas::splitPoints()
+{
+    prp_pushUndoRedoName(tr("Split Nodes"));
+    const auto nodes = getSortedSelectedNodes();
+    if (nodes.isEmpty()) { return; }
+
+    QVector<stdptr<SmartNodePoint>> selection;
+    selection.reserve(nodes.count() * 2);
+    const auto rememberPoint = [&selection](SmartNodePoint* const candidate) {
+        if (!candidate) { return; }
+        stdptr<SmartNodePoint> ref(candidate);
+        SmartNodePoint* const raw = ref.get();
+        if (!raw) { return; }
+        const bool alreadyStored = std::any_of(selection.cbegin(),
+                                               selection.cend(),
+                                               [raw](const stdptr<SmartNodePoint>& stored) {
+            return stored.get() == raw;
+        });
+        if (!alreadyStored) {
+            selection.append(ref);
+        }
+    };
+    bool changed = false;
+
+    for (const auto& node : nodes) {
+        if (!node) { continue; }
+        rememberPoint(node);
+        if (!node->getTargetAnimator()) { continue; }
+        if (!node->getTargetPath()) { continue; }
+        if (!node->isNormal()) { continue; }
+
+        auto handler = node->getHandler();
+        if (!handler) { continue; }
+
+        SmartNodePoint* neighbor = nullptr;
+        bool usePrev = false;
+        if (node->hasNextNormalPoint()) {
+            neighbor = handler->getNextNormalNode(node->getNodeId());
+        }
+        if (!neighbor || neighbor == node) {
+            neighbor = handler->getPrevNormalNode(node->getNodeId());
+            usePrev = true;
+        }
+        if (!neighbor || neighbor == node) { continue; }
+
+        const int nodeId = node->getNodeId();
+        const int neighborId = neighbor->getNodeId();
+        const NodePointValues values = node->getPointValues();
+        const qreal t = usePrev ? 1.0 : 0.0;
+
+        int newId = -1;
+        if (usePrev) {
+            newId = node->getTargetAnimator()->actionInsertNodeBetween(neighborId,
+                                                                       nodeId,
+                                                                       t,
+                                                                       values);
+        } else {
+            newId = node->getTargetAnimator()->actionInsertNodeBetween(nodeId,
+                                                                       neighborId,
+                                                                       t,
+                                                                       values);
+        }
+        if (newId < 0) { continue; }
+
+        auto newNode = handler->getPointWithId<SmartNodePoint>(newId);
+        if (!newNode) { continue; }
+
+        rememberPoint(newNode);
+
+        node->actionDisconnectFromNormalPoint(newNode);
+        changed = true;
+    }
+
+    if (!changed) { return; }
+
+    clearPointsSelection();
+    for (const auto& stored : selection) {
+        if (auto* const point = stored.get()) {
+            addPointToSelection(point);
+        }
+    }
+}
+
 void Canvas::subdivideSegments()
 {
     prp_pushUndoRedoName(tr("Subdivide Segments"));
@@ -125,6 +210,90 @@ void Canvas::subdivideSegments()
         NormalSegment(node, nextPoint).divideAtT(0.5);
     }
     clearPointsSelection();
+}
+
+void Canvas::makeSelectedNodeFirst()
+{
+    const auto nodes = getSortedSelectedNodes();
+    if (nodes.count() != 1) { return; }
+
+    auto node = nodes.first();
+    if (!node) { return; }
+    const int nodeId = node->getNodeId();
+
+    auto animator = node->getTargetAnimator();
+    if (!animator) { return; }
+    auto handler = node->getHandler();
+    if (!handler) { return; }
+
+    if (!animator->isClosed()) {
+        // Open paths cannot change the first node; flipping direction is only allowed from the last node.
+        const int lastNodeId = handler->count() - 1;
+        if (lastNodeId >= 0 && nodeId == lastNodeId) {
+            reverseSelectedNodesOrder();
+        }
+        return;
+    }
+
+    if (nodeId <= 0) { return; }
+
+    clearPointsSelection();
+
+    animator->actionSetFirstNode(nodeId);
+    handler->updateAllPoints();
+    auto firstNode = handler->getPointWithId<SmartNodePoint>(0);
+    if (firstNode) {
+        addPointToSelection(firstNode);
+    }
+}
+
+void Canvas::reverseSelectedNodesOrder()
+{
+    bool autoSelected = false;
+    auto nodes = getSortedSelectedNodes();
+    if (nodes.isEmpty()) {
+        selectAllPointsAction();
+        nodes = getSortedSelectedNodes();
+        autoSelected = true;
+    }
+    if (nodes.isEmpty()) { return; }
+
+    auto node = nodes.first();
+    if (!node) { return; }
+
+    auto animator = node->getTargetAnimator();
+    if (!animator) { return; }
+    auto handler = node->getHandler();
+    if (!handler) { return; }
+
+    auto firstPoint = handler->getPointWithId<SmartNodePoint>(0);
+    if (!firstPoint) { return; }
+    const auto path = firstPoint->getTargetPath();
+    if (!path) { return; }
+    const bool closed = path->isClosed();
+    const int nodeCount = path->getNodeCount();
+    if (nodeCount <= 1) { return; }
+
+    clearPointsSelection();
+
+    animator->actionReverseCurrent();
+    handler->updateAllPoints();
+
+    if (closed) {
+        SmartNodePoint* newPoint = handler->getPointWithId<SmartNodePoint>(nodeCount - 1);
+        if (newPoint) {
+            const int rotatedId = newPoint->getNodeId();
+            if (rotatedId > 0) {
+                animator->actionSetFirstNode(rotatedId);
+                handler->updateAllPoints();
+            }
+        }
+    }
+
+    auto firstNode = handler->getPointWithId<SmartNodePoint>(0);
+    if (!autoSelected && firstNode) {
+        addPointToSelection(firstNode);
+    }
 }
 
 void Canvas::setPointCtrlsMode(const CtrlsMode mode) {
@@ -264,6 +433,40 @@ void Canvas::removeSelectedPointsAndClearList()
     schedulePivotUpdate();
 }
 
+void Canvas::removeSelectedPointsApprox()
+{
+    if (mPressedPoint && mPressedPoint->isCtrlPoint()) {
+        mPressedPoint->finishTransform();
+        removePointFromSelection(mPressedPoint);
+        if (auto *smartPoint = dynamic_cast<SmartNodePoint*>(mPressedPoint.data())) {
+            smartPoint->actionRemove(true);
+        } else {
+            mPressedPoint->remove();
+        }
+        schedulePivotUpdate();
+        return;
+    }
+
+    const auto selected = mSelectedPoints_d;
+    if (selected.count() < 1) {
+        removeSelectedBoxesAndClearList();
+        return;
+    }
+
+    for (const auto& point : selected) {
+        point->setSelected(false);
+        if (auto *smartPoint = dynamic_cast<SmartNodePoint*>(point)) {
+            smartPoint->actionRemove(true);
+        } else {
+            point->remove();
+        }
+    }
+    mSelectedPoints_d.clear();
+    emit pointSelectionChanged();
+    schedulePivotUpdate();
+}
+
+
 void Canvas::clearPointsSelection() {
     for(const auto& point : mSelectedPoints_d) {
         if(point) point->setSelected(false);
@@ -351,6 +554,33 @@ void Canvas::scaleSelectedPointsBy(const qreal scaleXBy,
     } else {
         for(const auto& point : mSelectedPoints_d) {
             point->scaleRelativeToSavedPivot(scaleXBy, scaleYBy);
+        }
+    }
+}
+
+void Canvas::shearSelectedPointsBy(const qreal shearXBy,
+                                   const qreal shearYBy,
+                                   const QPointF &absOrigin,
+                                   const bool startTrans)
+{
+    if (mSelectedPoints_d.isEmpty()) { return; }
+    if (startTrans) {
+        if (mDocument.fLocalPivot) {
+            for (const auto& point : mSelectedPoints_d) {
+                point->startTransform();
+                point->saveTransformPivotAbsPos(point->getAbsolutePos());
+                point->shearRelativeToSavedPivot(shearXBy, shearYBy);
+            }
+        } else {
+            for (const auto& point : mSelectedPoints_d) {
+                point->startTransform();
+                point->saveTransformPivotAbsPos(absOrigin);
+                point->shearRelativeToSavedPivot(shearXBy, shearYBy);
+            }
+        }
+    } else {
+        for (const auto& point : mSelectedPoints_d) {
+            point->shearRelativeToSavedPivot(shearXBy, shearYBy);
         }
     }
 }

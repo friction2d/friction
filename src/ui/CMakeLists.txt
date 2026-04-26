@@ -20,6 +20,10 @@
 cmake_minimum_required(VERSION 3.12)
 project(frictionui LANGUAGES CXX)
 
+if(APPLE)
+    enable_language(OBJCXX)
+endif()
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
 
 include(friction-version)
@@ -27,10 +31,6 @@ include(friction-meta)
 include(friction-common)
 include(friction-quazip)
 include(friction-ffmpeg)
-
-message("-- ffmpeg include: ${FFMPEG_INCLUDE_DIRS}")
-message("-- ffmpeg libraries: ${FFMPEG_LIBRARIES_DIRS} ${FFMPEG_LIBRARIES}")
-message("-- skia libraries: ${SKIA_LIBRARIES_DIRS} ${SKIA_LIBRARIES}")
 
 add_definitions(-DUI_LIBRARY)
 
@@ -66,6 +66,7 @@ set(
     optimalscrollarena/scrollwidget.cpp
     optimalscrollarena/scrollwidgetvisiblepart.cpp
     optimalscrollarena/singlewidget.cpp
+    system/svgclipboard.cpp
     widgets/aboutwidget.cpp
     widgets/actionbutton.cpp
     widgets/alignwidget.cpp
@@ -107,6 +108,7 @@ set(
     widgets/toolbar.cpp
     widgets/toolbox.cpp
     widgets/toolcontrols.cpp
+    widgets/toolinteract.cpp
     widgets/twocolumnlayout.cpp
     widgets/uilayout.cpp
     widgets/toolboxtoolbar.cpp
@@ -115,6 +117,10 @@ set(
     widgets/widgetwrappernode.cpp
     widgets/wrappernode.cpp
 )
+
+if(APPLE)
+    list(APPEND SOURCES system/svgclipboard.mm)
+endif()
 
 set(
     HEADERS
@@ -141,6 +147,7 @@ set(
     optimalscrollarena/scrollwidget.h
     optimalscrollarena/scrollwidgetvisiblepart.h
     optimalscrollarena/singlewidget.h
+    system/svgclipboard.h
     widgets/aboutwidget.h
     widgets/actionbutton.h
     widgets/alignwidget.h
@@ -172,6 +179,7 @@ set(
     widgets/labeledslider.h
     widgets/markereditor.h
     widgets/performancesettingswidget.h
+    widgets/persistentmenu.h
     widgets/presetsettingswidget.h
     widgets/qdoubleslider.h
     widgets/qrealanimatorvalueslider.h
@@ -183,6 +191,7 @@ set(
     widgets/toolbox.h
     widgets/toolbutton.h
     widgets/toolcontrols.h
+    widgets/toolinteract.h
     widgets/twocolumnlayout.h
     widgets/uilayout.h
     widgets/vlabel.h
@@ -220,6 +229,14 @@ target_link_directories(
     ${FFMPEG_LIBRARIES_DIRS}
     ${SKIA_LIBRARIES_DIRS}
 )
+
+if(APPLE)
+    target_link_libraries(
+        ${PROJECT_NAME}
+        PRIVATE
+        "-framework AppKit"
+    )
+endif()
 
 target_link_libraries(
     ${PROJECT_NAME}

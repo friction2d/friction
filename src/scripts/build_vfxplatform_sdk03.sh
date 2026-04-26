@@ -26,7 +26,8 @@ gcc -v
 SDK=${SDK:-"/opt/friction"}
 SRC=${SDK}/src
 DIST=${DIST:-"/mnt"}
-MKJOBS=${MKJOBS:-32}
+PATCHES=${DIST}/patches
+MKJOBS=${MKJOBS:-4}
 
 # Keep in sync with https://github.com/friction2d/mxe
 ZLIB_V=1.2.13
@@ -278,7 +279,7 @@ if [ ! -f "${SDK}/lib/pkgconfig/libavcodec.pc" ]; then
     rm -rf ${FFMPEG_SRC} || true
     tar xf ${DIST}/ffmpeg/${FFMPEG_SRC}.tar.xz
     cd ${FFMPEG_SRC}
-    patch -p0 < ${DIST}/ffmpeg/ffmpeg-tiff-assocalpha.diff
+    patch -p0 < ${PATCHES}/ffmpeg-tiff-assocalpha.diff
     CFLAGS="${DEFAULT_CFLAGS}" \
     CXXFLAGS="${DEFAULT_CFLAGS}" \
     LDFLAGS="${DEFAULT_LDFLAGS}" \
@@ -294,6 +295,7 @@ if [ ! -f "${SDK}/lib/pkgconfig/libavcodec.pc" ]; then
     --enable-avresample \
     --enable-gpl \
     --enable-version3 \
+    --extra-version=friction \
     --disable-avisynth \
     --disable-gnutls \
     --disable-libass \

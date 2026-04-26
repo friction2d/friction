@@ -35,6 +35,7 @@
 #include "widgets/toolbar.h"
 #include "widgets/toolboxtoolbar.h"
 #include "widgets/toolcontrols.h"
+#include "widgets/toolinteract.h"
 #include "widgets/qdoubleslider.h"
 
 namespace Friction
@@ -48,13 +49,19 @@ namespace Friction
             enum Type {
                 Main,
                 Controls,
-                Extra
+                Extra,
+                Interact
             };
             enum Node {
                 NodeConnect,
                 NodeDisconnect,
                 NodeMerge,
+                NodeSplit,
+                NodeFirst,
+                NodeReverse,
                 NodeNew,
+                NodeRemove,
+                NodeRemoveApprox,
                 NodeSymmetric,
                 NodeSmooth,
                 NodeCorner,
@@ -79,6 +86,7 @@ namespace Friction
             ToolBar *mMain;
             ToolControls *mControls;
             ToolboxToolBar *mExtra;
+            ToolInteract *mInteract;
 
             QActionGroup *mGroupMain;
             QActionGroup *mGroupNodes;

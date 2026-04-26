@@ -47,6 +47,17 @@
 
 #define RGXS REGEX_SPACES
 
+static qreal parseSvgUnit(const QString &str,
+                          qreal relativeTo)
+{
+    QString trimmed = str.trimmed();
+    if (trimmed.endsWith("%")) {
+        trimmed.remove("%");
+        return (trimmed.toDouble() / 100.0) * relativeTo;
+    }
+    return trimmed.toDouble();
+}
+
 class TextSvgAttributes {
 public:
     TextSvgAttributes() {}
@@ -86,6 +97,7 @@ struct SvgGradient {
     qreal fY2;
     QMatrix fTrans;
     GradientType fType;
+    QString fUnits;
 };
 
 class FillSvgAttributes {
@@ -215,10 +227,14 @@ struct SvgAttribute {
 };
 
 void extractSvgAttributes(const QString &string,
-                          QList<SvgAttribute> * const attributesList) {
-    const QStringList attributesStrList = string.split(";");
+                          QList<SvgAttribute> * const attributesList)
+{
+    const QStringList attributesStrList = string.split(";",
+                                                       Qt::SkipEmptyParts);
     for(const QString &attributeStr : attributesStrList) {
-        attributesList->append(SvgAttribute(attributeStr));
+        QString cleanAttribute = attributeStr.trimmed();
+        if (cleanAttribute.isEmpty()) { continue; }
+        attributesList->append(SvgAttribute(cleanAttribute));
     }
 }
 
@@ -243,21 +259,25 @@ bool toColor(const QString &colorStr, QColor &color)
     if (isRGB || isRGBA) {
         QString str = colorStr.toLower().simplified();
         str.remove(isRGB ? "rgb" : "rgba").remove(";").remove("(").remove(")");
-        QStringList components = str.split(",", Qt::SkipEmptyParts);
+
+        QStringList components;
+        for (const QString &part : str.split(",", Qt::SkipEmptyParts)) {
+            components << part.trimmed();
+        }
         if (components.size() >= 3) {
             const bool isFloat = components[0].contains("%") ||
                                  components[1].contains("%") ||
                                  components[2].contains("%");
             const bool hasAlpha = components.size() == 4;
 
-            qreal r = components[0].contains("%") ? components[0].remove("%").simplified().toFloat() / 100. :
-                                                    components[0].simplified().toInt();
-            qreal g = components[1].contains("%") ? components[1].remove("%").simplified().toFloat() / 100. :
-                                                    components[1].simplified().toInt();
-            qreal b = components[2].contains("%") ? components[2].remove("%").simplified().toFloat() / 100. :
-                                                    components[2].simplified().toInt();
-            qreal a = hasAlpha ? components[3].contains("%") ? components[3].remove("%").simplified().toFloat() / 100. :
-                                 components[3].simplified().toFloat() : 1.0;
+            qreal r = components[0].contains("%") ? components[0].remove("%").trimmed().toFloat() / 100. :
+                                                    components[0].toInt();
+            qreal g = components[1].contains("%") ? components[1].remove("%").trimmed().toFloat() / 100. :
+                                                    components[1].toInt();
+            qreal b = components[2].contains("%") ? components[2].remove("%").trimmed().toFloat() / 100. :
+                                                    components[2].toInt();
+            qreal a = hasAlpha ? components[3].contains("%") ? components[3].remove("%").trimmed().toFloat() / 100. :
+                                 components[3].toFloat() : 1.0;
             if (isFloat) { color.setRgbF(r, g, b); }
             else { color.setRgb(r, g, b); }
             if (hasAlpha) { color.setAlphaF(a); }
@@ -568,23 +588,6 @@ void loadLine(const QDomElement &pathElement,
     parentGroup->addContained(vectorPath);
 }
 
-void loadText(const QDomElement &pathElement,
-              ContainerBox *parentGroup,
-              const BoxSvgAttributes &attributes) {
-
-    const QString xStr = pathElement.attribute("x");
-    const QString yStr = pathElement.attribute("y");
-
-    const auto textBox = enve::make_shared<TextBox>();
-    textBox->planCenterPivotPosition();
-
-    textBox->moveByRel(QPointF(xStr.toDouble(), yStr.toDouble()));
-    textBox->setCurrentValue(pathElement.text());
-
-    attributes.apply(textBox.data());
-    parentGroup->addContained(textBox);
-}
-
 bool extractTranslation(const QString& str, QMatrix& target) {
     const QRegExp rx1(RGXS "translate\\(" REGEX_SINGLE_FLOAT "\\)" RGXS,
                       Qt::CaseInsensitive);
@@ -633,14 +636,31 @@ bool extractScale(const QString& str, QMatrix& target) {
     return false;
 }
 
-bool extractRotate(const QString& str, QMatrix& target) {
-    const QRegExp rx5(RGXS "rotate\\(" REGEX_SINGLE_FLOAT "\\)" RGXS,
-                      Qt::CaseInsensitive);
-    if(rx5.exactMatch(str)) {
-        rx5.indexIn(str);
-        const QStringList capturedTxt = rx5.capturedTexts();
-        target.rotate(capturedTxt.at(1).toDouble());
-        return true;
+bool extractRotate(const QString& str,
+                   QMatrix& target)
+{
+    const QRegExp rxRotate("rotate\\s*\\(\\s*([^\\s,)]+)(?:[\\s,]+([^\\s,)]+)[\\s,]+([^\\s,)]+))?\\s*\\)",
+                           Qt::CaseInsensitive);
+
+    int pos = rxRotate.indexIn(str);
+    if (pos != -1) {
+        const QStringList captured = rxRotate.capturedTexts();
+        bool ok;
+        double angle = captured.at(1).toDouble(&ok);
+
+        if (ok) {
+            if (!captured.at(2).isEmpty() && !captured.at(3).isEmpty()) {
+                double cx = captured.at(2).toDouble();
+                double cy = captured.at(3).toDouble();
+
+                target.translate(cx, cy);
+                target.rotate(angle);
+                target.translate(-cx, -cy);
+            } else {
+                target.rotate(angle);
+            }
+            return true;
+        }
     }
     return false;
 }
@@ -684,10 +704,224 @@ QMatrix getMatrixFromString(const QString &str) {
 static QMap<QString, SvgGradient> gGradients;
 //            to       from
 static QMap<QString, QStringList> gUnresolvedGradientLinks;
-void loadElement(const QDomElement &element, ContainerBox *parentGroup,
+
+void applyGradientToAttributes(const QDomElement &element,
+                               BoxSvgAttributes &attributes,
+                               const GradientCreator& gradientCreator,
+                               const QPointF &offset = QPointF(0,0),
+                               bool isFill = true)
+{
+    QString gradId;
+    QString attrName = isFill ? "fill" : "stroke";
+    QString attrVal = element.attribute(attrName).trimmed();
+
+    if (attrVal.isEmpty() && element.hasAttribute("style")) {
+        QString style = element.attribute("style");
+        int idx = style.indexOf(attrName + ":url(#");
+        if (idx != -1) {
+            int start = style.indexOf('#', idx) + 1;
+            int end = style.indexOf(')', start);
+            gradId = style.mid(start, end - start);
+        }
+    } else if (attrVal.startsWith("url(#")) {
+        gradId = attrVal.mid(5, attrVal.lastIndexOf(')') - 5);
+    }
+
+    gradId = gradId.remove("'").remove("\"").trimmed();
+
+    if (!gradId.isEmpty() && gGradients.contains(gradId)) {
+        const SvgGradient &templateGrad = gGradients[gradId];
+
+        QPointF p1, p2;
+        QMatrix finalTransform;
+
+        if (templateGrad.fUnits == "objectBoundingBox") {
+            qreal w = element.attribute("width").toDouble();
+            qreal h = element.attribute("height").toDouble();
+
+            w += element.attribute("x").toDouble();
+            h += element.attribute("y").toDouble();
+
+            qreal divX = (templateGrad.fX2 > 1.0) ? templateGrad.fX2 : 1.0;
+            qreal divY = (templateGrad.fY2 > 1.0) ? templateGrad.fY2 : 1.0;
+
+            p1 = QPointF((templateGrad.fX1 / divX) * w,
+                         (templateGrad.fY1 / divY) * h);
+            p2 = QPointF((templateGrad.fX2 / divX) * w,
+                         (templateGrad.fY2 / divY) * h);
+
+            QMatrix m = templateGrad.fTrans;
+            finalTransform.setMatrix(m.m11(), m.m12(),
+                                     m.m21(), m.m22(),
+                                     m.dx() * w, m.dy() * h);
+        }
+        else { // userSpaceOnUse
+            QPointF p1_world = templateGrad.fTrans.map(QPointF(templateGrad.fX1,
+                                                               templateGrad.fY1));
+            QPointF p2_world = templateGrad.fTrans.map(QPointF(templateGrad.fX2,
+                                                               templateGrad.fY1));
+
+            p1 = p1_world - offset;
+            p2 = p2_world - offset;
+
+            if (templateGrad.fType == GradientType::RADIAL) {
+                QMatrix trans = templateGrad.fTrans;
+                qreal scaleX = qSqrt(trans.m11()*trans.m11() + trans.m12()*trans.m12());
+                qreal scaleY = qSqrt(trans.m21()*trans.m21() + trans.m22()*trans.m22());
+
+                if (scaleX > 0) {
+                    qreal ratio = scaleY / scaleX;
+                    if (qAbs(ratio - 1.0) > 0.001) {
+                        finalTransform.translate(p1.x(), p1.y());
+                        finalTransform.scale(1.0, ratio);
+                        finalTransform.translate(-p1.x(), -p1.y());
+                    }
+                }
+            }
+        }
+
+        Gradient* newGradInstance = gradientCreator();
+        qreal opacity = 1.0;
+        QString opAttr = isFill ? "fill-opacity" : "stroke-opacity";
+        if (element.hasAttribute(opAttr)) { opacity = element.attribute(opAttr).toDouble(); }
+
+        for (const QGradientStop &stop : templateGrad.fGradient->getQGradientStops()) {
+            QColor c = stop.second;
+            c.setAlphaF(c.alphaF() * opacity);
+            newGradInstance->addColor(c);
+        }
+        newGradInstance->updateQGradientStops();
+
+        SvgGradient instance = {
+            newGradInstance,
+            p1.x(), p1.y(),
+            p2.x(), p2.y(),
+            finalTransform,
+            templateGrad.fType,
+            templateGrad.fUnits
+        };
+
+        if (isFill) {
+            auto& fill = const_cast<FillSvgAttributes&>(attributes.getFillAttributes());
+            fill.setGradient(instance);
+            fill.setPaintType(GRADIENTPAINT);
+        } else {
+            auto& stroke = const_cast<StrokeSvgAttributes&>(attributes.getStrokeAttributes());
+            stroke.setGradient(instance);
+            stroke.setPaintType(GRADIENTPAINT);
+        }
+    }
+}
+
+
+void loadText(const QDomElement &textElement,
+              ContainerBox *parentGroup,
+              const BoxSvgAttributes &attributes,
+              const GradientCreator& gradientCreator)
+{
+    // inkscape?
+    bool hasInkscapeLines = false;
+    QDomNodeList tspans = textElement.elementsByTagName("tspan");
+    for (int i = 0; i < tspans.count(); i++) {
+        if (tspans.at(i).toElement().attribute("sodipodi:role") == "line") {
+            hasInkscapeLines = true;
+            break;
+        }
+    }
+
+    if (hasInkscapeLines) {
+        for (int i = 0; i < tspans.count(); i++) {
+            QDomElement tspan = tspans.at(i).toElement();
+            QString content = tspan.text();
+            if (content.trimmed().isEmpty()) { continue; }
+
+            BoxSvgAttributes lineAttributes = attributes;
+            lineAttributes.loadBoundingBoxAttributes(tspan);
+
+            QString xStr = tspan.attribute("x", textElement.attribute("x"))
+                               .split(QRegularExpression("\\s+")).first().remove("px");
+            QString yStr = tspan.attribute("y", textElement.attribute("y"))
+                               .split(QRegularExpression("\\s+")).first().remove("px");
+            QPointF pos(xStr.toDouble(), yStr.toDouble());
+
+            applyGradientToAttributes(tspan,
+                                      lineAttributes,
+                                      gradientCreator,
+                                      pos,
+                                      true); // fill
+            applyGradientToAttributes(tspan,
+                                      lineAttributes,
+                                      gradientCreator,
+                                      pos,
+                                      false); // stroke
+
+            const auto textBox = enve::make_shared<TextBox>();
+            textBox->planCenterPivotPosition();
+            textBox->moveByRel(pos);
+            textBox->setCurrentValue(content);
+
+            lineAttributes.apply(textBox.data());
+            parentGroup->addContained(textBox);
+        }
+    } else {
+        QString combinedText;
+        for (QDomNode n = textElement.firstChild(); !n.isNull(); n = n.nextSibling()) {
+            if (n.isText()) { combinedText += n.toText().data(); }
+            else if (n.isElement() && n.toElement().tagName() == "tspan") {
+                QDomElement tspan = n.toElement();
+                // Boxy uses tspan for new line
+                if (tspan.hasAttribute("dy") && !combinedText.isEmpty()) {
+                    combinedText += "\n";
+                }
+                if (!tspan.text().trimmed().isEmpty()) {
+                    combinedText += tspan.text();
+                }
+            }
+        }
+
+        combinedText.remove(QChar(0x200B)); // Boxy
+
+        if (combinedText.trimmed().isEmpty()) { return; }
+
+        QString xStr = textElement.attribute("x")
+                           .split(QRegularExpression("\\s+")).first().remove("px");
+        QString yStr = textElement.attribute("y")
+                           .split(QRegularExpression("\\s+")).first().remove("px");
+        QPointF pos(xStr.toDouble(), yStr.toDouble());
+
+        BoxSvgAttributes textAttributes = attributes;
+
+        applyGradientToAttributes(textElement,
+                                  textAttributes,
+                                  gradientCreator,
+                                  pos, true); // fill
+        applyGradientToAttributes(textElement,
+                                  textAttributes,
+                                  gradientCreator,
+                                  pos, false); // stroke
+
+        const auto textBox = enve::make_shared<TextBox>();
+        textBox->planCenterPivotPosition();
+        textBox->moveByRel(pos);
+        textBox->setCurrentValue(combinedText);
+
+        textAttributes.apply(textBox.data());
+        parentGroup->addContained(textBox);
+    }
+}
+
+void loadElement(const QDomElement &element,
+                 ContainerBox *parentGroup,
                  const BoxSvgAttributes &parentGroupAttributes,
-                 const GradientCreator& gradientCreator) {
+                 const GradientCreator& gradientCreator)
+{
     const QString tagName = element.tagName();
+    if ((tagName == "linearGradient" || tagName == "radialGradient") &&
+        gGradients.contains(element.attribute("id"))) {
+        qDebug() << "gradient already added, ignore" << tagName;
+        return;
+    }
+
     if(tagName == "defs") {
         const QDomNodeList allRootChildNodes = element.childNodes();
         for(int i = 0; i < allRootChildNodes.count(); i++) {
@@ -706,6 +940,7 @@ void loadElement(const QDomElement &element, ContainerBox *parentGroup,
             type = GradientType::RADIAL;
         }
         const QString id = element.attribute("id");
+        qDebug() << "found gradient id" << id;
         QString linkId = element.attribute("xlink:href");
         Gradient* gradient = nullptr;
         if(linkId.isEmpty()) {
@@ -767,52 +1002,71 @@ void loadElement(const QDomElement &element, ContainerBox *parentGroup,
             }
         }
 
-        double x1;
-        double x2;
-        double y1;
-        double y2;
         switch(type) {
         case GradientType::LINEAR:
-        {
-            const QString x1s = element.attribute("x1");
-            const QString y1s = element.attribute("y1");
-            const QString x2s = element.attribute("x2");
-            const QString y2s = element.attribute("y2");
-
-            x1 = toDouble(x1s);
-            y1 = toDouble(y1s),
-            x2 = toDouble(x2s);
-            y2 = toDouble(y2s);
-            break;
-        }
         case GradientType::RADIAL:
         {
-            const QString cxs = element.attribute("cx");
-            const QString cys = element.attribute("cy");
-            const QString rs = element.attribute("r");
+            QDomElement svgRoot = element.ownerDocument().documentElement();
+            QStringList viewBox = svgRoot.attribute("viewBox").split(QRegularExpression("\\s+"),
+                                                                     Qt::SkipEmptyParts);
+            qreal viewW = 1.0;
+            qreal viewH = 1.0;
 
-            const double cx = toDouble(cxs);
-            const double cy = toDouble(cys);
-            const double r = toDouble(rs);
+            if (viewBox.size() >= 4) {
+                viewW = viewBox.at(2).toDouble();
+                viewH = viewBox.at(3).toDouble();
+            } else {
+                viewW = svgRoot.attribute("width", "1").toDouble();
+                viewH = svgRoot.attribute("height", "1").toDouble();
+            }
+            if (viewW <= 0) { viewW = 1.0; }
+            if (viewH <= 0) { viewH = 1.0; }
 
-            x1 = cx;
-            y1 = cy;
-            x2 = cx + r;
-            y2 = cy + r;
+            QPointF p1, p2;
+            const QString units = element.attribute("gradientUnits");
+            const QString gradTrans = element.attribute("gradientTransform");
+            QMatrix trans = getMatrixFromString(gradTrans);
+
+            if (units == "userSpaceOnUse") {
+                if (type == GradientType::LINEAR) {
+                    p1 = QPointF(element.attribute("x1", "0").toDouble(),
+                                 element.attribute("y1", "0").toDouble());
+                    p2 = QPointF(element.attribute("x2", "1").toDouble(),
+                                 element.attribute("y2", "1").toDouble());
+                } else {
+                    qreal cx = element.attribute("cx", "0").toDouble();
+                    qreal cy = element.attribute("cy", "0").toDouble();
+                    qreal r  = element.attribute("r", "1").toDouble();
+                    p1 = QPointF(cx, cy);
+                    p2 = QPointF(cx + r, cy + r);
+                }
+            } else { // objectBoundingBox:
+                if (type == GradientType::LINEAR) {
+                    p1 = QPointF(parseSvgUnit(element.attribute("x1"), viewW),
+                                 parseSvgUnit(element.attribute("y1"), viewH));
+                    p2 = QPointF(parseSvgUnit(element.attribute("x2"), viewW),
+                                 parseSvgUnit(element.attribute("y2"), viewH));
+                } else {
+                    const qreal cx = parseSvgUnit(element.attribute("cx"), viewW);
+                    const qreal cy = parseSvgUnit(element.attribute("cy"), viewH);
+                    const qreal r = parseSvgUnit(element.attribute("r"),
+                                                 (viewW + viewH) * 0.5);
+                    p1 = QPointF(cx, cy);
+                    p2 = QPointF(cx + r, cy + r);
+                }
+            }
+            gGradients.insert(id, {gradient,
+                                   p1.x(), p1.y(),
+                                   p2.x(), p2.y(),
+                                   trans, type, units});
             break;
         }
         }
-
-        const QString gradTrans = element.attribute("gradientTransform");
-        const QMatrix trans = getMatrixFromString(gradTrans);
-        gGradients.insert(id, {gradient,
-                               x1, y1,
-                               x2, y2,
-                               trans, type});
     } else if(tagName == "path" || tagName == "polyline" || tagName == "polygon" || tagName == "line") {
         VectorPathSvgAttributes attributes;
         attributes.setParent(parentGroupAttributes);
         attributes.loadBoundingBoxAttributes(element);
+        applyGradientToAttributes(element, attributes, gradientCreator);
         if(tagName == "path") {
             loadVectorPath(element, parentGroup, attributes);
         } else if(tagName == "polyline") {
@@ -824,11 +1078,12 @@ void loadElement(const QDomElement &element, ContainerBox *parentGroup,
         }
     } else if(tagName == "g" || tagName == "text" ||
               tagName == "circle" || tagName == "ellipse" ||
-              tagName == "rect" || tagName == "tspan") {
+              tagName == "rect") {
         BoxSvgAttributes attributes;
         attributes.setParent(parentGroupAttributes);
         attributes.loadBoundingBoxAttributes(element);
-        if(tagName == "g" || tagName == "text") {
+        applyGradientToAttributes(element, attributes, gradientCreator);
+        if(tagName == "g") {
             const auto group = loadBoxesGroup(element, parentGroup,
                                               attributes, gradientCreator);
             if(group->getContainedBoxesCount() == 0)
@@ -837,8 +1092,8 @@ void loadElement(const QDomElement &element, ContainerBox *parentGroup,
             loadCircle(element, parentGroup, attributes);
         } else if(tagName == "rect") {
             loadRect(element, parentGroup, attributes);
-        } else if(tagName == "tspan") {
-            loadText(element, parentGroup, attributes);
+        } else if(tagName == "text") {
+            loadText(element, parentGroup, attributes, gradientCreator);
         }
     } else qDebug() << "Unrecognized tagName \"" + tagName + "\"";
 }
@@ -881,11 +1136,30 @@ bool getFlatColorFromString(const QString &colorStr, FillSvgAttributes *target) 
     return true;
 }
 
-qsptr<BoundingBox> ImportSVG::loadSVGFile(
-        const QDomDocument& src,
-        const GradientCreator& gradientCreator) {
+qsptr<BoundingBox> ImportSVG::loadSVGFile(const QDomDocument& src,
+                                          const GradientCreator& gradientCreator)
+{
     const QDomElement rootElement = src.firstChildElement("svg");
     if(rootElement.isNull()) RuntimeThrow("File does not have svg root element");
+
+    // Pre-load gradients
+    QDomNodeList gradients = src.elementsByTagName("linearGradient");
+    qDebug() << "found linearGradients:" << gradients.count();
+    for (int i = 0; i < gradients.count(); i++) {
+        loadElement(gradients.at(i).toElement(),
+                    nullptr,
+                    BoxSvgAttributes(),
+                    gradientCreator);
+    }
+    gradients = src.elementsByTagName("radialGradient");
+    qDebug() << "found radialGradients:" << gradients.count();
+    for (int i = 0; i < gradients.count(); i++) {
+        loadElement(gradients.at(i).toElement(),
+                    nullptr,
+                    BoxSvgAttributes(),
+                    gradientCreator);
+    }
+
     BoxSvgAttributes attributes;
     const auto result = loadBoxesGroup(rootElement, nullptr,
                                        attributes, gradientCreator);
@@ -964,6 +1238,7 @@ void BoxSvgAttributes::setFillAttribute(const QString &value) {
     if(value.contains("none")) {
         mFillAttributes.setPaintType(NOPAINT);
     } else if(getFlatColorFromString(value, &mFillAttributes)) {
+    } else if (value.contains("url(#")) {
     } else if(getGradientFromString(value, &mFillAttributes)) {
     } else {
         qDebug() << "setFillAttribute - format not recognised:" << value;
@@ -981,9 +1256,8 @@ void BoxSvgAttributes::setStrokeAttribute(const QString &value) {
 }
 
 QString stripPx(const QString& val) {
-    QString result = val;
-    result.remove("px");
-    return result;
+    QString res = val;
+    return res.remove("px").remove("pt").remove("em").trimmed();
 }
 
 void BoxSvgAttributes::loadBoundingBoxAttributes(const QDomElement &element) {

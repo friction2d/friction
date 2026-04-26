@@ -51,6 +51,7 @@
 extern "C" {
 #include <libavutil/log.h>
 #include <libavformat/avformat.h>
+#include <libavutil/avutil.h>
 }
 
 AppSupport::AppSupport(QObject *parent)
@@ -282,9 +283,23 @@ const QString AppSupport::getAppTempPath()
 {
 #ifdef Q_OS_LINUX
     if (isFlatpak()) {
+        // TODO: we should check on startup if we run as flatpak, if settings 'tempDir'
+        // is empty then popup a dialog with an option to set a shared temp folder
         QString path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
         if (!path.isEmpty()) {
             path.append("/friction-temp");
+            if (!QFile::exists(path)) {
+                QDir dir(path);
+                dir.mkpath(path);
+            }
+            if (QFile::exists(path)) { return path; }
+        }
+    } else {
+        // Allow users to set a custom folder to share temp files with sandboxed web browsers
+        // This is needed since Ubuntu snaps can't access /tmp, XDG_RUNTIME_DIR, or XDG dot folders
+        // "security" before users! ;)
+        QString path = getSettings("files", "tempDir").toString().trimmed();
+        if (!path.isEmpty()) {
             if (!QFile::exists(path)) {
                 QDir dir(path);
                 dir.mkpath(path);
@@ -366,44 +381,6 @@ const QString AppSupport::getAppUserExPresetsPath()
     return path;
 }
 
-const QString AppSupport::getSVGO()
-{
-#if defined(Q_OS_WIN)
-    const QString svgo = "svgo-win.exe";
-#elif defined(Q_OS_LINUX)
-    const QString svgo = "svgo-linux";
-#elif defined(Q_OS_MAC)
-    const QString svgo = "svgo-macos";
-#else
-    const QString svgo = "svgo";
-#endif
-    const QString path = QString("%1/%2").arg(getAppPath(), svgo);
-    if (QFile::exists(path)) { return path; }
-    return QStandardPaths::findExecutable("svgo");
-}
-
-const QString AppSupport::getSVGOConfig()
-{
-    QString filename = "svgo.config.js";
-    QString path = getAppConfigPath() + QDir::separator() + filename;
-    if (!QFile::exists(path)) {
-        QString config;
-        QFile file(":/config/" + filename);
-        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            config = file.readAll();
-            file.close();
-        }
-        if (!config.isEmpty()) {
-            QFile file(path);
-            if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-                file.write(config.toUtf8());
-                file.close();
-            }
-        }
-    }
-    return path;
-}
-
 const QString AppSupport::getFileMimeType(const QString &path)
 {
     QMimeDatabase db;
@@ -465,10 +442,29 @@ const QString AppSupport::getTimeCodeFromFrame(int frame,
     bool negative = frame < 0;
     if (negative) { frame = qAbs(frame); }
     double totalSeconds = static_cast<double>(frame) / fps;
-    int hours = static_cast<int>(totalSeconds / 3600);
-    int minutes = static_cast<int>((totalSeconds - hours * 3600) / 60);
-    int seconds = static_cast<int>(totalSeconds - hours * 3600 - minutes * 60);
-    int frames = static_cast<int>((totalSeconds - static_cast<int>(totalSeconds)) * fps);
+    int hours = static_cast<int>(totalSeconds / 3600.0);
+    totalSeconds -= hours * 3600.0;
+    int minutes = static_cast<int>(totalSeconds / 60.0);
+    totalSeconds -= minutes * 60.0;
+    int seconds = static_cast<int>(totalSeconds);
+    double fractionalSeconds = totalSeconds - seconds;
+    int frames = qRound(fractionalSeconds * fps);
+
+    int fpsInt = static_cast<int>(qRound(fps));
+    if (frames == fpsInt && fpsInt > 0)
+    {
+        frames = 0;
+        seconds++;
+        if (seconds == 60) {
+            seconds = 0;
+            minutes++;
+            if (minutes == 60) {
+                minutes = 0;
+                hours++;
+            }
+        }
+    }
+
     QString timecode = QString("%1:%2:%3:%4")
                            .arg(hours, 2, 10, QChar('0'))
                            .arg(minutes, 2, 10, QChar('0'))
@@ -484,20 +480,18 @@ int AppSupport::getFrameFromTimeCode(const QString &timecode,
 {
     const auto list = timecode.split(":");
     bool negative = timecode.startsWith("-");
+
     if (fps > 0. && list.count() == 4) {
-        int hh = negative ? QString(list.at(0)).replace("-", "").toInt() : list.at(0).toInt();
+        int hh = qAbs(list.at(0).toInt());
         int mm = list.at(1).toInt();
         int ss = list.at(2).toInt();
         int ff = list.at(3).toInt();
         double totalSeconds = hh * 3600 + mm * 60 + ss + static_cast<double>(ff) / fps;
-        int frame = static_cast<int>(totalSeconds * fps);
-        //qDebug() << timecode << "=" << negative ? -frame : frame;
+        int frame = qRound(totalSeconds * fps);
+        //qDebug() << timecode << "=" << (negative ? -frame : frame);
         return negative ? -frame : frame;
-    } else {
-        // assume it's just a frame number
-        return timecode.toInt();
     }
-    return 0;
+    return timecode.toInt();
 }
 
 HardwareSupport AppSupport::getRasterEffectHardwareSupport(const QString &effect,
@@ -1004,9 +998,15 @@ void AppSupport::checkPerms(const bool &isRenderer)
 void AppSupport::checkFFmpeg(const bool &isRenderer)
 {
     av_log_set_level(AV_LOG_ERROR);
+    const auto version = avutil_version();
+    const QString info = av_version_info();
+    qWarning() << "Using FFmpeg" << info << version;
 #ifndef QT_DEBUG
-    const QString warning = QObject::tr("Friction is built against an unsupported FFmpeg version. Use at own risk and don't report any issues upstream.");
-    if (avformat_version() >= 3812708) {
+    if (info.contains("friction")) { return; }
+    const QString warning = QObject::tr("Friction is using an unsupported FFmpeg version, "
+                                        "video and/or image export will not work properly. "
+                                        "Use at own risk and don't report any issues upstream.");
+    if (version < 3600000 || version >= 3700000) {
         if (isRenderer) { qWarning() << warning; }
         else {
             QMessageBox::critical(nullptr,
@@ -1032,10 +1032,11 @@ void AppSupport::initEnv(const bool &isRenderer)
                        QSettings::NativeFormat);
     if (registry.value("AppsUseLightTheme", 0).toInt() == 0) { qputenv("QT_QPA_PLATFORM", "windows:darkmode=1"); }
 #endif
-#elif defined(Q_OS_LINUX)
-#ifndef FRICTION_EGL
-    qputenv("QT_QPA_PLATFORM", "xcb");
 #endif
+
+#if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
+    // GLX not supported!
+    qputenv("QT_XCB_GL_INTEGRATION", "xcb_egl");
 #endif
 }
 
@@ -1135,16 +1136,21 @@ void AppSupport::setFont(const QString &path)
     QApplication::setFont(font);
 }
 
-bool AppSupport::hasOfflineDocs()
-{
-    const QString html = QString("%1/html/index.html").arg(getAppPath());
-    return QFile::exists(html);
-}
-
 QString AppSupport::getOfflineDocs()
 {
-    const QString html = QString("%1/html/index.html").arg(getAppPath());
-    if (QFile::exists(html)) { return html; }
+#ifdef Q_OS_LINUX
+    if (isFlatpak()) {
+        // we can't have offline docs in a flatpak
+        return QString();
+    }
+#endif
+    const QStringList paths{QString("%1/docs/index.html").arg(getAppPath()).trimmed(),
+                            QString("%1/../share/doc/friction/html/index.html").arg(getAppPath()).trimmed(),
+                            QString("%1/../Resources/docs/index.html").arg(getAppPath()).trimmed()};
+    for (const auto &path : paths) {
+        qDebug() << "Checking for docs ..." << path;
+        if (QFile::exists(path)) { return path; }
+    }
     return QString();
 }
 

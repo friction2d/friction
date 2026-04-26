@@ -1,0 +1,11 @@
+--- qtwayland/src/plugins/shellintegration/xdg-shell/qwaylandxdgshell.cpp.orig	2025-11-10 13:00:38.949295452 +0100
++++ qtwayland/src/plugins/shellintegration/xdg-shell/qwaylandxdgshell.cpp	2025-11-10 13:01:30.862978574 +0100
+@@ -153,7 +153,7 @@
+             delete m_decoration;
+             m_decoration = nullptr;
+         } else {
+-            m_decoration->unsetMode();
++            m_decoration->requestMode(QWaylandXdgToplevelDecorationV1::mode_server_side);
+         }
+     }
+ }

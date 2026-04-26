@@ -92,6 +92,8 @@ public:
     void actionSetNormalNodeC0Enabled(const int nodeId, const bool enabled);
     void actionSetNormalNodeC2Enabled(const int nodeId, const bool enabled);
 
+    void actionSetFirstNode(const int nodeId);
+
     void actionReversePath();
 
     void actionAppendMoveAllFrom(SmartPath&& other);

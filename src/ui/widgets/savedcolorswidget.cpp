@@ -25,48 +25,105 @@
 
 #include "savedcolorswidget.h"
 #include "widgets/savedcolorbutton.h"
-#include <QAction>
-#include <QMenu>
-#include "colorhelpers.h"
+
+#include <QIcon>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QSize>
+#include <QSizePolicy>
+#include <QVBoxLayout>
+
 #include "Private/document.h"
+#include "GUI/global.h"
 
 SavedColorsWidget::SavedColorsWidget(QWidget *parent)
-    : QWidget(parent) {
-    mMainLayout = new FlowLayout(this);
-    setLayout(mMainLayout);
-    for(const auto& color : Document::sInstance->fColors) {
-        addColor(color);
-    }
+    : QWidget(parent)
+{
+    const auto verticalLayout = new QVBoxLayout(this);
+    verticalLayout->setContentsMargins(0, 10, 0, 0);
+    verticalLayout->setSpacing(0);
+    setSizePolicy(QSizePolicy::Preferred,
+                  QSizePolicy::Maximum);
+
+    const auto bookmarksHeader = new QWidget(this);
+    const auto bookmarksLayout = new QHBoxLayout(bookmarksHeader);
+    bookmarksLayout->setContentsMargins(0, 0, 0, 0);
+    bookmarksHeader->setSizePolicy(QSizePolicy::Expanding,
+                                   QSizePolicy::Preferred);
+
+    const auto bookmarkButton = new QPushButton(QIcon::fromTheme("color"),
+                                                tr("Bookmarks"),
+                                                this);
+    bookmarkButton->setFocusPolicy(Qt::NoFocus);
+    bookmarkButton->setObjectName("NoButton");
+
+    bookmarksLayout->addWidget(bookmarkButton);
+    bookmarksLayout->addStretch();
+    verticalLayout->addWidget(bookmarksHeader);
+    verticalLayout->addSpacing(4);
+
+    const auto colorsContainer = new QWidget(this);
+    colorsContainer->setSizePolicy(QSizePolicy::Preferred,
+                                   QSizePolicy::Maximum);
+    mMainLayout = new FlowLayout(colorsContainer);
+    mMainLayout->setContentsMargins(0, 0, 0, 0);
+    colorsContainer->setLayout(mMainLayout);
+    verticalLayout->addWidget(colorsContainer);
+
+    const auto addButton = new QPushButton(this);
+    addButton->setCursor(Qt::PointingHandCursor);
+    addButton->setFocusPolicy(Qt::NoFocus);
+    addButton->setToolTip(tr("Add active color to Bookmarks"));
+    addButton->setIcon(QIcon::fromTheme("plus"));
+
+    eSizesUI::widget.add(addButton, [addButton](int size) {
+        addButton->setFixedSize(size, size);
+    });
+
+    connect(addButton, &QPushButton::clicked,
+            this, &SavedColorsWidget::addBookmarkButton);
+    mMainLayout->addWidget(addButton);
+
+    for (const auto& color : Document::sInstance->fColors) { addColor(color); }
+
     connect(Document::sInstance, &Document::bookmarkColorAdded,
             this, &SavedColorsWidget::addColor);
     connect(Document::sInstance, &Document::bookmarkColorRemoved,
             this, &SavedColorsWidget::removeColor);
-    setVisible(!mButtons.isEmpty());
 }
 
-void SavedColorsWidget::addColor(const QColor& color) {
+void SavedColorsWidget::addBookmarkButton()
+{
+    if (!mCurrentColor.isValid()) { return; }
+    Document::sInstance->addBookmarkColor(mCurrentColor);
+}
+
+void SavedColorsWidget::addColor(const QColor& color)
+{
     const auto button = new SavedColorButton(color, this);
     connect(button, &SavedColorButton::selected,
             this, &SavedColorsWidget::colorSet);
     mMainLayout->addWidget(button);
     mButtons << button;
-    setVisible(!mButtons.isEmpty());
 }
 
-void SavedColorsWidget::removeColor(const QColor &color) {
+void SavedColorsWidget::removeColor(const QColor &color)
+{
     const auto rgba = color.rgba();
-    for(const auto wid : mButtons) {
-        if(wid->getColor().rgba() == rgba) {
+    for (const auto wid : mButtons) {
+        if (wid->getColor().rgba() == rgba) {
             mButtons.removeOne(wid);
             wid->deleteLater();
             break;
         }
     }
-    setVisible(!mButtons.isEmpty());
 }
 
-void SavedColorsWidget::setColor(const QColor &color) {
-    for(const auto wid : mButtons) {
+void SavedColorsWidget::setColor(const QColor &color)
+{
+    mCurrentColor = color;
+    for (const auto wid : mButtons) {
         wid->setSelected(wid->getColor().rgba() == color.rgba());
     }
 }

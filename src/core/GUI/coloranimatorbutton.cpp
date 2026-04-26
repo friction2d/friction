@@ -25,32 +25,37 @@
 
 #include "coloranimatorbutton.h"
 #include "Animators/coloranimator.h"
+#include "themesupport.h"
 #include "colorsetting.h"
 #include "GUI/ewidgets.h"
 #include <QVBoxLayout>
 #include <QDialog>
 
-ColorAnimatorButton::ColorAnimatorButton(QWidget * const parent) :
-    BoxesListActionButton(parent) {
+ColorAnimatorButton::ColorAnimatorButton(QWidget * const parent)
+    : BoxesListActionButton(parent)
+{
     connect(this, &BoxesListActionButton::pressed,
             this, &ColorAnimatorButton::openColorSettingsDialog);
 }
 
 ColorAnimatorButton::ColorAnimatorButton(ColorAnimator * const colorTarget,
-                                         QWidget * const parent) :
-    ColorAnimatorButton(parent) {
+                                         QWidget * const parent)
+    : ColorAnimatorButton(parent)
+{
     setColorTarget(colorTarget);
 }
 
 ColorAnimatorButton::ColorAnimatorButton(const QColor &color,
-                                         QWidget * const parent) :
-    ColorAnimatorButton(parent) {
+                                         QWidget * const parent)
+    : ColorAnimatorButton(parent)
+{
     mColor = color;
 }
 
-void ColorAnimatorButton::setColorTarget(ColorAnimator * const target) {
+void ColorAnimatorButton::setColorTarget(ColorAnimator * const target)
+{
     mColorTarget.assign(target);
-    if(target) {
+    if (target) {
         mColorTarget << connect(target->getVal1Animator(),
                                 &QrealAnimator::effectiveValueChanged,
                                 this, qOverload<>(&ColorAnimatorButton::update));
@@ -64,30 +69,56 @@ void ColorAnimatorButton::setColorTarget(ColorAnimator * const target) {
     update();
 }
 
-void ColorAnimatorButton::paintEvent(QPaintEvent *) {
-    const QColor color = mColorTarget ?
-                mColorTarget->getColor() : mColor;
+void ColorAnimatorButton::paintEvent(QPaintEvent *)
+{
+    const QColor color = mColorTarget ? mColorTarget->getColor() : mColor;
     QPainter p(this);
-    if(mHover) p.setPen(Qt::red);
-    else p.setPen(Qt::white);
-    p.setBrush(color);
-    p.drawRect(0, 0, width() - 1, height() - 1);
+
+    const QRectF rect(0.0, 0.0, width(), height());
+    const float borderWidth = 2.0;
+    const QRectF innerRect = rect.adjusted(borderWidth,
+                                           borderWidth,
+                                           -borderWidth,
+                                           -borderWidth);
+
+    if (mHover) {
+        const QColor altColor = ThemeSupport::getLightDarkColor(color, 130);
+        p.setPen(altColor);
+        p.setBrush(altColor);
+        p.drawRoundedRect(rect,
+                          borderWidth + 2,
+                          borderWidth + 2);
+        p.setBrush(color);
+        p.drawRoundedRect(innerRect,
+                          borderWidth,
+                          borderWidth);
+    } else {
+        p.setPen(color);
+        p.setBrush(color);
+        p.drawRoundedRect(rect,
+                          borderWidth + 2,
+                          borderWidth + 2);
+    }
 }
 
-void ColorAnimatorButton::openColorSettingsDialog() {
+void ColorAnimatorButton::openColorSettingsDialog()
+{
     const auto dialog = new QDialog(this);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->setLayout(new QVBoxLayout(dialog));
     QWidget* colorWidget = nullptr;
 
-    if(mColorTarget) {
-        colorWidget = eWidgets::sColorWidget(dialog, mColorTarget);
+    if (mColorTarget) {
+        colorWidget = eWidgets::sColorWidget(dialog,
+                                             mColorTarget);
     } else {
         const auto colOp = [this](const ColorSetting& setting) {
-            mColor = setting.getColor();
-            update();
+            setColor(setting.getColor());
         };
-        colorWidget = eWidgets::sColorWidget(dialog, mColor, this, colOp);
+        colorWidget = eWidgets::sColorWidget(dialog,
+                                             mColor,
+                                             this,
+                                             colOp);
     }
     dialog->layout()->addWidget(colorWidget);
 
@@ -95,12 +126,16 @@ void ColorAnimatorButton::openColorSettingsDialog() {
     dialog->show();
 }
 
-void ColorAnimatorButton::setColor(const QColor &color) {
+void ColorAnimatorButton::setColor(const QColor &color)
+{
     mColor = color;
     update();
+
+    emit colorChanged(color);
 }
 
-QColor ColorAnimatorButton::color() const {
-    if(mColorTarget) return mColorTarget->getColor();
+QColor ColorAnimatorButton::color() const
+{
+    if (mColorTarget) { return mColorTarget->getColor(); }
     return mColor;
 }

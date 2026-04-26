@@ -65,5 +65,23 @@ plutil -insert LSArchitecturePriority -array ${PLIST}
 plutil -insert LSArchitecturePriority.0 -string arm64 ${PLIST}
 plutil -insert LSArchitecturePriority.1 -string x86_64 ${PLIST}
 
-mkdir dmg && mv Friction.app dmg/
-hdiutil create -volname "Friction" -srcfolder dmg -ov -format ULMO Friction-${VERSION}.dmg
+mkdir dmg
+mv Friction.app dmg/
+(cd dmg ; ln -sf /Applications Applications)
+
+DOC=Friction.app/Contents/Resources/docs/index.html
+if [ -f "dmg/${DOC}" ]; then
+    (cd dmg ; ln -sf ${DOC} Documentation.html)
+fi
+
+# https://github.com/actions/runner-images/issues/7522
+max_tries=10
+i=0
+until hdiutil create -volname "Friction" -srcfolder dmg -ov -format ULMO Friction-${VERSION}.dmg
+do
+    if [ $i -eq $max_tries ]; then
+        echo 'Error: hdiutil did not succeed even after 10 tries.'
+        exit 1
+    fi
+    i=$((i+1))
+done

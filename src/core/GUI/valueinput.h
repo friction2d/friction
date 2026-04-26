@@ -37,7 +37,7 @@ class QPainter;
 class SkCanvas;
 class QKeyEvent;
 
-enum class TransformMode { move, scale, rotate, none };
+enum class TransformMode { move, scale, rotate, shear, none };
 enum class DirectionMode { x, y, xy };
 
 class CORE_EXPORT ValueInput {
@@ -55,10 +55,13 @@ public:
         if(mTransMode == TransformMode::scale) {
             if(mXYMode == DirectionMode::x) return {mInputValue, 1};
             else return {1, mInputValue};
-        } else { //if(mTransMode == MODE_MOVE) {
+        }
+        if(mTransMode == TransformMode::shear) {
             if(mXYMode == DirectionMode::x) return {mInputValue, 0};
             else return {0, mInputValue};
         }
+        if(mXYMode == DirectionMode::x) return {mInputValue, 0};
+        else return {0, mInputValue};
     }
 
     void clearAndDisableInput();
@@ -75,6 +78,11 @@ public:
     void setupScale() {
         mTransMode = TransformMode::scale;
         setDisplayedValue(1);
+    }
+
+    void setupShear() {
+        mTransMode = TransformMode::shear;
+        setDisplayedValue(0);
     }
 
     void setupMove() {
@@ -152,7 +160,9 @@ protected:
             return "move";
         } else if(mTransMode == TransformMode::scale) {
             return "scale";
-        } else { // if(mTransMode == MODE_ROTATE) {
+        } else if(mTransMode == TransformMode::shear) {
+            return "shear";
+        } else {
             return "rotate";
         }
     }
@@ -162,12 +172,16 @@ protected:
         if(mTransMode == TransformMode::move) {
             if(mXYMode == DirectionMode::xy) return "move x, y";
             else if(mXYMode == DirectionMode::x) return "move x";
-            else /*if(mXYMode == MODE_Y)*/ return "move y";
+            else return "move y";
         } else if(mTransMode == TransformMode::scale) {
             if(mXYMode == DirectionMode::xy) return "scale x, y";
             else if(mXYMode == DirectionMode::x) return "scale x";
-            else /*if(mXYMode == MODE_Y)*/ return "scale y";
-        } else { // if(mTransMode == MODE_ROTATE) {
+            else return "scale y";
+        } else if(mTransMode == TransformMode::shear) {
+            if(mXYMode == DirectionMode::xy) return "shear x, y";
+            else if(mXYMode == DirectionMode::x) return "shear x";
+            else return "shear y";
+        } else {
             return "rotate";
         }
     }

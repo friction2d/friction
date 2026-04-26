@@ -27,19 +27,80 @@
 #define PARENTEFFECT_H
 
 #include "followobjecteffectbase.h"
+#include "transformvalues.h"
 
-class ParentEffect : public FollowObjectEffectBase {
+class ParentEffect : public FollowObjectEffectBase
+{
 public:
     ParentEffect();
 
+    void prp_drawCanvasControls(SkCanvas * const canvas,
+                                const CanvasMode mode,
+                                const float invScale,
+                                const bool ctrlPressed) override;
+
     void applyEffect(const qreal relFrame,
-                     qreal &pivotX, qreal &pivotY,
-                     qreal &posX, qreal &posY,
+                     qreal &pivotX,
+                     qreal &pivotY,
+                     qreal &posX,
+                     qreal &posY,
                      qreal &rot,
-                     qreal &scaleX, qreal &scaleY,
-                     qreal &shearX, qreal &shearY,
+                     qreal &scaleX,
+                     qreal &scaleY,
+                     qreal &shearX,
+                     qreal &shearY,
                      QMatrix& postTransform,
                      BoundingBox* const parent) override;
+
+private:
+    void captureBindState(const qreal relFrame);
+    bool ensureBindState(const qreal relFrame);
+
+    bool computeEffectTransform(const qreal relFrame,
+                                const TransformValues& baseValues,
+                                const qreal posXInfl,
+                                const qreal posYInfl,
+                                const qreal scaleXInfl,
+                                const qreal scaleYInfl,
+                                const qreal rotInfl,
+                                QMatrix& outPostTransform,
+                                const bool updateState);
+
+    void handleInfluenceChanged();
+    void updatePrevInfluences(const qreal relFrame);
+
+    bool validateInfluenceValues(const qreal posXInfl,
+                                 const qreal posYInfl,
+                                 const qreal scaleXInfl,
+                                 const qreal scaleYInfl,
+                                 const qreal rotInfl) const;
+
+    void applyInfluenceToTransform(TransformValues& values,
+                                   const TransformValues& targetValues,
+                                   const qreal posXInfl,
+                                   const qreal posYInfl,
+                                   const qreal scaleXInfl,
+                                   const qreal scaleYInfl) const;
+
+    TransformValues getCurrentBaseValues(BoxTransformAnimator* const transform,
+                                         const qreal relFrame) const;
+
+    QPointF mPrevPosInfluence;
+    QPointF mPrevScaleInfluence;
+    qreal mPrevRotInfluence = 0.0;
+    bool mPrevInfluenceValid = false;
+    QPointF mBindTargetPivotInParent;
+    QPointF mBindObjectPivotInParent;
+    QMatrix mBindTargetParentToParentSpace;
+    QMatrix mBindTargetLinearInParent;
+    bool mBindStateValid = false;
+    qreal mAccumDeltaAngleRad = 0.0;
+    bool mDeltaAngleStateValid = false;
+    QPointF mNoFollowPivotState;
+    QMatrix mNoFollowLinearState;
+    bool mNoFollowStateValid = false;
+    QPointF mLastBaseMove;
+    bool mLastBaseMoveValid = false;
 };
 
 #endif // PARENTEFFECT_H

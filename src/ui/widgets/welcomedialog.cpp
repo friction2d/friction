@@ -57,13 +57,13 @@ WelcomeDialog::WelcomeDialog(QMenu *recentMenu,
     logoLabel->setMinimumWidth(logoSize*2);
     logoLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     logoLabel->setText(QString::fromUtf8("<div style=\"margin: 0; padding: 0; text-align: center; font-weight: normal;\">"
-                                         "<p style=\"margin: 0; padding: 0;\"><img src=\":/icons/hicolor/%5x%5/apps/%4.png\" width=\"%2\" height=\"%2\"></p>"
+                                         "<p style=\"margin: 0; padding: 0;\"><img src=\":/icons/hicolor/%5x%5/mimetypes/%4.png\" width=\"%2\" height=\"%2\"></p>"
                                          "<h1 style=\"font-weight: normal; margin-top: 0; padding-top: 0;\">%3<br><span style=\"font-size: large;\">%1</span></h1>"
                                          "</div>")
                                         .arg(AppSupport::getAppVersion(),
                                              QString::number(ThemeSupport::getIconSize(logoSize).width()),
                                              AppSupport::getAppDisplayName(),
-                                             AppSupport::getAppID(),
+                                             ThemeSupport::getAppIconName(true),
                                              QString::number(ThemeSupport::getIconSize(qRound(logoSize * devicePixelRatioF())).width())));
 
     const auto buttonWid = new QWidget(this);

@@ -255,6 +255,13 @@ void SmartPath::actionSetNormalNodeC2Enabled(const int nodeId, const bool enable
     mNodesList.setNodeC2Enabled(node, enabled);
 }
 
+void SmartPath::actionSetFirstNode(const int nodeId)
+{
+    if (nodeId <= 0) { return; }
+    if (nodeId >= mNodesList.count()) { return; }
+    mNodesList.moveNodesToFrontStartingWith(nodeId);
+}
+
 void SmartPath::actionReversePath() {
     mNodesList.reverse();
 }

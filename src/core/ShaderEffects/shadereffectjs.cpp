@@ -92,22 +92,22 @@ void ShaderEffectJS::updateValues()
 
 void ShaderEffectJS::clearSetters()
 {
-    mSetters.clear();
+    ThreadSafeQJSEngine::call(&mEngine, [&]{ mSetters.clear(); });
 }
 
 void ShaderEffectJS::addSetter(const QPointF &val)
 {
-    mSetters << toValue(val);
+    ThreadSafeQJSEngine::call(&mEngine, [&] { mSetters << toValue(val); });
 }
 
 void ShaderEffectJS::addSetter(const QColor &val)
 {
-    mSetters << toValue(val);
+    ThreadSafeQJSEngine::call(&mEngine, [&] { mSetters << toValue(val); });
 }
 
 void ShaderEffectJS::addSetter(const qreal &val)
 {
-    mSetters << val;
+    ThreadSafeQJSEngine::call(&mEngine, [&] { mSetters << val; });
 }
 
 void ShaderEffectJS::evaluate()
@@ -210,15 +210,18 @@ const QMargins ShaderEffectJS::getMargins()
     return QMargins();
 }
 
-#pragma message("This still may segfault (on Linux with a bunch of effects)")
 void ShaderEffectJS::setSceneRect(const SkIRect& rect)
 {
-    QJSValueList args;
-    args << rect.x();
-    args << rect.y();
-    args << rect.width();
-    args << rect.height();
-    ThreadSafeQJSEngine::call(&mEngine, [&]{ m_eSetSceneRect.call(args); });
+    const int x = rect.x();
+    const int y = rect.y();
+    const int w = rect.width();
+    const int h = rect.height();
+
+    ThreadSafeQJSEngine::call(&mEngine, [&] {
+        QJSValueList args;
+        args << x << y << w << h;
+        m_eSetSceneRect.call(args);
+    });
 }
 
 QJSValue ShaderEffectJS::toValue(const QPointF& val)

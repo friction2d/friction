@@ -32,10 +32,16 @@ COMMIT=${COMMIT:-""}
 TAG=${TAG:-""}
 CUSTOM=${CUSTOM:-""}
 TAR_VERSION=${TAR_VERSION:-""}
+HEAD_REPO_URL=${HEAD_REPO_URL:-""}
 
 export PATH="${SDK}/bin:${PATH}"
 export PKG_CONFIG_PATH="${SDK}/lib/pkgconfig"
 export LD_LIBRARY_PATH="${SDK}/lib:${LD_LIBRARY_PATH}"
+
+FRICTION_REPO_URL=https://github.com/friction2d/friction
+if [ "${HEAD_REPO_URL}" != "" ]; then
+    FRICTION_REPO_URL=${HEAD_REPO_URL}
+fi
 
 if [ ! -d "${SDK}" ]; then
     echo "MISSING SDK"
@@ -47,7 +53,7 @@ if [ ! -d "${BUILD}" ]; then
 fi
 
 CHECKOUT="main"
-if [ "${BRANCH}" != "" ]; then
+if [ "${BRANCH}" != "" ] && [ "${BRANCH}" != "NONE" ]; then
     CHECKOUT="${BRANCH}"
 elif [ "${COMMIT}" != "" ]; then
     CHECKOUT="${COMMIT}"
@@ -57,7 +63,7 @@ fi
 
 if [ ! -d "${BUILD}/friction" ]; then
     (cd ${BUILD} ;
-        git clone https://github.com/friction2d/friction
+        git clone ${FRICTION_REPO_URL}
         cd friction
         git checkout ${CHECKOUT}
         git submodule update -i --recursive

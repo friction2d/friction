@@ -1,0 +1,15 @@
+--- qtbase/src/corelib/global/qglobal.cpp.orig	2025-10-13 16:46:42.280563055 +0200
++++ qtbase/src/corelib/global/qglobal.cpp	2025-10-13 16:52:24.910039841 +0200
+@@ -2990,9 +2990,9 @@
+ #  else
+     // (resembling winver.exe): Windows 10 "Windows 10 Version 1809"
+     if (majorVersion >= 10) {
+-        const auto releaseId = windows10ReleaseId();
+-        if (!releaseId.isEmpty())
+-            result += QLatin1String(" Version ") + releaseId;
++        //const auto releaseId = windows10ReleaseId();
++        //if (!releaseId.isEmpty())
++        //    result += QLatin1String(" Version ") + releaseId;
+         return result;
+     }
+     // Windows 7: "Windows 7 Version 6.1 (Build 7601: Service Pack 1)"

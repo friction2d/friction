@@ -51,8 +51,6 @@ if(${SKIA_USE_SYSTEM_LIBS} AND UNIX)
     pkg_check_modules(WEBPMUX REQUIRED libwebpmux)
     pkg_check_modules(WEBPDEMUX REQUIRED libwebpdemux)
     pkg_check_modules(ZLIB REQUIRED zlib)
-    pkg_check_modules(ICU REQUIRED icu-i18n)
-    pkg_check_modules(HARFBUZZ REQUIRED harfbuzz)
 else()
     add_definitions(-DFRICTION_BUNDLE_SKIA_BUNDLE)
 endif()
@@ -139,8 +137,6 @@ if(${SKIA_USE_SYSTEM_LIBS} AND UNIX)
         ${PNG_INCLUDE_DIRS}
         ${WEBP_INCLUDE_DIRS}
         ${ZLIB_INCLUDE_DIRS}
-        ${ICU_INCLUDE_DIRS}
-        ${HARFBUZZ_INCLUDE_DIRS}
     )
 endif()
 
@@ -326,8 +322,6 @@ if(${SKIA_USE_SYSTEM_LIBS} AND UNIX)
         ${PNG_LIBRARIES_DIRS}
         ${WEBP_LIBRARIES_DIRS}
         ${ZLIB_LIBRARIES_DIRS}
-        ${ICU_LIBRARIES_DIRS}
-        ${HARFBUZZ_LIBRARIES_DIRS}
     )
 endif()
 
@@ -374,8 +368,6 @@ if(${SKIA_USE_SYSTEM_LIBS} AND UNIX)
         ${WEBPMUX_LIBRARIES}
         ${WEBPDEMUX_LIBRARIES}
         ${ZLIB_LIBRARIES}
-        ${ICU_LIBRARIES}
-        ${HARFBUZZ_LIBRARIES}
     )
 endif()
 
@@ -396,20 +388,29 @@ if(${SKIA_STATIC})
             )
         endif()
     endif()
+    if(APPLE)
+        target_link_libraries(
+            ${PROJECT_NAME}
+            PRIVATE
+            "-framework CoreFoundation"
+            "-framework CoreGraphics"
+            "-framework CoreText"
+            "-framework CoreServices"
+            "-framework ImageIO"
+        )
+    endif()
 endif()
 
 if(APPLE)
     target_link_libraries(
         ${PROJECT_NAME}
         PRIVATE
-        "-framework CoreFoundation"
-        "-framework CoreGraphics"
-        "-framework CoreText"
-        "-framework CoreServices"
+        "-framework AppKit"
     )
 endif()
 
 if(UNIX AND NOT APPLE)
+    option(INSTALL_DOCS "Install documentation on Linux/BSD" ON)
     target_link_libraries(
         ${PROJECT_NAME}
         PRIVATE
@@ -478,11 +479,19 @@ if(UNIX AND NOT APPLE)
         RENAME
         application-x-${PROJECT_FREEDESKTOP}.svg
     )
-    install(
-        FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../LICENSE.md
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../README.md
-        DESTINATION
-        ${CMAKE_INSTALL_DOCDIR}-${PROJECT_VERSION}
-    )
+    if(${INSTALL_DOCS})
+        install(
+            FILES
+            ${CMAKE_CURRENT_SOURCE_DIR}/../../LICENSE.md
+            ${CMAKE_CURRENT_SOURCE_DIR}/../../README.md
+            DESTINATION
+            ${CMAKE_INSTALL_DOCDIR}
+        )
+        install(
+            DIRECTORY
+            ${CMAKE_CURRENT_SOURCE_DIR}/../../docs/offline/
+            DESTINATION
+            ${CMAKE_INSTALL_DOCDIR}/html
+        )
+    endif()
 endif()

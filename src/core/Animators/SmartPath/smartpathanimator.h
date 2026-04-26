@@ -89,6 +89,7 @@ public:
     void connectNodes(const int node1Id, const int node2Id);
     void actionConnectNodes(const int node1Id, const int node2Id);
     void actionMergeNodes(const int node1Id, const int node2Id);
+    void actionSetFirstNode(const int nodeId);
     void actionMoveNodeBetween(const int nodeId, const int prevNodeId,
                                const int nextNodeId);
     void close();

@@ -182,7 +182,7 @@ mv ${BUILD}/${FRICTION_PKG} ${FRICTION_PORTABLE_DIR}
 (cd ${FRICTION_PORTABLE_DIR} ;
 rm -rf usr
 mv opt/friction/* .
-rm -rf opt share/doc
+rm -rf opt
 ln -sf bin/friction .
 touch bin/portable.txt
 )
