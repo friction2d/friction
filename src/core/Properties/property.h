@@ -155,6 +155,12 @@ public:
 
     virtual BasicTransformAnimator *getTransformAnimator() const;
 
+    bool SWT_shouldBeVisible(const SWT_RulesCollection &rules,
+                             const bool parentSatisfies,
+                             const bool parentMainTarget) const override;
+
+    bool SWT_shouldPassThrough(const SWT_RulesCollection &rules) const override;
+
     virtual void prp_afterChangedAbsRange(const FrameRange &range,
                                           const bool clip = true);
 
