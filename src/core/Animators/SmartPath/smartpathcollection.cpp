@@ -76,7 +76,7 @@ void SmartPathCollection::savePathsSVG(SvgExporter& exp,
     if(!forceDumbIncrement && ca_getNumberOfChildren() == 1) {
         const auto path0 = getChild(0);
         path0->graph_saveSVG(exp, parent, visRange, "d",
-                             [path0, &applier](const int relFrame) {
+                             [path0, &applier](const qreal relFrame) {
             auto path = path0->getPathAtRelFrame(relFrame);
             if(applier) applier(relFrame, path);
             SkString pathStr;
@@ -86,7 +86,7 @@ void SmartPathCollection::savePathsSVG(SvgExporter& exp,
         });
     } else {
         Animator::saveSVG(exp, parent, visRange, "d",
-                          [this, &applier](const int relFrame) {
+                          [this, &applier](const qreal relFrame) {
             auto path = getPathAtRelFrame(relFrame);
             if(applier) applier(relFrame, path);
             SkString pathStr;
