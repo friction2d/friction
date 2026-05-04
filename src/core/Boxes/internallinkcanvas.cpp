@@ -80,6 +80,7 @@ void InternalLinkCanvas::setupRenderData(const qreal relFrame,
     const auto canvasTarget = static_cast<Canvas*>(finalTarget);
     if (!canvasTarget) { return; }
 
+    if (!canvasTarget->getBgColorAnimator()) { return; }
     canvasData->fBgColor = toSkColor(canvasTarget->getBgColorAnimator()->
             getColor(relFrame));
     //qreal res = mParentScene->getResolution();
