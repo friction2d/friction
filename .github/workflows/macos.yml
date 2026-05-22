@@ -1,16 +1,29 @@
 name: macOS
 
-on: [push, pull_request]
+on:
+  push:
+    branches-ignore:
+      - main
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   release:
     runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
+    - name: Cache SDK
+      uses: actions/cache@v4
+      with:
+        path: sdk
+        key: friction-sdk-1.0.0r5-macOS
     - name: Build
       run: ./src/scripts/build_mac_ci.sh
     - name: Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: friction-ci-macOS
+        name: friction-macOS-${{ github.sha }}
         path: build-release-universal/*.dmg
