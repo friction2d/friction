@@ -29,6 +29,7 @@
 #include "externallinkboxt.h"
 #include "Boxes/containerbox.h"
 #include "FileCacheHandlers/svgfilecachehandler.h"
+#include "Boxes/svgelementtrack.h"
 
 using SvgLinkBoxBase =
     ExternalLinkBoxT<ContainerBox,
@@ -39,12 +40,35 @@ public:
     SvgLinkBox();
 
     void changeSourceFile();
+
+    void addElementTrack(const QString& targetId);
+    void removeElementTrack(SvgElementTrack* track);
+
+    void anim_setAbsFrame(const int frame) override;
+
+    void writeBoundingBox(eWriteStream& dst) const override;
+    void readBoundingBox(eReadStream& src) override;
+
+    void SWT_setupAbstraction(SWT_Abstraction* abstraction,
+                              const UpdateFuncs& updateFuncs,
+                              int visiblePartWidgetId) override;
+
+    void prp_setupTreeViewMenu(PropertyMenu* menu) override;
+
+protected:
+    QDomElement prp_writePropertyXEV_impl(const XevExporter& exp) const override;
+    void prp_readPropertyXEV_impl(const QDomElement& ele,
+                                  const XevImporter& imp) override;
+
 private:
     void updateContent();
+    void resolveElementTracks();
+    void wireTrack(const qsptr<SvgElementTrack>& track);
     void fileHandlerConnector(ConnContext &conn, SvgFileCacheHandler *obj);
     void fileHandlerAfterAssigned(SvgFileCacheHandler *obj);
 
     QList<qsptr<Gradient>> mGradients;
+    QList<qsptr<SvgElementTrack>> mElementTracks;
 };
 
 #endif // SVGLINKBOX_H
