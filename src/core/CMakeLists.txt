@@ -140,6 +140,7 @@ set(
     Boxes/rectangle.cpp
     Boxes/renderdatahandler.cpp
     Boxes/smartvectorpath.cpp
+    Boxes/svgelementtrack.cpp
     Boxes/svglinkbox.cpp
     Boxes/textbox.cpp
     Boxes/textboxrenderdata.cpp
@@ -452,6 +453,7 @@ set(
     Boxes/rectangle.h
     Boxes/renderdatahandler.h
     Boxes/smartvectorpath.h
+    Boxes/svgelementtrack.h
     Boxes/svglinkbox.h
     Boxes/textbox.h
     Boxes/textboxrenderdata.h

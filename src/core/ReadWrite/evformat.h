@@ -47,6 +47,8 @@ namespace EvFormat {
         subPathOffset = 32,
         avStretch = 33,
         grid = 34,
+        svgLinkElementTracks = 35,
+        svgLinkElementTrackData = 36,
 
         nextVersion
     };

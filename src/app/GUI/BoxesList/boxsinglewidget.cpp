@@ -30,6 +30,7 @@
 #include "widgets/colorsettingswidget.h"
 
 #include "Boxes/containerbox.h"
+#include "Boxes/svgelementtrack.h"
 #include "widgets/qrealanimatorvalueslider.h"
 #include "boxscroller.h"
 #include "GUI/keysview.h"
@@ -431,6 +432,10 @@ void BoxSingleWidget::setTargetAbstraction(SWT_Abstraction *abs) {
                            this, qOverload<>(&QWidget::update));
     mTargetConn << connect(prop, &Property::prp_nameChanged,
                            this, qOverload<>(&QWidget::update));
+    if (const auto track = enve_cast<SvgElementTrack*>(prop)) {
+        mTargetConn << connect(track, &SvgElementTrack::orphanedChanged,
+                               this, qOverload<>(&QWidget::update));
+    }
 
     const auto boolProperty = enve_cast<BoolProperty*>(prop);
     const auto boolPropertyContainer = enve_cast<BoolPropertyContainer*>(prop);
@@ -882,7 +887,13 @@ void BoxSingleWidget::paintEvent(QPaintEvent *) {
         if(!enve_cast<Animator*>(prop)) nameX += eSizesUI::widget;
         p.setPen(Qt::white);
     } else { //if(enve_cast<ComplexAnimator*>(target)) {
-        p.setPen(Qt::white);
+        if (const auto track = enve_cast<SvgElementTrack*>(prop)) {
+            p.setPen(track->isOrphaned() ? Qt::red : Qt::white);
+        } else if (const auto parentTrack = enve_cast<SvgElementTrack*>(prop->getParent())) {
+            p.setPen(parentTrack->isChildOrphaned(prop) ? Qt::red : Qt::white);
+        } else {
+            p.setPen(Qt::white);
+        }
     }
 
     const QRect textRect(nameX, 0, width() - nameX - eSizesUI::widget, eSizesUI::widget);
