@@ -25,7 +25,9 @@
 
 #include <QFile>
 #include <QSettings>
-#include <QDebug>
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(lcExpressionPresets, "ExpressionPresets", QtWarningMsg)
 
 using namespace Friction::Core;
 
@@ -175,16 +177,16 @@ bool ExpressionPresets::editExpr(const QString &id,
 void ExpressionPresets::loadExpr(const QString &path)
 {
     if (!QFile::exists(path)) { return; }
-    qDebug() << "Load expression" << path;
+    qCDebug(lcExpressionPresets) << "Load expression" << path;
     if (!isValidExprFile(path)) {
-        qDebug() << "Bad expression" << path;
+        qCDebug(lcExpressionPresets) << "Bad expression" << path;
         return;
     }
 
     const auto expr = readExpr(path);
 
     if (!hasExpr(expr.id)) {
-        qDebug() << "Added expression" << expr.title << expr.id;
+        qCDebug(lcExpressionPresets) << "Added expression" << expr.title << expr.id;
         mExpr << expr;
     }
 }
@@ -392,11 +394,11 @@ void ExpressionPresets::firstRun()
                 file.write(res.readAll());
                 res.close();
             } else {
-                qWarning() << "Failed to find expression preset" << res.fileName();
+                qCWarning(lcExpressionPresets) << "Failed to find expression preset" << res.fileName();
             }
             file.close();
         } else {
-            qWarning() << "Failed to install expression preset" << file.fileName();
+            qCWarning(lcExpressionPresets) << "Failed to install expression preset" << file.fileName();
         }
     }
 
@@ -450,7 +452,7 @@ void ExpressionPresets::scanAll(const bool &clear)
 
     for (const auto &file : AppSupport::getFilesFromPath(AppSupport::getAppUserExPresetsPath(),
                                                          QStringList() << "*.fexpr")) {
-        qDebug() << "Checking user expression" << file;
+        qCDebug(lcExpressionPresets) << "Checking user expression" << file;
         if (isValidExprFile(file)) { expressions << file; }
     }
 

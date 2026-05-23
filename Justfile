@@ -6,7 +6,8 @@ SDK_SHA256  := "36a30cb68862d3cd0fe39f9c283f1a9fb9cf2ea01a9dfc65c85024b0c2171d2d
 
 REL := env_var_or_default("REL", "OFF")
 
-default: all
+default:
+   @just --list
 
 # Check and install required Homebrew tools
 deps:
@@ -68,6 +69,47 @@ package: build
 # Full pipeline: deps → sdk → build → package
 all: deps build package
 
+# Build debug for native arm64 only (incremental; no DMG)
+build-debug: sdk
+    #!/usr/bin/env bash
+    set -e -x
+    CWD=$(pwd)
+    CPU=arm64
+    SDK="${CWD}/sdk/${CPU}"
+    BUILD_DIR="${CWD}/build-debug-arm64"
+    BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    COMMIT=$(git rev-parse --short=8 HEAD)
+    export PATH="${SDK}/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+    export PKG_CONFIG_PATH="${SDK}/lib/pkgconfig"
+    git submodule update --init --recursive
+    mkdir -p "${BUILD_DIR}" && cd "${BUILD_DIR}"
+    if [ ! -f "CMakeCache.txt" ]; then
+        cmake -G Ninja \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
+            -DMAC_DEPLOY=ON \
+            -DGIT_COMMIT="${COMMIT}" \
+            -DGIT_BRANCH="${BRANCH}" \
+            -DFRICTION_OFFICIAL_RELEASE=OFF \
+            -DBUILD_SKIA=OFF \
+            -DSKIA_STATIC=ON \
+            -DSKIA_LIB_PATH="${SDK}/lib" \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DQSCINTILLA_INCLUDE_DIRS="${SDK}/include" \
+            -DQSCINTILLA_LIBRARIES_DIRS="${SDK}/lib" \
+            "${CWD}"
+    fi
+    cmake --build .
+    if [ ! -d "dmg/Friction.app" ]; then
+        mv src/app/friction.app src/app/Friction.app
+        macdeployqt src/app/Friction.app
+        rm -f src/app/Friction.app/Contents/Frameworks/{libQt5MultimediaWidgets.5.dylib,libQt5Svg.5.dylib}
+        rm -rf src/app/Friction.app/Contents/PlugIns/{bearer,iconengines,imageformats,mediaservice,printsupport,styles}
+        mkdir dmg
+        mv src/app/Friction.app dmg/
+    else
+        cp src/app/friction.app/Contents/MacOS/friction dmg/Friction.app/Contents/MacOS/friction
+    fi
+
 # Remove build output directories
 clean:
-    rm -rf build-release-arm64 build-release-x86_64 build-release-universal
+    rm -rf build-release-arm64 build-release-x86_64 build-release-universal build-debug-arm64
