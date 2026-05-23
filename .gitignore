@@ -39,3 +39,4 @@ src/scripts/flatpak/remote
 *.AppImage
 
 .claude/*.local.json
+.claude/worktrees
