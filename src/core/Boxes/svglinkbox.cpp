@@ -34,6 +34,7 @@
 #include "XML/xevexporter.h"
 
 #include <QInputDialog>
+#include <yaml-cpp/yaml.h>
 
 SvgFileCacheHandler* svgFileHandlerGetter(const QString& path) {
     return FilesHandler::sInstance->getFileHandler<SvgFileCacheHandler>(path);
@@ -76,6 +77,25 @@ void SvgLinkBox::updateContent() {
     resolveElementTracks();
 }
 
+static void collectAnimationNodes(BoundingBox* box,
+                                   QList<BoundingBox*>& result) {
+    for (const auto& doc : box->getDescYaml()) {
+        if (!doc.isYaml) continue;
+        try {
+            const auto node = YAML::Load(doc.content.toStdString());
+            if (node["kind"] && node["kind"].as<std::string>() == "animation-node") {
+                result << box;
+                break;
+            }
+        } catch (...) {}
+    }
+    if (const auto container = enve_cast<ContainerBox*>(box)) {
+        for (const auto& child : container->getContainedBoxes()) {
+            collectAnimationNodes(child, result);
+        }
+    }
+}
+
 void SvgLinkBox::resolveElementTracks() {
     ContainerBox* svgRoot = nullptr;
     const auto& contained = getContainedBoxes();
@@ -88,6 +108,18 @@ void SvgLinkBox::resolveElementTracks() {
             track->reconcileWithTarget(targetBox);
             track->syncToTarget(targetBox);
         }
+    }
+    if (!svgRoot) return;
+    QList<BoundingBox*> animationNodes;
+    collectAnimationNodes(svgRoot, animationNodes);
+    for (BoundingBox* node : animationNodes) {
+        const QString name = node->prp_getName();
+        const bool exists = std::any_of(
+            mElementTracks.begin(), mElementTracks.end(),
+            [&name](const qsptr<SvgElementTrack>& t) {
+                return t->prp_getName() == name;
+            });
+        if (!exists) addElementTrack(name);
     }
 }
 

@@ -769,6 +769,7 @@ target_link_libraries(
     #${QUAZIP_LIBRARIES}
     ${FFMPEG_LIBRARIES}
     ${SKIA_LIBRARIES}
+    yaml-cpp::yaml-cpp
 )
 
 if(APPLE)

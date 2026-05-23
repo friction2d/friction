@@ -37,6 +37,7 @@
 #include "BlendEffects/blendeffect.h"
 #include "TransformEffects/transformeffect.h"
 #include "Tasks/domeletask.h"
+#include "svgdesc.h"
 
 class Canvas;
 
@@ -237,6 +238,9 @@ public:
         Q_UNUSED(exp)
         Q_UNUSED(task)
     }
+
+    const SvgDescDocuments& getDescYaml() const { return mDescYaml; }
+    void setDescYaml(const SvgDescDocuments& docs) { mDescYaml = docs; }
 
     virtual void updateIfUsesProgram(const ShaderEffectProgram * const program) const;
 
@@ -515,6 +519,8 @@ private:
     QList<Property*> mCanvasProps;
 
     RenderContainer mDrawRenderContainer;
+
+    SvgDescDocuments mDescYaml;
 };
 
 #include "clipboardcontainer.h"
