@@ -2,21 +2,31 @@ name: Linux
 
 on: [push, pull_request]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Set Head Repo URL Environment Variable
-      if: github.event_name == 'pull_request' 
+    - name: Set Build Environment (PR)
+      if: github.event_name == 'pull_request'
       run: |
         echo "HEAD_REPO_URL=${{ github.event.pull_request.head.repo.clone_url }}" >> $GITHUB_ENV
         echo "COMMIT=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
+        echo "BRANCH=NONE" >> $GITHUB_ENV
+    - name: Set Build Environment (push)
+      if: github.event_name != 'pull_request'
+      run: |
+        echo "HEAD_REPO_URL=${{ github.server_url }}/${{ github.repository }}" >> $GITHUB_ENV
+        echo "COMMIT=${{ github.sha }}" >> $GITHUB_ENV
         echo "BRANCH=NONE" >> $GITHUB_ENV
     - name: Build
       run: ./src/scripts/build.sh
     - name: Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: friction-ci-linux-x86_64
+        name: friction-ci-linux-x86_64-${{ github.sha }}
         path: distfiles/builds/*/*.AppImage
