@@ -117,9 +117,14 @@ void SvgLinkBox::wireTrack(const qsptr<SvgElementTrack>& track) {
 
 void SvgLinkBox::anim_setAbsFrame(const int frame) {
     SvgLinkBoxBase::anim_setAbsFrame(frame);
+    qCDebug(lcSvgElementTrack) << "anim_setAbsFrame" << frame
+                               << "tracks:" << mElementTracks.count();
     for (const auto& track : mElementTracks) {
         track->anim_setAbsFrame(frame);
-        if (auto* target = track->resolvedTarget()) {
+        auto* target = track->resolvedTarget();
+        qCDebug(lcSvgElementTrack) << "  track:" << track->prp_getName()
+                                   << "resolvedTarget:" << (target ? target->prp_getName() : "(null)");
+        if (target) {
             track->syncToTarget(target);
         }
     }

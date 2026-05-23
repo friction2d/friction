@@ -38,8 +38,8 @@ sdk:
 # Build for arm64 (native) and x86_64, after updating submodules
 build: sdk
     git submodule update --init --recursive
-    just build-mac-x86_64
     just build-mac-arm
+    # just build-mac-x86_64
 
 build-mac-x86_64:
     arch -x86_64 ./src/scripts/build_mac.sh
@@ -54,9 +54,9 @@ build-and-run: build-mac-arm run
 run:
     open build-release-arm64/dmg/Friction.app
 
-# Run the debug-arm64 build
+# Run the debug-arm64 build (output stays in current terminal)
 run-debug:
-    open build-debug-arm64/dmg/Friction.app
+    build-debug-arm64/dmg/Friction.app/Contents/MacOS/friction
 
 # Produce the universal DMG from the two arch builds
 package: build

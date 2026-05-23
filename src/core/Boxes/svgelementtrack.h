@@ -27,7 +27,10 @@
 #define SVGELEMENTTRACK_H
 
 #include "Animators/staticcomplexanimator.h"
+#include <QLoggingCategory>
 #include <QSet>
+
+Q_DECLARE_LOGGING_CATEGORY(lcSvgElementTrack)
 
 class ContainerBox;
 class BoundingBox;

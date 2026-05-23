@@ -41,6 +41,8 @@
 #include <QInputDialog>
 #include <QBuffer>
 
+Q_LOGGING_CATEGORY(lcSvgElementTrack, "SvgElementTrack", QtWarningMsg)
+
 SvgElementTrack::SvgElementTrack(const QString& targetId)
     : StaticComplexAnimator(targetId) {
     connect(this, &Property::prp_selectionChanged,
@@ -136,7 +138,10 @@ void SvgElementTrack::reconcileWithTarget(BoundingBox* target) {
     }
 }
 
-static void syncLeafAnimator(QrealAnimator* src, QrealAnimator* dst) {
+static void syncLeafAnimator(QrealAnimator* src, QrealAnimator* dst,
+                             const QString& path) {
+    qCDebug(lcSvgElementTrack) << "  syncLeaf" << path
+                               << "value:" << src->getEffectiveValue();
     QBuffer buf;
     buf.open(QBuffer::ReadWrite);
     {
@@ -149,7 +154,8 @@ static void syncLeafAnimator(QrealAnimator* src, QrealAnimator* dst) {
     dst->prp_readProperty(rs);
 }
 
-static void syncByName(ComplexAnimator* trackCA, ComplexAnimator* targetCA) {
+static void syncByName(ComplexAnimator* trackCA, ComplexAnimator* targetCA,
+                       const QString& path) {
     QMap<QString, Property*> targetByName;
     const int n = targetCA->ca_getNumberOfChildren();
     for (int i = 0; i < n; i++) {
@@ -162,13 +168,14 @@ static void syncByName(ComplexAnimator* trackCA, ComplexAnimator* targetCA) {
         auto it = targetByName.find(sp->prp_getName());
         if (it == targetByName.end()) continue;
         auto* tp = it.value();
+        const QString childPath = path + "." + sp->prp_getName();
         if (const auto srcReal = enve_cast<QrealAnimator*>(sp)) {
             if (const auto dstReal = enve_cast<QrealAnimator*>(tp)) {
-                syncLeafAnimator(srcReal, dstReal);
+                syncLeafAnimator(srcReal, dstReal, childPath);
             }
         } else if (const auto srcCA = enve_cast<ComplexAnimator*>(sp)) {
             if (const auto dstCA = enve_cast<ComplexAnimator*>(tp)) {
-                syncByName(srcCA, dstCA);
+                syncByName(srcCA, dstCA, childPath);
             }
         }
     }
@@ -176,6 +183,9 @@ static void syncByName(ComplexAnimator* trackCA, ComplexAnimator* targetCA) {
 
 void SvgElementTrack::syncToTarget(BoundingBox* target) {
     if (!target) return;
+    qCDebug(lcSvgElementTrack) << "syncToTarget track:" << prp_getName()
+                               << "target:" << target->prp_getName()
+                               << "children:" << ca_getChildren().count();
     mSyncingToTarget = true;
 
     QMap<QString, Property*> targetByName;
@@ -186,17 +196,24 @@ void SvgElementTrack::syncToTarget(BoundingBox* target) {
     }
 
     for (const auto& trackChild : ca_getChildren()) {
-        if (mOrphanedChildren.contains(trackChild.get())) continue;
+        if (mOrphanedChildren.contains(trackChild.get())) {
+            qCDebug(lcSvgElementTrack) << "  skip orphaned child:" << trackChild->prp_getName();
+            continue;
+        }
         auto it = targetByName.find(trackChild->prp_getName());
-        if (it == targetByName.end()) continue;
+        if (it == targetByName.end()) {
+            qCDebug(lcSvgElementTrack) << "  skip unmatched child:" << trackChild->prp_getName();
+            continue;
+        }
         auto* tp = it.value();
+        const QString path = trackChild->prp_getName();
         if (const auto srcReal = enve_cast<QrealAnimator*>(trackChild.get())) {
             if (const auto dstReal = enve_cast<QrealAnimator*>(tp)) {
-                syncLeafAnimator(srcReal, dstReal);
+                syncLeafAnimator(srcReal, dstReal, path);
             }
         } else if (const auto srcCA = enve_cast<ComplexAnimator*>(trackChild.get())) {
             if (const auto dstCA = enve_cast<ComplexAnimator*>(tp)) {
-                syncByName(srcCA, dstCA);
+                syncByName(srcCA, dstCA, path);
             }
         }
     }
@@ -217,13 +234,14 @@ void SvgElementTrack::initFromTarget(BoundingBox* target) {
         auto it = targetByName.find(trackChild->prp_getName());
         if (it == targetByName.end()) continue;
         auto* tp = it.value();
+        const QString path = trackChild->prp_getName();
         if (const auto dstReal = enve_cast<QrealAnimator*>(trackChild.get())) {
             if (const auto srcReal = enve_cast<QrealAnimator*>(tp)) {
-                syncLeafAnimator(srcReal, dstReal);
+                syncLeafAnimator(srcReal, dstReal, path);
             }
         } else if (const auto dstCA = enve_cast<ComplexAnimator*>(trackChild.get())) {
             if (const auto srcCA = enve_cast<ComplexAnimator*>(tp)) {
-                syncByName(srcCA, dstCA);
+                syncByName(srcCA, dstCA, path);
             }
         }
     }
