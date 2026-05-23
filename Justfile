@@ -54,6 +54,10 @@ build-and-run: build-mac-arm run
 run:
     open build-release-arm64/dmg/Friction.app
 
+# Run the debug-arm64 build
+run-debug:
+    open build-debug-arm64/dmg/Friction.app
+
 # Produce the universal DMG from the two arch builds
 package: build
     #!/usr/bin/env bash
