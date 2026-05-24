@@ -34,19 +34,18 @@ sdk:
     rm "{{SDK_TAR}}"
 
 # Build for arm64 (native) and x86_64, after updating submodules
-build: sdk
+build-mac: sdk
     git submodule update --init --recursive
     just build-mac-arm
-    # just build-mac-x86_64
+    just build-mac-x86_64
 
 build-mac-x86_64:
     arch -x86_64 ./src/scripts/build_mac.sh
 
-build-mac-arm:
+build-mac-arm: sdk
     ./src/scripts/build_mac.sh
 
-# Build and then run arm64 build.
-build-and-run: build-mac-arm run
+build: build-mac-arm
 
 # Run the arm64 build
 run:
@@ -68,6 +67,10 @@ run-debug-timeline:
 # Debug pivot track attachment decisions (read-path filtering + collectPivotDescs + applyPivotToTrack)
 debug-pivot-track-attachment:
     QT_LOGGING_RULES="SvgElementTrack=true;friction.svgpivot=true" just run-debug > log.txt 2>&1;
+
+# Full pivot debug: SVG import detection + collectPivotDescs traversal + bbox pivot resets
+run-debug-pivot:
+    QT_LOGGING_RULES="friction.svg.import=true;friction.svgpivot=true;friction.box.pivot=true" just run-debug > log.txt 2>&1;
 
 # Produce the universal DMG from the two arch builds
 package: build

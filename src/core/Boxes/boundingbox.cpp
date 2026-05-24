@@ -25,6 +25,7 @@
 
 #include "Boxes/boundingbox.h"
 #include <QDebug>
+#include <QLoggingCategory>
 #include "Boxes/containerbox.h"
 #include "TransformEffects/followpatheffect.h"
 #include "canvas.h"
@@ -59,6 +60,8 @@
 
 #include <QInputDialog>
 #include <QMessageBox>
+
+Q_LOGGING_CATEGORY(lcBoxPivot, "friction.box.pivot", QtWarningMsg)
 
 int BoundingBox::sNextDocumentId = 0;
 QList<BoundingBox*> BoundingBox::sDocumentBoxes;
@@ -187,6 +190,9 @@ QPointF BoundingBox::getRelCenterPosition() {
 
 void BoundingBox::centerPivotPosition() {
     const auto center = getRelCenterPosition();
+    qCDebug(lcBoxPivot) << "centerPivotPosition:" << prp_getName()
+                        << "setting pivot to bbox center=" << center
+                        << "mCenterPivotPlanned was=" << mCenterPivotPlanned;
     mTransformAnimator->setPivotFixedTransform(center);
     requestGlobalPivotUpdateIfSelected();
 }
@@ -527,6 +533,8 @@ void BoundingBox::setRelBoundingRect(const QRectF& relRect) {
     mSkRelBoundingRectPath.addRect(mRelRectSk);
 
     if(mCenterPivotPlanned) {
+        qCDebug(lcBoxPivot) << "setRelBoundingRect: firing deferred centerPivot for" << prp_getName()
+                            << "rect=" << relRect;
         mCenterPivotPlanned = false;
         centerPivotPosition();
     }

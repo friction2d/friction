@@ -525,8 +525,14 @@ void loadCircle(const QDomElement &pathElement,
         try {
             const auto node = YAML::Load(doc.content.toStdString());
             if (node["kind"] && node["kind"].as<std::string>() == "pivot") {
-                parentGroup->setProperty("svgPivotPos",
-                                         QPointF(cXstr.toDouble(), cYstr.toDouble()));
+                const QPointF pos(cXstr.toDouble(), cYstr.toDouble());
+                qCDebug(lcSvgImport) << "loadCircle: kind:pivot detected"
+                                     << "cx=" << cXstr << "cy=" << cYstr
+                                     << "parentGroup name=" << parentGroup->prp_getName()
+                                     << "svgElementId=" << parentGroup->property("svgElementId").toString()
+                                     << "mCenterPivotPlanned=" << parentGroup->isCenterPivotPlanned()
+                                     << "setting svgPivotPos=" << pos;
+                parentGroup->setProperty("svgPivotPos", pos);
                 return;
             }
         } catch (...) {}

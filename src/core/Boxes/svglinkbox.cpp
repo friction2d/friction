@@ -172,19 +172,26 @@ void SvgLinkBox::collectFlipbookDescs(ContainerBox* container) {
 
 void SvgLinkBox::collectPivotDescs(ContainerBox* container) {
     for (auto* box : container->getContainedBoxes()) {
+        qCDebug(lcSvgPivot) << "collectPivotDescs: visiting box"
+                            << box->prp_getName()
+                            << "svgElementId=" << box->property("svgElementId").toString()
+                            << "mCenterPivotPlanned=" << box->isCenterPivotPlanned()
+                            << "hasSvgPivotPos=" << box->property("svgPivotPos").isValid();
         const QVariant pivotVar = box->property("svgPivotPos");
         if (pivotVar.isValid()) {
             const QPointF pivot = pivotVar.toPointF();
-            const QString trackName = box->prp_getName();
+            const QString boxName = box->prp_getName();
+            const QString svgId = box->property("svgElementId").toString();
             qCDebug(lcSvgPivot) << "collectPivotDescs: found pivot" << pivot
-                                << "on box" << trackName;
+                                << "on box" << boxName << "svgId=" << svgId;
             bool found = false;
             for (const auto& track : mElementTracks) {
-                if (track->prp_getName() == trackName) {
+                const QString tName = track->prp_getName();
+                if (tName == boxName || (!svgId.isEmpty() && tName == svgId)) {
                     found = true;
                     auto* target = track->resolvedTarget();
                     if (!target) {
-                        qCDebug(lcSvgPivot) << "collectPivotDescs: track" << trackName
+                        qCDebug(lcSvgPivot) << "collectPivotDescs: track" << tName
                                             << "has no resolved target";
                         break;
                     }
@@ -192,17 +199,24 @@ void SvgLinkBox::collectPivotDescs(ContainerBox* container) {
                         target->getTransformAnimator());
                     if (!transformAdv) {
                         qCDebug(lcSvgPivot) << "collectPivotDescs: no AdvancedTransformAnimator on"
-                                            << trackName;
+                                            << tName;
                         break;
                     }
-                    qCDebug(lcSvgPivot) << "collectPivotDescs: setting pivot directly on target"
-                                        << trackName << "=" << pivot;
+                    qCDebug(lcSvgPivot) << "collectPivotDescs: target=" << target->prp_getName()
+                                        << "mCenterPivotPlanned=" << target->isCenterPivotPlanned()
+                                        << "pivot before=" << transformAdv->getPivotAnimator()->getEffectiveValue();
+                    target->cancelPlannedCenterPivot();
                     transformAdv->getPivotAnimator()->setBaseValue(pivot);
+                    qCDebug(lcSvgPivot) << "collectPivotDescs: set pivot on" << tName
+                                        << "=" << pivot
+                                        << "pivot after=" << transformAdv->getPivotAnimator()->getEffectiveValue()
+                                        << "mCenterPivotPlanned after cancel=" << target->isCenterPivotPlanned();
                     break;
                 }
             }
             if (!found) {
-                qCDebug(lcSvgPivot) << "collectPivotDescs: no element track found for" << trackName;
+                qCDebug(lcSvgPivot) << "collectPivotDescs: no element track found for"
+                                    << boxName << "(svgId=" << svgId << ")";
             }
         }
         if (const auto sub = enve_cast<ContainerBox*>(box))

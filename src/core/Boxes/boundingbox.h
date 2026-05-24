@@ -139,6 +139,8 @@ public:
 
     void centerPivotPositionAction();
     void centerPivotPosition();
+    void cancelPlannedCenterPivot() { mCenterPivotPlanned = false; }
+    bool isCenterPivotPlanned() const { return mCenterPivotPlanned; }
     virtual QPointF getRelCenterPosition();
 
     virtual void selectAndAddContainedPointsToList(
