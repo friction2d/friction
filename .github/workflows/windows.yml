@@ -1,10 +1,8 @@
 name: Windows
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
+  workflow_call:
 
 jobs:
   release:
@@ -20,7 +18,7 @@ jobs:
     - name: Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: friction-ci-windows-x64
+        name: friction-ci-windows-x64-${{ github.sha }}
         path: |
           build\output\friction-*.7z
           build\output\friction-*.exe

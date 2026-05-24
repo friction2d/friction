@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-linux:
+    uses: ./.github/workflows/linux.yml
+
+  build-macos:
+    uses: ./.github/workflows/macos.yml
+
+  build-windows:
+    uses: ./.github/workflows/windows.yml
+
+  release:
+    needs: [build-linux, build-macos, build-windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Compute version
+        run: |
+          MAJOR=$(grep 'major:' semver.yaml | awk '{print $2}')
+          MINOR=$(grep 'minor:' semver.yaml | awk '{print $2}')
+          PATCH=$(grep 'patch:' semver.yaml | awk '{print $2}')
+          COUNT=$(git rev-list --count HEAD)
+          SHA=$(git rev-parse --short=8 HEAD)
+          echo "VERSION=${MAJOR}.${MINOR}.${PATCH}+${COUNT}.${{ github.run_number }}.${SHA}.main.ci" >> $GITHUB_ENV
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: friction-ci-linux-x86_64-${{ github.sha }}
+          path: dist/linux
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: friction-macOS-${{ github.sha }}
+          path: dist/macos
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: friction-ci-windows-x64-${{ github.sha }}
+          path: dist/windows
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${{ env.VERSION }}" \
+            --title "Friction ${{ env.VERSION }}" \
+            --generate-notes \
+            dist/linux/* dist/macos/* dist/windows/*
