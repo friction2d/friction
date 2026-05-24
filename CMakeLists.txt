@@ -26,11 +26,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/src/cmak
 include(friction-version)
 include(friction-meta)
 
-if (CUSTOM_BUILD STREQUAL "")
-    write_file(version.txt ${PROJECT_VERSION})
-else()
-    write_file(version.txt ${PROJECT_VERSION}-${CUSTOM_BUILD})
-endif()
+write_file(version.txt ${PROJECT_VERSION_FULL})
 
 if(UNIX AND NOT APPLE)
     set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")

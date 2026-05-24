@@ -23,9 +23,7 @@ set -e -x
 CWD=`pwd`
 BUILD_DIR=${CWD}/build-source
 BUILD_TMP=${CWD}/build-tmp
-COMMIT=`git rev-parse --short=8 HEAD`
-CUSTOM=${CUSTOM:-""}
-REL=${REL:-0}
+BUILD_ORIGIN=${BUILD_ORIGIN:-local}
 
 if [ -d "${BUILD_DIR}" ]; then
     rm -rf ${BUILD_DIR}
@@ -43,14 +41,9 @@ cmake -G Ninja \
 -DCMAKE_INSTALL_PREFIX=/usr \
 -DCMAKE_CXX_COMPILER=clang++ \
 -DCMAKE_C_COMPILER=clang \
--DGIT_COMMIT=${COMMIT} \
--DCUSTOM_BUILD=${CUSTOM} \
+-DBUILD_ORIGIN=${BUILD_ORIGIN} \
 ..
 VERSION=`cat version.txt`
-
-if [ "${COMMIT}" != "" ] && [ "${CUSTOM}" = "" ] && [ "${REL}" != 1 ]; then
-    VERSION="${VERSION}-${COMMIT}"
-fi
 
 cd ${BUILD_DIR}
 git clone ${CWD} friction-${VERSION}

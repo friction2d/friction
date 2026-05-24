@@ -21,10 +21,8 @@ set -e -x
 
 CWD=`pwd`
 
-REL=${REL:-"OFF"}
-BRANCH=${BRANCH:-`git rev-parse --abbrev-ref HEAD`}
-COMMIT=${COMMIT:-`git rev-parse --short=8 HEAD`}
-CUSTOM=${CUSTOM:-"CI"}
+GHA_RUN_NUMBER=${GHA_RUN_NUMBER:-0}
+BUILD_ORIGIN=${BUILD_ORIGIN:-ci}
 
 SDK=1.0.0
 SDK_REV=r5
@@ -40,8 +38,8 @@ fi
 
 git submodule update --init --recursive
 
-export CUSTOM=CI
-export REL=$REL
+export GHA_RUN_NUMBER
+export BUILD_ORIGIN
 
 cd ${CWD}
 arch -x86_64 ./src/scripts/build_mac.sh
@@ -52,8 +50,4 @@ cd ${CWD}
 cd ${CWD}
 
 VERSION=`cat build-release-arm64/version.txt`
-if [ "${REL}" != "ON" ]; then
-    VERSION="${VERSION}-${COMMIT}"
-fi
-
 VERSION=${VERSION} ./src/scripts/build_mac_universal.sh

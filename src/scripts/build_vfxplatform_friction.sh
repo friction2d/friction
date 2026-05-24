@@ -30,9 +30,10 @@ REL=${REL:-1}
 BRANCH=${BRANCH:-""}
 COMMIT=${COMMIT:-""}
 TAG=${TAG:-""}
-CUSTOM=${CUSTOM:-""}
 TAR_VERSION=${TAR_VERSION:-""}
 HEAD_REPO_URL=${HEAD_REPO_URL:-""}
+GHA_RUN_NUMBER=${GHA_RUN_NUMBER:-0}
+BUILD_ORIGIN=${BUILD_ORIGIN:-ci}
 
 export PATH="${SDK}/bin:${PATH}"
 export PKG_CONFIG_PATH="${SDK}/lib/pkgconfig"
@@ -75,19 +76,9 @@ cd ${BUILD}/friction
 rm -rf build-vfxplatform || true
 mkdir build-vfxplatform && cd build-vfxplatform
 
-REL_STATUS="ON"
-if [ "${REL}" != 1 ]; then
-    REL_STATUS="OFF"
-fi
-
 # workaround for gperftools (until I fix it)
 cp -a ${SDK}/include/libunw* /usr/include/
 cp -a ${SDK}/lib/libunw* /usr/lib64/
-
-CMAKE_EXTRA=""
-
-GIT_COMMIT=`git rev-parse --short=8 HEAD`
-GIT_BRANCH=`git rev-parse --abbrev-ref HEAD`
 
 cmake -G Ninja \
 -DCMAKE_INSTALL_PREFIX=${SDK} \
@@ -97,22 +88,17 @@ cmake -G Ninja \
 -DSKIA_USE_SYSTEM_LIBS=OFF \
 -DSKIA_SYNC_EXTERNAL=ON \
 -DUSE_EGL=ON \
--DFRICTION_OFFICIAL_RELEASE=${REL_STATUS} \
 -DQSCINTILLA_INCLUDE_DIRS=${SDK}/include \
 -DQSCINTILLA_LIBRARIES_DIRS=${SDK}/lib \
 -DQSCINTILLA_LIBRARIES=qscintilla2_friction_qt5 \
 -DCMAKE_CXX_COMPILER=clang++ \
 -DCMAKE_C_COMPILER=clang \
--DGIT_COMMIT=${GIT_COMMIT} \
--DGIT_BRANCH=${GIT_BRANCH} \
--DCUSTOM_BUILD=${CUSTOM} \
+-DGHA_RUN_NUMBER=${GHA_RUN_NUMBER} \
+-DBUILD_ORIGIN=${BUILD_ORIGIN} \
 -DSKIA_STATIC=ON \
 ..
 
 VERSION=`cat version.txt`
-if [ "${REL}" != 1 ]; then
-    VERSION="${VERSION}-${GIT_COMMIT}"
-fi
 
 cmake --build .
 

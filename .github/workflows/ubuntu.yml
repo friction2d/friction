@@ -8,10 +8,16 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build
+      env:
+        GHA_RUN_NUMBER: ${{ github.run_number }}
+        BUILD_ORIGIN: ci
       run: APT=1 CI=1 MKJOBS=2 ./src/scripts/ci.sh
   noble:
     runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v3
     - name: Build
+      env:
+        GHA_RUN_NUMBER: ${{ github.run_number }}
+        BUILD_ORIGIN: ci
       run: APT=1 CI=1 MKJOBS=2 ./src/scripts/ci.sh

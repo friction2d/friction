@@ -20,13 +20,17 @@ jobs:
       run: |
         echo "HEAD_REPO_URL=${{ github.event.pull_request.head.repo.clone_url }}" >> $GITHUB_ENV
         echo "COMMIT=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
-        echo "BRANCH=NONE" >> $GITHUB_ENV
+        echo "BRANCH=${{ github.head_ref }}" >> $GITHUB_ENV
+        echo "GHA_RUN_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
+        echo "BUILD_ORIGIN=ci" >> $GITHUB_ENV
     - name: Set Build Environment (push)
       if: github.event_name != 'pull_request'
       run: |
         echo "HEAD_REPO_URL=${{ github.server_url }}/${{ github.repository }}" >> $GITHUB_ENV
         echo "COMMIT=${{ github.sha }}" >> $GITHUB_ENV
-        echo "BRANCH=NONE" >> $GITHUB_ENV
+        echo "BRANCH=${{ github.ref_name }}" >> $GITHUB_ENV
+        echo "GHA_RUN_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
+        echo "BUILD_ORIGIN=ci" >> $GITHUB_ENV
     - name: Build
       run: ./src/scripts/build.sh
     - name: Artifact

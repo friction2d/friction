@@ -5,21 +5,19 @@ REM # Copyright (c) Ole-André Rodlie and contributors
 REM # GPL3
 
 set OPT=%1
-set REL=OFF
 set BTYPE=Release
 set BDIR=release
-set CBUILD=
+set BUILD_ORIGIN=local
 
-if "%OPT%" == "release" (
-    set REL=ON
-)
 if "%OPT%" == "ci" (
-    set CBUILD=CI
+    set BUILD_ORIGIN=ci
 )
 if "%OPT%" == "debug" (
     set BTYPE=Debug
     set BDIR=debug
 )
+
+if "%GHA_RUN_NUMBER%"=="" set GHA_RUN_NUMBER=0
 
 set CWD=%cd%
 set SDK_DIR=%CWD%\sdk
@@ -50,16 +48,12 @@ mkdir build
 cd "%CWD%\build"
 mkdir output
 
-cmake -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=%BTYPE% -DCMAKE_PREFIX_PATH=%SDK_DIR% -DCUSTOM_BUILD=%CBUILD% -DBUILD_SKIA=OFF -DFRICTION_OFFICIAL_RELEASE=%REL% -DWIN_DEPLOY=ON -DGIT_COMMIT=%COMMIT% -DGIT_BRANCH=%BRANCH% ..
+cmake -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=%BTYPE% -DCMAKE_PREFIX_PATH=%SDK_DIR% -DBUILD_SKIA=OFF -DWIN_DEPLOY=ON -DGIT_COMMIT=%COMMIT% -DGIT_BRANCH=%BRANCH% -DGHA_RUN_NUMBER=%GHA_RUN_NUMBER% -DBUILD_ORIGIN=%BUILD_ORIGIN% ..
 set /p VERSION=<version.txt
 cmake --build . --config %BTYPE%
 
-if "%REL%" == "OFF" (
-    set VERSION="%VERSION%-%COMMIT%"
-)
-
-set BUILD_OUTPUT="%CWD%\build\output"
-set OUTPUT_DIR="%BUILD_OUTPUT%\friction-%VERSION%"
+set BUILD_OUTPUT=%CWD%\build\output
+set OUTPUT_DIR=%BUILD_OUTPUT%\friction-%VERSION%
 
 mkdir "%OUTPUT_DIR%"
 mkdir "%OUTPUT_DIR%\audio"

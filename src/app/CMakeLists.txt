@@ -30,7 +30,7 @@ include(friction-common)
 #include(friction-quazip)
 include(friction-ffmpeg)
 
-add_definitions(-DPROJECT_VERSION="${PROJECT_VERSION}")
+add_definitions(-DPROJECT_VERSION="${PROJECT_VERSION_FULL}")
 
 if(${LINUX_DEPLOY})
     set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")

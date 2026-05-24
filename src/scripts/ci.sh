@@ -73,12 +73,8 @@ fi
 
 CWD=`pwd`
 MKJOBS=${MKJOBS:-4}
-COMMIT=`git rev-parse --short=8 HEAD`
-BRANCH=`git rev-parse --abbrev-ref HEAD`
-
-if [ "${BRANCH}" = "main" ]; then
-    BRANCH=""
-fi
+GHA_RUN_NUMBER=${GHA_RUN_NUMBER:-0}
+BUILD_ORIGIN=${BUILD_ORIGIN:-ci}
 
 cd ${CWD}
 rm -rf build-ci || true
@@ -90,8 +86,8 @@ cmake -G Ninja \
 -DCMAKE_INSTALL_PREFIX=/usr \
 -DCMAKE_CXX_COMPILER=clang++ \
 -DCMAKE_C_COMPILER=clang \
--DGIT_COMMIT=${COMMIT} \
--DGIT_BRANCH=${BRANCH} \
+-DGHA_RUN_NUMBER=${GHA_RUN_NUMBER} \
+-DBUILD_ORIGIN=${BUILD_ORIGIN} \
 ..
 cmake --build .
 cpack -G DEB

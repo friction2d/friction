@@ -4,8 +4,6 @@ SDK_TAR     := "friction-sdk-" + SDK_VERSION + SDK_REV + "-macOS.tar.xz"
 SDK_URL     := "https://github.com/friction2d/friction-sdk/releases/download/v" + SDK_VERSION + "/" + SDK_TAR
 SDK_SHA256  := "36a30cb68862d3cd0fe39f9c283f1a9fb9cf2ea01a9dfc65c85024b0c2171d2d"
 
-REL := env_var_or_default("REL", "OFF")
-
 default:
    @just --list
 
@@ -71,12 +69,7 @@ run-debug-timeline:
 package: build
     #!/usr/bin/env bash
     set -e
-    REL="{{REL}}"
     VERSION=$(cat build-release-arm64/version.txt)
-    if [ "$REL" != "ON" ]; then
-        COMMIT=$(git rev-parse --short=8 HEAD)
-        VERSION="${VERSION}-${COMMIT}"
-    fi
     VERSION=${VERSION} ./src/scripts/build_mac_universal.sh
 
 # Full pipeline: deps → sdk → build → package
@@ -90,8 +83,6 @@ build-debug: sdk
     CPU=arm64
     SDK="${CWD}/sdk/${CPU}"
     BUILD_DIR="${CWD}/build-debug-arm64"
-    BRANCH=$(git rev-parse --abbrev-ref HEAD)
-    COMMIT=$(git rev-parse --short=8 HEAD)
     export PATH="${SDK}/bin:/usr/bin:/bin:/usr/sbin:/sbin"
     export PKG_CONFIG_PATH="${SDK}/lib/pkgconfig"
     git submodule update --init --recursive
@@ -100,9 +91,6 @@ build-debug: sdk
         cmake -G Ninja \
             -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
             -DMAC_DEPLOY=ON \
-            -DGIT_COMMIT="${COMMIT}" \
-            -DGIT_BRANCH="${BRANCH}" \
-            -DFRICTION_OFFICIAL_RELEASE=OFF \
             -DBUILD_SKIA=OFF \
             -DSKIA_STATIC=ON \
             -DSKIA_LIB_PATH="${SDK}/lib" \

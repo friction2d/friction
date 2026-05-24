@@ -175,25 +175,7 @@ const QString AppSupport::getAppUrl()
 
 const QString AppSupport::getAppVersion()
 {
-    QString version = QString::fromUtf8(PROJECT_VERSION);
-#ifdef CUSTOM_BUILD
-    QString custom(CUSTOM_BUILD);
-    if (!custom.isEmpty()) {
-        version.append(QString("-%1").arg(custom));
-    }
-#endif
-#ifndef PROJECT_OFFICIAL
-#ifndef CUSTOM_BUILD
-    version.append("-dev");
-#endif
-#ifdef PROJECT_COMMIT
-    QString commit(PROJECT_COMMIT);
-    if (!commit.isEmpty()) {
-        version.append(QString("-%1").arg(commit));
-    }
-#endif
-#endif
-    return version;
+    return QString::fromUtf8(PROJECT_VERSION);
 }
 
 const QString AppSupport::getAppBuildInfo(bool html)

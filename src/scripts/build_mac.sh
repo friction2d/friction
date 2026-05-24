@@ -20,10 +20,10 @@
 set -e -x
 
 CWD=`pwd`
-REL=${REL:-"OFF"}
 BRANCH=${BRANCH:-`git rev-parse --abbrev-ref HEAD`}
 COMMIT=${COMMIT:-`git rev-parse --short=8 HEAD`}
-CUSTOM=${CUSTOM:-""}
+GHA_RUN_NUMBER=${GHA_RUN_NUMBER:-0}
+BUILD_ORIGIN=${BUILD_ORIGIN:-local}
 OSX=11.0
 CPU=`arch`
 
@@ -61,8 +61,8 @@ cmake -G Ninja \
 -DMAC_DEPLOY=ON \
 -DGIT_COMMIT=${COMMIT} \
 -DGIT_BRANCH=${BRANCH} \
--DFRICTION_OFFICIAL_RELEASE=${REL} \
--DCUSTOM_BUILD=${CUSTOM} \
+-DGHA_RUN_NUMBER=${GHA_RUN_NUMBER} \
+-DBUILD_ORIGIN=${BUILD_ORIGIN} \
 -DBUILD_SKIA=OFF \
 -DSKIA_STATIC=ON \
 -DSKIA_LIB_PATH=${SDK}/lib \
@@ -72,9 +72,6 @@ cmake -G Ninja \
 ${CWD}
 
 VERSION=`cat version.txt`
-if [ "${REL}" != "ON" ]; then
-    VERSION="${VERSION}-${COMMIT}"
-fi
 
 cmake --build .
 
