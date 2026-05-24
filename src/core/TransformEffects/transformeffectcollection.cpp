@@ -95,7 +95,7 @@ bool TransformEffectCollection::hasEffectsSVG()
 {
     const auto& children = ca_getChildren();
     for (const auto& effect : children) {
-        if (const auto followPath = enve_cast<FollowPathEffect*>(effect.get())) {
+        if (enve_cast<FollowPathEffect*>(effect.get())) {
             return true;
         }
     }

@@ -89,7 +89,7 @@ void KeysView::graphEasingApply(QrealAnimator *anim,
                                 const QString &easing)
 {
     if (!anim) { return; }
-    if (const auto spa = enve_cast<SmartPathAnimator*>(anim)) {
+    if (enve_cast<SmartPathAnimator*>(anim)) {
         emit statusMessage(tr("Smart paths does not support easing"));
         return;
     }

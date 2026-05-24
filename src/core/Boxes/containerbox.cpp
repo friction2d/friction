@@ -348,7 +348,7 @@ void ContainerBox::updateAllChildPaths(const UpdateReason reason,
             cont->updateAllChildPaths(reason, func);
         } else if(const auto link = enve_cast<InternalLinkBox*>(box)) {
             const auto target = link->getFinalTarget();
-            if(const auto path = enve_cast<PathBox*>(target)) {
+            if(enve_cast<PathBox*>(target)) {
                 link->planUpdate(reason);
             }
         }

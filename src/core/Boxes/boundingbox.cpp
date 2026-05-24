@@ -329,9 +329,9 @@ const QStringList BoundingBox::checkRasterEffectsForSVGSupport()
         if (!effect) { continue; }
         if (!effect->isVisible()) { continue; }
         bool isSafeForSVG = false;
-        if (const auto blur = enve_cast<BlurEffect*>(effect)) {
+        if (enve_cast<BlurEffect*>(effect)) {
             isSafeForSVG = true;
-        } else if (const auto shadow = enve_cast<ShadowEffect*>(effect)) {
+        } else if (enve_cast<ShadowEffect*>(effect)) {
             isSafeForSVG = true;
         }
         if (!isSafeForSVG) { result.append(effect->prp_getName()); }
@@ -369,7 +369,7 @@ const QStringList BoundingBox::checkTransformEffectsForSVGSupport()
         if (!effect) { continue; }
         if (!effect->isVisible()) { continue; }
         bool isSafeForSVG = false;
-        if (const auto followPath = enve_cast<FollowPathEffect*>(effect)) {
+        if (enve_cast<FollowPathEffect*>(effect)) {
             isSafeForSVG = true;
         }
         if (!isSafeForSVG) { result.append(effect->prp_getName()); }

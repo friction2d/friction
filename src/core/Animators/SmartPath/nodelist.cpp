@@ -476,7 +476,6 @@ void NodeList::setPath(const SkPath &path) {
     SkPath::RawIter iter = SkPath::RawIter(path);
 
     SkPoint pts[4];
-    int verbId = 0;
 
     // for converting conics to quads
     SkAutoConicToQuads conicToQuads;
@@ -567,7 +566,6 @@ void NodeList::setPath(const SkPath &path) {
             quadsCount--;
         } else {
             verb = iter.next(pts);
-            verbId++;
         }
     }
 }
