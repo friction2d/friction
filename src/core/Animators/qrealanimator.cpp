@@ -468,6 +468,27 @@ qreal QrealAnimator::calculateBaseValueAtRelFrame(const qreal frame) const {
     return mCurrentBaseValue;
 }
 
+qreal QrealAnimator::calculateStepValueAtRelFrame(const qreal frame) const {
+    if(!anim_hasKeys()) return mCurrentBaseValue;
+    const auto pn = anim_getPrevAndNextKeyIdF(frame);
+    const int prevId = pn.first;
+    const int nextId = pn.second;
+
+    const bool adjKeys = nextId - prevId == 1;
+    const auto keyAtRelFrame = adjKeys ? nullptr :
+                               anim_getKeyAtIndex<QrealKey>(prevId + 1);
+    if(keyAtRelFrame) return keyAtRelFrame->getValue();
+    const auto prevKey = anim_getKeyAtIndex<QrealKey>(prevId);
+    if(prevKey) return clamp(prevKey->getValue(), mClampMin, mClampMax);
+    const auto nextKey = anim_getKeyAtIndex<QrealKey>(nextId);
+    if(nextKey) return clamp(nextKey->getValue(), mClampMin, mClampMax);
+    return mCurrentBaseValue;
+}
+
+qreal QrealAnimator::getStepValue() const {
+    return calculateStepValueAtRelFrame(anim_getCurrentRelFrame());
+}
+
 qreal QrealAnimator::getBaseValue(const qreal relFrame) const {
     if(isZero4Dec(relFrame - anim_getCurrentRelFrame()))
         return mCurrentBaseValue;

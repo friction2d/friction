@@ -34,6 +34,8 @@
 #include <QPainter>
 #include <QtMath>
 
+Q_LOGGING_CATEGORY(lcSvgFlipbookTrack, "friction.svgflipbooktrack", QtWarningMsg)
+
 static BoundingBox* findDescendantByName(ContainerBox* container,
                                           const QString& name) {
     for (auto* box : container->getContainedBoxes()) {
@@ -72,10 +74,17 @@ void SvgFlipbookTrack::resolveTargets(ContainerBox* svgRoot) {
 }
 
 void SvgFlipbookTrack::syncToTargets() {
-    const int idx = mIndex->getEffectiveIntValue();
+    const int idx = mIndex->getStepIntValue();
+    qCDebug(lcSvgFlipbookTrack) << "syncToTargets" << prp_getName()
+                                << "relFrame:" << anim_getCurrentRelFrame()
+                                << "stepIdx:" << idx
+                                << "interpolatedIdx:" << mIndex->getEffectiveIntValue();
     for (auto it = mResolvedPages.begin(); it != mResolvedPages.end(); ++it) {
         if (BoundingBox* box = it.value()) {
-            box->setVisibleFromAnimation(it.key() == idx);
+            const bool visible = it.key() == idx;
+            qCDebug(lcSvgFlipbookTrack) << "  page" << it.key()
+                                        << box->prp_getName() << "visible:" << visible;
+            box->setVisibleFromAnimation(visible);
         }
     }
 }

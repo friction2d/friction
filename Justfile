@@ -64,6 +64,9 @@ run-debug-render:
 run-debug-preview:
     QT_LOGGING_RULES="friction.renderhandler=true;friction.cachehandler=true;friction.canvas=true;friction.renderoutput=true;friction.audio=true" just run-debug > log.txt 2>&1;
 
+run-debug-timeline:
+    QT_LOGGING_RULES="SvgElementTrack=true;friction.svgflipbooktrack=true" just run-debug > log.txt 2>&1;
+
 # Produce the universal DMG from the two arch builds
 package: build
     #!/usr/bin/env bash

@@ -126,6 +126,7 @@ public:
     qreal getBaseValueAtAbsFrame(const qreal frame) const;
     qreal getEffectiveValue(const qreal relFrame) const;
     qreal getEffectiveValueAtAbsFrame(const qreal frame) const;
+    qreal getStepValue() const;
 
     qreal getSavedBaseValue();
     void incAllValues(const qreal valInc);
@@ -203,6 +204,7 @@ public:
                       const QString & motionPath = QString());
 private:
     qreal calculateBaseValueAtRelFrame(const qreal frame) const;
+    qreal calculateStepValueAtRelFrame(const qreal frame) const;
     void startBaseValueTransform();
     void finishBaseValueTransform();
     bool updateExpressionRelFrame();

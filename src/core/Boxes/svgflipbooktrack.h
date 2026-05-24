@@ -25,7 +25,10 @@
 #define SVGFLIPBOOKTRACK_H
 
 #include "Animators/staticcomplexanimator.h"
+#include <QLoggingCategory>
 #include <QMap>
+
+Q_DECLARE_LOGGING_CATEGORY(lcSvgFlipbookTrack)
 
 class ContainerBox;
 class BoundingBox;

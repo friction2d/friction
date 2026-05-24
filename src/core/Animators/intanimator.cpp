@@ -54,6 +54,10 @@ int IntAnimator::getEffectiveIntValue(const qreal relFrame) const {
     return qRound(getEffectiveValue(relFrame));
 }
 
+int IntAnimator::getStepIntValue() const {
+    return qRound(getStepValue());
+}
+
 void IntAnimator::setCurrentIntValue(const int value) {
     setCurrentBaseValue(value);
 }

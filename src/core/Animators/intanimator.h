@@ -44,6 +44,7 @@ public:
     int getBaseIntValue(const qreal relFrame) const;
     int getEffectiveIntValue() const;
     int getEffectiveIntValue(const qreal relFrame) const;
+    int getStepIntValue() const;
 
     static qsptr<IntAnimator> sCreateSeed() {
         const auto result = enve::make_shared<IntAnimator>("seed");
