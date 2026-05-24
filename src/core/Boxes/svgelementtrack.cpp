@@ -94,6 +94,10 @@ BoundingBox* SvgElementTrack::resolveTarget(ContainerBox* svgRoot) {
 
 // Uses public ca_getNumberOfChildren/ca_getChildAt to avoid protected access
 static qsptr<Property> createMatchingProperty(Property* source) {
+    if (source->prp_getName() == "pivot") {
+        qCDebug(lcSvgElementTrack) << "createMatchingProperty: skipping pivot (never auto-mirror)";
+        return nullptr;
+    }
     if (enve_cast<QrealAnimator*>(source)) {
         return enve::make_shared<QrealAnimator>(source->prp_getName());
     }
@@ -131,7 +135,9 @@ void SvgElementTrack::reconcileWithTarget(BoundingBox* target) {
 
     for (int i = 0; i < nTarget; i++) {
         auto* prop = target->ca_getChildAt(i);
-        if (!myChildNames.contains(prop->prp_getName())) {
+        const QString propName = prop->prp_getName();
+        if (propName != "transform") continue;
+        if (!myChildNames.contains(propName)) {
             auto mirror = createMatchingProperty(prop);
             if (mirror) ca_addChild(mirror);
         }
@@ -319,6 +325,19 @@ static void writeTrackProperty(eWriteStream& dst, Property* prop) {
     }
 }
 
+static bool subtreeHasKeys(const Property* prop) {
+    if (const auto* anim = enve_cast<const Animator*>(prop)) {
+        if (anim->anim_hasKeys()) return true;
+    }
+    if (const auto* complex = enve_cast<const ComplexAnimator*>(prop)) {
+        const int n = complex->ca_getNumberOfChildren();
+        for (int i = 0; i < n; i++) {
+            if (subtreeHasKeys(complex->ca_getChildAt(i))) return true;
+        }
+    }
+    return false;
+}
+
 static qsptr<Property> readTrackProperty(eReadStream& src) {
     qint32 type; src >> type;
     QString name; src >> name;
@@ -332,6 +351,10 @@ static qsptr<Property> readTrackProperty(eReadStream& src) {
         for (int i = 0; i < count; i++) {
             auto child = readTrackProperty(src);
             if (child) node->ca_addChild(child);
+        }
+        if (name == "pivot" && !subtreeHasKeys(node.get())) {
+            qCDebug(lcSvgElementTrack) << "readTrackProperty: dropping nested pivot (no keyframes)";
+            return nullptr;
         }
         return node;
     }
@@ -349,10 +372,18 @@ void SvgElementTrack::writeTrack(eWriteStream& dst) const {
 void SvgElementTrack::readTrack(eReadStream& src) {
     QString name; src >> name;
     prp_setName(name);
+    qCDebug(lcSvgElementTrack) << "readTrack: loading track" << name;
     qint32 count; src >> count;
     for (int i = 0; i < count; i++) {
         auto child = readTrackProperty(src);
-        if (child) ca_addChild(child);
+        if (!child) continue;
+        const QString childName = child->prp_getName();
+        if (childName != "transform" && !subtreeHasKeys(child.get())) {
+            qCDebug(lcSvgElementTrack) << "readTrack: dropping" << childName
+                                       << "for track" << name << "(no keyframes)";
+            continue;
+        }
+        ca_addChild(child);
     }
 }
 
@@ -437,6 +468,10 @@ static qsptr<Property> readTrackPropertyXEV(const QDomElement& mirrorEle,
             if (childProp) node->ca_addChild(childProp);
             child = child.nextSiblingElement("Mirror");
         }
+        if (name == "pivot" && !subtreeHasKeys(node.get())) {
+            qCDebug(lcSvgElementTrack) << "readTrackPropertyXEV: dropping nested pivot (no keyframes)";
+            return nullptr;
+        }
         return node;
     }
 }
@@ -455,10 +490,19 @@ void SvgElementTrack::prp_readPropertyXEV_impl(
         const QDomElement& ele, const XevImporter& imp) {
     const QString id = ele.attribute("targetId");
     if (!id.isEmpty()) prp_setName(id);
+    qCDebug(lcSvgElementTrack) << "prp_readPropertyXEV_impl: loading track" << id;
     auto mirror = ele.firstChildElement("Mirror");
     while (!mirror.isNull()) {
         auto prop = readTrackPropertyXEV(mirror, imp);
-        if (prop) ca_addChild(prop);
+        if (prop) {
+            const QString childName = prop->prp_getName();
+            if (childName != "transform" && !subtreeHasKeys(prop.get())) {
+                qCDebug(lcSvgElementTrack) << "prp_readPropertyXEV_impl: dropping" << childName
+                                           << "for track" << id << "(no keyframes)";
+            } else {
+                ca_addChild(prop);
+            }
+        }
         mirror = mirror.nextSiblingElement("Mirror");
     }
 }

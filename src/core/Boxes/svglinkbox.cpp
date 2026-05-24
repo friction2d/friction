@@ -28,13 +28,18 @@
 #include "fileshandler.h"
 #include "svgimporter.h"
 #include "Animators/gradient.h"
+#include "Animators/transformanimator.h"
+#include "Animators/qpointfanimator.h"
 #include "ReadWrite/evformat.h"
 #include "swt_abstraction.h"
 #include "typemenu.h"
 #include "XML/xevexporter.h"
 
 #include <QInputDialog>
+#include <QLoggingCategory>
 #include <yaml-cpp/yaml.h>
+
+Q_LOGGING_CATEGORY(lcSvgPivot, "friction.svgpivot", QtWarningMsg)
 
 SvgFileCacheHandler* svgFileHandlerGetter(const QString& path) {
     return FilesHandler::sInstance->getFileHandler<SvgFileCacheHandler>(path);
@@ -125,6 +130,7 @@ void SvgLinkBox::resolveElementTracks() {
         track->setPageMap({});
     }
     collectFlipbookDescs(svgRoot);
+    collectPivotDescs(svgRoot);
     for (const auto& track : mFlipbookTracks) {
         track->resolveTargets(svgRoot);
         track->syncToTargets();
@@ -161,6 +167,46 @@ void SvgLinkBox::collectFlipbookDescs(ContainerBox* container) {
         }
         if (const auto sub = enve_cast<ContainerBox*>(box))
             collectFlipbookDescs(sub);
+    }
+}
+
+void SvgLinkBox::collectPivotDescs(ContainerBox* container) {
+    for (auto* box : container->getContainedBoxes()) {
+        const QVariant pivotVar = box->property("svgPivotPos");
+        if (pivotVar.isValid()) {
+            const QPointF pivot = pivotVar.toPointF();
+            const QString trackName = box->prp_getName();
+            qCDebug(lcSvgPivot) << "collectPivotDescs: found pivot" << pivot
+                                << "on box" << trackName;
+            bool found = false;
+            for (const auto& track : mElementTracks) {
+                if (track->prp_getName() == trackName) {
+                    found = true;
+                    auto* target = track->resolvedTarget();
+                    if (!target) {
+                        qCDebug(lcSvgPivot) << "collectPivotDescs: track" << trackName
+                                            << "has no resolved target";
+                        break;
+                    }
+                    auto* transformAdv = enve_cast<AdvancedTransformAnimator*>(
+                        target->getTransformAnimator());
+                    if (!transformAdv) {
+                        qCDebug(lcSvgPivot) << "collectPivotDescs: no AdvancedTransformAnimator on"
+                                            << trackName;
+                        break;
+                    }
+                    qCDebug(lcSvgPivot) << "collectPivotDescs: setting pivot directly on target"
+                                        << trackName << "=" << pivot;
+                    transformAdv->getPivotAnimator()->setBaseValue(pivot);
+                    break;
+                }
+            }
+            if (!found) {
+                qCDebug(lcSvgPivot) << "collectPivotDescs: no element track found for" << trackName;
+            }
+        }
+        if (const auto sub = enve_cast<ContainerBox*>(box))
+            collectPivotDescs(sub);
     }
 }
 

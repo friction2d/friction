@@ -68,6 +68,7 @@ private:
     void wireTrack(const qsptr<SvgElementTrack>& track);
     void wireFlipbookTrack(const qsptr<SvgFlipbookTrack>& track);
     void collectFlipbookDescs(ContainerBox* container);
+    void collectPivotDescs(ContainerBox* container);
     void fileHandlerConnector(ConnContext &conn, SvgFileCacheHandler *obj);
     void fileHandlerAfterAssigned(SvgFileCacheHandler *obj);
 

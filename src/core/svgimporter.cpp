@@ -48,6 +48,7 @@
 
 #include <QDebug>
 #include <QLoggingCategory>
+#include <yaml-cpp/yaml.h>
 
 Q_LOGGING_CATEGORY(lcSvgImport, "friction.svg.import", QtWarningMsg)
 
@@ -518,6 +519,19 @@ void loadCircle(const QDomElement &pathElement,
 
     const QString cXstr = pathElement.attribute("cx");
     const QString cYstr = pathElement.attribute("cy");
+
+    for (const auto& doc : attributes.getDescYaml()) {
+        if (!doc.isYaml) continue;
+        try {
+            const auto node = YAML::Load(doc.content.toStdString());
+            if (node["kind"] && node["kind"].as<std::string>() == "pivot") {
+                parentGroup->setProperty("svgPivotPos",
+                                         QPointF(cXstr.toDouble(), cYstr.toDouble()));
+                return;
+            }
+        } catch (...) {}
+    }
+
     const QString rStr = pathElement.attribute("r");
     const QString rXstr = pathElement.attribute("rx");
     const QString rYstr = pathElement.attribute("ry");
