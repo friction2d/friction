@@ -40,7 +40,7 @@ class CORE_EXPORT SvgLinkBox : public SvgLinkBoxBase {
 public:
     SvgLinkBox();
 
-    void changeSourceFile();
+    void changeSourceFile() override;
 
     void addElementTrack(const QString& targetId);
     void removeElementTrack(SvgElementTrack* track);
