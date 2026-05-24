@@ -1,5 +1,6 @@
 #include "usedrange.h"
 #include "hddcachablecachehandler.h"
+#include <QLoggingCategory>
 
 UsedRange::UsedRange(HddCachableCacheHandler * const handler) :
     mHandler(handler), mRange(iValueRange::INVALID) {}
@@ -37,11 +38,15 @@ void UsedRange::replaceRange(const iValueRange &range) {
 }
 
 void UsedRange::setRangeMin(const int min) {
+    qCDebug(lcCacheHandler) << "UsedRange::setRangeMin:" << min
+             << "(was" << mRange.fMin << "-" << mRange.fMax << ")";
     if(validRange()) incRangeMin(min - mRange.fMin);
     else replaceRange({min, min});
 }
 
 void UsedRange::setRangeMax(const int max) {
+    qCDebug(lcCacheHandler) << "UsedRange::setRangeMax:" << max
+             << "(was" << mRange.fMin << "-" << mRange.fMax << ")";
     if(validRange()) incRangeMax(max - mRange.fMax);
     else replaceRange({max, max});
 }
@@ -91,5 +96,6 @@ void UsedRange::incRangeMin(const int inc) {
 }
 
 void UsedRange::clearRange() {
+    qCDebug(lcCacheHandler) << "UsedRange::clearRange (was" << mRange.fMin << "-" << mRange.fMax << ")";
     replaceRange(iValueRange::INVALID);
 }

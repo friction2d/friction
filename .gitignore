@@ -40,3 +40,5 @@ src/scripts/flatpak/remote
 
 .claude/*.local.json
 .claude/worktrees
+log.txt
+*.log

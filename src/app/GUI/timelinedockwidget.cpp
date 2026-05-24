@@ -607,6 +607,7 @@ void TimelineDockWidget::updateButtonsVisibility(const CanvasMode mode)
 
 void TimelineDockWidget::pausePreview()
 {
+    qCDebug(lcTimeline) << "UI: pausePreview";
     if (eSettings::instance().fPreviewCache) {
         RenderHandler::sInstance->pausePreview();
     } else { setStepPreviewStop(); }
@@ -614,6 +615,7 @@ void TimelineDockWidget::pausePreview()
 
 void TimelineDockWidget::playPreview()
 {
+    qCDebug(lcTimeline) << "UI: playPreview (play while rendering/paused)";
     if (eSettings::instance().fPreviewCache) {
         RenderHandler::sInstance->playPreview();
     } else { setStepPreviewStart(); }
@@ -621,6 +623,7 @@ void TimelineDockWidget::playPreview()
 
 void TimelineDockWidget::renderPreview()
 {
+    qCDebug(lcTimeline) << "UI: renderPreview (play button from stopped)";
     if (eSettings::instance().fPreviewCache) {
         RenderHandler::sInstance->renderPreview();
     } else { setStepPreviewStart(); }
@@ -628,6 +631,7 @@ void TimelineDockWidget::renderPreview()
 
 void TimelineDockWidget::interruptPreview()
 {
+    qCDebug(lcTimeline) << "UI: interruptPreview";
     if (eSettings::instance().fPreviewCache) {
         RenderHandler::sInstance->interruptPreview();
     } else { setStepPreviewStop(); }

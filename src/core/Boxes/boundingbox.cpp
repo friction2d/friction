@@ -557,7 +557,7 @@ void BoundingBox::planUpdate(const UpdateReason reason) {
         const auto scene = enve_cast<Canvas*>(this)
                            ? static_cast<Canvas*>(this)
                            : getParentScene();
-        if(!scene || !scene->isRenderingOutput()) mStateId++;
+        if(!scene || (!scene->isRenderingOutput() && !scene->isRenderingPreview())) mStateId++;
         mRenderDataHandler.clear();
     }
 

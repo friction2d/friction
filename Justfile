@@ -52,7 +52,7 @@ build-and-run: build-mac-arm run
 
 # Run the arm64 build
 run:
-    open build-release-arm64/dmg/Friction.app/Contents/MacOS/friction
+    build-release-arm64/dmg/Friction.app/Contents/MacOS/friction
 
 # Run the debug-arm64 build (output stays in current terminal)
 run-debug:
@@ -60,6 +60,9 @@ run-debug:
 
 run-debug-render:
     QT_LOGGING_RULES="friction.renderoutput=true;friction.canvas=true;friction.videoencoder=true;friction.core=true" just run-debug > log.txt 2>&1;
+
+run-debug-preview:
+    QT_LOGGING_RULES="friction.renderhandler=true;friction.cachehandler=true;friction.canvas=true;friction.renderoutput=true;friction.audio=true" just run-debug > log.txt 2>&1;
 
 # Produce the universal DMG from the two arch builds
 package: build

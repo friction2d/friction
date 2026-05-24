@@ -550,6 +550,7 @@ public:
     }
 
     bool isRenderingOutput() const { return mRenderingOutput; }
+    bool isRenderingPreview() const { return mRenderingPreview; }
 
     qreal getFps() const
     {

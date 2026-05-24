@@ -296,6 +296,11 @@ void Canvas::renderSk(SkCanvas* const canvas,
     canvas->concat(skViewTrans);
     if (isPreviewingOrRendering()) {
         if (mSceneFrame) {
+            qCDebug(lcCanvas) << "draw: previewing/rendering, frame has data="
+                     << mSceneFrame->storesDataInMemory()
+                     << "inUse=" << mSceneFrame->inUse()
+                     << "boxState=" << mSceneFrame->fBoxState
+                     << "stateId=" << mStateId;
             canvas->clear(SK_ColorBLACK);
             canvas->save();
             if (bgColor.alpha() != 255) {
@@ -305,6 +310,8 @@ void Canvas::renderSk(SkCanvas* const canvas,
             canvas->scale(reversedRes, reversedRes);
             mSceneFrame->drawImage(canvas, filter);
             canvas->restore();
+        } else {
+            qCDebug(lcCanvas) << "draw: previewing/rendering but mSceneFrame is NULL";
         }
         return;
     }
@@ -827,10 +834,12 @@ QSize Canvas::getCanvasSize() {
 }
 
 void Canvas::setPreviewing(const bool bT) {
+    qCDebug(lcCanvas) << "setPreviewing:" << bT;
     mPreviewing = bT;
 }
 
 void Canvas::setRenderingPreview(const bool bT) {
+    qCDebug(lcCanvas) << "setRenderingPreview:" << bT;
     mRenderingPreview = bT;
 }
 
@@ -850,10 +859,18 @@ void Canvas::setOutputRendering(const bool bT) {
 
 void Canvas::setSceneFrame(const int relFrame) {
     const auto cont = mSceneFramesHandler.atFrame(relFrame);
+    if (cont) {
+        qCDebug(lcCanvas) << "setSceneFrame(int): relFrame=" << relFrame
+                 << "inMemory=" << cont->storesDataInMemory()
+                 << "inUse=" << cont->inUse();
+    } else {
+        qCDebug(lcCanvas) << "setSceneFrame(int): relFrame=" << relFrame << "CACHE MISS";
+    }
     setSceneFrame(enve::shared<SceneFrameContainer>(cont));
 }
 
 void Canvas::setSceneFrame(const stdsptr<SceneFrameContainer>& cont) {
+    qCDebug(lcCanvas) << "setSceneFrame(sptr): cont=" << (cont ? "non-null" : "NULL");
     setLoadingSceneFrame(nullptr);
     mSceneFrame = cont;
     emit requestUpdate();
@@ -861,6 +878,7 @@ void Canvas::setSceneFrame(const stdsptr<SceneFrameContainer>& cont) {
 
 void Canvas::setLoadingSceneFrame(const stdsptr<SceneFrameContainer>& cont) {
     if(mLoadingSceneFrame == cont) return;
+    qCDebug(lcCanvas) << "setLoadingSceneFrame:" << (cont ? "scheduling async load" : "clearing");
     mLoadingSceneFrame = cont;
     if(cont) {
         Q_ASSERT(!cont->storesDataInMemory());
@@ -915,7 +933,7 @@ void Canvas::renderDataFinished(BoxRenderData *renderData) {
 
 void Canvas::prp_afterChangedAbsRange(const FrameRange &range, const bool clip) {
     Property::prp_afterChangedAbsRange(range, clip);
-    if(mRenderingOutput) {
+    if(mRenderingOutput || mRenderingPreview) {
         if(range.inRange(anim_getCurrentRelFrame())) mSceneFrameOutdated = true;
         return;
     }

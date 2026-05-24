@@ -159,6 +159,8 @@ void RenderHandler::nextCurrentRenderFrame() {
 void RenderHandler::setPreviewState(const PreviewState state)
 {
     if (mPreviewState == state) { return; }
+    qCDebug(lcRenderHandler) << "setPreviewState:"
+             << int(mPreviewState) << "->" << int(state);
     if (mPreviewState == PreviewState::stopped) {
         setRenderingPreview(true);
     } else if (mPreviewState == PreviewState::rendering) {
@@ -193,6 +195,9 @@ void RenderHandler::renderPreview() {
     mCurrRenderRange = {mCurrentRenderFrame, mCurrentRenderFrame};
     mCurrentScene->setMinFrameUseRange(mCurrentRenderFrame);
     mCurrentSoundComposition->setMinFrameUseRange(mCurrentRenderFrame);
+
+    qCDebug(lcRenderHandler) << "renderPreview: frames" << mMinRenderFrame << "-" << mMaxRenderFrame
+             << "savedFrame=" << mSavedCurrentFrame;
 
     setPreviewState(PreviewState::rendering);
 
@@ -272,12 +277,16 @@ void RenderHandler::resumePreview() {
 
 void RenderHandler::playPreviewAfterAllTasksCompleted() {
     if(mRenderingPreview) {
+        qCDebug(lcRenderHandler) << "playPreviewAfterAllTasksCompleted: renderFrame=" << mCurrentRenderFrame
+                 << "/" << mMaxRenderFrame
+                 << "allFinished=" << TaskScheduler::sAllTasksFinished();
         TaskScheduler::sSetTaskUnderflowFunc(nullptr);
         Document::sInstance->actionFinished();
         if(TaskScheduler::sAllTasksFinished()) {
             playPreview();
         } else {
             TaskScheduler::sSetAllTasksFinishedFunc([this]() {
+                qCDebug(lcRenderHandler) << "playPreviewAfterAllTasksCompleted: deferred playPreview firing";
                 playPreview();
             });
         }
@@ -296,6 +305,12 @@ void RenderHandler::playPreview() {
     mMinPreviewFrame = mLoop ? (fIn.enabled? fIn.frame : mCurrentScene->getMinFrame()) : (fIn.enabled? (fIn.frame < minPreviewFrame && minPreviewFrame < mCurrentRenderFrame ? minPreviewFrame : fIn.frame) : minPreviewFrame);
     mMaxPreviewFrame = fOut.enabled ? fOut.frame : maxPreviewFrame;
     mCurrentPreviewFrame = minPreviewFrame;
+
+    qCDebug(lcRenderHandler) << "playPreview: previewFrames" << mMinPreviewFrame << "-" << mMaxPreviewFrame
+             << "startFrame=" << mCurrentPreviewFrame
+             << "renderRange=" << mMinRenderFrame << "-" << mMaxRenderFrame
+             << "currentRenderFrame=" << mCurrentRenderFrame;
+
     mCurrentScene->setSceneFrame(mCurrentPreviewFrame);
 
     setPreviewState(PreviewState::playing);
@@ -311,6 +326,8 @@ void RenderHandler::playPreview() {
 
 void RenderHandler::nextPreviewRenderFrame() {
     if(!mRenderingPreview) return;
+    qCDebug(lcRenderHandler) << "nextPreviewRenderFrame: currentRenderFrame=" << mCurrentRenderFrame
+             << "/" << mMaxRenderFrame;
     if(mCurrentRenderFrame >= mMaxRenderFrame) {
         playPreviewAfterAllTasksCompleted();
     } else {
@@ -324,6 +341,8 @@ void RenderHandler::nextPreviewRenderFrame() {
 void RenderHandler::nextPreviewFrame() {
     if(!mCurrentScene) return;
     mCurrentPreviewFrame++;
+    qCDebug(lcRenderHandler) << "nextPreviewFrame: frame=" << mCurrentPreviewFrame
+             << "/" << mMaxPreviewFrame;
     if(mCurrentPreviewFrame > mMaxPreviewFrame) {
         if(mLoop) {
             mCurrentPreviewFrame = mMinPreviewFrame - 1;
@@ -425,6 +444,7 @@ void RenderHandler::nextSaveOutputFrame() {
 }
 
 void RenderHandler::startAudio() {
+    qCDebug(lcRenderHandler) << "startAudio: previewFrame=" << mCurrentPreviewFrame;
     mAudioHandler.startAudio();
     if(mCurrentSoundComposition)
         mCurrentSoundComposition->start(mCurrentPreviewFrame);
@@ -432,6 +452,7 @@ void RenderHandler::startAudio() {
 }
 
 void RenderHandler::stopAudio() {
+    qCDebug(lcRenderHandler) << "stopAudio";
     mAudioHandler.stopAudio();
     if(mCurrentSoundComposition) mCurrentSoundComposition->stop();
 }
