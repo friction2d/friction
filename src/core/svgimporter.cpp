@@ -188,10 +188,11 @@ protected:
     QString mId;
     QString mLabel;
 
+    SvgDescDocuments mDescYaml;
+
     FillSvgAttributes mFillAttributes;
     StrokeSvgAttributes mStrokeAttributes;
     TextSvgAttributes mTextAttributes;
-    SvgDescDocuments mDescYaml;
 };
 
 class PathAnimator;
@@ -1098,6 +1099,8 @@ void loadElement(const QDomElement &element,
         } else if(tagName == "text") {
             loadText(element, parentGroup, attributes, gradientCreator);
         }
+    } else if(tagName == "desc" || tagName == "title" || tagName == "metadata") {
+        // metadata elements — desc is parsed separately in loadBoxesGroup
     } else qDebug() << "Unrecognized tagName \"" + tagName + "\"";
 }
 

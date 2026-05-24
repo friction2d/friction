@@ -433,6 +433,18 @@ void eBoxOrSound::setVisible(const bool visible)
     emit visibilityChanged(visible);
 }
 
+void eBoxOrSound::setVisibleFromAnimation(const bool visible) {
+    if (mVisible == visible) return;
+    mVisible = visible;
+    if (hasDurationRectangle() && enve_cast<BoundingBox*>(this)) {
+        const auto updateRange = prp_absInfluenceRange().adjusted(-1, 1);
+        prp_afterChangedAbsRange(updateRange, false);
+    } else {
+        prp_afterWholeInfluenceRangeChanged();
+    }
+    emit visibilityChanged(visible);
+}
+
 void eBoxOrSound::switchVisible() {
     setVisible(!mVisible);
 }

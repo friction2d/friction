@@ -121,6 +121,47 @@ void SvgLinkBox::resolveElementTracks() {
             });
         if (!exists) addElementTrack(name);
     }
+    for (const auto& track : mFlipbookTracks) {
+        track->setPageMap({});
+    }
+    collectFlipbookDescs(svgRoot);
+    for (const auto& track : mFlipbookTracks) {
+        track->resolveTargets(svgRoot);
+        track->syncToTargets();
+    }
+}
+
+void SvgLinkBox::collectFlipbookDescs(ContainerBox* container) {
+    for (auto* box : container->getContainedBoxes()) {
+        for (const auto& doc : box->getDescYaml()) {
+            if (!doc.isYaml) continue;
+            try {
+                const auto node = YAML::Load(doc.content.toStdString());
+                if (!node["kind"] || node["kind"].as<std::string>() != "flipbook") continue;
+                if (!node["map"]) break;
+                QMap<int, QString> pageMap;
+                for (const auto& entry : node["map"])
+                    pageMap[entry.first.as<int>()] =
+                        QString::fromStdString(entry.second.as<std::string>());
+                if (pageMap.isEmpty()) break;
+                QString ownerId = box->property("svgElementId").toString();
+                if (ownerId.isEmpty()) ownerId = box->prp_getName();
+                SvgFlipbookTrack* existing = nullptr;
+                for (const auto& track : mFlipbookTracks) {
+                    if (track->prp_getName() == ownerId) { existing = track.get(); break; }
+                }
+                if (!existing) {
+                    auto track = enve::make_shared<SvgFlipbookTrack>(ownerId);
+                    wireFlipbookTrack(track);
+                    existing = track.get();
+                }
+                existing->setPageMap(pageMap);
+                break;
+            } catch (...) {}
+        }
+        if (const auto sub = enve_cast<ContainerBox*>(box))
+            collectFlipbookDescs(sub);
+    }
 }
 
 void SvgLinkBox::addElementTrack(const QString& targetId) {
@@ -147,6 +188,27 @@ void SvgLinkBox::wireTrack(const qsptr<SvgElementTrack>& track) {
     SWT_addChildAt(track.get(), swtId);
 }
 
+void SvgLinkBox::wireFlipbookTrack(const qsptr<SvgFlipbookTrack>& track) {
+    mFlipbookTracks << track;
+    track->setParent(this);
+    connect(track.get(), &SvgFlipbookTrack::deleteRequested,
+            this, [this, t = track.get()]() { removeFlipbookTrack(t); });
+    const int swtId = ca_getNumberOfChildren()
+                      + mElementTracks.count()
+                      + mFlipbookTracks.count() - 1;
+    SWT_addChildAt(track.get(), swtId);
+}
+
+void SvgLinkBox::removeFlipbookTrack(SvgFlipbookTrack* track) {
+    for (int i = 0; i < mFlipbookTracks.count(); i++) {
+        if (mFlipbookTracks[i].get() == track) {
+            SWT_removeChild(track);
+            mFlipbookTracks.removeAt(i);
+            return;
+        }
+    }
+}
+
 void SvgLinkBox::anim_setAbsFrame(const int frame) {
     SvgLinkBoxBase::anim_setAbsFrame(frame);
     qCDebug(lcSvgElementTrack) << "anim_setAbsFrame" << frame
@@ -159,6 +221,10 @@ void SvgLinkBox::anim_setAbsFrame(const int frame) {
         if (target) {
             track->syncToTarget(target);
         }
+    }
+    for (const auto& track : mFlipbookTracks) {
+        track->anim_setAbsFrame(frame);
+        track->syncToTargets();
     }
 }
 
@@ -175,6 +241,10 @@ void SvgLinkBox::removeElementTrack(SvgElementTrack* track) {
 void SvgLinkBox::writeBoundingBox(eWriteStream& dst) const {
     dst << (qint32)mElementTracks.count();
     for (const auto& track : mElementTracks) {
+        track->writeTrack(dst);
+    }
+    dst << (qint32)mFlipbookTracks.count();
+    for (const auto& track : mFlipbookTracks) {
         track->writeTrack(dst);
     }
     SvgLinkBoxBase::writeBoundingBox(dst);
@@ -195,6 +265,14 @@ void SvgLinkBox::readBoundingBox(eReadStream& src) {
             addElementTrack(id);
         }
     }
+    if (src.evFileVersion() >= EvFormat::svgLinkFlipbookTracks) {
+        qint32 count; src >> count;
+        for (int i = 0; i < count; i++) {
+            auto track = enve::make_shared<SvgFlipbookTrack>("");
+            track->readTrack(src);
+            wireFlipbookTrack(track);
+        }
+    }
     SvgLinkBoxBase::readBoundingBox(src);
 }
 
@@ -203,6 +281,10 @@ void SvgLinkBox::SWT_setupAbstraction(SWT_Abstraction* abstraction,
                                        const int visiblePartWidgetId) {
     SvgLinkBoxBase::SWT_setupAbstraction(abstraction, updateFuncs, visiblePartWidgetId);
     for (const auto& track : mElementTracks) {
+        auto abs = track->SWT_abstractionForWidget(updateFuncs, visiblePartWidgetId);
+        abstraction->addChildAbstraction(abs->ref<SWT_Abstraction>());
+    }
+    for (const auto& track : mFlipbookTracks) {
         auto abs = track->SWT_abstractionForWidget(updateFuncs, visiblePartWidgetId);
         abstraction->addChildAbstraction(abs->ref<SWT_Abstraction>());
     }
@@ -241,6 +323,15 @@ QDomElement SvgLinkBox::prp_writePropertyXEV_impl(const XevExporter& exp) const 
         }
         result.appendChild(tracksEle);
     }
+    if (!mFlipbookTracks.isEmpty()) {
+        auto tracksEle = exp.createElement("FlipbookTracks");
+        for (const auto& track : mFlipbookTracks) {
+            auto trackEle = exp.createElement("FlipbookTrack");
+            trackEle.setAttribute("ownerId", track->prp_getName());
+            tracksEle.appendChild(trackEle);
+        }
+        result.appendChild(tracksEle);
+    }
     return result;
 }
 
@@ -253,6 +344,18 @@ void SvgLinkBox::prp_readPropertyXEV_impl(const QDomElement& ele,
             const QString id = trackEle.attribute("targetId");
             if (!id.isEmpty()) addElementTrack(id);
             trackEle = trackEle.nextSiblingElement("Track");
+        }
+    }
+    const auto flipbookTracksEle = ele.firstChildElement("FlipbookTracks");
+    if (!flipbookTracksEle.isNull()) {
+        auto trackEle = flipbookTracksEle.firstChildElement("FlipbookTrack");
+        while (!trackEle.isNull()) {
+            const QString id = trackEle.attribute("ownerId");
+            if (!id.isEmpty()) {
+                auto track = enve::make_shared<SvgFlipbookTrack>(id);
+                wireFlipbookTrack(track);
+            }
+            trackEle = trackEle.nextSiblingElement("FlipbookTrack");
         }
     }
     SvgLinkBoxBase::prp_readPropertyXEV_impl(ele, imp);

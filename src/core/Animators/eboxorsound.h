@@ -120,6 +120,7 @@ public:
     void show();
     bool isVisible() const;
     void setVisible(const bool visible);
+    void setVisibleFromAnimation(const bool visible);
     void switchVisible();
 
     void lock();
