@@ -46,6 +46,11 @@
 #include "transformvalues.h"
 #include "regexhelpers.h"
 
+#include <QDebug>
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(lcSvgImport, "friction.svg.import", QtWarningMsg)
+
 #define RGXS REGEX_SPACES
 
 static qreal parseSvgUnit(const QString &str,
@@ -700,7 +705,7 @@ QMatrix getMatrixFromString(const QString &str) {
                        extractTranslation(str, matrix) ||
                        extractScale(str, matrix) ||
                        extractRotate(str, matrix);
-    if(!found) qDebug() << "getMatrixFromString - could not extract "
+    if(!found) qCDebug(lcSvgImport) << "getMatrixFromString - could not extract "
                            "values from string:" << str;
     return matrix;
 }
@@ -922,7 +927,7 @@ void loadElement(const QDomElement &element,
     const QString tagName = element.tagName();
     if ((tagName == "linearGradient" || tagName == "radialGradient") &&
         gGradients.contains(element.attribute("id"))) {
-        qDebug() << "gradient already added, ignore" << tagName;
+        qCDebug(lcSvgImport) << "gradient already added, ignore" << tagName;
         return;
     }
 
@@ -944,7 +949,7 @@ void loadElement(const QDomElement &element,
             type = GradientType::RADIAL;
         }
         const QString id = element.attribute("id");
-        qDebug() << "found gradient id" << id;
+        qCDebug(lcSvgImport) << "found gradient id" << id;
         QString linkId = element.attribute("xlink:href");
         Gradient* gradient = nullptr;
         if(linkId.isEmpty()) {
@@ -1101,7 +1106,7 @@ void loadElement(const QDomElement &element,
         }
     } else if(tagName == "desc" || tagName == "title" || tagName == "metadata") {
         // metadata elements — desc is parsed separately in loadBoxesGroup
-    } else qDebug() << "Unrecognized tagName \"" + tagName + "\"";
+    } else qCDebug(lcSvgImport) << "Unrecognized tagName \"" + tagName + "\"";
 }
 
 bool getUrlId(const QString &urlStr, QString *id) {
@@ -1150,7 +1155,7 @@ qsptr<BoundingBox> ImportSVG::loadSVGFile(const QDomDocument& src,
 
     // Pre-load gradients
     QDomNodeList gradients = src.elementsByTagName("linearGradient");
-    qDebug() << "found linearGradients:" << gradients.count();
+    qCDebug(lcSvgImport) << "found linearGradients:" << gradients.count();
     for (int i = 0; i < gradients.count(); i++) {
         loadElement(gradients.at(i).toElement(),
                     nullptr,
@@ -1158,7 +1163,7 @@ qsptr<BoundingBox> ImportSVG::loadSVGFile(const QDomDocument& src,
                     gradientCreator);
     }
     gradients = src.elementsByTagName("radialGradient");
-    qDebug() << "found radialGradients:" << gradients.count();
+    qCDebug(lcSvgImport) << "found radialGradients:" << gradients.count();
     for (int i = 0; i < gradients.count(); i++) {
         loadElement(gradients.at(i).toElement(),
                     nullptr,
@@ -1172,8 +1177,8 @@ qsptr<BoundingBox> ImportSVG::loadSVGFile(const QDomDocument& src,
     gGradients.clear();
     auto it = gUnresolvedGradientLinks.begin();
     while(it != gUnresolvedGradientLinks.end()) {
-        qDebug() << "unresolved gradient links to " + it.key() + ":";
-        qDebug() << it.value().join(", ");
+        qCDebug(lcSvgImport) << "unresolved gradient links to " + it.key() + ":";
+        qCDebug(lcSvgImport) << it.value().join(", ");
         it++;
     }
     gUnresolvedGradientLinks.clear();
@@ -1269,7 +1274,7 @@ void BoxSvgAttributes::setFillAttribute(const QString &value) {
     } else if (value.contains("url(#")) {
     } else if(getGradientFromString(value, &mFillAttributes)) {
     } else {
-        qDebug() << "setFillAttribute - format not recognised:" << value;
+        qCDebug(lcSvgImport) << "setFillAttribute - format not recognised:" << value;
     }
 }
 
@@ -1279,7 +1284,7 @@ void BoxSvgAttributes::setStrokeAttribute(const QString &value) {
     } else if(getFlatColorFromString(value, &mStrokeAttributes)) {
     } else if(getGradientFromString(value, &mStrokeAttributes)) {
     } else {
-        qDebug() << "setStrokeAttribute - format not recognised:" << value;
+        qCDebug(lcSvgImport) << "setStrokeAttribute - format not recognised:" << value;
     }
 }
 
@@ -1357,7 +1362,7 @@ void BoxSvgAttributes::loadBoundingBoxAttributes(const QDomElement &element) {
                     bool ok;
                     const int val = value.toInt(&ok);
                     if(ok) mTextAttributes.setFontWeight(val);
-                    else qDebug() << "Unrecognized font-weight '" + value + "'";
+                    else qCDebug(lcSvgImport) << "Unrecognized font-weight '" + value + "'";
                 }
             } else if(name == "font-variant") {
                 //fontVariant = value;

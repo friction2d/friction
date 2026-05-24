@@ -29,6 +29,11 @@
 #include "CacheHandlers/soundcachecontainer.h"
 #include "Sound/soundcomposition.h"
 
+#include <QDebug>
+#include <QLoggingCategory>
+
+Q_DECLARE_LOGGING_CATEGORY(lcAudio)
+
 void SoundReader::beforeProcessing(const Hardware) {
     mOpenedAudio->lock();
 }
@@ -58,7 +63,7 @@ void seek(const int tryN, const int secondId,
                                        audioStream->time_base.num)/1000;
         if(avformat_seek_file(formatContext, audioStreamIndex, tm0,
                               tm, tm, AVSEEK_FLAG_FRAME) < 0) {
-            qDebug() << "Failed to seek to " << secondId;
+            qCDebug(lcAudio) << "Failed to seek to " << secondId;
             avformat_seek_file(formatContext, audioStreamIndex,
                                INT64_MIN, 0, INT64_MAX, 0);
         }
@@ -139,7 +144,7 @@ void SoundReader::readFrame() {
             currentDstSample = static_cast<int>(pts*dstSampleRate/1000000);
             if(currentDstSample > firstSample) {
                 if(seekTry > 3) {
-                    qDebug() << "sample" << QString::number(currentDstSample) +
+                    qCDebug(lcAudio) << "sample" << QString::number(currentDstSample) +
                                 " instead of " + QString::number(firstSample);
                 } else {
                     av_frame_unref(decodedFrame);

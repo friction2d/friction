@@ -25,9 +25,12 @@
 #include "appsupport.h"
 
 #include <QDebug>
+#include <QLoggingCategory>
 #include <QWindow>
 
 #include "mainwindow.h"
+
+Q_LOGGING_CATEGORY(lcUiWindow, "friction.ui.window", QtWarningMsg)
 
 Window::Window(QWidget *parent,
                QWidget *child,
@@ -86,7 +89,7 @@ void Window::keyPressEvent(QKeyEvent *event)
 
 void Window::closeEvent(QCloseEvent *event)
 {
-    qDebug() << "closed window" << objectName();
+    qCDebug(lcUiWindow) << "closed window" << objectName();
     saveState();
     emit closed();
     QDialog::closeEvent(event);
@@ -94,7 +97,7 @@ void Window::closeEvent(QCloseEvent *event)
 
 void Window::loadState(bool visible)
 {
-    qDebug() << "load window state" << objectName();
+    qCDebug(lcUiWindow) << "load window state" << objectName();
     restoreGeometry(AppSupport::getSettings("ui",
                                             QString("%1Geometry")
                                             .arg(objectName())).toByteArray());
@@ -108,7 +111,7 @@ void Window::loadState(bool visible)
 
 void Window::saveState()
 {
-    qDebug() << "save window state" << objectName();
+    qCDebug(lcUiWindow) << "save window state" << objectName();
     AppSupport::setSettings("ui",
                             QString("%1Geometry").arg(objectName()),
                             saveGeometry());

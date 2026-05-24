@@ -6,10 +6,15 @@
 
 #include "appsupport.h"
 
+#include <QDebug>
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(lcOil, "friction.effects.oil", QtWarningMsg)
+
 #define TIME_BEGIN const auto t1 = std::chrono::high_resolution_clock::now();
 #define TIME_END(name) const auto t2 = std::chrono::high_resolution_clock::now(); \
                        const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count(); \
-                       qDebug() << name << duration << "ms" << QT_ENDL;
+                       qCDebug(lcOil) << name << duration << "ms" << QT_ENDL;
 
 //#define OilEffect_TIMING
 

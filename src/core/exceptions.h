@@ -32,8 +32,11 @@
 #include <stdexcept>
 #include <csignal>
 #include <QDebug>
+#include <QLoggingCategory>
 
-#define ERROUT(msg) qDebug() << msg << __LINE__
+Q_DECLARE_LOGGING_CATEGORY(lcFrictionCore)
+
+#define ERROUT(msg) qCDebug(lcFrictionCore) << msg << __LINE__
 #define FILENAME (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 
 #ifdef QT_DEBUG

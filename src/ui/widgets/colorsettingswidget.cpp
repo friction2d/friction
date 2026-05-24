@@ -37,6 +37,10 @@
 #include <QWindow>
 #include <QMenu>
 #include <QShortcut>
+#include <QDebug>
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(lcUiColor, "friction.ui.color", QtWarningMsg)
 
 void ColorSettingsWidget::updateWidgetTargets()
 {
@@ -290,7 +294,7 @@ void ColorSettingsWidget::startColorPicking()
     auto conn = std::make_shared<QMetaObject::Connection>();
     *conn = connect(scene, &Canvas::currentPickedColor,
                     this, [this, conn, lastMode](const QColor &color) {
-        qDebug() << "selected color" << color << color.isValid();
+        qCDebug(lcUiColor) << "selected color" << color << color.isValid();
         if (color.isValid()) {
             emitStartFullColorChangedSignal();
             setDisplayedColor(color);
@@ -848,7 +852,7 @@ void ColorSettingsWidget::setColorMode() {
 
 void ColorSettingsWidget::setColorModeFromCombo(int index)
 {
-    qDebug() << "setColorModeFromCombo" << index;
+    qCDebug(lcUiColor) << "setColorModeFromCombo" << index;
     auto colorSetting = getColorSetting(ColorSettingType::apply,
                                         ColorParameter::colorMode);
     switch(index) {

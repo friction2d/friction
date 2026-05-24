@@ -4,6 +4,11 @@
 #include "skia/skiahelpers.h"
 #include "simplemath.h"
 
+#include <QDebug>
+#include <QLoggingCategory>
+
+Q_DECLARE_LOGGING_CATEGORY(lcOil)
+
 unsigned int OilSimulator::MAX_INVALID_TRAJECTORIES = 5000;
 
 unsigned int OilSimulator::MAX_INVALID_TRAJECTORIES_FOR_SMALLER_SIZE = 10000;
@@ -225,7 +230,7 @@ void OilSimulator::getNewTrace() {
 						|| invalidTracesCounter > MAX_INVALID_TRACES_FOR_SMALLER_SIZE)) {
 			// Print some debug information if necessary
             if (verbose) {
-                qDebug() << "Total number of painted traces: " << nTraces;
+                qCDebug(lcOil) << "Total number of painted traces: " << nTraces;
             }
 
 			// Stop the painting
@@ -242,7 +247,7 @@ void OilSimulator::getNewTrace() {
 
 				// Print some debug information if necessary
                 if (verbose) {
-                    qDebug() << "traces = " << nTraces << ", new average brush size = " << averageBrushSize << "";
+                    qCDebug(lcOil) << "traces = " << nTraces << ", new average brush size = " << averageBrushSize << "";
                 }
 
 				// Reset some the counters

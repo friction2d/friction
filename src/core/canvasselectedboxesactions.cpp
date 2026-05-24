@@ -34,6 +34,11 @@
 #include "eevent.h"
 #include "Boxes/textbox.h"
 
+#include <QDebug>
+#include <QLoggingCategory>
+
+Q_DECLARE_LOGGING_CATEGORY(lcSvgImport)
+
 void Canvas::groupSelectedBoxes() {
     if(mSelectedBoxes.isEmpty()) return;
     const auto newGroup = enve::make_shared<ContainerBox>(eBoxType::group);
@@ -549,7 +554,7 @@ const QString Canvas::checkForUnsupportedBoxSVG(BoundingBox * const box)
 {
     QString result;
     if (!box) { return result; }
-    qDebug() << "check" << box->prp_getName() << "for SVG support";
+    qCDebug(lcSvgImport) << "check" << box->prp_getName() << "for SVG support";
 
     const auto transformEffects = box->checkTransformEffectsForSVGSupport();
     if (transformEffects.size() > 0) {

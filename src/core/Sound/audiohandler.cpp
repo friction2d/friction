@@ -27,7 +27,11 @@
 #include "soundcomposition.h"
 #include "appsupport.h"
 
+#include <QDebug>
+#include <QLoggingCategory>
 #include <iostream>
+
+Q_LOGGING_CATEGORY(lcAudio, "friction.audio", QtWarningMsg)
 
 AudioHandler* AudioHandler::sInstance = nullptr;
 
@@ -67,7 +71,7 @@ void AudioHandler::initializeAudio(eSoundSettingsData& soundSettings,
     mAudioBuffer = QByteArray(BufferSize, 0);
 
     mAudioDevice = findDevice(deviceName);
-    qDebug() << "Using audio device" << mAudioDevice.deviceName();
+    qCDebug(lcAudio) << "Using audio device" << mAudioDevice.deviceName();
 
     mAudioFormat.setSampleRate(soundSettings.fSampleRate);
     mAudioFormat.setChannelCount(soundSettings.channelCount());
@@ -104,7 +108,7 @@ void AudioHandler::initializeAudio(const QString &deviceName,
     mAudioBuffer = QByteArray(BufferSize, 0);
 
     mAudioDevice = findDevice(deviceName);
-    qDebug() << "Using audio device" << mAudioDevice.deviceName();
+    qCDebug(lcAudio) << "Using audio device" << mAudioDevice.deviceName();
     if (save) {
         AppSupport::setSettings(QString::fromUtf8("audio"),
                                 QString::fromUtf8("output"),

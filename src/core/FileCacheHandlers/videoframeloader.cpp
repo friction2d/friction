@@ -28,6 +28,11 @@
 #include "Private/Tasks/taskscheduler.h"
 #include "Private/Tasks/taskexecutor.h"
 
+#include <QDebug>
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(lcVideoLoader, "friction.video", QtWarningMsg)
+
 VideoFrameLoader::VideoFrameLoader(VideoFrameHandler * const cacheHandler,
                                    const stdsptr<VideoStreamsData> &openedVideo,
                                    const int frameId) :
@@ -100,7 +105,7 @@ void seek(const int tryN, const int frameId, const qreal fps,
                                        videoStream->time_base.num)/1000;
         if(avformat_seek_file(formatContext, videoStreamIndex, tm0,
                               tm, tm, AVSEEK_FLAG_FRAME) < 0) {
-            qDebug() << "Failed to seek to " << frameId;
+            qCDebug(lcVideoLoader) << "Failed to seek to " << frameId;
             avformat_seek_file(formatContext, videoStreamIndex,
                                INT64_MIN, 0, INT64_MAX, 0);
         }
@@ -178,7 +183,7 @@ void VideoFrameLoader::readFrame() {
             break;
         } else if(currFrame == mFrameId || (!reseek && currFrame > mFrameId)) {
             if(currFrame > mFrameId)
-                qDebug() << "frame " + QString::number(currFrame) +
+                qCDebug(lcVideoLoader) << "frame " + QString::number(currFrame) +
                             " instead of " + QString::number(mFrameId);            
             setFrameToConvert(decodedFrame, codecContext);
             decodedFrame = av_frame_alloc();

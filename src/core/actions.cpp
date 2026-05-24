@@ -35,6 +35,10 @@
 
 #include <QMessageBox>
 #include <QStandardItemModel>
+#include <QDebug>
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(lcActions, "friction.actions", QtWarningMsg)
 
 Actions* Actions::sInstance = nullptr;
 
@@ -497,7 +501,7 @@ void Actions::setFontText(const QString &text)
 
 void Actions::connectPointsSlot() const
 {
-    qDebug() << "connectPointsSlot";
+    qCDebug(lcActions) << "connectPointsSlot";
     if (!mActiveScene) { return; }
     mActiveScene->connectPoints();
     afterAction();
@@ -505,7 +509,7 @@ void Actions::connectPointsSlot() const
 
 void Actions::disconnectPointsSlot() const
 {
-    qDebug() << "disconnectPointsSlot";
+    qCDebug(lcActions) << "disconnectPointsSlot";
     if (!mActiveScene) { return; }
     mActiveScene->disconnectPoints();
     afterAction();
@@ -513,7 +517,7 @@ void Actions::disconnectPointsSlot() const
 
 void Actions::mergePointsSlot() const
 {
-    qDebug() << "mergePointsSlot";
+    qCDebug(lcActions) << "mergePointsSlot";
     if (!mActiveScene) { return; }
     mActiveScene->mergePoints();
     afterAction();
@@ -521,7 +525,7 @@ void Actions::mergePointsSlot() const
 
 void Actions::splitPointsSlot() const
 {
-    qDebug() << "splitPointsSlot";
+    qCDebug(lcActions) << "splitPointsSlot";
     if (!mActiveScene) { return; }
     mActiveScene->splitPoints();
     afterAction();
@@ -529,7 +533,7 @@ void Actions::splitPointsSlot() const
 
 void Actions::makeSelectedNodeFirstSlot() const
 {
-    qDebug() << "makeSelectedNodeFirstSlot";
+    qCDebug(lcActions) << "makeSelectedNodeFirstSlot";
     if (!mActiveScene) { return; }
     mActiveScene->makeSelectedNodeFirst();
     afterAction();
@@ -537,7 +541,7 @@ void Actions::makeSelectedNodeFirstSlot() const
 
 void Actions::reverseNodesOrderSlot() const
 {
-    qDebug() << "reverseNodesOrderSlot";
+    qCDebug(lcActions) << "reverseNodesOrderSlot";
     if (!mActiveScene) { return; }
     mActiveScene->reverseSelectedNodesOrder();
     afterAction();
@@ -545,7 +549,7 @@ void Actions::reverseNodesOrderSlot() const
 
 void Actions::subdivideSegments() const
 {
-    qDebug() << "subdivideSegments";
+    qCDebug(lcActions) << "subdivideSegments";
     if (!mActiveScene) { return; }
     mActiveScene->subdivideSegments();
     afterAction();
@@ -553,7 +557,7 @@ void Actions::subdivideSegments() const
 
 void Actions::removePointsApprox() const
 {
-    qDebug() << "removePointsApprox";
+    qCDebug(lcActions) << "removePointsApprox";
     if (!mActiveScene) { return; }
     mActiveScene->removeSelectedPointsApprox();
     afterAction();
@@ -561,7 +565,7 @@ void Actions::removePointsApprox() const
 
 void Actions::makePointCtrlsSymmetric() const
 {
-    qDebug() << "makePointCtrlsSymmetric";
+    qCDebug(lcActions) << "makePointCtrlsSymmetric";
     if (!mActiveScene) { return; }
     mActiveScene->makePointCtrlsSymmetric();
     afterAction();
@@ -569,7 +573,7 @@ void Actions::makePointCtrlsSymmetric() const
 
 void Actions::makePointCtrlsSmooth() const
 {
-    qDebug() << "makePointCtrlsSmooth";
+    qCDebug(lcActions) << "makePointCtrlsSmooth";
     if (!mActiveScene) { return; }
     mActiveScene->makePointCtrlsSmooth();
     afterAction();
@@ -577,7 +581,7 @@ void Actions::makePointCtrlsSmooth() const
 
 void Actions::makePointCtrlsCorner() const
 {
-    qDebug() << "makePointCtrlsCorner";
+    qCDebug(lcActions) << "makePointCtrlsCorner";
     if (!mActiveScene) { return; }
     mActiveScene->makePointCtrlsCorner();
     afterAction();
@@ -585,7 +589,7 @@ void Actions::makePointCtrlsCorner() const
 
 void Actions::makeSegmentLine() const
 {
-    qDebug() << "makeSegmentLine";
+    qCDebug(lcActions) << "makeSegmentLine";
     if (!mActiveScene) { return; }
     mActiveScene->makeSegmentLine();
     afterAction();
@@ -593,7 +597,7 @@ void Actions::makeSegmentLine() const
 
 void Actions::makeSegmentCurve() const
 {
-    qDebug() << "makeSegmentCurve";
+    qCDebug(lcActions) << "makeSegmentCurve";
     if (!mActiveScene) { return; }
     mActiveScene->makeSegmentCurve();
     afterAction();
@@ -601,7 +605,7 @@ void Actions::makeSegmentCurve() const
 
 void Actions::newEmptyPaintFrame() const
 {
-    qDebug()<< "newEmptyPaintFrame";
+    qCDebug(lcActions) << "newEmptyPaintFrame";
     if (!mActiveScene) { return; }
     mActiveScene->newEmptyPaintFrameAction();
     afterAction();

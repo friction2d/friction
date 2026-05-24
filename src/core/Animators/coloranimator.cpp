@@ -28,6 +28,11 @@
 #include "pointtypemenu.h"
 #include "svgexporter.h"
 
+#include <QDebug>
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(lcSvgExport, "friction.svg.export", QtWarningMsg)
+
 ColorAnimator::ColorAnimator(const QString &name) : StaticComplexAnimator(name) {
     setColorMode(ColorMode::rgb);
     mAlphaAnimator->setCurrentBaseValue(1);
@@ -272,7 +277,7 @@ void ColorAnimator::saveColorSVG(SvgExporter &exp,
                                  bool rgba,
                                  bool a) const
 {
-    qDebug() << "save color for SVG" << name;
+    qCDebug(lcSvgExport) << "save color for SVG" << name;
     Animator::saveSVG(exp, parent, visRange, name,
                       [this, &rgba, &a, &exp, &name, &parent](const int relFrame) {
         const auto color = getColor(relFrame);

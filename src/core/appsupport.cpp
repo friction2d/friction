@@ -28,6 +28,7 @@
 
 #include <QApplication>
 #include <QDebug>
+#include <QLoggingCategory>
 #include <QIcon>
 #include <QPalette>
 #include <QSettings>
@@ -51,6 +52,8 @@ extern "C" {
 #include <libavformat/avformat.h>
 #include <libavutil/avutil.h>
 }
+
+Q_LOGGING_CATEGORY(lcAppSupport, "friction.appsupport", QtWarningMsg)
 
 AppSupport::AppSupport(QObject *parent)
     : QObject{parent}
@@ -469,7 +472,7 @@ const QString AppSupport::getTimeCodeFromFrame(int frame,
                            .arg(seconds, 2, 10, QChar('0'))
                            .arg(frames, 2, 10, QChar('0'));
     if (negative) { timecode.prepend("-"); }
-    //qDebug() << frame << "=" << timecode;
+    //qCDebug(lcAppSupport) << frame << "=" << timecode;
     return timecode;
 }
 
@@ -486,7 +489,7 @@ int AppSupport::getFrameFromTimeCode(const QString &timecode,
         int ff = list.at(3).toInt();
         double totalSeconds = hh * 3600 + mm * 60 + ss + static_cast<double>(ff) / fps;
         int frame = qRound(totalSeconds * fps);
-        //qDebug() << timecode << "=" << (negative ? -frame : frame);
+        //qCDebug(lcAppSupport) << timecode << "=" << (negative ? -frame : frame);
         return negative ? -frame : frame;
     }
     return timecode.toInt();
@@ -750,7 +753,7 @@ bool AppSupport::hasXDGDesktopIntegration()
 
     for (const auto &file : files) {
         if (!QFile::exists(QString("%1/%2").arg(path, file))) {
-            qDebug() << "not found!" << file;
+            qCDebug(lcAppSupport) << "not found!" << file;
             return false;
         }
     }
@@ -1089,7 +1092,7 @@ const QString AppSupport::filterId(const QString &input)
 const QColor AppSupport::adjustColorVisibility(const QColor &color,
                                                const QColor &background)
 {
-    qDebug() << "compare" << "color" << color << "background" << background;
+    qCDebug(lcAppSupport) << "compare" << "color" << color << "background" << background;
 
     if (color.alpha() == 0) { // if no alpha return gray
         return QColor(128, 128, 128);
@@ -1137,7 +1140,7 @@ QString AppSupport::getOfflineDocs()
                             QString("%1/../share/doc/friction/html/index.html").arg(getAppPath()).trimmed(),
                             QString("%1/../Resources/docs/index.html").arg(getAppPath()).trimmed()};
     for (const auto &path : paths) {
-        qDebug() << "Checking for docs ..." << path;
+        qCDebug(lcAppSupport) << "Checking for docs ..." << path;
         if (QFile::exists(path)) { return path; }
     }
     return QString();

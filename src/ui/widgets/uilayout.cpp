@@ -30,6 +30,9 @@
 #include <QPushButton>
 #include <QHBoxLayout>
 #include <QDebug>
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(lcUiLayout, "friction.ui.layout", QtWarningMsg)
 
 #define UI_CONF_GROUP "uiLayout"
 #define UI_CONF_KEY_POS "pos_%1"
@@ -181,7 +184,7 @@ void UIDock::addWidget(QWidget *widget)
 
 void UIDock::writeSettings()
 {
-    qDebug() << "==> write dock conf" << mLabel << mPos << mIndex;
+    qCDebug(lcUiLayout) << "==> write dock conf" << mLabel << mPos << mIndex;
     if (eSettings::instance().fRestoreDefaultUi) {
         AppSupport::clearSettings(UI_CONF_GROUP);
         return;
@@ -270,7 +273,7 @@ void UILayout::addDocks(std::vector<Item> items)
 
     for (auto item : items) {
         if (!item.widget) { continue; }
-        qDebug() << "==> setup new dock" << item.label;
+        qCDebug(lcUiLayout) << "==> setup new dock" << item.label;
         QString keyPos = QString(UI_CONF_KEY_POS).arg(AppSupport::filterTextAZW(item.label));
         QString keyIndex = QString(UI_CONF_KEY_INDEX).arg(AppSupport::filterTextAZW(item.label));
 
@@ -302,19 +305,19 @@ void UILayout::addDocks(std::vector<Item> items)
     if (bottomDock.size() > 0) { std::sort(bottomDock.begin(), bottomDock.end()); }
 
     for (const auto &item : leftDock) {
-        qDebug() << "==> add to left dock" << item.label << item.index;
+        qCDebug(lcUiLayout) << "==> add to left dock" << item.label << item.index;
         addDock(item);
     }
     for (const auto &item : rightDock) {
-        qDebug() << "==> add to right dock" << item.label << item.index;
+        qCDebug(lcUiLayout) << "==> add to right dock" << item.label << item.index;
         addDock(item);
     }
     for (const auto &item : topDock) {
-        qDebug() << "==> add to top dock" << item.label << item.index;
+        qCDebug(lcUiLayout) << "==> add to top dock" << item.label << item.index;
         addDock(item);
     }
     for (const auto &item : bottomDock) {
-        qDebug() << "==> add to bottom dock" << item.label << item.index;
+        qCDebug(lcUiLayout) << "==> add to bottom dock" << item.label << item.index;
         addDock(item);
     }
 
@@ -337,7 +340,7 @@ void UILayout::addDockWidget(const QString &label, QWidget *widget)
 void UILayout::addDock(const Item &item)
 {
     if (!item.widget) { return; }
-    qDebug() << "==> adding dock" << item.label << item.pos << item.index;
+    qCDebug(lcUiLayout) << "==> adding dock" << item.label << item.pos << item.index;
     const auto dock = new UIDock(this,
                                  item.widget,
                                  item.label,
@@ -481,7 +484,7 @@ void UILayout::updateDock(QSplitter *container,
         container->setCollapsible(container->indexOf(dock), false);
         dock->setPosition(pos);
         dock->setIndex(container->indexOf(dock));
-        qDebug() << "==> update dock" << dock->getLabel() << dock->getPosition() << dock->getIndex();
+        qCDebug(lcUiLayout) << "==> update dock" << dock->getLabel() << dock->getPosition() << dock->getIndex();
     }
 }
 

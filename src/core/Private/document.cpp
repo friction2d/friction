@@ -30,6 +30,10 @@
 
 #include <QVariant>
 #include <QColor>
+#include <QDebug>
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(lcDocument, "friction.document", QtWarningMsg)
 
 Document* Document::sInstance = nullptr;
 
@@ -44,7 +48,7 @@ Document::Document(TaskScheduler& taskScheduler)
     mGrid->setSettings(eSettings::instance().fGrid);
     connect(mGrid, &Grid::changed,
             this, [this](const Grid::Settings &settings) {
-        qDebug() << "Grid Changed";
+        qCDebug(lcDocument) << "Grid Changed";
         Grid::debugSettings(settings);
         updateScenes();
     });
@@ -74,7 +78,7 @@ void Document::actionFinished()
     for (const auto& scene : fVisibleScenes) {
         const auto newUndoRedo = scene.first->newUndoRedoSet();
         if (newUndoRedo) {
-            qDebug() << "document changed";
+            qCDebug(lcDocument) << "document changed";
             emit documentChanged();
         }
     }

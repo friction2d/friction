@@ -27,6 +27,8 @@
 
 #include <QFileSystemWatcher>
 #include <QFileSystemModel>
+#include <QDebug>
+#include <QLoggingCategory>
 #include <iostream>
 
 #include "widgets/colorwidgetshaders.h"
@@ -39,6 +41,8 @@
 #include "Boxes/ecustombox.h"
 #include "Boxes/customboxcreator.h"
 #include "appsupport.h"
+
+Q_LOGGING_CATEGORY(lcEffectsLoader, "friction.effects", QtWarningMsg)
 
 EffectsLoader* EffectsLoader::sInstance = nullptr;
 
@@ -295,8 +299,8 @@ void EffectsLoader::iniShaderEffects()
         }
     }
 
-    //qDebug() << "Shaders paths" << mLoadedGREPaths;
-    qDebug() << "Shaders total" << mLoadedShaders.count();
+    //qCDebug(lcEffectsLoader) << "Shaders paths" << mLoadedGREPaths;
+    qCDebug(lcEffectsLoader) << "Shaders total" << mLoadedShaders.count();
 
     // TODO: rewrite this
     /*const auto newFileWatcher = QSharedPointer<QFileSystemModel>(
@@ -355,13 +359,13 @@ void EffectsLoader::iniShaderEffectProgramExec(const QString &grePath)
     if (shaderID.first.isEmpty() || shaderID.second.isEmpty()) { return; }
 
     if (mShadersDisabled.contains(grePath)) {
-        qDebug() << "SKIP DISABLED SHADER:" << shaderID.first << shaderID.second << grePath;
+        qCDebug(lcEffectsLoader) << "SKIP DISABLED SHADER:" << shaderID.first << shaderID.second << grePath;
         mLoadedGREPaths << grePath;
         return;
     }
 
     if (mLoadedShaders.contains(shaderID)) {
-        qDebug() << "SKIP DUPLICATE SHADER:" << shaderID.first << shaderID.second << grePath;
+        qCDebug(lcEffectsLoader) << "SKIP DUPLICATE SHADER:" << shaderID.first << shaderID.second << grePath;
         return;
     }
 
@@ -369,7 +373,7 @@ void EffectsLoader::iniShaderEffectProgramExec(const QString &grePath)
     const QString fragPath = QString::fromUtf8("%1/%2.frag").arg(fileInfo.path(),
                                                                  fileInfo.completeBaseName());
     if (!QFile::exists(fragPath)) { return; }
-    qDebug() << "Loading Shader" << shaderID.first << shaderID.second << grePath;
+    qCDebug(lcEffectsLoader) << "Loading Shader" << shaderID.first << shaderID.second << grePath;
     try {
         // TODO: we should keep each creator in an list, replace shaderID
         /*const auto loaded =*/ ShaderEffectCreator::sLoadFromFile(this, grePath).get();

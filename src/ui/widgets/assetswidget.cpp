@@ -28,6 +28,10 @@
 #include <QHeaderView>
 #include <QDrag>
 #include <QMenu>
+#include <QDebug>
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(lcAssets, "friction.ui.assets", QtWarningMsg)
 
 #include "appsupport.h"
 #include "Private/document.h"
@@ -192,7 +196,7 @@ AssetsWidget::AssetsWidget(QWidget *parent)
 void AssetsWidget::addCacheHandler(FileCacheHandler *handler)
 {
     if (!handler) { return; }
-    qDebug() << "addCacheHandler" << handler->path();
+    qCDebug(lcAssets) << "addCacheHandler" << handler->path();
     mCacheList << handler;
     AssetsWidgetItem *item = new AssetsWidgetItem(mTree, handler);
     mTree->addTopLevelItem(item);

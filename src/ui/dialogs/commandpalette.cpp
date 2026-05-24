@@ -26,9 +26,13 @@
 #include <QVBoxLayout>
 #include <QKeyEvent>
 #include <QRegularExpression>
+#include <QDebug>
+#include <QLoggingCategory>
 
 #include "Private/esettings.h"
 #include "canvas.h"
+
+Q_LOGGING_CATEGORY(lcCmdPalette, "friction.ui.cmdpalette", QtWarningMsg)
 
 #define ITEM_ACTION_ROLE Qt::UserRole
 #define ITEM_CMD_ROLE Qt::UserRole + 1
@@ -196,7 +200,7 @@ bool CommandPalette::isCmd(const QString &input)
 void CommandPalette::parseCmd(const QString &input)
 {
     if (input.isEmpty()) { return; }
-    qDebug() << "parse cmd" << input;
+    qCDebug(lcCmdPalette) << "parse cmd" << input;
 
     // multiple?
     if (input.contains(" && ")) {
@@ -206,38 +210,38 @@ void CommandPalette::parseCmd(const QString &input)
 
     static QRegularExpression validFrameCmd("^[:][-]?[0-9]*[sm]?$");
     const bool goToFrame = (validFrameCmd.match(input).hasMatch() && input != ":");
-    qDebug() << "go to frame?" << goToFrame;
+    qCDebug(lcCmdPalette) << "go to frame?" << goToFrame;
 
     static QRegularExpression validFrameSkipNextCmd("^\\+[0-9]*[sm]?$");
     const bool skipToNextFrame = (validFrameSkipNextCmd.match(input).hasMatch() && input != "+");
-    qDebug() << "skip to next frame?" << skipToNextFrame;
+    qCDebug(lcCmdPalette) << "skip to next frame?" << skipToNextFrame;
 
     static QRegularExpression validFrameSkipPrevCmd("^\\-[0-9]*[sm]?$");
     const bool skipToPrevFrame = (validFrameSkipPrevCmd.match(input).hasMatch() && input != "-");
-    qDebug() << "skip to prev frame?" << skipToPrevFrame;
+    qCDebug(lcCmdPalette) << "skip to prev frame?" << skipToPrevFrame;
 
     static QRegularExpression validRotateCmd("^rotate[:][-]?[0-9,.]*$");
     const bool doRotate = (validRotateCmd.match(input).hasMatch() && input != "rotate:");
-    qDebug() << "do rotate?" << doRotate;
+    qCDebug(lcCmdPalette) << "do rotate?" << doRotate;
 
     static QRegularExpression validScaleCmd("^scale[:][-]?[0-9,.]*$");
     const bool doScale = (validScaleCmd.match(input).hasMatch() && input != "scale:");
-    qDebug() << "do scale?" << doScale;
+    qCDebug(lcCmdPalette) << "do scale?" << doScale;
 
     static QRegularExpression validMoveCmd("^move[:][-]?[0-9,.x]*$");
     const bool doMove = (validMoveCmd.match(input).hasMatch() && input != "move:");
-    qDebug() << "do move?" << doMove;
+    qCDebug(lcCmdPalette) << "do move?" << doMove;
 
     const bool doMarkers = (input.startsWith("marker:") && input != "marker:");
-    qDebug() << "do markers?" << doMarkers;
+    qCDebug(lcCmdPalette) << "do markers?" << doMarkers;
 
     static QRegularExpression validFrameInCmd("^in[:][-]?[0-9]*[sm]?$");
     const bool doFrameIn = (validFrameInCmd.match(input).hasMatch() && input != "in:");
-    qDebug() << "do frame in?" << doFrameIn;
+    qCDebug(lcCmdPalette) << "do frame in?" << doFrameIn;
 
     static QRegularExpression validFrameOutCmd("^out[:][-]?[0-9]*[sm]?$");
     const bool doFrameOut = (validFrameOutCmd.match(input).hasMatch() && input != "out:");
-    qDebug() << "do frame out?" << doFrameOut;
+    qCDebug(lcCmdPalette) << "do frame out?" << doFrameOut;
 
     if (goToFrame || skipToNextFrame || skipToPrevFrame) {
         QString frame = input.simplified();
@@ -254,7 +258,7 @@ void CommandPalette::parseCmd(const QString &input)
         else if (hasMin) { value = (value * 60) * scene->getFps(); }
 
         if (!goToFrame) { value = skipToNextFrame ? scene->getCurrentFrame() + value : scene->getCurrentFrame() - value; }
-        qDebug() << "go to or skip to frame" << value;
+        qCDebug(lcCmdPalette) << "go to or skip to frame" << value;
         scene->anim_setAbsFrame(value);
         mDocument.actionFinished();
         appendHistory(input);
@@ -267,7 +271,7 @@ void CommandPalette::parseCmd(const QString &input)
         if (!isIntOrDouble(arg)) { return; }
         const auto scene = *mDocument.fActiveScene;
         if (!scene) { return; }
-        qDebug() << "do rotate" << arg;
+        qCDebug(lcCmdPalette) << "do rotate" << arg;
         scene->rotateSelectedBoxesStartAndFinish(arg.toDouble(), false);
         mDocument.actionFinished();
         appendHistory(input);
@@ -280,7 +284,7 @@ void CommandPalette::parseCmd(const QString &input)
         if (!isIntOrDouble(arg)) { return; }
         const auto scene = *mDocument.fActiveScene;
         if (!scene) { return; }
-        qDebug() << "do scale" << arg;
+        qCDebug(lcCmdPalette) << "do scale" << arg;
         scene->scaleSelectedBoxesStartAndFinish(arg.toDouble());
         mDocument.actionFinished();
         appendHistory(input);
@@ -296,7 +300,7 @@ void CommandPalette::parseCmd(const QString &input)
         if (!isIntOrDouble(moveX) || !isIntOrDouble(moveY)) { return; }
         const auto scene = *mDocument.fActiveScene;
         if (!scene) { return; }
-        qDebug() << "do move" << moveX << moveY;
+        qCDebug(lcCmdPalette) << "do move" << moveX << moveY;
         scene->moveSelectedBoxesStartAndFinish({moveX.toDouble(),
                                                 moveY.toDouble()});
         mDocument.actionFinished();
@@ -320,7 +324,7 @@ void CommandPalette::parseCmd(const QString &input)
             int value = mark.toInt();
             if (hasSec) { value *= scene->getFps(); }
             else if (hasMin) { value = (value * 60) * scene->getFps(); }
-            qDebug() << "do marker" << value;
+            qCDebug(lcCmdPalette) << "do marker" << value;
             if (hasTitle) { scene->setMarker(args.mid(1).join(" "), value); }
             else { scene->setMarker(value); }
         }
@@ -341,7 +345,7 @@ void CommandPalette::parseCmd(const QString &input)
         if (!scene) { return; }
         if (hasSec) { value *= scene->getFps(); }
         else if (hasMin) { value = (value * 60) * scene->getFps(); }
-        qDebug() << "do frame in/out" << value;
+        qCDebug(lcCmdPalette) << "do frame in/out" << value;
         if (doFrameIn) { scene->setFrameIn(true, value); }
         else if (doFrameOut) { scene->setFrameOut(true, value); }
         appendHistory(input);

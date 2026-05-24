@@ -26,6 +26,9 @@
 #include <QGuiApplication>
 #include <QClipboard>
 #include <QDebug>
+#include <QLoggingCategory>
+
+Q_DECLARE_LOGGING_CATEGORY(lcSvgImport)
 
 using namespace Friction::Ui;
 
@@ -64,7 +67,7 @@ const QString SvgClipBoard::getContent(const QMimeData *mime)
 
 bool SvgClipBoard::isSvg(const QString &content)
 {
-    qDebug() << "SVG in clipboard?" << content;
+    qCDebug(lcSvgImport) << "SVG in clipboard?" << content;
     if (content.isEmpty() ||
         !content.contains("<svg", Qt::CaseInsensitive)) {
         return false;

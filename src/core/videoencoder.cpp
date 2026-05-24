@@ -28,6 +28,7 @@
 
 Q_LOGGING_CATEGORY(lcVideoEncoder, "friction.videoencoder", QtWarningMsg)
 #include <QByteArray>
+#include <QDebug>
 #include "Boxes/boxrendercontainer.h"
 #include "CacheHandlers/sceneframecontainer.h"
 #include "canvas.h"

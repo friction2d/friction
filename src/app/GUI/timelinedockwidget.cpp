@@ -27,6 +27,10 @@
 
 #include <QKeyEvent>
 #include <QScrollBar>
+#include <QDebug>
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(lcTimeline, "friction.ui.timeline", QtWarningMsg)
 
 #include "Private/document.h"
 #include "GUI/global.h"
@@ -550,7 +554,7 @@ void TimelineDockWidget::resumePreview()
         if (mPausedPreviewState.first) {
             const int frame = mDocument.getActiveSceneFrame();
             if (mPausedPreviewState.second != frame) {
-                qDebug() << "set new start frame for preview" << frame;
+                qCDebug(lcTimeline) << "set new start frame for preview" << frame;
                 RenderHandler::sInstance->setPreviewFrame(frame);
                 mPausedPreviewState.first = false;
             }

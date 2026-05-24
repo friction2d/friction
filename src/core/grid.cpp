@@ -35,12 +35,16 @@
 #include <QPainter>
 #include <QPen>
 #include <QLineF>
+#include <QDebug>
+#include <QLoggingCategory>
 
 #include <cmath>
 
 #include <algorithm>
 #include <limits>
 #include <vector>
+
+Q_LOGGING_CATEGORY(lcGrid, "friction.grid", QtWarningMsg)
 
 using namespace Friction::Core;
 
@@ -382,14 +386,14 @@ const Grid::Settings Grid::loadSettings()
         const QVariant var = AppSupport::getSettings("grid", "colorMajor");
         if (var.isValid()) { settings.colorMajor = var.value<QColor>(); }
     }
-    qDebug() << "Load Grid Settings";
+    qCDebug(lcGrid) << "Load Grid Settings";
     debugSettings(settings);
     return settings;
 }
 
 void Grid::saveSettings(const Settings &settings)
 {
-    qDebug() << "Save Grid Settings";
+    qCDebug(lcGrid) << "Save Grid Settings";
     debugSettings(settings);
     AppSupport::setSettings("grid", "sizeX", settings.sizeX);
     AppSupport::setSettings("grid", "sizeY", settings.sizeY);
@@ -415,7 +419,7 @@ void Grid::saveSettings(const Settings &settings)
 
 void Grid::debugSettings(const Settings &settings)
 {
-    qDebug() << "Grid Settings:"
+    qCDebug(lcGrid) << "Grid Settings:"
              << "sizeX" << settings.sizeX
              << "sizeY" << settings.sizeY
              << "originX" << settings.originX
@@ -468,7 +472,7 @@ void Grid::setOption(const Option &option,
                      const QVariant &value,
                      const bool global)
 {
-    qDebug() << "Grid::setOption" << (int)option << value << global;
+    qCDebug(lcGrid) << "Grid::setOption" << (int)option << value << global;
     QString key;
     switch(option){
     case Option::SizeX:
@@ -690,7 +694,7 @@ QVariant Grid::getOption(const Option &option)
 
 void Grid::writeDocument(eWriteStream &dst) const
 {
-    qDebug() << "write grid settings to document";
+    qCDebug(lcGrid) << "write grid settings to document";
     debugSettings(mSettings);
 
     dst << mSettings.sizeX;
@@ -739,7 +743,7 @@ void Grid::readDocument(eReadStream &src)
     src >> settings.color;
     src >> settings.colorMajor;
 
-    qDebug() << "read grid settings from document";
+    qCDebug(lcGrid) << "read grid settings from document";
     debugSettings(settings);
 
     // we only restore some settings (we can change this in the future)
@@ -759,7 +763,7 @@ void Grid::readDocument(eReadStream &src)
 
 void Grid::writeXML(QDomDocument &doc) const
 {
-    qDebug() << "write grid settings to document";
+    qCDebug(lcGrid) << "write grid settings to document";
     debugSettings(mSettings);
 
     auto element = doc.createElement("Grid");
@@ -790,7 +794,7 @@ void Grid::readXML(const QDomElement &element)
 {
     if (element.isNull()) { return; }
 
-    qDebug() << "read grid settings from document";
+    qCDebug(lcGrid) << "read grid settings from document";
     // we only restore some settings (we can change this in the future)
     if (element.hasAttribute("sizeX")) {
         mSettings.sizeX = element.attribute("sizeX").toDouble();

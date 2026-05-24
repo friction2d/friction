@@ -25,6 +25,11 @@
 
 #include <QPainter>
 #include <QMouseEvent>
+#include <QDebug>
+#include <QLoggingCategory>
+
+Q_DECLARE_LOGGING_CATEGORY(lcTimeline)
+
 #include "Animators/SmartPath/smartpathanimator.h"
 #include "Animators/transformanimator.h"
 #include "Expressions/expression.h"
@@ -98,7 +103,7 @@ bool KeysView::graphEasingApplyExpression(QrealAnimator *anim,
                                           const QString &easing)
 {
     if (!anim || easing.isEmpty()) { return false; }
-    qDebug() << "graphEasingApplyExpression" << anim->prp_getName() << range.fMin << range.fMax << easing;
+    qCDebug(lcTimeline) << "graphEasingApplyExpression" << anim->prp_getName() << range.fMin << range.fMax << easing;
 
     const auto preset = eSettings::sInstance->fExpressions.getExpr(easing);
     if (!preset.valid || !preset.enabled) { return false; }
@@ -579,13 +584,13 @@ void KeysView::graphAddToViewedAnimatorList(GraphAnimator * const animator) {
 
 void KeysView::graphUpdateVisible()
 {
-    qDebug() << "graphUpdateVisible";
+    qCDebug(lcTimeline) << "graphUpdateVisible";
     //mGraphAnimators.clear();
     if (mCurrentScene) {
         const int id = mBoxesListWidget->getId();
         const auto all = mCurrentScene->getSelectedForGraph(id);
         if (all) {
-            qDebug() << "selected for graph" << all->count();
+            qCDebug(lcTimeline) << "selected for graph" << all->count();
             for (auto anim : *all) {
                 if (graphValidateVisible(anim)) { graphAddToViewedAnimatorList(anim); }
                 else {

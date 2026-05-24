@@ -26,6 +26,8 @@
 #include "exceptions.h"
 #include <QMessageBox>
 
+Q_LOGGING_CATEGORY(lcFrictionCore, "friction.core", QtWarningMsg)
+
 std::string operator+(const std::string& c, const QString& k) {
     return c + k.toStdString();
 }

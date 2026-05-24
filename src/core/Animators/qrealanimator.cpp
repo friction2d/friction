@@ -35,6 +35,11 @@
 #include "svgexporter.h"
 #include "Properties/namedproperty.h"
 
+#include <QDebug>
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(lcAnimator, "friction.animator", QtWarningMsg)
+
 QrealAnimator::QrealAnimator(const qreal iniVal,
                              const qreal minVal,
                              const qreal maxVal,
@@ -375,7 +380,7 @@ void QrealAnimator::applyExpression(const FrameRange& relRange,
                                     const bool action,
                                     const bool easing)
 {
-    qDebug() << "applyExpression" << prp_getName() << relRange.fMin << relRange.fMax << accuracy << action << easing;
+    qCDebug(lcAnimator) << "applyExpression" << prp_getName() << relRange.fMin << relRange.fMax << accuracy << action << easing;
     if (!hasValidExpression()) {}
     else if (!relRange.isValid()) {}
     else if (isZero4Dec(accuracy) || accuracy < 0) {}

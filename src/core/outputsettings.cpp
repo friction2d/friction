@@ -24,6 +24,11 @@
 #include "ReadWrite/evformat.h"
 #include "appsupport.h"
 
+#include <QDebug>
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(lcOutputSettings, "friction.settings", QtWarningMsg)
+
 using namespace Friction::Core;
 
 QList<qsptr<OutputSettingsProfile>> OutputSettingsProfile::sOutputProfiles;
@@ -202,7 +207,7 @@ void OutputSettingsProfile::save()
     const QString path = QString::fromUtf8("%1/%2.conf")
                          .arg(AppSupport::getAppOutputProfilesPath(),
                               mName);
-    qDebug() << "save output profile" << path;
+    qCDebug(lcOutputSettings) << "save output profile" << path;
 
     QSettings profile(path, QSettings::IniFormat);
     profile.beginGroup(QString::fromUtf8("output_profile_v1"));
@@ -250,7 +255,7 @@ void OutputSettingsProfile::save()
 
 void OutputSettingsProfile::load(const QString &path)
 {
-    qDebug() << "load output profile" << path;
+    qCDebug(lcOutputSettings) << "load output profile" << path;
     if (!QFile::exists(path)) { RuntimeThrow(tr("Failed to load profile: %1").arg(path)); }
 
     bool validProfile = false;

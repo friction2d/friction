@@ -56,6 +56,10 @@
 #include "themesupport.h"
 
 #include <QMessageBox>
+#include <QDebug>
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(lcBoxList, "friction.ui.boxlist", QtWarningMsg)
 
 QPixmap* BoxSingleWidget::VISIBLE_ICON;
 QPixmap* BoxSingleWidget::INVISIBLE_ICON;
@@ -610,7 +614,7 @@ void BoxSingleWidget::loadStaticPixmaps(int iconSize)
                                 " If you still have issues after restarting please report this issue.</p>").arg(iconSize));
     }
     const auto pixmapSize = ThemeSupport::getIconSize(iconSize);
-    qDebug() << "pixmaps size" << pixmapSize;
+    qCDebug(lcBoxList) << "pixmaps size" << pixmapSize;
     VISIBLE_ICON = new QPixmap(QIcon::fromTheme("visible").pixmap(pixmapSize));
     INVISIBLE_ICON = new QPixmap(QIcon::fromTheme("hidden").pixmap(pixmapSize));
     BOX_CHILDREN_VISIBLE_ICON = new QPixmap(QIcon::fromTheme("visible-child").pixmap(pixmapSize));

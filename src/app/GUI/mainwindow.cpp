@@ -29,6 +29,7 @@
 #include <QKeyEvent>
 #include <QApplication>
 #include <QDebug>
+#include <QLoggingCategory>
 #include <QDesktopServices>
 #include <QUrl>
 #include <QStatusBar>
@@ -76,6 +77,8 @@
 #include "widgets/assetswidget.h"
 #include "dialogs/adjustscenedialog.h"
 #include "dialogs/commandpalette.h"
+
+Q_DECLARE_LOGGING_CATEGORY(lcUiWindow)
 
 using namespace Friction;
 
@@ -1143,7 +1146,7 @@ void MainWindow::saveFile(const QString& path,
         setFileChangedSinceSaving(false);
         updateLastSaveDir(path);
         if (mBackupOnSave) {
-            qDebug() << "auto backup";
+            qCDebug(lcUiWindow) << "auto backup";
             saveBackup();
         }
     } catch(const std::exception& e) {
@@ -1349,7 +1352,7 @@ void MainWindow::updateAutoSaveBackupState()
     mAutoSaveTimeout = AppSupport::getSettings("files",
                                                "AutoSaveTimeout",
                                                300000).toInt();
-    qDebug() << "update auto save/backup state" << mBackupOnSave << mAutoSave << mAutoSaveTimeout;
+    qCDebug(lcUiWindow) << "update auto save/backup state" << mBackupOnSave << mAutoSave << mAutoSaveTimeout;
     if (mAutoSave && !mAutoSaveTimer->isActive()) {
         mAutoSaveTimer->start(mAutoSaveTimeout);
     } else if (!mAutoSave && mAutoSaveTimer->isActive()) {
