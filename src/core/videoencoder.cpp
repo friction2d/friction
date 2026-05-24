@@ -24,6 +24,9 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "videoencoder.h"
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(lcVideoEncoder, "friction.videoencoder", QtWarningMsg)
 #include <QByteArray>
 #include "Boxes/boxrendercontainer.h"
 #include "CacheHandlers/sceneframecontainer.h"
@@ -443,16 +446,16 @@ static void addAudioStream(OutputStream * const ost,
     }
 
 #ifdef QT_DEBUG
-    qDebug() << "name" << "src" << "output";
-    qDebug() << "channels" << inSound.channelCount() <<
+    qCDebug(lcVideoEncoder) << "name" << "src" << "output";
+    qCDebug(lcVideoEncoder) << "channels" << inSound.channelCount() <<
                               c->channels;
-    qDebug() << "channel layout" << inSound.fChannelLayout <<
+    qCDebug(lcVideoEncoder) << "channel layout" << inSound.fChannelLayout <<
                                     c->channel_layout;
-    qDebug() << "sample rate" << inSound.fSampleRate <<
+    qCDebug(lcVideoEncoder) << "sample rate" << inSound.fSampleRate <<
                                  c->sample_rate;
-    qDebug() << "sample format" << av_get_sample_fmt_name(inSound.fSampleFormat) <<
+    qCDebug(lcVideoEncoder) << "sample format" << av_get_sample_fmt_name(inSound.fSampleFormat) <<
                                    av_get_sample_fmt_name(c->sample_fmt);
-    qDebug() << "bitrate" << settings.fAudioBitrate;
+    qCDebug(lcVideoEncoder) << "bitrate" << settings.fAudioBitrate;
 #endif
 }
 
@@ -679,6 +682,7 @@ void VideoEncoder::interrupEncoding() {
 }
 
 void VideoEncoder::finishEncodingSuccess() {
+    qCDebug(lcVideoEncoder) << "VideoEncoder::finishEncodingSuccess";
     mRenderInstanceSettings->setCurrentState(RenderState::finished);
     mEncodingSuccesfull = true;
     finishEncodingNow();
@@ -738,6 +742,7 @@ static void closeStream(OutputStream * const ost) {
 }
 
 void VideoEncoder::finishEncodingNow() {
+    qCDebug(lcVideoEncoder) << "VideoEncoder::finishEncodingNow succesfull=" << mEncodingSuccesfull;
     if(!mCurrentlyEncoding) return;
 
     if(mEncodeVideo) flushStream(&mVideoStream, mFormatContext);
@@ -753,7 +758,12 @@ void VideoEncoder::finishEncodingNow() {
         }
     }
 
-    if(mEncodingSuccesfull) av_write_trailer(mFormatContext);
+    if(mEncodingSuccesfull) {
+        qCDebug(lcVideoEncoder) << "VideoEncoder::finishEncodingNow: writing trailer";
+        av_write_trailer(mFormatContext);
+    } else {
+        qCDebug(lcVideoEncoder) << "VideoEncoder::finishEncodingNow: skipping trailer (not successful)";
+    }
 
     /* Close each codec. */
     if(mEncodeVideo) closeStream(&mVideoStream);

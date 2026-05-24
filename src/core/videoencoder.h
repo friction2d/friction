@@ -28,7 +28,10 @@
 
 #include "core_global.h"
 
+#include <QLoggingCategory>
 #include <QString>
+
+Q_DECLARE_LOGGING_CATEGORY(lcVideoEncoder)
 #include <QList>
 #include "skia/skiaincludes.h"
 #include "Tasks/updatable.h"
@@ -204,6 +207,7 @@ public:
     }
 
     void finishCurrentEncoding() {
+        qCDebug(lcVideoEncoder) << "VideoEncoder::finishCurrentEncoding isActive=" << isActive();
         if(!mCurrentlyEncoding) return;
         if(isActive()) mEncodingFinished = true;
         else finishEncodingSuccess();

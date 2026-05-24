@@ -24,6 +24,7 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "Boxes/boundingbox.h"
+#include <QDebug>
 #include "Boxes/containerbox.h"
 #include "TransformEffects/followpatheffect.h"
 #include "canvas.h"
@@ -553,7 +554,10 @@ void BoundingBox::planUpdate(const UpdateReason reason) {
     if(parent) parent->planUpdate(reason);
     else if(!enve_cast<Canvas*>(this)) return;
     if(reason == UpdateReason::userChange) {
-        mStateId++;
+        const auto scene = enve_cast<Canvas*>(this)
+                           ? static_cast<Canvas*>(this)
+                           : getParentScene();
+        if(!scene || !scene->isRenderingOutput()) mStateId++;
         mRenderDataHandler.clear();
     }
 

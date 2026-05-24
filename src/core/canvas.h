@@ -549,6 +549,8 @@ public:
         return mPreviewing || mRenderingPreview || mRenderingOutput;
     }
 
+    bool isRenderingOutput() const { return mRenderingOutput; }
+
     qreal getFps() const
     {
         return mFps;

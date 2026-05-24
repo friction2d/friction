@@ -88,9 +88,12 @@ public:
 
     const_iterator atFrame(const int frame) const {
         const auto it = atOrAfterFrame(frame);
-        if(it == this->end()) return this->end();
-        if(it->first.inRange(frame)) return it;
-        else return this->end();
+        if(it != this->end() && it->first.inRange(frame)) return it;
+        // atOrAfterFrame uses lower_bound({frame,frame}) which skips entries with fMin < frame.
+        // Fall back to atOrBeforeFrame to catch entries whose range contains frame.
+        const auto before = atOrBeforeFrame(frame);
+        if(before != this->end() && before->first.inRange(frame)) return before;
+        return this->end();
     }
 
     iterator atOrBeforeFrame(const int frame) {

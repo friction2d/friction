@@ -229,6 +229,7 @@ void RenderInstanceWidget::updateFromSettings() {
 
     if(renderState == RenderState::error) {
         nameLabelTxt += tr(" : Error"); //mSettings.getRenderError();
+        setContentVisible(true);
     } else if(renderState == RenderState::finished) {
         nameLabelTxt += tr(" : Finished");
         mCheckBox->setChecked(false);

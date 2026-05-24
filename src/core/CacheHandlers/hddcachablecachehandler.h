@@ -32,6 +32,10 @@
 #include "usedrange.h"
 
 #include <QPainter>
+#include <QLoggingCategory>
+#include <stdexcept>
+
+Q_DECLARE_LOGGING_CATEGORY(lcCacheHandler)
 
 class CORE_EXPORT HddCachableCacheHandler {
     friend class UsedRange;
@@ -52,26 +56,41 @@ public:
     }
 
     void add(const stdsptr<Cont>& cont) {
-        const auto ret = mConts.insert({cont->getRange(), cont});
+        const auto range = cont->getRange();
+        qCDebug(lcCacheHandler) << "HddCachableCacheHandler::add range=[" << range.fMin << "," << range.fMax << "] size_before=" << mConts.count();
+        const auto ret = mConts.insert({range, cont});
+        qCDebug(lcCacheHandler) << "HddCachableCacheHandler::add inserted=" << ret.second << "size_after=" << mConts.count();
         if(ret.second) mUsedRange.addIfInRange(cont.get());
     }
 
+    void setNoClear(const bool noClear) { mNoClear = noClear; }
+
     void clear() {
+        qCDebug(lcCacheHandler) << "HddCachableCacheHandler::clear size=" << mConts.count();
+        if(mNoClear) throw std::runtime_error("HddCachableCacheHandler::clear called with mNoClear=true");
         mConts.clear();
     }
 
     void remove(const stdsptr<Cont>& cont) {
-        mConts.erase(cont->getRange());
+        const auto range = cont->getRange();
+        qCDebug(lcCacheHandler) << "HddCachableCacheHandler::remove(cont) range=[" << range.fMin << "," << range.fMax << "]";
+        mConts.erase(range);
     }
 
     void remove(const iValueRange& range) {
+        qCDebug(lcCacheHandler) << "HddCachableCacheHandler::remove(range) range=[" << range.fMin << "," << range.fMax << "] size_before=" << mConts.count() << " mNoClear=" << mNoClear;
         mConts.erase(range);
+        qCDebug(lcCacheHandler) << "HddCachableCacheHandler::remove(range) size_after=" << mConts.count();
     }
 
     template <class T = Cont>
     T * atFrame(const int relFrame) const {
         const auto it = mConts.atFrame(relFrame);
-        if(it == mConts.end()) return nullptr;
+        if(it == mConts.end()) {
+            qCDebug(lcCacheHandler) << "HddCachableCacheHandler::atFrame(" << relFrame << ") MISS size=" << mConts.count();
+            return nullptr;
+        }
+        qCDebug(lcCacheHandler) << "HddCachableCacheHandler::atFrame(" << relFrame << ") HIT range=[" << it->first.fMin << "," << it->first.fMax << "]";
         return static_cast<T*>(it->second.get());
     }
 
@@ -83,18 +102,23 @@ public:
     }
 
     void setUseRange(const iValueRange& range) {
+        qCDebug(lcCacheHandler) << "HddCachableCacheHandler::setUseRange()";
         mUsedRange.replaceRange(range);
     }
 
     void setMaxUseRange(const int max) {
+        qCDebug(lcCacheHandler) << "HddCachableCacheHandler::setMaxUseRange()";
         mUsedRange.setRangeMax(max);
     }
 
     void setMinUseRange(const int min) {
+        qCDebug(lcCacheHandler) << "HddCachableCacheHandler::setMinUseRange()";
         mUsedRange.setRangeMin(min);
     }
 
     void clearUseRange() {
+        qCDebug(lcCacheHandler) << "HddCachableCacheHandler::clearUseRang()";
+        if(mNoClear) throw std::runtime_error("HddCachableCacheHandler::clearUseRange called with mNoClear=true");
         mUsedRange.clearRange();
     }
 
@@ -103,6 +127,7 @@ public:
 private:
     RangeMap<stdsptr<Cont>> mConts;
     UsedRange mUsedRange;
+    bool mNoClear = false;
 };
 
 #endif // HddCACHABLECACHEHANDLER_H

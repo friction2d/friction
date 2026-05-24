@@ -24,6 +24,8 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "hddcachablecachehandler.h"
+
+Q_LOGGING_CATEGORY(lcCacheHandler, "friction.cachehandler", QtWarningMsg)
 #include "pointhelpers.h"
 #include "themesupport.h"
 

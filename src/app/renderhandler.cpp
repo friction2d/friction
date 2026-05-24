@@ -24,6 +24,9 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "renderhandler.h"
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(lcRenderHandler, "friction.renderhandler", QtWarningMsg)
 #include "videoencoder.h"
 #include "memoryhandler.h"
 #include "Private/Tasks/taskscheduler.h"
@@ -112,10 +115,7 @@ void RenderHandler::renderFromSettings(RenderInstanceSettings * const settings) 
             mCurrentScene->setResolution(resolutionFraction);
             mDocument.actionFinished();
         } else {
-            nextCurrentRenderFrame();
-            if(TaskScheduler::sAllQuedCpuTasksFinished()) {
-                nextSaveOutputFrame();
-            }
+            setFrameAction(mCurrentRenderFrame);
         }
     }
 }
@@ -353,6 +353,11 @@ void RenderHandler::finishEncoding() {
 }
 
 void RenderHandler::nextSaveOutputFrame() {
+    qCDebug(lcRenderHandler) << "nextSaveOutputFrame:"
+             << "renderFrame" << mCurrentRenderFrame << "/" << mMaxRenderFrame
+             << "encodeFrame" << mCurrentEncodeFrame
+             << "soundSec" << mCurrentEncodeSoundSecond << "/" << mMaxSoundSec;
+
     const auto& sCacheHandler = mCurrentSoundComposition->getCacheHandler();
     const qreal fps = mCurrentScene->getFps();
     const int sampleRate = eSoundSettings::sSampleRate();
@@ -377,26 +382,41 @@ void RenderHandler::nextSaveOutputFrame() {
     const auto& cacheHandler = mCurrentScene->getSceneFramesHandler();
     while(mCurrentEncodeFrame <= mMaxRenderFrame) {
         const auto cont = cacheHandler.atFrame(mCurrentEncodeFrame);
-        if(!cont) break;
+        if(!cont) {
+            qCDebug(lcRenderHandler) << "nextSaveOutputFrame: atFrame(" << mCurrentEncodeFrame << ") returned null, cache miss";
+            break;
+        }
+        qCDebug(lcRenderHandler) << "nextSaveOutputFrame: atFrame(" << mCurrentEncodeFrame << ") hit, rangeMax=" << cont->getRangeMax();
         VideoEncoder::sAddCacheContainerToEncoder(cont->ref<SceneFrameContainer>());
         mCurrentEncodeFrame = cont->getRangeMax() + 1;
+        mCurrentRenderSettings->setCurrentRenderFrame(mCurrentEncodeFrame - 1);
     }
 
     //mCurrentScene->renderCurrentFrameToOutput(*mCurrentRenderSettings);
     if(mCurrentRenderFrame >= mMaxRenderFrame) {
-        if(mCurrentEncodeSoundSecond <= mMaxSoundSec) return;
-        if(mCurrentEncodeFrame <= mMaxRenderFrame) return;
+        if(mCurrentEncodeSoundSecond <= mMaxSoundSec) {
+            qCDebug(lcRenderHandler) << "nextSaveOutputFrame: waiting for audio sec"
+                     << mCurrentEncodeSoundSecond << "/" << mMaxSoundSec;
+            return;
+        }
+        if(mCurrentEncodeFrame <= mMaxRenderFrame) {
+            qCDebug(lcRenderHandler) << "nextSaveOutputFrame: waiting for encode frame"
+                     << mCurrentEncodeFrame << "/" << mMaxRenderFrame;
+            return;
+        }
+        qCDebug(lcRenderHandler) << "nextSaveOutputFrame: all frames encoded, calling finishEncoding";
         TaskScheduler::sSetTaskUnderflowFunc(nullptr);
         Document::sInstance->actionFinished();
         if(TaskScheduler::sAllTasksFinished()) {
             finishEncoding();
         } else {
+            qCDebug(lcRenderHandler) << "nextSaveOutputFrame: tasks still pending, deferring finishEncoding";
             TaskScheduler::sSetAllTasksFinishedFunc([this]() {
+                qCDebug(lcRenderHandler) << "nextSaveOutputFrame: deferred finishEncoding firing";
                 finishEncoding();
             });
         }
     } else {
-        mCurrentRenderSettings->setCurrentRenderFrame(mCurrentRenderFrame);
         nextCurrentRenderFrame();
         if(TaskScheduler::sAllTasksFinished()) {
             nextSaveOutputFrame();
