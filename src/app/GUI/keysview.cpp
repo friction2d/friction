@@ -144,8 +144,12 @@ void KeysView::deleteSelectedKeys() {
     if(mHoveredKey && mHoveredKey->isSelected()) {
         clearHoveredKey();
     }
-    for(const auto& anim : mSelectedKeysAnimators)
+    for(const auto& anim : mSelectedKeysAnimators) {
+        const auto locked = anim->getFirstAncestor<eBoxOrSound>(
+            [](Property* p) { const auto e = enve_cast<eBoxOrSound*>(p); return e && e->isLocked(); });
+        if(locked) { emit locked->lockedModificationAttempted(); continue; }
         anim->anim_deleteSelectedKeys();
+    }
 }
 
 
@@ -268,6 +272,9 @@ void KeysView::cancelTransform() {
             }
         } else {
             for(const auto& anim : mSelectedKeysAnimators) {
+                const auto locked = anim->getFirstAncestor<eBoxOrSound>(
+                    [](Property* p) { const auto e = enve_cast<eBoxOrSound*>(p); return e && e->isLocked(); });
+                if(locked) continue;
                 anim->anim_cancelSelectedKeysTransform();
             }
         }
@@ -288,6 +295,9 @@ void KeysView::finishTransform() {
             }
         } else {
             for(const auto& anim : mSelectedKeysAnimators) {
+                const auto locked = anim->getFirstAncestor<eBoxOrSound>(
+                    [](Property* p) { const auto e = enve_cast<eBoxOrSound*>(p); return e && e->isLocked(); });
+                if(locked) continue;
                 anim->anim_finishSelectedKeysTransform();
             }
         }
@@ -822,6 +832,9 @@ void KeysView::handleMouseMove(const QPoint &pos,
                     }
                 } else {
                     for(const auto& anim : mSelectedKeysAnimators) {
+                        const auto locked = anim->getFirstAncestor<eBoxOrSound>(
+                            [](Property* p) { const auto e = enve_cast<eBoxOrSound*>(p); return e && e->isLocked(); });
+                        if(locked) { emit locked->lockedModificationAttempted(); continue; }
                         anim->anim_startSelectedKeysTransform();
                     }
                 }
@@ -841,6 +854,9 @@ void KeysView::handleMouseMove(const QPoint &pos,
                     }
                 } else {
                     for(const auto& anim : mSelectedKeysAnimators) {
+                        const auto locked = anim->getFirstAncestor<eBoxOrSound>(
+                            [](Property* p) { const auto e = enve_cast<eBoxOrSound*>(p); return e && e->isLocked(); });
+                        if(locked) continue;
                         anim->anim_scaleSelectedKeysFrame(absFrame, keysScale);
                     }
                 }
@@ -856,6 +872,9 @@ void KeysView::handleMouseMove(const QPoint &pos,
                     }
                 } else if(iDDFrame != 0) {
                     for(const auto& anim : mSelectedKeysAnimators) {
+                        const auto locked = anim->getFirstAncestor<eBoxOrSound>(
+                            [](Property* p) { const auto e = enve_cast<eBoxOrSound*>(p); return e && e->isLocked(); });
+                        if(locked) continue;
                         anim->anim_incSelectedKeysFrame(iDDFrame);
                     }
                 }
