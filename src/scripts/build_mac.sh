@@ -93,10 +93,16 @@ if [ -f "${CWD}/docs/offline/index.html" ]; then
     (cd dmg ; ln -sf Friction.app/Contents/Resources/docs/index.html Documentation.html)
 fi
 
+ARCH_LABEL="${CPU}"
+if [ "${CPU}" = "arm64" ]; then
+    ARCH_LABEL="arm"
+fi
+ARCH_VERSION="${VERSION/+/+${ARCH_LABEL}.}"
+
 # https://github.com/actions/runner-images/issues/7522
 max_tries=10
 i=0
-until hdiutil create -volname "Friction" -srcfolder dmg -ov -format ULMO Friction-${VERSION}-${CPU}.dmg
+until hdiutil create -volname "Friction" -srcfolder dmg -ov -format ULMO Friction-${ARCH_VERSION}.dmg
 do
     if [ $i -eq $max_tries ]; then
         echo 'Error: hdiutil did not succeed even after 10 tries.'

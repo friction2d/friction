@@ -29,6 +29,27 @@ jobs:
         echo "BRANCH=${{ github.ref_name }}" >> $GITHUB_ENV
         echo "GHA_RUN_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
         echo "BUILD_ORIGIN=ci" >> $GITHUB_ENV
+    - name: Cache Linux SDK
+      uses: actions/cache@v4
+      with:
+        path: |
+          distfiles/sdk/friction-sdk-1.0.0r9-linux-x86_64.tar.xz
+          distfiles/linux
+        key: friction-linux-sdk-1.0.0r9-appimg-20240401
+    - name: Cache Docker image
+      id: docker-cache
+      uses: actions/cache@v4
+      with:
+        path: /tmp/friction-vfxplatform-sdk.tar
+        key: friction-vfxplatform-sdk-1.0.0r9
+    - name: Load Docker image from cache
+      if: steps.docker-cache.outputs.cache-hit == 'true'
+      run: docker load -i /tmp/friction-vfxplatform-sdk.tar
+    - name: Pull and cache Docker image
+      if: steps.docker-cache.outputs.cache-hit != 'true'
+      run: |
+        docker pull frictiongraphics/friction-vfxplatform-sdk
+        docker save frictiongraphics/friction-vfxplatform-sdk -o /tmp/friction-vfxplatform-sdk.tar
     - name: Build
       run: ./src/scripts/build.sh
     - name: Artifact

@@ -50,6 +50,8 @@ if [ "${LOCAL_BUILD}" = 1 ]; then
     (cd src/scripts; docker build -t friction-vfxplatform -f Dockerfile.vfxplatform .)
     ${DOCKER} friction-vfxplatform
 else
-    docker pull frictiongraphics/friction-vfxplatform-sdk
+    if ! docker image inspect frictiongraphics/friction-vfxplatform-sdk > /dev/null 2>&1; then
+        docker pull frictiongraphics/friction-vfxplatform-sdk
+    fi
     ${DOCKER} frictiongraphics/friction-vfxplatform-sdk
 fi

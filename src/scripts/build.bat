@@ -90,7 +90,7 @@ echo "Delete this file if you want to disable portable mode" > "%OUTPUT_DIR%\por
 
 cd "%BUILD_OUTPUT%"
 
-7z a -mx9 friction-%VERSION%-windows-x64.7z friction-%VERSION%
+7z a -mx5 friction-%VERSION%-windows-x64.7z friction-%VERSION%
 
 copy "%CWD%\build\src\app\%BDIR%\friction.iss" "%OUTPUT_DIR%\"
 copy "%CWD%\src\app\icons\friction.ico" "%OUTPUT_DIR%\"

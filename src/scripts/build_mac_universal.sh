@@ -74,10 +74,12 @@ if [ -f "dmg/${DOC}" ]; then
     (cd dmg ; ln -sf ${DOC} Documentation.html)
 fi
 
+UNIVERSAL_VERSION="${VERSION/+/+universal.}"
+
 # https://github.com/actions/runner-images/issues/7522
 max_tries=10
 i=0
-until hdiutil create -volname "Friction" -srcfolder dmg -ov -format ULMO Friction-${VERSION}.dmg
+until hdiutil create -volname "Friction" -srcfolder dmg -ov -format ULMO Friction-${UNIVERSAL_VERSION}.dmg
 do
     if [ $i -eq $max_tries ]; then
         echo 'Error: hdiutil did not succeed even after 10 tries.'

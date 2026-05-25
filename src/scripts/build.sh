@@ -21,7 +21,7 @@
 set -e -x
 
 CWD=`pwd`
-MKJOBS=${MKJOBS:-2}
+MKJOBS=${MKJOBS:-4}
 COMMIT=${COMMIT:-`git rev-parse --short=8 HEAD`}
 BRANCH=${BRANCH:-`git rev-parse --abbrev-ref HEAD`}
 GHA_RUN_NUMBER=${GHA_RUN_NUMBER:-0}
