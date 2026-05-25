@@ -145,9 +145,18 @@ void Canvas::flipSelectedBoxesVertically() {
     }
 }
 
-void Canvas::convertSelectedBoxesToPath() {
-    for(const auto &box : mSelectedBoxes)
-        box->objectToVectorPathBox();
+void Canvas::convertSelectedBoxesToPath()
+{
+    for (const auto &box : mSelectedBoxes) {
+        const auto name = box->prp_getName() + "Path";
+        const auto index = box->getZIndex();
+        const auto pbox = box->objectToVectorPathBox();
+        if (pbox) {
+            box->removeFromParent_k();
+            pbox->prp_setName(name);
+            pbox->moveTo(index);
+        }
+    }
 }
 
 void Canvas::convertSelectedPathStrokesToPath() {
