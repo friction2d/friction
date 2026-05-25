@@ -168,6 +168,9 @@ void ToolBox::setupMainAction(const QIcon &icon,
         case CanvasMode::nullCreate:
             mActions.setNullMode();
             break;
+        case CanvasMode::cameraCreate:
+            mActions.setCameraMode();
+            break;
         case CanvasMode::pickFillStroke:
             mActions.setPickPaintSettingsMode();
             break;
@@ -239,6 +242,13 @@ void ToolBox::setupMainActions()
                                                          "nullMode",
                                                          "F8").toString()),
                     {CanvasMode::nullCreate},
+                    false);
+    setupMainAction(QIcon::fromTheme("cameraCreate").isNull() ? QIcon::fromTheme("nullCreate") : QIcon::fromTheme("cameraCreate"),
+                    tr("Add Camera"),
+                    QKeySequence(AppSupport::getSettings("shortcuts",
+                                                         "cameraMode",
+                                                         "").toString()),
+                    {CanvasMode::cameraCreate},
                     false);
     setupMainAction(QIcon::fromTheme("pick"),
                     tr("Color Pick Mode"),

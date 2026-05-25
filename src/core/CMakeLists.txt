@@ -86,6 +86,7 @@ set(
     Boxes/boxrenderdata.cpp
     Boxes/boxwithpatheffects.cpp
     Boxes/canvasrenderdata.cpp
+    Boxes/camerabox.cpp
     Boxes/circle.cpp
     Boxes/containerbox.cpp
     Boxes/ecustombox.cpp

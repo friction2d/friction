@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="20"
+   height="20"
+   viewBox="0 0 5.2916669 5.2916668"
+   version="1.1"
+   id="svg1500"
+   sodipodi:docname="cmd.svg"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <sodipodi:namedview
+     id="namedview9"
+     pagecolor="#505050"
+     bordercolor="#ffffff"
+     borderopacity="1"
+     inkscape:pageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="1"
+     showgrid="false"
+     inkscape:zoom="12.017931"
+     inkscape:cx="4.7013085"
+     inkscape:cy="2.246643"
+     inkscape:window-width="1920"
+     inkscape:window-height="1085"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1500" />
+  <defs
+     id="defs1494" />
+  <metadata
+     id="metadata1497">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     fill="#ffffff"
+     id="g7"
+     transform="matrix(0.00264183,0,0,0.00264183,0.53236942,0.53236942)">
+    <path
+       d="m 363.5,536 a 0.50005,0.50005 0 0 0 -0.5,0.5 v 13 a 0.50005,0.50005 0 0 0 0.5,0.5 h 13 a 0.50005,0.50005 0 0 0 0.5,-0.5 v -13 a 0.50005,0.50005 0 0 0 -0.5,-0.5 z m 0.5,1 h 12 v 12 h -12 z m 2,2 v 1 h 1 v -1 z m 1,1 v 1 h 1 v -1 z m 1,1 v 1 h 1 v -1 z m 0,1 h -1 v 1 h 1 z m -1,1 h -1 v 1 h 1 z m 2,0 v 1 h 3 v -1 z"
+       fill-rule="evenodd"
+       transform="matrix(100,0,0,100,-36200,-53500)"
+       id="path5" />
+  </g>
+</svg>

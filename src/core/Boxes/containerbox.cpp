@@ -699,6 +699,15 @@ bool ContainerBox::isFlipBook() const {
     return mFlipBook->getValue();
 }
 
+void ContainerBox::setFlipBook(const bool enabled) {
+    mFlipBook->setValue(enabled);
+    mFlipBook->SWT_setVisible(enabled);
+}
+
+int ContainerBox::getFlipBookIndex(const qreal relFrame) const {
+    return mFlipBook->index(relFrame);
+}
+
 void ContainerBox::updateContainedBoxes() {
     mContainedBoxes.clear();
     for(const auto& child : mContained) {
@@ -1524,6 +1533,7 @@ void ContainerBox::writeBoxOrSoundXEV(const stdsptr<XevZipFileSaver>& xevFileSav
 #include "customboxcreator.h"
 #include "svglinkbox.h"
 #include "nullobject.h"
+#include "camerabox.h"
 
 qsptr<BoundingBox> createBoxOfNonCustomType(const eBoxType type) {
     switch(type) {
@@ -1557,6 +1567,8 @@ qsptr<BoundingBox> createBoxOfNonCustomType(const eBoxType type) {
             return enve::make_shared<InternalLinkCanvas>(nullptr, false);
         case(eBoxType::nullObject):
             return enve::make_shared<NullObject>();
+        case(eBoxType::camera):
+            return enve::make_shared<CameraBox>();
         case(eBoxType::deprecated0): break;
         case(eBoxType::canvas) : break;
         case(eBoxType::count) : break;

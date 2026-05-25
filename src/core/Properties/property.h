@@ -55,6 +55,7 @@ enum class CanvasMode : short {
     textCreate,
 
     nullCreate,
+    cameraCreate,
     pickFillStroke,
     pickFillStrokeEvent
 };

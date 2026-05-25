@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 20 20"
+   xml:space="preserve"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="drive-harddisk.svg"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><sodipodi:namedview
+   id="namedview873"
+   pagecolor="#505050"
+   bordercolor="#ffffff"
+   borderopacity="1"
+   inkscape:pageshadow="0"
+   inkscape:pageopacity="0"
+   inkscape:pagecheckerboard="1"
+   showgrid="false"
+   inkscape:zoom="23.9"
+   inkscape:cx="-2.7615063"
+   inkscape:cy="10"
+   inkscape:window-width="1920"
+   inkscape:window-height="1026"
+   inkscape:window-x="0"
+   inkscape:window-y="0"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="svg1" /><defs
+   id="defs1" />
+    
+<g
+   id="g27886"
+   transform="translate(-630,-50)"
+   style="display:inline;enable-background:new"
+   inkscape:label="B-25"><g
+     style="display:inline;enable-background:new"
+     id="g28033"
+     transform="translate(21,-21)"><path
+       style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:medium;line-height:normal;font-family:sans-serif;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-feature-settings:normal;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:normal;word-spacing:normal;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:start;white-space:normal;shape-padding:0;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;vector-effect:none;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.00157;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;paint-order:fill markers stroke;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:new"
+       d="M 516.03711,33 C 514.91694,33 514,33.916938 514,35.037109 V 36 c -0.0409,0.706384 1.0409,0.706384 1,0 V 35.037109 C 515,34.454485 515.45448,34 516.03711,34 h 4.92578 C 521.54552,34 522,34.454485 522,35.037109 v 5.058594 c -0.58287,0.214917 -1,0.784943 -1,1.441406 v 1.925782 c 3e-5,0.276131 0.22387,0.499972 0.5,0.5 H 522 V 46 h 1 v -2.037109 h 0.5 c 0.27613,-2.8e-5 0.49997,-0.223869 0.5,-0.5 v -1.925782 c 0,-0.656467 -0.41713,-1.22649 -1,-1.441406 V 35.037109 C 523,33.916938 522.08306,33 520.96289,33 Z"
+       transform="translate(102,41)"
+       id="path28027"
+       inkscape:connector-curvature="0" /></g><g
+     style="display:inline;enable-background:new"
+     id="g28053-2"><path
+       inkscape:connector-curvature="0"
+       id="rect28051-4"
+       transform="translate(21,-21)"
+       style="display:inline;opacity:1;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;paint-order:fill markers stroke;enable-background:new"
+       d="m 616,85 h 1 v 0.999999 h -1 z m -2,0 h 1 v 0.999999 h -1 z m -0.46289,-8 C 612.69436,77 612,77.694362 612,78.537109 v 7.925782 C 612,87.305638 612.69436,88 613.53711,88 h 5.92578 c 0.73741,0 1.36143,-0.531036 1.50586,-1.228516 0.0206,-0.09964 0.0312,-0.20325 0.0312,-0.308593 V 78.537109 C 621,77.694362 620.30564,77 619.46289,77 Z m 0,7 h 5.92578 C 619.76894,84 620,84.231065 620,84.537109 v 1.925782 C 620,86.768935 619.76894,87 619.46289,87 h -5.92578 C 613.23106,87 613,86.768935 613,86.462891 V 84.537109 C 613,84.231065 613.23106,84 613.53711,84 Z" /></g></g></svg>

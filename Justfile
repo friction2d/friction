@@ -64,6 +64,9 @@ run-debug-preview:
 run-debug-timeline:
     QT_LOGGING_RULES="SvgElementTrack=true;friction.svgflipbooktrack=true" just run-debug > log.txt 2>&1;
 
+run-debug-camera:
+    QT_LOGGING_RULES="friction.camera=true;friction.renderoutput=true;friction.renderhandler=true" just run-debug > log.txt 2>&1;
+
 # Debug pivot track attachment decisions (read-path filtering + collectPivotDescs + applyPivotToTrack)
 debug-pivot-track-attachment:
     QT_LOGGING_RULES="SvgElementTrack=true;friction.svgpivot=true" just run-debug > log.txt 2>&1;

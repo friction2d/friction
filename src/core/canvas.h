@@ -68,6 +68,7 @@ class VideoBox;
 class ImageBox;
 class Document;
 class NullObject;
+class CameraBox;
 
 class eMouseEvent;
 class eKeyEvent;
@@ -417,14 +418,7 @@ public:
     void setupRenderData(const qreal relFrame,
                          const QMatrix &parentM,
                          BoxRenderData* const data,
-                         Canvas* const scene)
-    {
-        ContainerBox::setupRenderData(relFrame, parentM, data, scene);
-        auto canvasData = static_cast<CanvasRenderData*>(data);
-        canvasData->fBgColor = toSkColor(mBackgroundColor->getColor());
-        canvasData->fCanvasHeight = mHeight;
-        canvasData->fCanvasWidth = mWidth;
-    }
+                         Canvas* const scene);
 
     bool clipToCanvas()
     {
@@ -760,7 +754,12 @@ public:
     void addNullObject(NullObject* const obj);
     void removeNullObject(NullObject* const obj);
 
+    void addCameraBox(CameraBox* const obj);
+    void removeCameraBox(CameraBox* const obj);
+
 private:
+    QRectF getActiveCameraRect(qreal relFrame) const;
+    QMatrix computeViewMatrix(qreal relFrame) const;
     void addGradient(const qsptr<SceneBoundGradient> &grad);
 
     void readGradients(eReadStream &src);
@@ -844,6 +843,7 @@ private:
 
     QList<qsptr<SceneBoundGradient>> mGradients;
     QList<NullObject*> mNullObjects;
+    QList<CameraBox*> mCameraBoxes;
 
 protected:
     Document& mDocument;

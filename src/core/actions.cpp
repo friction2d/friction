@@ -26,6 +26,9 @@
 #include "actions.h"
 #include "Private/document.h"
 #include "canvas.h"
+#include "Boxes/containerbox.h"
+#include "Boxes/camerabox.h"
+#include "Animators/transformanimator.h"
 #include "Paint/simplebrushwrapper.h"
 #include "paintsettingsapplier.h"
 #include "Sound/eindependentsound.h"
@@ -935,6 +938,38 @@ void Actions::setPaintMode() {
 
 void Actions::setNullMode() {
     mDocument.setCanvasMode(CanvasMode::nullCreate);
+}
+
+void Actions::setCameraMode() {
+    if (!mActiveScene) return;
+    auto* const scene = *mActiveScene;
+    auto* const container = scene->getCurrentGroup();
+
+    ContainerBox* flipGroup = nullptr;
+    for (const auto box : container->getContainedBoxes()) {
+        const auto grp = enve_cast<ContainerBox*>(box);
+        if (grp && grp->isFlipBook() && grp->prp_getName() == "Cameras") {
+            flipGroup = grp;
+            break;
+        }
+    }
+
+    if (!flipGroup) {
+        const auto group = enve::make_shared<ContainerBox>(eBoxType::group);
+        group->prp_setName("Cameras");
+        group->getBoxTransformAnimator()->SWT_hide();
+        container->addContained(group);
+        group->setFlipBook(true);
+        flipGroup = group.get();
+    }
+
+    const auto newCamera = enve::make_shared<CameraBox>();
+    flipGroup->addContained(newCamera);
+
+    scene->clearBoxesSelection();
+    scene->addBoxToSelection(newCamera.get());
+    mDocument.setCanvasMode(CanvasMode::boxTransform);
+    mDocument.actionFinished();
 }
 
 void Actions::finishSmoothChange() {

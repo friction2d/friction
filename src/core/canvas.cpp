@@ -54,11 +54,13 @@ Q_LOGGING_CATEGORY(lcRenderOutput, "friction.renderoutput", QtWarningMsg)
 #include "ReadWrite/evformat.h"
 #include "eevent.h"
 #include "Boxes/nullobject.h"
+#include "Boxes/camerabox.h"
 #include "simpletask.h"
 #include "themesupport.h"
 #include "efiltersettings.h"
 
 Q_LOGGING_CATEGORY(lcCanvas, "friction.canvas", QtWarningMsg)
+Q_LOGGING_CATEGORY(lcCamera, "friction.camera", QtWarningMsg)
 
 using namespace Friction::Core;
 
@@ -354,15 +356,16 @@ void Canvas::renderSk(SkCanvas* const canvas,
         drawTransparencyMesh(canvas, canvasRect);
     }
 
-    if (!mClipToCanvasSize || !drawCanvas) {
-        canvas->saveLayer(nullptr, nullptr);
-        drawContained(canvas, filter);
-        canvas->restore();
-    } else if (drawCanvas) {
+    const bool useCameraFrame = !mCameraBoxes.isEmpty() && drawCanvas;
+    if (useCameraFrame || (mClipToCanvasSize && drawCanvas)) {
         canvas->save();
         const float reversedRes = toSkScalar(1/mSceneFrame->fResolution);
         canvas->scale(reversedRes, reversedRes);
         mSceneFrame->drawImage(canvas, filter);
+        canvas->restore();
+    } else {
+        canvas->saveLayer(nullptr, nullptr);
+        drawContained(canvas, filter);
         canvas->restore();
     }
 
@@ -393,6 +396,11 @@ void Canvas::renderSk(SkCanvas* const canvas,
         for (const auto obj : mNullObjects) {
             canvas->save();
             obj->drawNullObject(canvas, mCurrentMode, invZoom, ctrlPressed);
+            canvas->restore();
+        }
+        for (const auto cam : mCameraBoxes) {
+            canvas->save();
+            cam->drawCameraBox(canvas, invZoom);
             canvas->restore();
         }
     //}
@@ -953,8 +961,14 @@ void Canvas::saveSceneSVG(SvgExporter& exp) const
     svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
     svg.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
 
-    const auto viewBox = QString("0 0 %1 %2").
-                         arg(mWidth).arg(mHeight);
+    const qreal absFrame = exp.fAbsRange.fMin;
+    const qreal relFrame = prp_absFrameToRelFrameF(absFrame);
+    const QRectF camRect = getActiveCameraRect(relFrame);
+    const auto viewBox = camRect.isEmpty()
+        ? QString("0 0 %1 %2").arg(mWidth).arg(mHeight)
+        : QString("%1 %2 %3 %4")
+              .arg(camRect.x()).arg(camRect.y())
+              .arg(camRect.width()).arg(camRect.height());
     svg.setAttribute("viewBox", viewBox);
 
     if (exp.fFixedSize) {
@@ -1140,6 +1154,7 @@ void Canvas::deleteAction()
     case CanvasMode::rectCreate:
     case CanvasMode::textCreate:
     case CanvasMode::nullCreate:
+    case CanvasMode::cameraCreate:
     case CanvasMode::drawPath:
     case CanvasMode::pathCreate:
         removeSelectedBoxesAndClearList();
@@ -1775,6 +1790,107 @@ void Canvas::addNullObject(NullObject* const obj)
 void Canvas::removeNullObject(NullObject* const obj)
 {
     mNullObjects.removeOne(obj);
+}
+
+void Canvas::setupRenderData(const qreal relFrame,
+                              const QMatrix &parentM,
+                              BoxRenderData* const data,
+                              Canvas* const scene)
+{
+    BoundingBox::setupRenderData(relFrame, parentM, data, scene);
+    auto canvasData = static_cast<CanvasRenderData*>(data);
+    canvasData->fBgColor = toSkColor(mBackgroundColor->getColor());
+    canvasData->fCanvasHeight = mHeight;
+    canvasData->fCanvasWidth = mWidth;
+    const QMatrix viewM = computeViewMatrix(relFrame);
+    qCDebug(lcCamera) << "setupRenderData: relFrame=" << relFrame
+                      << "viewM=" << viewM
+                      << "fTotalTransform=" << data->fTotalTransform;
+    if (!viewM.isIdentity()) {
+        // Force children to re-queue with viewM rather than reusing stale no-viewM renders.
+        // processChildData skips getCurrentRenderData when fParentIsTarget==false.
+        const bool saved = data->fParentIsTarget;
+        data->fParentIsTarget = false;
+        processChildrenData(relFrame, viewM * data->fTotalTransform, data, scene);
+        data->fParentIsTarget = saved;
+    } else {
+        processChildrenData(relFrame, data->fTotalTransform, data, scene);
+    }
+}
+
+void Canvas::addCameraBox(CameraBox* const obj)
+{
+    qCDebug(lcCamera) << "addCameraBox:" << obj->prp_getName()
+                      << "parent=" << (obj->getParentGroup() ? obj->getParentGroup()->prp_getName() : "(none)");
+    mCameraBoxes.append(obj);
+}
+
+void Canvas::removeCameraBox(CameraBox* const obj)
+{
+    qCDebug(lcCamera) << "removeCameraBox:" << obj->prp_getName();
+    mCameraBoxes.removeOne(obj);
+}
+
+QRectF Canvas::getActiveCameraRect(const qreal relFrame) const
+{
+    qCDebug(lcCamera) << "getActiveCameraRect: relFrame=" << relFrame
+                      << "nCameras=" << mCameraBoxes.count();
+    if (mCameraBoxes.isEmpty()) return {};
+
+    CameraBox* active = nullptr;
+    if (mCameraBoxes.count() == 1) {
+        active = mCameraBoxes.first();
+        qCDebug(lcCamera) << "  single camera:" << active->prp_getName();
+    } else {
+        for (const auto cam : mCameraBoxes) {
+            const auto parent = cam->getParentGroup();
+            const bool parentIsFlipBook = parent && parent->isFlipBook();
+            qCDebug(lcCamera) << "  cam=" << cam->prp_getName()
+                              << "parent=" << (parent ? parent->prp_getName() : "(none)")
+                              << "isFlipBook=" << parentIsFlipBook;
+            if (!parentIsFlipBook) continue;
+            const auto& children = parent->getContainedBoxes();
+            const int count = children.count();
+            if (count == 0) continue;
+            const int rawIdx = parent->getFlipBookIndex(relFrame);
+            const int idx = std::abs(rawIdx % count);
+            const bool isActive = (idx < count && children.at(idx) == cam);
+            qCDebug(lcCamera) << "    flipBookIndex(raw)=" << rawIdx
+                              << "idx=" << idx << "count=" << count
+                              << "isActive=" << isActive;
+            if (isActive) { active = cam; break; }
+        }
+        if (!active) {
+            active = mCameraBoxes.first();
+            qCDebug(lcCamera) << "  no flipbook match, falling back to first:" << active->prp_getName();
+        }
+    }
+
+    const QRectF result = active ? active->getWorldBoundsAtFrame(relFrame) : QRectF{};
+    qCDebug(lcCamera) << "  active=" << (active ? active->prp_getName() : "(none)")
+                      << "worldRect=" << result;
+    return result;
+}
+
+QMatrix Canvas::computeViewMatrix(const qreal relFrame) const
+{
+    const QRectF rect = getActiveCameraRect(relFrame);
+    if (rect.isEmpty()) {
+        qCDebug(lcCamera) << "computeViewMatrix: no camera rect, returning identity";
+        return {};
+    }
+    // Qt's QMatrix::scale() does NOT scale the existing dx/dy translation components,
+    // so translate-then-scale leaves dx/dy at pre-scale values. Construct directly
+    // instead: x' = (x - rect.x()) * sx, y' = (y - rect.y()) * sy.
+    const qreal sx = mWidth / rect.width();
+    const qreal sy = mHeight / rect.height();
+    const QMatrix m(sx, 0, 0, sy, -rect.x() * sx, -rect.y() * sy);
+    qCDebug(lcCamera) << "computeViewMatrix: relFrame=" << relFrame
+                      << "rect=" << rect << "scale=(" << sx << "," << sy << ")"
+                      << "m=" << m
+                      << "topLeft->" << m.map(rect.topLeft())
+                      << "bottomRight->" << m.map(rect.bottomRight());
+    return m;
 }
 
 void Canvas::clearGradientRWIds() const

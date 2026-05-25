@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="100%"
+   height="100%"
+   viewBox="0 0 256 256"
+   version="1.1"
+   xml:space="preserve"
+   style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"
+   id="svg482"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+    <g
+   transform="matrix(0.93749834,0,0,0.93749834,-19511.835,-23501.06)"
+   id="g471">
+        <g
+   transform="translate(12384.927,11352.184)"
+   id="g469">
+            <g
+   id="Frictions_Icon_2"
+   transform="matrix(1.773342,0,0,1.773342,-6992.5397,-10598.995)">
+                <g
+   id="Background"
+   transform="matrix(0.202805,0,0,0.202805,4934.3238,9727.4496)">
+                    <path
+   d="m 19281.819,19738.182 v 569.455 c 0,39.286 -31.896,71.182 -71.182,71.182 h -569.455 c -39.286,0 -71.182,-31.896 -71.182,-71.182 v -569.455 c 0,-39.286 31.896,-71.182 71.182,-71.182 h 569.455 c 39.286,0 71.182,31.896 71.182,71.182 z"
+   style="fill:#2a0162"
+   id="path462" />
+                </g>
+                <g
+   id="F"
+   transform="matrix(0.250131,0,0,0.226554,8592.8781,12624.411)">
+                    <path
+   d="m 575.124,5268 h 96.209 c 26.346,0 47.736,-23.616 47.736,-52.703 0,-29.088 -21.39,-52.704 -47.736,-52.704 h -96.209 c -21.593,0 -39.124,-19.355 -39.124,-43.195 0,-23.84 17.531,-43.195 39.124,-43.195 h 183.807 c 26.346,0 47.736,-23.615 47.736,-52.703 0,-29.088 -21.39,-52.703 -47.736,-52.703 H 536 V 4942 h 332.182 c 40.741,0 73.818,36.519 73.818,81.5 0,44.981 -33.077,81.5 -73.818,81.5 H 671.333 v 28.797 h 109.251 c 40.742,0 73.818,36.519 73.818,81.5 0,44.981 -33.076,81.5 -73.818,81.5 H 671.333 v 57.593 H 536 v -43.195 c 0,-23.84 17.531,-43.195 39.124,-43.195 z"
+   style="fill:url(#_Radial1)"
+   id="path465" />
+                </g>
+            </g>
+        </g>
+    </g>
+    <defs
+   id="defs480">
+        <radialGradient
+   id="_Radial1"
+   cx="0"
+   cy="0"
+   r="1"
+   gradientUnits="userSpaceOnUse"
+   gradientTransform="matrix(374.82048,471.43711,-464.13218,380.71974,536,4910.0627)"><stop
+     offset="0"
+     style="stop-color:rgb(250,181,36);stop-opacity:1"
+     id="stop473" /><stop
+     offset="0.5"
+     style="stop-color:rgb(208,43,167);stop-opacity:1"
+     id="stop475" /><stop
+     offset="1"
+     style="stop-color:rgb(157,51,167);stop-opacity:1"
+     id="stop477" /></radialGradient>
+    </defs>
+</svg>

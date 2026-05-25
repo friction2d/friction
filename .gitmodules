@@ -4,9 +4,6 @@
 [submodule "docs"]
 	path = docs
 	url = https://github.com/friction2d/friction2d.github.io
-[submodule "src/app/icons"]
-	path = src/app/icons
-	url = https://github.com/friction2d/friction-icon-theme
 [submodule "src/skia"]
 	path = src/skia
 	url = https://github.com/friction2d/skia

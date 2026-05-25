@@ -42,6 +42,7 @@
 #include "Boxes/smartvectorpath.h"
 //#include "Boxes/paintbox.h"
 #include "Boxes/nullobject.h"
+#include "Boxes/camerabox.h"
 
 #include "pointtypemenu.h"
 #include "pointhelpers.h"

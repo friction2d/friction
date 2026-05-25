@@ -89,6 +89,7 @@ enum class eBoxType {
     custom,
     deprecated0, // sculptPath,
     nullObject,
+    camera,
 
     count
 };

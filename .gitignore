@@ -42,3 +42,5 @@ src/scripts/flatpak/remote
 .claude/worktrees
 log.txt
 *.log
+.claude/*.lock
+

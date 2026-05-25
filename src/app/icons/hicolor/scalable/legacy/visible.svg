@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="20"
+   height="20"
+   viewBox="0 0 5.2916669 5.2916668"
+   version="1.1"
+   id="svg1500"
+   sodipodi:docname="visible_v2.svg"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <sodipodi:namedview
+     id="namedview10"
+     pagecolor="#505050"
+     bordercolor="#ffffff"
+     borderopacity="1"
+     inkscape:pageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="1"
+     showgrid="false"
+     inkscape:zoom="23.9"
+     inkscape:cx="10"
+     inkscape:cy="10"
+     inkscape:window-width="1920"
+     inkscape:window-height="1026"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1500" />
+  <defs
+     id="defs1494" />
+  <metadata
+     id="metadata1497">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <path
+     id="path833"
+     style="stroke-width:1.29945;fill:#ffffff;fill-opacity:1"
+     class="st0"
+     d="M 10 4.1523438 C 5.7118143 4.1523438 3.5028241 7.6601994 1.6835938 9.609375 C 1.5536487 9.8692666 1.5536487 10.130735 1.6835938 10.390625 C 3.3728791 12.209856 5.7118143 15.847656 10 15.847656 C 14.288186 15.847656 16.497176 12.339801 18.316406 10.390625 C 18.44635 10.130733 18.44635 9.8692651 18.316406 9.609375 C 16.497176 7.6601994 14.288186 4.1523437 10 4.1523438 z M 10 5.4511719 C 12.468956 5.4511719 14.548828 7.5310441 14.548828 10 C 14.548828 12.468956 12.468956 14.548828 10 14.548828 C 7.5310445 14.548828 5.4511719 12.468956 5.4511719 10 C 5.4511719 7.5310441 7.5310445 5.4511719 10 5.4511719 z M 10 8.0507812 A 1.9491754 1.9491754 0 0 0 8.0507812 10 A 1.9491754 1.9491754 0 0 0 10 11.949219 A 1.9491754 1.9491754 0 0 0 11.949219 10 A 1.9491754 1.9491754 0 0 0 10 8.0507812 z "
+     transform="scale(0.26458334)" />
+  <style
+     id="style831">
+        .st0{fill:#fff}
+    </style>
+</svg>

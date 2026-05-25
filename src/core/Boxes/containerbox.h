@@ -143,6 +143,8 @@ public:
 
     virtual bool isFlipBook() const;
     virtual iValueRange getContainedMinMax() const;
+    void setFlipBook(const bool enabled);
+    int getFlipBookIndex(const qreal relFrame) const;
 
     void readAllContainedXEV(XevReadBoxesHandler& boxReadHandler,
                              ZipFileLoader& fileLoader, const QString& path,

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="25"
+   height="25"
+   viewBox="0 0 6.6145832 6.6145835"
+   version="1.1"
+   id="svg1468"
+   inkscape:version="1.4 (e7c3feb1, 2024-10-09)"
+   sodipodi:docname="pathCreate.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <defs
+     id="defs1462">
+    <inkscape:path-effect
+       effect="fillet_chamfer"
+       id="path-effect842"
+       is_visible="true"
+       lpeversion="1"
+       satellites_param="F,0,1,1,0,0.30898962,0,1 @ F,0,0,1,0,0.30898962,0,1 @ F,0,0,1,0,0,0,1"
+       unit="px"
+       method="auto"
+       mode="F"
+       radius="0"
+       chamfer_steps="1"
+       flexible="false"
+       use_knot_distance="true"
+       apply_no_radius="true"
+       apply_with_radius="true"
+       only_selected="false"
+       hide_knots="false"
+       nodesatellites_param="F,0,1,1,0,0.30898962,0,1 @ F,0,0,1,0,0.30898962,0,1 @ F,0,0,1,0,0,0,1" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#000000"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="24.045009"
+     inkscape:cx="11.873566"
+     inkscape:cy="12.934077"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     units="px"
+     inkscape:window-width="1366"
+     inkscape:window-height="737"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:document-rotation="0"
+     inkscape:snap-object-midpoints="true"
+     inkscape:showpageshadow="2"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1">
+    <inkscape:grid
+       id="grid4"
+       units="px"
+       originx="0"
+       originy="0"
+       spacingx="0.26458333"
+       spacingy="0.26458331"
+       empcolor="#0099e5"
+       empopacity="0.30196078"
+       color="#0099e5"
+       opacity="0.14901961"
+       empspacing="5"
+       enabled="true"
+       visible="true" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata1465">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-290.3854)">
+    <g
+       id="g2"
+       transform="matrix(0.08378712,0,0,0.08378233,0.62609675,292.35218)">
+      <circle
+         style="fill:none;fill-opacity:0.862745;stroke:#ffffff;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:30.2362;stroke-opacity:1;paint-order:markers fill stroke;stop-color:#000000"
+         id="path8377"
+         cx="52"
+         cy="-4"
+         r="7" />
+      <circle
+         style="fill:none;fill-opacity:0.862745;stroke:#ffffff;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:30.2362;stroke-opacity:1;paint-order:markers fill stroke;stop-color:#000000"
+         id="circle8379"
+         cx="12"
+         cy="36"
+         r="7" />
+      <path
+         style="color:#000000;fill:#ffffff;fill-opacity:1;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:30.2362;-inkscape-stroke:none;paint-order:markers fill stroke"
+         d="M 42.279297,-6.2929688 C 33.187288,-4.8969499 25.686723,-1.4289107 20.128906,4.1289062 14.571089,9.6867229 11.10305,17.187288 9.7070312,26.279297 10.445196,26.103228 11.211021,26 12,26 c 1.307584,0 2.556052,0.263897 3.705078,0.728516 C 16.970557,18.898289 19.924455,12.817732 24.371094,8.3710938 28.817732,3.924455 34.898289,0.97055706 42.728516,-0.29492188 42.263897,-1.4439485 42,-2.6924163 42,-4 c 0,-0.788979 0.103228,-1.5548036 0.279297,-2.2929688 z"
+         id="path8414" />
+    </g>
+  </g>
+</svg>
