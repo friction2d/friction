@@ -148,6 +148,7 @@ static void syncLeafAnimator(QrealAnimator* src, QrealAnimator* dst,
                              const QString& path) {
     qCDebug(lcSvgElementTrack) << "  syncLeaf" << path
                                << "value:" << src->getEffectiveValue();
+    dst->anim_removeKeys(FrameRange::EMINMAX, false);
     QBuffer buf;
     buf.open(QBuffer::ReadWrite);
     {
