@@ -1135,6 +1135,20 @@ BoundingBox *ContainerBox::getBoxAt(const QPointF &absPos) {
     return boxAtPos;
 }
 
+BoundingBox *ContainerBox::getLockedBoxAt(const QPointF &absPos) {
+    const auto minMax = getContainedMinMax();
+    for(int i = minMax.fMin; i <= minMax.fMax; i++) {
+        const auto& box = mContainedBoxes.at(i);
+        if(box->isVisible() && box->isLocked() &&
+           box->isVisibleAndInVisibleDurationRect()) {
+            if(box->absPointInsidePath(absPos)) {
+                return box;
+            }
+        }
+    }
+    return nullptr;
+}
+
 void ContainerBox::anim_setAbsFrame(const int frame) {
     BoundingBox::anim_setAbsFrame(frame);
 

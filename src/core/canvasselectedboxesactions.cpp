@@ -487,7 +487,12 @@ void Canvas::setCurrentBox(BoundingBox* const box) {
 //#include "Boxes/paintbox.h"
 void Canvas::addBoxToSelection(BoundingBox * const box)
 {
-    if (box->isSelected() || box->isLocked()) { return; }
+    if (box->isSelected()) { return; }
+    if (box->isLocked()) {
+        qCDebug(lcLocked) << "addBoxToSelection: locked, emitting lockedModificationAttempted for" << box->prp_getName();
+        emit box->lockedModificationAttempted();
+        return;
+    }
     auto& connCtx = mSelectedBoxes.addObj(box);
     mLastSelectedBox = box;
     connCtx << connect(box, &BoundingBox::globalPivotInfluenced,

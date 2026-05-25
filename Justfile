@@ -75,6 +75,10 @@ debug-pivot-track-attachment:
 run-debug-pivot:
     QT_LOGGING_RULES="friction.svg.import=true;friction.svgpivot=true;friction.box.pivot=true" just run-debug > log.txt 2>&1;
 
+# Debug locked-item modification attempts: signal emission + flash slot receipt + timer lifecycle
+debug-locked-items:
+    QT_LOGGING_RULES="friction.locked=true" just run-debug > log.txt 2>&1;
+
 # Produce the universal DMG from the two arch builds
 package: build
     #!/usr/bin/env bash

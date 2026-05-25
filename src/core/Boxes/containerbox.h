@@ -77,6 +77,7 @@ public:
                              Canvas* const scene);
 
     virtual BoundingBox *getBoxAt(const QPointF &absPos);
+    BoundingBox *getLockedBoxAt(const QPointF &absPos);
 
     void anim_setAbsFrame(const int frame);
 

@@ -25,7 +25,10 @@
 
 #include "eboxorsound.h"
 
+#include <QLoggingCategory>
 #include "canvas.h"
+
+Q_LOGGING_CATEGORY(lcLocked, "friction.locked", QtWarningMsg)
 #include "Timeline/durationrectangle.h"
 #include "Properties/emimedata.h"
 #include "Sound/esound.h"

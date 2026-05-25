@@ -26,6 +26,9 @@
 #ifndef EBOXORSOUND_H
 #define EBOXORSOUND_H
 
+#include <QLoggingCategory>
+Q_DECLARE_LOGGING_CATEGORY(lcLocked)
+
 #include "staticcomplexanimator.h"
 
 #include "../zipfilesaver.h"
@@ -145,6 +148,7 @@ signals:
     void selectionChanged(bool);
     void visibilityChanged(bool);
     void lockedChanged(bool);
+    void lockedModificationAttempted();
 private:
     bool mSelected = false;
     bool mVisible = true;

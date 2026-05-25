@@ -148,6 +148,7 @@ public:
     bool fPreviewCache = true;
 
     // timeline settings
+    int fLockedFlashMs = 750;
     bool fTimelineAlternateRow = true;
     QColor fTimelineAlternateRowColor = QColor(0, 0, 0, 25);
     bool fTimelineHighlightRow = true;

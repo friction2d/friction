@@ -67,6 +67,10 @@ using namespace Friction::Core;
 void Canvas::handleMovePathMousePressEvent(const eMouseEvent& e)
 {
     mPressedBox = mCurrentContainer->getBoxAt(e.fPos);
+    if (!mPressedBox) {
+        const auto lockedBox = mCurrentContainer->getLockedBoxAt(e.fPos);
+        if (lockedBox) { emit lockedBox->lockedModificationAttempted(); }
+    }
     if (e.shiftMod()) { return; }
     if (mPressedBox ? !mPressedBox->isSelected() : true) {
         clearBoxesSelection();

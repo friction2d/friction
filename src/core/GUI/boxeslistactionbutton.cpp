@@ -28,6 +28,7 @@
 #include <QPainter>
 
 #include "themesupport.h"
+#include "Animators/eboxorsound.h"
 
 BoxesListActionButton::BoxesListActionButton(QWidget * const parent)
     : QWidget(parent)
@@ -54,6 +55,24 @@ void BoxesListActionButton::leaveEvent(QEvent *)
     update();
 }
 
+void PixmapActionButton::startFlash(int ms)
+{
+    qCDebug(lcLocked) << "startFlash ms=" << ms << "widget visible=" << isVisible();
+    if (!mFlashConnected) {
+        connect(&mFlashTimer, &QTimer::timeout, this, [this]() {
+            qCDebug(lcLocked) << "flash timer fired, clearing flash";
+            mFlashing = false;
+            update();
+        });
+        mFlashConnected = true;
+    }
+    mFlashTimer.stop();
+    mFlashTimer.setSingleShot(true);
+    mFlashing = true;
+    update();
+    mFlashTimer.start(ms);
+}
+
 void PixmapActionButton::paintEvent(QPaintEvent *)
 {
     if (!mPixmapChooser) { return; }
@@ -62,7 +81,11 @@ void PixmapActionButton::paintEvent(QPaintEvent *)
 
     QPainter p(this);
     const int pX = 0;
-    if (mHover) { p.fillRect(QRect(QPoint(pX, pX), pix->size()), ThemeSupport::getThemeHighlightColor(50)); }
     p.drawPixmap(pX, pX, *pix);
+    if (mFlashing) {
+        p.fillRect(QRect(QPoint(pX, pX), pix->size()), QColor(255, 165, 0, 160));
+    } else if (mHover) {
+        p.fillRect(QRect(QPoint(pX, pX), pix->size()), ThemeSupport::getThemeHighlightColor(50));
+    }
     p.end();
 }

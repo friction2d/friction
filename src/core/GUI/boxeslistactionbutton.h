@@ -31,6 +31,7 @@
 
 #include <functional>
 
+#include <QTimer>
 #include <QWidget>
 #include <QPaintEvent>
 
@@ -59,10 +60,16 @@ public:
     {
         mPixmapChooser = func;
     }
+
+    void startFlash(int ms);
+
 protected:
     void paintEvent(QPaintEvent*);
 private:
     std::function<QPixmap*()> mPixmapChooser;
+    bool mFlashing = false;
+    bool mFlashConnected = false;
+    QTimer mFlashTimer;
 };
 
 #endif // BOXESLISTACTIONBUTTON_H

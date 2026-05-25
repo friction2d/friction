@@ -54,6 +54,7 @@
 
 #include "typemenu.h"
 #include "themesupport.h"
+#include "Private/esettings.h"
 
 #include <QMessageBox>
 #include <QDebug>
@@ -584,6 +585,12 @@ void BoxSingleWidget::setTargetAbstraction(SWT_Abstraction *abs) {
                                this, qOverload<>(&QWidget::update));
         mTargetConn << connect(ptr, &eBoxOrSound::lockedChanged,
                                this, [this]() { mLockedButton->update(); });
+        mTargetConn << connect(ptr, &eBoxOrSound::lockedModificationAttempted,
+                               this, [this, ptr]() {
+            qCDebug(lcLocked) << "lockedModificationAttempted received for" << ptr->prp_getName()
+                              << "button visible=" << mLockedButton->isVisible();
+            mLockedButton->startFlash(eSettings::sInstance->fLockedFlashMs);
+        });
     }
     if(!boundingBox && !eindependentSound) {
         mTargetConn << connect(prop, &Property::prp_selectionChanged,
