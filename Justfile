@@ -141,9 +141,10 @@ build-debug: sdk
         cp src/app/friction.app/Contents/MacOS/friction dmg/Friction.app/Contents/MacOS/friction
     fi
 
-# Build ctags index for symbol lookup (requires universal-ctags)
+# Build ctags index for symbol lookup (requires universal-ctags) and codegraph
 index:
     $(brew --prefix universal-ctags)/bin/ctags -R src/
+    codegraph init -i
 
 # Remove build output directories
 clean:
