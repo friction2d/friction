@@ -146,11 +146,17 @@ start-worktree name:
     if [ -n "$TMUX" ]; then tmux rename-window "{{name}}"; fi
     claude -w {{name}} --dangerously-skip-permissions "! just index && just build-debug"
 
-# Build ctags index for symbol lookup (requires universal-ctags)
 # Build ctags index for symbol lookup (requires universal-ctags) and codegraph
 index:
+    #!/usr/bin/env bash
+    set -e
     $(brew --prefix universal-ctags)/bin/ctags -R src/
-    codegraph init -i
+    if [ -f ".codegraph/codegraph.db" ]; then
+        codegraph sync
+    else
+        rm -rf .codegraph
+        codegraph init -i
+    fi
 
 # Remove build output directories
 clean:
