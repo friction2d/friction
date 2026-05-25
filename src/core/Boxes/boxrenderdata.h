@@ -116,6 +116,9 @@ public:
     bool fUseRenderTransform = false;
 
     bool fParentIsTarget = true;
+    // When true, this render includes a camera transform and must not update
+    // mDrawRenderContainer — doing so would double-apply the camera in drawContained.
+    bool fCompositionOnly = false;
     qptr<BoundingBox> fParentBox;
     BoundingBox* fBlendEffectIdentifier;
     sk_sp<SkImage> fRenderedImage;

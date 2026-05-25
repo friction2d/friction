@@ -1009,11 +1009,13 @@ void processChildData(BoundingBox * const child,
         boxRenderData = child->getCurrentRenderData(childRelFrame);
     }
     if(!boxRenderData) {
-        boxRenderData = child->queRender(childRelFrame, thisM);
+        boxRenderData = child->queRender(childRelFrame, thisM,
+                                         parentData->fCompositionOnly);
     }
     if(!boxRenderData) return;
     boxRenderData->fParentIsTarget = parentData->fParentIsTarget;
     boxRenderData->fForceRasterize = parentData->fForceRasterize;
+    boxRenderData->fCompositionOnly = parentData->fCompositionOnly;
     boxRenderData->addDependent(parentData);
     ChildRenderData cData = boxRenderData;
     cData.fIsMain = true;

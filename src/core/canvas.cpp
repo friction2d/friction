@@ -366,7 +366,14 @@ void Canvas::renderSk(SkCanvas* const canvas,
     // to avoid world-space/camera-view mismatch during re-render windows.
     // Only when clipping is active; C=OFF should still show world-space beyond canvas.
     const bool useCameraFrame = !mCameraBoxes.isEmpty() && mSceneFrame && mClipToCanvasSize;
+    qCDebug(lcCamera) << "renderSk: useCameraFrame=" << useCameraFrame
+                      << "drawCanvas=" << drawCanvas
+                      << "clipToCanvas=" << mClipToCanvasSize
+                      << "hasSceneFrame=" << (bool)mSceneFrame
+                      << "cameraIsActive=" << cameraIsActiveView
+                      << "frame=" << anim_getCurrentRelFrame();
     if (useCameraFrame || (mClipToCanvasSize && drawCanvas)) {
+        qCDebug(lcCamera) << "renderSk: using scene frame (camera or canvas)";
         canvas->save();
         const float reversedRes = toSkScalar(1/mSceneFrame->fResolution);
         canvas->scale(reversedRes, reversedRes);
@@ -1828,9 +1835,13 @@ void Canvas::setupRenderData(const qreal relFrame,
     if (!viewM.isIdentity()) {
         // Force children to re-queue with viewM rather than reusing stale no-viewM renders.
         // processChildData skips getCurrentRenderData when fParentIsTarget==false.
+        // fCompositionOnly prevents camera-space renders from polluting mDrawRenderContainer,
+        // which is used by drawContained (world-space live preview, C=OFF path).
         const bool saved = data->fParentIsTarget;
         data->fParentIsTarget = false;
+        data->fCompositionOnly = true;
         processChildrenData(relFrame, viewM * data->fTotalTransform, data, scene);
+        data->fCompositionOnly = false;
         data->fParentIsTarget = saved;
     } else {
         processChildrenData(relFrame, data->fTotalTransform, data, scene);

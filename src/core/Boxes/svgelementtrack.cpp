@@ -259,6 +259,9 @@ void SvgElementTrack::initFromTarget(BoundingBox* target) {
 }
 
 static void captureLeafFromTarget(QrealAnimator* src, QrealAnimator* dst) {
+    qCDebug(lcSvgElementTrack) << "  captureLeaf" << dst->prp_getName()
+                               << "src-effective:" << src->getEffectiveValue()
+                               << "dst-was:" << dst->getCurrentBaseValue();
     dst->setCurrentBaseValue(src->getEffectiveValue());
 }
 
@@ -289,6 +292,8 @@ static void captureByName(ComplexAnimator* trackCA, ComplexAnimator* targetCA) {
 
 void SvgElementTrack::captureFromTarget(BoundingBox* target) {
     if (!target) return;
+    qCDebug(lcSvgElementTrack) << "captureFromTarget TRIGGERED track:" << prp_getName()
+                               << "target:" << target->prp_getName();
 
     QMap<QString, Property*> targetByName;
     const int n = target->ca_getNumberOfChildren();

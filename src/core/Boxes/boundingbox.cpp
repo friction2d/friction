@@ -62,6 +62,7 @@
 #include <QMessageBox>
 
 Q_LOGGING_CATEGORY(lcBoxPivot, "friction.box.pivot", QtWarningMsg)
+Q_LOGGING_CATEGORY(lcBoxRender, "friction.box.render", QtWarningMsg)
 
 int BoundingBox::sNextDocumentId = 0;
 QList<BoundingBox*> BoundingBox::sDocumentBoxes;
@@ -592,9 +593,10 @@ stdsptr<BoxRenderData> BoundingBox::queExternalRender(
 }
 
 stdsptr<BoxRenderData> BoundingBox::queRender(
-        const qreal relFrame, const QMatrix& parentM) {
+        const qreal relFrame, const QMatrix& parentM, bool compositionOnly) {
     const auto renderData = updateCurrentRenderData(relFrame);
     if(!renderData) return nullptr;
+    renderData->fCompositionOnly = compositionOnly;
     setupRenderData(relFrame, parentM, renderData, getParentScene());
     const auto renderDataSPtr = enve::shared(renderData);
     renderDataSPtr->queTask();
@@ -1163,8 +1165,15 @@ QPointF BoundingBox::getAbsolutePos() const {
 
 void BoundingBox::updateDrawRenderContainerTransform() {
     if(mNReasonsNotToApplyUglyTransform == 0) {
-        mDrawRenderContainer.updatePaintTransformGivenNewTotalTransform(
-                    getTotalTransformAtFrame(anim_getCurrentRelFrame()));
+        const auto newT = getTotalTransformAtFrame(anim_getCurrentRelFrame());
+        const auto* src = mDrawRenderContainer.getSrcRenderData();
+        if (src) {
+            qCDebug(lcBoxRender) << "updateDrawRenderContainerTransform" << prp_getName()
+                                 << "oldT=[" << src->fTotalTransform.m11() << src->fTotalTransform.dx()
+                                 << src->fTotalTransform.m22() << src->fTotalTransform.dy() << "]"
+                                 << "newT=[" << newT.m11() << newT.dx() << newT.m22() << newT.dy() << "]";
+        }
+        mDrawRenderContainer.updatePaintTransformGivenNewTotalTransform(newT);
     }
 }
 
@@ -1576,7 +1585,19 @@ void BoundingBox::renderDataFinished(BoxRenderData *renderData) {
                 qAbs(anim_getCurrentRelFrame() - currentRenderData->fRelFrame);
         closerFrame = finishedFrameDist < oldFrameDist;
     }
-    if(newerSate || closerFrame) {
+    qCDebug(lcBoxRender) << "renderDataFinished" << prp_getName()
+                         << "frame=" << relFrame << "currentState=" << currentState
+                         << "newerSate=" << newerSate << "closerFrame=" << closerFrame
+                         << "compositionOnly=" << renderData->fCompositionOnly
+                         << "parentM=[" << renderData->fInheritedTransform.m11()
+                         << renderData->fInheritedTransform.dx()
+                         << renderData->fInheritedTransform.m22()
+                         << renderData->fInheritedTransform.dy() << "]"
+                         << "totalT=[" << renderData->fTotalTransform.m11()
+                         << renderData->fTotalTransform.dx()
+                         << renderData->fTotalTransform.m22()
+                         << renderData->fTotalTransform.dy() << "]";
+    if((newerSate || closerFrame) && !renderData->fCompositionOnly) {
         mDrawRenderContainer.setSrcRenderData(renderData);
         const bool currentFrame = isZero4Dec(relFrame - anim_getCurrentRelFrame());
         const bool expired = !currentState || !currentFrame;

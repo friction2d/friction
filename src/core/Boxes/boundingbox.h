@@ -271,7 +271,8 @@ public:
 
     stdsptr<BoxRenderData> createRenderData(const qreal relFrame);
     stdsptr<BoxRenderData> queRender(const qreal relFrame,
-                                     const QMatrix& parentM);
+                                     const QMatrix& parentM,
+                                     bool compositionOnly = false);
     stdsptr<BoxRenderData> queExternalRender(
             const qreal relFrame, const bool forceRasterize);
 
