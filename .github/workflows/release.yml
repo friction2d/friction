@@ -54,4 +54,4 @@ jobs:
           gh release create "v${{ env.VERSION }}" \
             --title "Friction ${{ env.VERSION }}" \
             --generate-notes \
-            dist/linux/* dist/macos/* dist/windows/*
+            dist/linux/**/*.AppImage dist/macos/* dist/windows/*
