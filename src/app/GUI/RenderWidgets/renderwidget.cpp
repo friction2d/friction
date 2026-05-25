@@ -35,6 +35,8 @@
 #include "../mainwindow.h"
 #include "../timelinedockwidget.h"
 
+#include <QMessageBox>
+
 RenderWidget::RenderWidget(QWidget *parent)
     : QWidget(parent)
     , mMainLayout(nullptr)
@@ -336,6 +338,30 @@ void RenderWidget::render()
         mAwaitingSettings << wid;
         wid->getSettings().setCurrentState(RenderState::waiting);
         c++;
+    }
+    if (c == 0) {
+        QList<RenderInstanceWidget*> finished;
+        for (RenderInstanceWidget *wid : mRenderInstanceWidgets) {
+            if (wid->getSettings().getCurrentState() == RenderState::finished ||
+                wid->getSettings().getCurrentState() == RenderState::error) {
+                finished << wid;
+            }
+        }
+        if (!finished.isEmpty()) {
+            const auto reply = QMessageBox::question(
+                this,
+                tr("Re-render?"),
+                tr("Output file(s) will be overwritten. Continue?"),
+                QMessageBox::Yes | QMessageBox::No);
+            if (reply == QMessageBox::Yes) {
+                for (RenderInstanceWidget *wid : finished) {
+                    wid->setChecked(true);
+                    mAwaitingSettings << wid;
+                    wid->getSettings().setCurrentState(RenderState::waiting);
+                    c++;
+                }
+            }
+        }
     }
     if (c > 0) { handleRenderState(RenderState::waiting); }
     else { handleRenderState(RenderState::none); }
