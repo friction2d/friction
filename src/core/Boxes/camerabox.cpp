@@ -26,6 +26,9 @@
 #include "skia/skiahelpers.h"
 #include "skia/skqtconversions.h"
 #include "Animators/transformanimator.h"
+#include <QLoggingCategory>
+
+Q_DECLARE_LOGGING_CATEGORY(lcCamera)
 
 CameraBox::CameraBox() : BoundingBox("Camera", eBoxType::camera) {
     connect(this, &BoundingBox::prp_sceneChanged,
@@ -59,15 +62,27 @@ QRectF CameraBox::getWorldBoundsAtFrame(const qreal relFrame) const {
     return getRelativeTransformAtFrame(relFrame).mapRect(localRect);
 }
 
-void CameraBox::drawCameraBox(SkCanvas* const canvas, const float invScale) {
+void CameraBox::drawCameraBox(SkCanvas* const canvas, const float invScale, const bool cameraIsView) {
     if (!isVisible()) return;
     const auto parentScene = getParentScene();
     if (!parentScene) return;
     const auto size = parentScene->getCanvasSize();
     const QRectF localRect(0, 0, size.width(), size.height());
+    // When the camera IS the active viewport, its transform is baked into the rendered
+    // frame — draw the outline at the canvas boundary (identity) instead of world position.
+    const auto totalTransform = cameraIsView ? QMatrix() : getTotalTransform();
+    qCDebug(lcCamera) << "drawCameraBox:" << prp_getName()
+                      << "cameraIsView=" << cameraIsView
+                      << "invScale=" << invScale
+                      << "canvasSize=" << size
+                      << "totalTransform=["
+                      << totalTransform.m11() << totalTransform.m12()
+                      << totalTransform.m21() << totalTransform.m22()
+                      << "dx=" << totalTransform.dx()
+                      << "dy=" << totalTransform.dy() << "]";
     SkPath rectPath;
     rectPath.addRect(toSkRect(localRect));
     SkiaHelpers::drawOutlineOverlay(canvas, rectPath, invScale,
-                                    toSkMatrix(getTotalTransform()),
+                                    toSkMatrix(totalTransform),
                                     true, 20.f, SK_ColorWHITE);
 }

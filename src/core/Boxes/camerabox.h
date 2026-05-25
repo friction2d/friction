@@ -36,7 +36,7 @@ public:
     bool relPointInsidePath(const QPointF &relPos) const;
     void queTasks();
 
-    void drawCameraBox(SkCanvas* canvas, float invScale);
+    void drawCameraBox(SkCanvas* canvas, float invScale, bool cameraIsView = false);
     QRectF getWorldBoundsAtFrame(qreal relFrame) const;
 };
 

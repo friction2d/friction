@@ -356,7 +356,15 @@ void Canvas::renderSk(SkCanvas* const canvas,
         drawTransparencyMesh(canvas, canvasRect);
     }
 
-    const bool useCameraFrame = !mCameraBoxes.isEmpty() && drawCanvas;
+    // Pre-compute camera view matrix once; reused for both drawContained live-preview
+    // and the camera-box overlay drawn after restore().
+    const QMatrix camViewMatrix = mCameraBoxes.isEmpty() ? QMatrix()
+                                                         : computeViewMatrix(anim_getCurrentRelFrame());
+    const bool cameraIsActiveView = !camViewMatrix.isIdentity();
+
+    // Use any available scene frame (even stale) when cameras are present,
+    // to avoid world-space/camera-view mismatch during re-render windows.
+    const bool useCameraFrame = !mCameraBoxes.isEmpty() && mSceneFrame;
     if (useCameraFrame || (mClipToCanvasSize && drawCanvas)) {
         canvas->save();
         const float reversedRes = toSkScalar(1/mSceneFrame->fResolution);
@@ -364,6 +372,9 @@ void Canvas::renderSk(SkCanvas* const canvas,
         mSceneFrame->drawImage(canvas, filter);
         canvas->restore();
     } else {
+        if (cameraIsActiveView) {
+            qCDebug(lcCamera) << "renderSk: stale frame with camera, showing world-space live preview";
+        }
         canvas->saveLayer(nullptr, nullptr);
         drawContained(canvas, filter);
         canvas->restore();
@@ -398,9 +409,16 @@ void Canvas::renderSk(SkCanvas* const canvas,
             obj->drawNullObject(canvas, mCurrentMode, invZoom, ctrlPressed);
             canvas->restore();
         }
+        qCDebug(lcCamera) << "renderSk: drawing" << mCameraBoxes.count() << "camera box(es)"
+                          << "invZoom=" << invZoom
+                          << "viewTrans=["
+                          << viewTrans.m11() << viewTrans.m12()
+                          << viewTrans.m21() << viewTrans.m22()
+                          << "dx=" << viewTrans.dx()
+                          << "dy=" << viewTrans.dy() << "]";
         for (const auto cam : mCameraBoxes) {
             canvas->save();
-            cam->drawCameraBox(canvas, invZoom);
+            cam->drawCameraBox(canvas, invZoom, cameraIsActiveView);
             canvas->restore();
         }
     //}
