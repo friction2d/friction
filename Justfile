@@ -15,7 +15,7 @@ deps:
         echo "Error: Homebrew is not installed. Install it from https://brew.sh then re-run."
         exit 1
     fi
-    brew install cmake ninja python pkg-config
+    brew install cmake ninja python pkg-config universal-ctags
 
 # Download and SHA256-verify the SDK tarball into ./sdk/, skipping if already present
 sdk:
@@ -143,7 +143,7 @@ build-debug: sdk
 
 # Build ctags index for symbol lookup (requires universal-ctags)
 index:
-    ctags -R src/
+    $(brew --prefix universal-ctags)/bin/ctags -R src/
 
 # Remove build output directories
 clean:
