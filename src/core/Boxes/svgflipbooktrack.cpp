@@ -52,6 +52,8 @@ SvgFlipbookTrack::SvgFlipbookTrack(const QString& ownerElementId)
     : StaticComplexAnimator(ownerElementId) {
     mIndex = enve::make_shared<IntAnimator>(0, -9999, 9999, 1, "index");
     ca_addChild(mIndex);
+    connect(mIndex.get(), &Property::prp_currentFrameChanged,
+            this, [this]() { syncToTargets(); });
 }
 
 void SvgFlipbookTrack::setPageMap(const QMap<int, QString>& pageMap) {
