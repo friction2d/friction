@@ -44,3 +44,9 @@ log.txt
 *.log
 .claude/*.lock
 
+
+.claude/flags
+.claude/hooks
+.claude/logs
+
+.claude/*.local.json
