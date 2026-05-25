@@ -9,7 +9,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  release:
+  build-arm64:
     runs-on: macos-15
     steps:
     - name: Configure git credentials
@@ -24,9 +24,33 @@ jobs:
       env:
         GHA_RUN_NUMBER: ${{ github.run_number }}
         BUILD_ORIGIN: ci
+        BUILD_ARCH: arm64
       run: ./src/scripts/build_mac_ci.sh
     - name: Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: friction-macOS-${{ github.sha }}
-        path: build-release-universal/*.dmg
+        name: friction-macOS-arm64-${{ github.sha }}
+        path: build-release-arm64/*.dmg
+
+  build-x86_64:
+    runs-on: macos-15
+    steps:
+    - name: Configure git credentials
+      run: git config --global credential.helper ""
+    - uses: actions/checkout@v4
+    - name: Cache SDK
+      uses: actions/cache@v4
+      with:
+        path: sdk
+        key: friction-sdk-1.0.0r5-macOS
+    - name: Build
+      env:
+        GHA_RUN_NUMBER: ${{ github.run_number }}
+        BUILD_ORIGIN: ci
+        BUILD_ARCH: x86_64
+      run: ./src/scripts/build_mac_ci.sh
+    - name: Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: friction-macOS-x86_64-${{ github.sha }}
+        path: build-release-x86_64/*.dmg

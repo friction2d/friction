@@ -37,10 +37,15 @@ jobs:
         with:
           name: friction-ci-linux-x86_64-${{ github.sha }}
           path: dist/linux
-      - name: Download macOS artifact
+      - name: Download macOS arm64 artifact
         uses: actions/download-artifact@v4
         with:
-          name: friction-macOS-${{ github.sha }}
+          name: friction-macOS-arm64-${{ github.sha }}
+          path: dist/macos
+      - name: Download macOS x86_64 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: friction-macOS-x86_64-${{ github.sha }}
           path: dist/macos
       - name: Download Windows artifact
         uses: actions/download-artifact@v4

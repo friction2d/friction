@@ -23,6 +23,7 @@ CWD=`pwd`
 
 GHA_RUN_NUMBER=${GHA_RUN_NUMBER:-0}
 BUILD_ORIGIN=${BUILD_ORIGIN:-ci}
+BUILD_ARCH=${BUILD_ARCH:-"universal"}
 
 SDK=1.0.0
 SDK_REV=r5
@@ -41,13 +42,18 @@ git submodule update --init --recursive
 export GHA_RUN_NUMBER
 export BUILD_ORIGIN
 
-cd ${CWD}
-arch -x86_64 ./src/scripts/build_mac.sh
+if [ "${BUILD_ARCH}" = "x86_64" ] || [ "${BUILD_ARCH}" = "universal" ]; then
+    cd ${CWD}
+    arch -x86_64 ./src/scripts/build_mac.sh
+fi
 
-cd ${CWD}
-./src/scripts/build_mac.sh
+if [ "${BUILD_ARCH}" = "arm64" ] || [ "${BUILD_ARCH}" = "universal" ]; then
+    cd ${CWD}
+    ./src/scripts/build_mac.sh
+fi
 
-cd ${CWD}
-
-VERSION=`cat build-release-arm64/version.txt`
-VERSION=${VERSION} ./src/scripts/build_mac_universal.sh
+if [ "${BUILD_ARCH}" = "universal" ]; then
+    cd ${CWD}
+    VERSION=`cat build-release-arm64/version.txt`
+    VERSION=${VERSION} ./src/scripts/build_mac_universal.sh
+fi
