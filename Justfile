@@ -55,6 +55,12 @@ run:
 run-debug:
     build-debug-arm64/dmg/Friction.app/Contents/MacOS/friction
 
+run-debug-with-logs config:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    eval "$(jq -r --arg config "{{config}}" '.[$config] | to_entries[] | "export \(.key)=\(.value | @sh)"' .claude/logs.local.json)"
+    just run-debug > log.txt 2>&1
+
 run-debug-render:
     QT_LOGGING_RULES="friction.renderoutput=true;friction.canvas=true;friction.videoencoder=true;friction.core=true" just run-debug > log.txt 2>&1;
 

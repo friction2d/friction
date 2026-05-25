@@ -1,0 +1,23 @@
+{
+  "render": {
+    "QT_LOGGING_RULES": "friction.renderoutput=true;friction.canvas=true;friction.videoencoder=true;friction.core=true"
+  },
+  "preview": {
+    "QT_LOGGING_RULES": "friction.renderhandler=true;friction.cachehandler=true;friction.canvas=true;friction.renderoutput=true;friction.audio=true"
+  },
+  "timeline": {
+    "QT_LOGGING_RULES": "SvgElementTrack=true;friction.svgflipbooktrack=true"
+  },
+  "camera": {
+    "QT_LOGGING_RULES": "friction.camera=true;friction.renderoutput=true;friction.renderhandler=true"
+  },
+  "pivot-track-attachment": {
+    "QT_LOGGING_RULES": "SvgElementTrack=true;friction.svgpivot=true"
+  },
+  "pivot": {
+    "QT_LOGGING_RULES": "friction.svg.import=true;friction.svgpivot=true;friction.box.pivot=true"
+  },
+  "locked": {
+    "QT_LOGGING_RULES": "friction.locked=true"
+  }
+}
