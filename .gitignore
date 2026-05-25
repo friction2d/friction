@@ -1,5 +1,6 @@
 build
 tmp
+tags
 *.user*
 qscintilla
 quazip

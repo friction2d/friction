@@ -141,6 +141,10 @@ build-debug: sdk
         cp src/app/friction.app/Contents/MacOS/friction dmg/Friction.app/Contents/MacOS/friction
     fi
 
+# Build ctags index for symbol lookup (requires universal-ctags)
+index:
+    ctags -R src/
+
 # Remove build output directories
 clean:
     rm -rf build-release-arm64 build-release-x86_64 build-release-universal build-debug-arm64
