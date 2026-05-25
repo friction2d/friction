@@ -307,11 +307,7 @@ void MainWindow::setupMenuBar()
                                           const auto scene = *mDocument.fActiveScene;
                                           if (!scene) { return; }
                                           scene->addKeySelectedProperties();
-#ifndef Q_OS_MAC
-                                      }, QKeySequence(tr("Insert")));
-#else
-                                      }, QKeySequence(tr("K")));
-#endif
+                                      }, QKeySequence(tr("Alt+K")));
     mAddKeyAct->setEnabled(false);
     cmdAddAction(mAddKeyAct);
 
@@ -430,11 +426,13 @@ void MainWindow::setupMenuBar()
 
     const auto otpQAct = mPathMenu->addAction(
         tr("Object to Path", "MenuBar_Path"));
+    otpQAct->setShortcut(Qt::SHIFT + Qt::CTRL + Qt::Key_C);
     mActions.objectsToPathAction->connect(otpQAct);
     cmdAddAction(otpQAct);
 
     const auto stpQAct = mPathMenu->addAction(
         tr("Stroke to Path", "MenuBar_Path"));
+    stpQAct->setShortcut(Qt::CTRL + Qt::ALT + Qt::Key_C);
     mActions.strokeToPathAction->connect(stpQAct);
     cmdAddAction(stpQAct);
 
