@@ -55,6 +55,8 @@ run:
 run-debug:
     build-debug-arm64/dmg/Friction.app/Contents/MacOS/friction
 
+# Run with logging config from .claude/logs.local.json, output to log.txt
+# Usage: just run-debug-with-logs camera-box
 run-debug-with-logs config:
     #!/usr/bin/env bash
     set -euo pipefail

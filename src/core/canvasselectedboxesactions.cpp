@@ -25,6 +25,7 @@
 
 #include "Boxes/svglinkbox.h"
 #include "Boxes/videobox.h"
+#include "Boxes/camerabox.h"
 #include "canvas.h"
 #include "MovablePoints/pathpivot.h"
 #include "PathEffects/patheffectsinclude.h"
@@ -441,8 +442,15 @@ QPointF Canvas::getSelectedBoxesAbsPivotPos() {
     if(mSelectedBoxes.isEmpty()) return QPointF(0, 0);
     QPointF posSum(0, 0);
     const int count = mSelectedBoxes.count();
-    for(const auto &box : mSelectedBoxes)
-        posSum += box->getPivotAbsPos();
+    for(const auto &box : mSelectedBoxes) {
+        const auto cam = enve_cast<CameraBox*>(box);
+        if (cam && isActiveCameraBox(cam)) {
+            const auto size = getCanvasSize();
+            posSum += QPointF(size.width() / 2.0, size.height() / 2.0);
+        } else {
+            posSum += box->getPivotAbsPos();
+        }
+    }
     return posSum/count;
 }
 

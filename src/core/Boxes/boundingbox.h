@@ -283,10 +283,10 @@ public:
                             BoxRenderData * const data,
                             Canvas* const scene);
 
-    void drawAllCanvasControls(SkCanvas * const canvas,
-                               const CanvasMode mode,
-                               const float invScale,
-                               const bool ctrlPressed);
+    virtual void drawAllCanvasControls(SkCanvas * const canvas,
+                                       const CanvasMode mode,
+                                       const float invScale,
+                                       const bool ctrlPressed);
 
     void moveByRel(const QPointF &trans);
     void moveByAbs(const QPointF &trans);
@@ -323,8 +323,8 @@ public:
                                    const qreal invScale) const;
     NormalSegment getNormalSegment(const QPointF &absPos,
                                    const qreal invScale) const;
-    void drawBoundingRect(SkCanvas * const canvas,
-                          const float invScale);
+    virtual void drawBoundingRect(SkCanvas * const canvas,
+                                  const float invScale);
 
     void selectAllCanvasPts(const MovablePoint::PtOp &adder,
                             const CanvasMode mode);

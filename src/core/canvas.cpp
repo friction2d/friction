@@ -1891,6 +1891,29 @@ QRectF Canvas::getActiveCameraRect(const qreal relFrame) const
     return result;
 }
 
+bool Canvas::isActiveCameraBox(const CameraBox* cam) const
+{
+    if (mCameraBoxes.isEmpty()) return false;
+    if (mCameraBoxes.count() == 1) return mCameraBoxes.first() == cam;
+    const qreal frame = anim_getCurrentRelFrame();
+    for (const auto c : mCameraBoxes) {
+        const auto parent = c->getParentGroup();
+        if (!parent || !parent->isFlipBook()) continue;
+        const auto& children = parent->getContainedBoxes();
+        const int count = children.count();
+        if (count == 0) continue;
+        const int rawIdx = parent->getFlipBookIndex(frame);
+        const int idx = std::abs(rawIdx % count);
+        if (idx < count && children.at(idx) == c) return c == cam;
+    }
+    return mCameraBoxes.first() == cam;
+}
+
+bool Canvas::hasCameraViewTransform() const
+{
+    return !computeViewMatrix(anim_getCurrentRelFrame()).isIdentity();
+}
+
 QMatrix Canvas::computeViewMatrix(const qreal relFrame) const
 {
     const QRectF rect = getActiveCameraRect(relFrame);

@@ -172,6 +172,7 @@ bool CanvasWindow::hasNoCanvas()
 
 void CanvasWindow::renderSk(SkCanvas * const canvas)
 {
+    updatePivotIfNeeded();
     qreal pixelRatio = this->devicePixelRatioF();
     if (mCurrentCanvas) {
         const QTransform worldToScreen(mViewTransform.m11(), mViewTransform.m12(), 0.0,

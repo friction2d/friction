@@ -31,13 +31,18 @@ class CORE_EXPORT CameraBox : public BoundingBox {
 public:
     CameraBox();
 
-    stdsptr<BoxRenderData> createRenderData() { return nullptr; }
-    bool shouldScheduleUpdate() { return false; }
-    bool relPointInsidePath(const QPointF &relPos) const;
-    void queTasks();
+    stdsptr<BoxRenderData> createRenderData() override { return nullptr; }
+    bool shouldScheduleUpdate() override { return false; }
+    bool relPointInsidePath(const QPointF &relPos) const override;
+    void queTasks() override;
 
+    void drawBoundingRect(SkCanvas* canvas, float invScale) override;
+    void drawHoveredSk(SkCanvas* canvas, float invScale) override;
+    void drawAllCanvasControls(SkCanvas* canvas, CanvasMode mode,
+                               float invScale, bool ctrlPressed) override;
     void drawCameraBox(SkCanvas* canvas, float invScale, bool cameraIsView = false);
     QRectF getWorldBoundsAtFrame(qreal relFrame) const;
+    bool isActiveViewCamera() const;
 };
 
 #endif // CAMERABOX_H

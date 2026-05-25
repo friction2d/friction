@@ -756,6 +756,8 @@ public:
 
     void addCameraBox(CameraBox* const obj);
     void removeCameraBox(CameraBox* const obj);
+    bool isActiveCameraBox(const CameraBox* cam) const;
+    bool hasCameraViewTransform() const;
 
 private:
     QRectF getActiveCameraRect(qreal relFrame) const;
