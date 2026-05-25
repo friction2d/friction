@@ -141,6 +141,11 @@ build-debug: sdk
         cp src/app/friction.app/Contents/MacOS/friction dmg/Friction.app/Contents/MacOS/friction
     fi
 
+# Create a named worktree, launch claude --dangerously-skip-permissions, run just index && build-debug first, then loop
+start-worktree name:
+    claude -w {{name}} --dangerously-skip-permissions "! just index && just build-debug"
+
+# Build ctags index for symbol lookup (requires universal-ctags)
 # Build ctags index for symbol lookup (requires universal-ctags) and codegraph
 index:
     $(brew --prefix universal-ctags)/bin/ctags -R src/
