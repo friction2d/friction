@@ -25,6 +25,7 @@
 
 #include "qrealanimatorvalueslider.h"
 #include "Animators/qpointfanimator.h"
+#include "Animators/eboxorsound.h"
 #include "themesupport.h"
 #include "canvas.h"
 #include "Private/document.h"
@@ -129,6 +130,10 @@ QrealAnimator *QrealAnimatorValueSlider::getTargetSibling()
 
 void QrealAnimatorValueSlider::mouseMoveEvent(QMouseEvent *e)
 {
+    if ((e->buttons() & Qt::LeftButton) && getLockedAncestor()) {
+        qCDebug(lcLocked) << "slider mouseMoveEvent blocked for locked" << (mTarget ? mTarget->prp_getName() : "null");
+        return;
+    }
     const bool uniform = e->modifiers() & Qt::ShiftModifier;
     QDoubleSlider::mouseMoveEvent(e);
     if (uniform) {
@@ -163,8 +168,46 @@ void QrealAnimatorValueSlider::handleTabPressed()
     if (other) { emit other->requestWidgetFocus(); }
 }
 
+eBoxOrSound* QrealAnimatorValueSlider::getLockedAncestor() const
+{
+    if (!mTarget) return nullptr;
+    return mTarget->getFirstAncestor<eBoxOrSound>([](Property* p) {
+        const auto e = enve_cast<eBoxOrSound*>(p);
+        return e && e->isLocked();
+    });
+}
+
+void QrealAnimatorValueSlider::mousePressEvent(QMouseEvent* e)
+{
+    if (e->button() == Qt::LeftButton) {
+        const auto locked = getLockedAncestor();
+        qCDebug(lcLocked) << "slider mousePressEvent" << (mTarget ? mTarget->prp_getName() : "null") << "locked=" << (locked ? locked->prp_getName() : "none");
+        if (locked) { emit locked->lockedModificationAttempted(); }
+    }
+    QDoubleSlider::mousePressEvent(e);
+}
+
+void QrealAnimatorValueSlider::mouseReleaseEvent(QMouseEvent* e)
+{
+    const auto locked = (e->button() == Qt::LeftButton) ? getLockedAncestor() : nullptr;
+    qCDebug(lcLocked) << "slider mouseReleaseEvent" << (mTarget ? mTarget->prp_getName() : "null") << "mouseMoved=" << mouseMoved() << "locked=" << (locked ? locked->prp_getName() : "none");
+    if (e->button() == Qt::LeftButton && !mouseMoved() && locked) {
+        Actions::sInstance->finishSmoothChange();
+        return;
+    }
+    QDoubleSlider::mouseReleaseEvent(e);
+}
+
 void QrealAnimatorValueSlider::startTransform(const qreal value)
 {
+    const auto locked = getLockedAncestor();
+    qCDebug(lcLocked) << "slider startTransform" << (mTarget ? mTarget->prp_getName() : "null") << "locked=" << (locked ? locked->prp_getName() : "none") << "mTransformTarget=" << (mTransformTarget ? "set" : "null");
+    if (locked) {
+        qCDebug(lcLocked) << "slider startTransform: canceling drag due to locked ancestor";
+        QDoubleSlider::cancelTransform();
+        if (mTarget) { setDisplayedValue(mTarget->getEffectiveValue()); }
+        return;
+    }
     if (mTarget) {
         mTransformTarget = mTarget;
         mTransformTarget->prp_startTransform();
@@ -187,6 +230,7 @@ QString QrealAnimatorValueSlider::getEditText() const
 void QrealAnimatorValueSlider::setValue(const qreal value)
 {
     if (mTransformTarget) {
+        qCDebug(lcLocked) << "slider setValue: applying to" << mTransformTarget->prp_getName() << "value=" << value;
         mTransformTarget->setCurrentBaseValue(value);
         emit valueEdited(this->value());
     } else  { QDoubleSlider::setValue(value); }
@@ -328,7 +372,14 @@ void QrealAnimatorValueSlider::setTarget(QrealAnimator * const animator)
         conn << connect(animator, &QrealAnimator::expressionChanged,
                         this, &QrealAnimatorValueSlider::targetHasExpressionChanged);
         conn << connect(animator, &QrealAnimator::requestWidgetFocus,
-                        this, &QDoubleSlider::setLineEditFocus);
+                        this, [this]() {
+            const auto locked = getLockedAncestor();
+            if (locked) {
+                emit locked->lockedModificationAttempted();
+                return;
+            }
+            QDoubleSlider::setLineEditFocus();
+        });
 
         setNumberDecimals(animator->getNumberDecimals());
         setValueRange(animator->getMinPossibleValue(),

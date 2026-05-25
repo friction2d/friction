@@ -79,6 +79,10 @@ run-debug-pivot:
 debug-locked-items:
     QT_LOGGING_RULES="friction.locked=true" just run-debug > log.txt 2>&1;
 
+# Debug locked slider: trace mousePressEvent, mouseReleaseEvent, startTransform, setValue for locked children
+run-debug-locked-slider:
+    QT_LOGGING_RULES="friction.locked=true" just run-debug > log.txt 2>&1;
+
 # Produce the universal DMG from the two arch builds
 package: build
     #!/usr/bin/env bash
