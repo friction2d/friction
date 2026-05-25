@@ -364,7 +364,8 @@ void Canvas::renderSk(SkCanvas* const canvas,
 
     // Use any available scene frame (even stale) when cameras are present,
     // to avoid world-space/camera-view mismatch during re-render windows.
-    const bool useCameraFrame = !mCameraBoxes.isEmpty() && mSceneFrame;
+    // Only when clipping is active; C=OFF should still show world-space beyond canvas.
+    const bool useCameraFrame = !mCameraBoxes.isEmpty() && mSceneFrame && mClipToCanvasSize;
     if (useCameraFrame || (mClipToCanvasSize && drawCanvas)) {
         canvas->save();
         const float reversedRes = toSkScalar(1/mSceneFrame->fResolution);

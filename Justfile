@@ -67,6 +67,10 @@ run-debug-timeline:
 run-debug-camera:
     QT_LOGGING_RULES="friction.camera=true;friction.renderoutput=true;friction.renderhandler=true" just run-debug > log.txt 2>&1;
 
+# Debug C-toggle clip behavior with and without cameras
+run-debug-toggle:
+    QT_LOGGING_RULES="friction.camera=true;friction.canvas=true" just run-debug > log.txt 2>&1;
+
 # Debug pivot track attachment decisions (read-path filtering + collectPivotDescs + applyPivotToTrack)
 debug-pivot-track-attachment:
     QT_LOGGING_RULES="SvgElementTrack=true;friction.svgpivot=true" just run-debug > log.txt 2>&1;
