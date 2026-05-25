@@ -48,6 +48,17 @@ static BoundingBox* findDescendantByName(ContainerBox* container,
     return nullptr;
 }
 
+static BoundingBox* findDescendantByLabel(ContainerBox* container,
+                                           const QString& label) {
+    for (auto* box : container->getContainedBoxes()) {
+        if (box->property("svgInkscapeLabel").toString() == label) return box;
+        if (const auto sub = enve_cast<ContainerBox*>(box)) {
+            if (auto* found = findDescendantByLabel(sub, label)) return found;
+        }
+    }
+    return nullptr;
+}
+
 SvgFlipbookTrack::SvgFlipbookTrack(const QString& ownerElementId)
     : StaticComplexAnimator(ownerElementId) {
     mIndex = enve::make_shared<IntAnimator>(0, -9999, 9999, 1, "index");
@@ -61,12 +72,18 @@ void SvgFlipbookTrack::setPageMap(const QMap<int, QString>& pageMap) {
     mResolvedPages.clear();
 }
 
+void SvgFlipbookTrack::setOwnerBox(ContainerBox* ownerBox) {
+    mOwnerBox = ownerBox;
+}
+
 void SvgFlipbookTrack::resolveTargets(ContainerBox* svgRoot) {
     mResolvedPages.clear();
     bool anyResolved = false;
     for (auto it = mPageMap.begin(); it != mPageMap.end(); ++it) {
         BoundingBox* found = svgRoot ? findDescendantByName(svgRoot, it.value())
                                      : nullptr;
+        if (!found && mOwnerBox)
+            found = findDescendantByLabel(mOwnerBox, it.value());
         if (found) {
             mResolvedPages[it.key()] = found;
             anyResolved = true;

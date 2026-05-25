@@ -161,6 +161,7 @@ void SvgLinkBox::collectFlipbookDescs(ContainerBox* container) {
                     wireFlipbookTrack(track);
                     existing = track.get();
                 }
+                existing->setOwnerBox(enve_cast<ContainerBox*>(box));
                 existing->setPageMap(pageMap);
                 break;
             } catch (...) {}

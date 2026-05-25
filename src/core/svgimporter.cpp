@@ -1633,8 +1633,10 @@ void StrokeSvgAttributes::apply(BoundingBox *box, const qreal scale) const {
 
 void BoxSvgAttributes::apply(BoundingBox *box) const
 {
-    if (!mLabel.isEmpty()) { box->prp_setName(mLabel); }
-    else if (!mId.isEmpty()) { box->prp_setName(mId); }
+    if (!mLabel.isEmpty()) {
+        box->prp_setName(mLabel);
+        box->setProperty("svgInkscapeLabel", mLabel);
+    } else if (!mId.isEmpty()) { box->prp_setName(mId); }
     if (!mId.isEmpty()) { box->setProperty("svgElementId", mId); }
 
     if (!mDescYaml.isEmpty()) box->setDescYaml(mDescYaml);

@@ -41,6 +41,7 @@ public:
     explicit SvgFlipbookTrack(const QString& ownerElementId);
 
     void setPageMap(const QMap<int, QString>& pageMap);
+    void setOwnerBox(ContainerBox* ownerBox);
     bool isOrphaned() const { return mOrphaned; }
 
     void resolveTargets(ContainerBox* svgRoot);
@@ -63,6 +64,7 @@ private:
     QMap<int, QString> mPageMap;
     QMap<int, BoundingBox*> mResolvedPages;
     qsptr<IntAnimator> mIndex;
+    ContainerBox* mOwnerBox = nullptr;
 };
 
 #endif // SVGFLIPBOOKTRACK_H
