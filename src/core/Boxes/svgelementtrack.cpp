@@ -98,6 +98,10 @@ static qsptr<Property> createMatchingProperty(Property* source) {
         qCDebug(lcSvgElementTrack) << "createMatchingProperty: skipping pivot (never auto-mirror)";
         return nullptr;
     }
+    if (source->prp_getName() == "transform effects") {
+        qCDebug(lcSvgElementTrack) << "createMatchingProperty: skipping transform effects";
+        return nullptr;
+    }
     if (enve_cast<QrealAnimator*>(source)) {
         return enve::make_shared<QrealAnimator>(source->prp_getName());
     }
@@ -353,6 +357,10 @@ static qsptr<Property> readTrackProperty(eReadStream& src) {
             auto child = readTrackProperty(src);
             if (child) node->ca_addChild(child);
         }
+        if (name == "transform effects") {
+            qCDebug(lcSvgElementTrack) << "readTrackProperty: dropping transform effects";
+            return nullptr;
+        }
         if (name == "pivot" && !subtreeHasKeys(node.get())) {
             qCDebug(lcSvgElementTrack) << "readTrackProperty: dropping nested pivot (no keyframes)";
             return nullptr;
@@ -468,6 +476,10 @@ static qsptr<Property> readTrackPropertyXEV(const QDomElement& mirrorEle,
             auto childProp = readTrackPropertyXEV(child, imp);
             if (childProp) node->ca_addChild(childProp);
             child = child.nextSiblingElement("Mirror");
+        }
+        if (name == "transform effects") {
+            qCDebug(lcSvgElementTrack) << "readTrackPropertyXEV: dropping transform effects";
+            return nullptr;
         }
         if (name == "pivot" && !subtreeHasKeys(node.get())) {
             qCDebug(lcSvgElementTrack) << "readTrackPropertyXEV: dropping nested pivot (no keyframes)";
