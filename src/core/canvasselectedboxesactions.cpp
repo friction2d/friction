@@ -161,7 +161,14 @@ void Canvas::convertSelectedBoxesToPath()
 
 void Canvas::convertSelectedPathStrokesToPath() {
     for(const auto &box : mSelectedBoxes) {
-        box->strokeToVectorPathBox();
+        const auto name = box->prp_getName() + "Path";
+        const auto index = box->getZIndex();
+        const auto pbox = box->strokeToVectorPathBox();
+        if (pbox) {
+            box->removeFromParent_k();
+            pbox->prp_setName(name);
+            pbox->moveTo(index);
+        }
     }
 }
 
