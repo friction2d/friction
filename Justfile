@@ -143,6 +143,7 @@ build-debug: sdk
 
 # Create a named worktree, launch claude --dangerously-skip-permissions, run just index && build-debug first, then loop
 start-worktree name:
+    if [ -n "$TMUX" ]; then tmux rename-window "{{name}}"; fi
     claude -w {{name}} --dangerously-skip-permissions "! just index && just build-debug"
 
 # Build ctags index for symbol lookup (requires universal-ctags)
