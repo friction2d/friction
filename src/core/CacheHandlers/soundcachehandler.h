@@ -104,6 +104,8 @@ public:
         removeSecondReader(secondId);
     }
 
+    std::function<void(int)> mOnSecondCached;
+
     SoundReaderForMerger * getSecondReader(const int second) {
         return mDataHandler->getSecondReader(second);
     }

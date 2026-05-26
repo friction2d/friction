@@ -101,9 +101,57 @@ QrealSnapshot eSoundObjectBase::getVolumeSnap() const {
 }
 
 void eSoundObjectBase::setSoundDataHandler(SoundDataHandler* const newDataHandler) {
+    mLastRequestedSec = -1;
+    if(mCacheFlashTimer) mCacheFlashTimer->stop();
+
     if(newDataHandler) mCacheHandler = enve::make_shared<SoundHandler>(newDataHandler);
     else mCacheHandler.reset();
     const auto durRect = getDurationRectangle();
     durRect->setSoundCacheHandler(getCacheHandler());
     updateDurationRectLength();
+
+    if(mCacheHandler) {
+        QPointer<eSoundObjectBase> self(this);
+        mCacheHandler->mOnSecondCached = [self](int secondId) {
+            if(self) self->onCachedSecond(secondId);
+        };
+        startBackgroundCaching();
+    }
+}
+
+void eSoundObjectBase::startBackgroundCaching() {
+    if(!mCacheHandler || mCacheHandler->durationSecCeil() <= 0) return;
+
+    // Find the first uncached second to start from
+    const int total = mCacheHandler->durationSecCeil();
+    int startSec = -1;
+    for(int sec = 0; sec < total; ++sec) {
+        if(!getSamplesForSecond(sec)) { startSec = sec; break; }
+    }
+    if(startSec < 0) return; // already fully cached
+
+    mLastRequestedSec = startSec;
+    mCacheHandler->addSecondReader(startSec);
+
+    if(!mCacheFlashTimer) {
+        mCacheFlashTimer = new QTimer(this);
+        mCacheFlashTimer->setInterval(500);
+        connect(mCacheFlashTimer, &QTimer::timeout, this, [this]() {
+            prp_afterWholeInfluenceRangeChanged();
+        });
+    }
+    mCacheFlashTimer->start();
+}
+
+void eSoundObjectBase::onCachedSecond(const int secondId) {
+    if(!mCacheHandler) return;
+    const int next = secondId + 1;
+    const int total = mCacheHandler->durationSecCeil();
+    if(next < total && !getSamplesForSecond(next)) {
+        mLastRequestedSec = next;
+        mCacheHandler->addSecondReader(next);
+    } else if(next >= total) {
+        if(mCacheFlashTimer) mCacheFlashTimer->stop();
+    }
+    prp_afterWholeInfluenceRangeChanged();
 }

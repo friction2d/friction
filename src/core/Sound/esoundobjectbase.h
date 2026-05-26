@@ -31,6 +31,9 @@
 #include "CacheHandlers/soundcachehandler.h"
 #include "FileCacheHandlers/filehandlerobjref.h"
 
+#include <QTimer>
+#include <QPointer>
+
 class FixedLenAnimationRect;
 
 class CORE_EXPORT eSoundObjectBase : public eSound {
@@ -39,7 +42,7 @@ protected:
 
     virtual void updateDurationRectLength() = 0;
 public:
-    void prp_setupTreeViewMenu(PropertyMenu * const menu);
+    void prp_setupTreeViewMenu(PropertyMenu * const menu) override;
 
     SoundReaderForMerger * getSecondReader(const int relSecondId) final;
     stdsptr<Samples> getSamplesForSecond(const int relSecondId) final;
@@ -52,14 +55,21 @@ public:
 
     void setStretch(const qreal stretch);
     void setSoundDataHandler(SoundDataHandler * const newDataHandler);
+
+    int lastRequestedSecond() const override { return mLastRequestedSec; }
 protected:
     const SoundHandler* cacheHandler() const
     { return mCacheHandler.get(); }
 private:
     const HddCachableCacheHandler* getCacheHandler() const;
 
+    void startBackgroundCaching();
+    void onCachedSecond(int secondId);
+
     qreal mStretch = 1;
     stdsptr<SoundHandler> mCacheHandler;
+    QTimer* mCacheFlashTimer = nullptr;
+    int mLastRequestedSec = -1;
 
     qsptr<QrealAnimator> mVolumeAnimator =
             enve::make_shared<QrealAnimator>(100, 0, 200, 1, "volume");

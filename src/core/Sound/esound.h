@@ -43,6 +43,12 @@ public:
     virtual qreal getStretch() const = 0;
     virtual qsptr<eSound> createLink() = 0;
 
+    void prp_drawTimelineControls(
+            QPainter * const p, const qreal pixelsPerFrame,
+            const FrameRange &absFrameRange, const int rowHeight) override;
+
+    virtual int lastRequestedSecond() const { return -1; }
+
     int durationSecondsCeil() const
     { return qCeil(durationSeconds()); }
     iValueRange absSecondToRelSeconds(const int absSecond);
@@ -52,6 +58,8 @@ public:
 protected:
     qreal getCanvasFPS() const;
 private:
+    void drawWaveform(QPainter * const p, const qreal pixelsPerFrame,
+                      const FrameRange &absFrameRange, const int rowHeight);
     iValueRange absSecondToRelSecondsAbsStretch(const int absSecond);
 };
 

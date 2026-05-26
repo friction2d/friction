@@ -42,6 +42,7 @@ void SoundHandler::secondReaderFinished(
         const stdsptr<Samples>& samples) {
     if(samples) mDataHandler->secondReaderFinished(secondId, samples);
     removeSecondReader(secondId);
+    if(mOnSecondCached) mOnSecondCached(secondId);
 }
 
 SoundReaderForMerger *SoundHandler::addSecondReader(const int secondId) {
