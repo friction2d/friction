@@ -4,117 +4,226 @@ This document tracks changes landed in [earlye/friction](https://github.com/earl
 
 ## New Features
 
-### macOS Build Support
-
-**Add Justfile for macOS Homebrew-based builds** — `just build-debug`
-  and `just build-mac-arm` recipes for macOS development without
-  manual CMake invocations. Includes `build-debug` and `run-debug`
-  targets.
-
-- [#2](https://github.com/earlye/friction/pull/2), [#7](https://github.com/earlye/friction/pull/7)
-
 ### SVG-Driven Animation System (SvgElementTrack)
 
 A new animation targeting system that reads YAML annotations from SVG
 `<desc>` elements and automatically creates animation tracks bound to
-SVG elements by ID.
+SVG elements by `id` or `inkscape:label`.
 
-- **Per-element animation targeting for SvgLinkBox** — each linked SVG
-    element can have independent animation
-    properties. [#4](https://github.com/earlye/friction/pull/4)
+This is the biggest feature here, and the one that motivated this
+fork. The intent is to change friction from "everything in this file"
+to "this file is the puppeteer controlling a bunch of other SVGs. If
+you improve those SVGs, just re-render here."
 
-- **Animation track support** — adds `SvgElementTrack`, a new track
-    type that binds keyframe animation to SVG
-    elements. [#8](https://github.com/earlye/friction/pull/8),
-    [#9](https://github.com/earlye/friction/pull/9)
+The mechanism that allows this is a new annotation system that you can
+inject into SVG documents. It features YAML in SVG `<desc>`
+elements. Each embedded YAML document represents a discriminated union
+of the form below, where "other-attributes" are dependent on the `kind`.
 
-- **`<desc>` YAML auto-creates SvgElementTracks** — place
-    `animation-node` markers in SVG `<desc>` tags to auto-generate
-    tracks on
-    import. [#13](https://github.com/earlye/friction/pull/13)
+```yaml
+kind: "kind-identifier"
+# ... other-attributes here
+```
 
-- **Flipbook track support for SvgLinkBox** — `<desc>` YAML can
-    declare a flipbook track that steps through SVG
-    pages. [#14](https://github.com/earlye/friction/pull/14)
+Here are the `kind`s introduced so far:
 
-- **`kind:pivot` SVG desc tag** — declares a pivot point element;
-    SvgElementTracks are trimmed to transform-only for pivot
-    elements. [#23](https://github.com/earlye/friction/pull/23)
+- `animation-node` There are no additional attributes yet
+  (inverse-kinematics is being contemplated). This tells friction to
+  include an SvgElementTrack in the timeline that controls the
+  enclosing svg element.
+  ![inkscape screenshot](earlye-fork/example-animation-node.jpg)
+
+  SvgElementTrack explicitly leaves out a `pivot` track - use the
+  `pivot` `<desc>` annotation instead.
+
+  Example Syntax:
+  ```yaml
+  kind: animation-node
+  ```
+
+- `flipbook` Sets up the enclosed svg element as a flipbook in
+  friction. The `map` yaml attribute tells friction which other
+  elements to display/hide when the flipbook index changes in
+  friction.
+
+  ![inkscape screenshot](earlye-fork/example-flipbook.jpg)
+
+  Additional attributes:
+
+    - `map` maps index to locator-for-page. locator is svg id
+      attribute, with fallback to svg inkscape:label attribute.
+
+  Example Syntax:
+  ```yaml
+  kind: flipbook
+  map:
+    0: "mouth:closed"
+    1: "mouth:opened"
+  ```
+
+
+- `pivot` Tells friction that the enclosing `<circle>`'s center is the
+  rotation point for the nearest ancestor annotated with `kind:
+  animation-node`
+
+  ![inkscape screenshot](earlye-fork/example-pivot.jpg)
+
+  Example Syntax:
+  ```svg
+  <g id='a'>
+    <desc>kind: animation-node</desc>
+    <circle cx="32" cy="45"><desc>kind: pivot</desc></circle>
+    ...other-stuff...
+  </g>
+  ```
+
+  In this example, `32,45` become the pivot coordinates for group `a`.
+
+  Example Syntax:
+  ```yaml
+  kind: pivot
+  ```
+
+#### History
+
+- [#4](https://github.com/earlye/friction/pull/4): per-element
+  animation targeting for SvgLinkBox
+- [#8](https://github.com/earlye/friction/pull/8),
+  [#9](https://github.com/earlye/friction/pull/9): SvgElementTrack
+  (animation track support)
+- [#13](https://github.com/earlye/friction/pull/13): `<desc>` YAML
+  auto-creates SvgElementTracks on import
+- [#14](https://github.com/earlye/friction/pull/14): flipbook track
+  support for SvgLinkBox
+- [#23](https://github.com/earlye/friction/pull/23): `kind:pivot` SVG
+  desc tag
 
 ### Camera as a first class entity
 
 Added an "add camera" button, and implemented support for having a
 camera as a first class entity that can be translated within the
-scene.  If there is a camera, it is wrapped by a Cameras flipbook, so
+scene. If there is a camera, it is wrapped by a Cameras flipbook, so
 that specific cameras can be selected, and switched by an animation
 track. (No transition effects for now - just hard cuts). Pressing 'C'
 toggles between "look through camera" and "look at world."
 
-Introduced in [#29](https://github.com/earlye/friction/pull/29), which
-added `CameraBox`, the `cameraCreate` canvas mode, and
-`getActiveCameraRect` with multi-camera flipbook selection.
+![friction screenshot](earlye-fork/example-cameras.jpg)
+
+#### History
+
+- [#29](https://github.com/earlye/friction/pull/29): `CameraBox`,
+  `cameraCreate` canvas mode, and multi-camera flipbook selection
 
 ### Lock Entity UX
 
-- **Flash lock icon on blocked modification** — when the user attempts
-    to modify a locked entity, the lock icon flashes to indicate why
-    the operation
-    failed. [#35](https://github.com/earlye/friction/pull/35)
+Upstream friction has a lock feature to protect elements from
+accidental edits, but enforcement was inconsistent — children of a
+locked parent could still be modified by dragging sliders or typing
+values directly, and timeline keyframe operations ignored lock state
+entirely. This fork hardens locking so it is fully enforced:
+
+- Dragging a slider or typing a value directly on any child of a
+  locked entity is blocked
+- Keyframe deletion and timeline moves respect the lock state of the
+  affected object
+- When any modification is blocked by a lock, the lock icon flashes to
+  give immediate visual feedback explaining why the operation was
+  rejected
+
+#### History
+
+- [#35](https://github.com/earlye/friction/pull/35): flash lock icon
+  on blocked modification
+- [#36](https://github.com/earlye/friction/pull/36),
+  [#37](https://github.com/earlye/friction/pull/37): block slider drag
+  and manual typing on children of locked entities
+- [#47](https://github.com/earlye/friction/pull/47): keyframe deletion
+  and movement respect lock state
 
 ### Keyboard Shortcuts
 
-- **Remap Add Keyframe → `K`; Split Clip → `Shift+K`** across all
-    platforms. [#39](https://github.com/earlye/friction/pull/39)
+Remapped frame-level editing operations to match common animation tool
+conventions.
+
+#### History
+
+- [#39](https://github.com/earlye/friction/pull/39): Add Keyframe →
+  `K`; Split Clip → `Shift+K` across all platforms
 
 ### Categorized Debug Logging
 
-- **Replace `qDebug()` with `qCDebug` categories** throughout the
-    codebase, enabling per-subsystem log
-    filtering. [#16](https://github.com/earlye/friction/pull/16)
+Replaced `qDebug()` throughout the codebase with categorized
+`qCDebug` logging, enabling per-subsystem filtering via
+`QT_LOGGING_RULES`. Previously, debug output was either all-on or
+all-off.
+
+#### History
+
+- [#16](https://github.com/earlye/friction/pull/16): replace
+  `qDebug()` with `qCDebug` categories throughout codebase
 
 ### SemVer 2.0 Build Versioning
 
-- **Structured build metadata** using SemVer 2.0 (`X.Y.Z+build.N`),
-    replacing the prior ad hoc version
-    strings. [#21](https://github.com/earlye/friction/pull/21)
+Switched to SemVer 2.0 build metadata (`X.Y.Z+build.N`) to give every
+CI artifact a unique, sortable version string.
+
+#### History
+
+- [#21](https://github.com/earlye/friction/pull/21): structured build
+  metadata using SemVer 2.0
 
 ### CI / Release Automation
 
-- **macOS CI: SDK caching, concurrency, named artifacts.**
-    [#1](https://github.com/earlye/friction/pull/1)
+Added macOS and Linux CI workflows and a release pipeline that builds
+all platform artifacts and publishes a GitHub release automatically on
+every merge to `main`.
 
-- **Release workflow** — on each merge to `main`, builds all platform
-    artifacts and creates a GitHub release
-    automatically. [#22](https://github.com/earlye/friction/pull/22)
+#### History
 
-- **Parallel macOS CI** — arm64 and x86_64 builds run as separate
-    parallel jobs. [#33](https://github.com/earlye/friction/pull/33)
-
-
-### Developer Tooling
-
-- **`just run-debug-with-logs`** — config-driven debug sessions with
-    log category filtering via
-    `.claude/logs.local.json`. [#40](https://github.com/earlye/friction/pull/40)
-
-- **`just index`** — ctags-based symbol index for IDE/AI
-    navigation. [#44](https://github.com/earlye/friction/pull/44)
-
-- **`just index` includes CodeGraph** — runs `codegraph init` as part
-    of the index
-    build. [#49](https://github.com/earlye/friction/pull/49)
-
-- **`just start-worktree`** — launches a named tmux window for a
-    Claude Code worktree
-    session. [#50](https://github.com/earlye/friction/pull/50)
-
+- [#1](https://github.com/earlye/friction/pull/1): macOS CI — SDK
+  caching, concurrency, named artifacts
+- [#22](https://github.com/earlye/friction/pull/22): release workflow
+  — builds all platforms and creates a GitHub release on merge
+- [#33](https://github.com/earlye/friction/pull/33): parallel macOS CI
+  — arm64 and x86_64 as separate jobs
 
 ### Audio Waveform in Animation Timeline
 
-- **Audio waveform visualization** — the timeline now renders the
-    decoded audio waveform behind clip regions, giving visual tempo
-    cues for keyframe
-    placement. [#56](https://github.com/earlye/friction/pull/56)
+The timeline now renders the decoded audio waveform behind clip
+regions, giving visual tempo cues for keyframe placement.
+
+#### History
+
+- [#56](https://github.com/earlye/friction/pull/56): audio waveform
+  visualization in animation timeline
+
+### Developer Tooling
+
+A `Justfile` was added to make macOS builds and debug sessions usable
+without manual CMake invocations (`just build-debug`, `just
+build-mac-arm`), along with tooling for symbol indexing and Claude
+Code worktree sessions.
+
+#### History
+
+- [#2](https://github.com/earlye/friction/pull/2),
+  [#7](https://github.com/earlye/friction/pull/7): Justfile with
+  `just build-debug` and `just build-mac-arm` recipes
+- [#40](https://github.com/earlye/friction/pull/40): `just
+  run-debug-with-logs` — config-driven debug sessions with log category
+  filtering
+- [#44](https://github.com/earlye/friction/pull/44): `just index` —
+  ctags symbol index for IDE/AI navigation
+- [#49](https://github.com/earlye/friction/pull/49): `just index`
+  includes CodeGraph init
+- [#50](https://github.com/earlye/friction/pull/50): `just
+  start-worktree` — named tmux window for Claude Code worktree sessions
+
+## Known Issues
+
+Playback on windows appears to drop the frame cache, resulting in
+audio with a black display. Currently being worked in
+[#52](https://github.com/earlye/friction/pull/52)
 
 ## Bug Fixes
 
@@ -149,10 +258,10 @@ before the fork.
 
 | # | Fix | Origin |
 |---|-----|--------|
-| [#31](https://github.com/earlye/friction/pull/31) | Fix camera box drawn at wrong position when camera is active viewport | fork-introduced — same |
-| [#38](https://github.com/earlye/friction/pull/38) | Fix C-toggle clip state ignored when camera is active | fork-introduced — camera mode was added by this fork |
-| [#41](https://github.com/earlye/friction/pull/41) | Fix active camera box hover/selection in canvas viewport | fork-introduced — same |
-| [#46](https://github.com/earlye/friction/pull/46) | Fix double camera transform on SvgElementTrack elements after timeline scrub | fork-introduced — SvgElementTrack + camera interaction is entirely fork code |
+| [#31](https://github.com/earlye/friction/pull/31) | Fix camera box drawn at wrong position when camera is active viewport | fork-introduced - this is a fork feature |
+| [#38](https://github.com/earlye/friction/pull/38) | Fix C-toggle clip state ignored when camera is active | fork-introduced |
+| [#41](https://github.com/earlye/friction/pull/41) | Fix active camera box hover/selection in canvas viewport | fork-introduced |
+| [#46](https://github.com/earlye/friction/pull/46) | Fix double camera transform on SvgElementTrack elements after timeline scrub | fork-introduced |
 
 ### SvgElementTrack / Flipbook
 
