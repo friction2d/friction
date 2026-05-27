@@ -274,13 +274,9 @@ static void addVideoStream(OutputStream * const ost,
 }
 
 static AVFrame *getVideoFrame(OutputStream * const ost,
-                              const sk_sp<SkImage> &image) {
+                              const sk_sp<SkImage> &image)
+{
     AVCodecContext *c = ost->fCodec;
-
-    /* check if we want to generate more frames */
-//    if(av_compare_ts(ost->next_pts, c->time_base,
-//                      STREAM_DURATION, (AVRational) { 1, 1 }) >= 0)
-//        return nullptr;
 
     if (c->width != image->width() || c->height != image->height()) {
         RuntimeThrow("Image size don't match codec size");
@@ -294,8 +290,10 @@ static AVFrame *getVideoFrame(OutputStream * const ost,
                                         c->width, c->height,
                                         c->pix_fmt, SWS_BICUBIC,
                                         nullptr, nullptr, nullptr);
-    if(!ost->fSwsCtx) 
+    if (!ost->fSwsCtx) {
         RuntimeThrow("Cannot initialize the conversion context");
+    }
+
     SkPixmap pixmap;
     image->peekPixels(&pixmap);
 
@@ -326,10 +324,11 @@ static AVFrame *getVideoFrame(OutputStream * const ost,
 
     av_image_fill_linesizes(linesizesSk, AV_PIX_FMT_RGBA, image->width());
     const int ret = av_frame_make_writable(ost->fDstFrame) ;
-    if(ret < 0) AV_RuntimeThrow(ret, "Could not make AVFrame writable")
+    if (ret < 0) { AV_RuntimeThrow(ret, "Could not make AVFrame writable") }
 
     sws_scale(ost->fSwsCtx, dstSk,
-              linesizesSk, 0, c->height, ost->fDstFrame->data,
+              linesizesSk, 0, c->height,
+              ost->fDstFrame->data,
               ost->fDstFrame->linesize);
 
     ost->fDstFrame->pts = ost->fNextPts++;
