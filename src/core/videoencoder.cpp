@@ -274,25 +274,26 @@ static void addVideoStream(OutputStream * const ost,
 }
 
 static AVFrame *getVideoFrame(OutputStream * const ost,
-                              const sk_sp<SkImage> &image) {
+                              const sk_sp<SkImage> &image)
+{
     AVCodecContext *c = ost->fCodec;
 
-    /* check if we want to generate more frames */
-//    if(av_compare_ts(ost->next_pts, c->time_base,
-//                      STREAM_DURATION, (AVRational) { 1, 1 }) >= 0)
-//        return nullptr;
-
-    /* as we only generate a rgba picture, we must convert it
-     * to the codec pixel format if needed */
-    if(!ost->fSwsCtx) {
-        ost->fSwsCtx = sws_getContext(c->width, c->height,
-                                      AV_PIX_FMT_RGBA,
-                                      c->width, c->height,
-                                      c->pix_fmt, SWS_BICUBIC,
-                                      nullptr, nullptr, nullptr);
-        if(!ost->fSwsCtx)
-            RuntimeThrow("Cannot initialize the conversion context");
+    if (c->width != image->width() || c->height != image->height()) {
+        RuntimeThrow("Image size don't match codec size");
     }
+
+    /* rely on cache manager to produce fSwsCtx if it hasn't already
+     * been produced. */
+    ost->fSwsCtx = sws_getCachedContext(ost->fSwsCtx,
+                                        c->width, c->height,
+                                        AV_PIX_FMT_RGBA,
+                                        c->width, c->height,
+                                        c->pix_fmt, SWS_BICUBIC,
+                                        nullptr, nullptr, nullptr);
+    if (!ost->fSwsCtx) {
+        RuntimeThrow("Cannot initialize the conversion context");
+    }
+
     SkPixmap pixmap;
     image->peekPixels(&pixmap);
 
@@ -323,10 +324,11 @@ static AVFrame *getVideoFrame(OutputStream * const ost,
 
     av_image_fill_linesizes(linesizesSk, AV_PIX_FMT_RGBA, image->width());
     const int ret = av_frame_make_writable(ost->fDstFrame) ;
-    if(ret < 0) AV_RuntimeThrow(ret, "Could not make AVFrame writable")
+    if (ret < 0) { AV_RuntimeThrow(ret, "Could not make AVFrame writable") }
 
     sws_scale(ost->fSwsCtx, dstSk,
-              linesizesSk, 0, c->height, ost->fDstFrame->data,
+              linesizesSk, 0, c->height,
+              ost->fDstFrame->data,
               ost->fDstFrame->linesize);
 
     ost->fDstFrame->pts = ost->fNextPts++;
@@ -810,9 +812,10 @@ void VideoEncoder::process() {
             const auto cacheCont = _mContainers.at(_mCurrentContainerId);
             const auto contRange = cacheCont->getRange()*_mRenderRange;
             const int nFrames = contRange.span();
+            const sk_sp<SkImage> image = cacheCont->getImage();
             try {
                 writeVideoFrame(mFormatContext, &mVideoStream,
-                                cacheCont->getImage(), &hasVideo);
+                                image, &hasVideo);
                 avcodec_flush_buffers(mVideoStream.fCodec);
             } catch(...) {
                 RuntimeThrow("Failed to write video frame");
