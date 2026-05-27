@@ -286,14 +286,16 @@ static AVFrame *getVideoFrame(OutputStream * const ost,
         RuntimeThrow("Image size don't match codec size");
     }
 
+    /* rely on cache manager to produce fSwsCtx if it hasn't already
+     * been produced. */
     ost->fSwsCtx = sws_getCachedContext(ost->fSwsCtx,
                                         c->width, c->height,
                                         AV_PIX_FMT_RGBA,
                                         c->width, c->height,
                                         c->pix_fmt, SWS_BICUBIC,
                                         nullptr, nullptr, nullptr);
-    if(!ost->fSwsCtx) RuntimeThrow("Cannot initialize the conversion context");
-
+    if(!ost->fSwsCtx) 
+        RuntimeThrow("Cannot initialize the conversion context");
     SkPixmap pixmap;
     image->peekPixels(&pixmap);
 
