@@ -40,6 +40,8 @@
 #include <Qsci/qscilexerjavascript.h>
 #include <Qsci/qsciapis.h>
 
+#include "Animators/qrealanimator.h"
+#include "Animators/qstringanimator.h"
 #include "Expressions/expression.h"
 #include "Boxes/boundingbox.h"
 #include "Private/document.h"
@@ -318,16 +320,57 @@ void addBasicDefs(QsciAPIs* const target)
     }
 }
 
+ExpressionDialog::TargetOps ExpressionDialog::makeOps(QrealAnimator* const target) {
+    return ExpressionDialog::TargetOps{
+        target,
+        target->prp_getName(),
+        Expression::sQrealAnimatorTester,
+        [target]() { return target->getExpressionBindingsString(); },
+        [target]() { return target->getExpressionDefinitionsString(); },
+        [target]() { return target->getExpressionScriptString(); },
+        [target](const qsptr<Expression>& expr) { target->setExpression(expr); },
+        [target](const qsptr<Expression>& expr) { target->setExpressionAction(expr); }
+    };
+}
+
+ExpressionDialog::TargetOps ExpressionDialog::makeOps(QStringAnimator* const target) {
+    return ExpressionDialog::TargetOps{
+        target,
+        target->prp_getName(),
+        Expression::sQStringAnimatorTester,
+        [target]() { return target->getExpressionBindingsString(); },
+        [target]() { return target->getExpressionDefinitionsString(); },
+        [target]() { return target->getExpressionScriptString(); },
+        [target](const qsptr<Expression>& expr) { target->setExpression(expr); },
+        [target](const qsptr<Expression>& expr) { target->setExpressionAction(expr); }
+    };
+}
+
 ExpressionDialog::ExpressionDialog(QrealAnimator* const target,
                                    QWidget * const parent)
+    : ExpressionDialog(makeOps(target), parent) {}
+
+ExpressionDialog::ExpressionDialog(QStringAnimator* const target,
+                                   QWidget * const parent)
+    : ExpressionDialog(makeOps(target), parent) {}
+
+ExpressionDialog::ExpressionDialog(const TargetOps& ops,
+                                   QWidget * const parent)
     : Friction::Ui::Dialog(parent)
-    , mTarget(target)
+    , mContext(ops.context)
+    , mTargetName(ops.name)
+    , mResultTester(ops.tester)
+    , mGetBindings(ops.getBindings)
+    , mGetDefinitions(ops.getDefinitions)
+    , mGetScript(ops.getScript)
+    , mSetExpression(ops.setExpression)
+    , mSetExpressionAction(ops.setExpressionAction)
     , mTab(nullptr)
     , mTabEditor(0)
     , mPresetsCombo(nullptr)
     , mSettings(eSettings::sInstance)
 {
-    setWindowTitle(tr("Expression %1").arg(target->prp_getName()));
+    setWindowTitle(tr("Expression %1").arg(mTargetName));
 
     const auto windowLayout = new QVBoxLayout(this);
     setLayout(windowLayout);
@@ -368,7 +411,7 @@ ExpressionDialog::ExpressionDialog(QrealAnimator* const target,
     tabLayout->addWidget(mDefinitionsButon);
     mainLayout->addLayout(tabLayout);
 
-    mBindings = new ExpressionEditor(target, this);
+    mBindings = new ExpressionEditor(mContext, mGetBindings(), this);
     connect(mBindings, &ExpressionEditor::textChanged,
             this, [this]() {
         mBindingsChanged = true;
@@ -396,7 +439,7 @@ ExpressionDialog::ExpressionDialog(QrealAnimator* const target,
 
     mDefinitions->setLexer(mDefsLexer);
     mDefinitions->setAutoCompletionSource(QsciScintilla::AcsAll);
-    mDefinitions->setText(target->getExpressionDefinitionsString());
+    mDefinitions->setText(mGetDefinitions());
     connect(mDefinitions, &QsciScintilla::textChanged, this, [this]() {
         mDefinitions->autoCompleteFromAll();
         mDefinitionsChanged = true;
@@ -424,7 +467,7 @@ ExpressionDialog::ExpressionDialog(QrealAnimator* const target,
 
     mScript->setLexer(mScriptLexer);
     mScript->setAutoCompletionSource(QsciScintilla::AcsAll);
-    mScript->setText(target->getExpressionScriptString());
+    mScript->setText(mGetScript());
     connect(mScript, &QsciScintilla::textChanged,
             mScript, &QsciScintilla::autoCompleteFromAll);
     mainLayout->addWidget(mScript, 2);
@@ -594,7 +637,7 @@ bool ExpressionDialog::getBindings(PropertyBindingMap& bindings)
     try {
         bindings = PropertyBindingParser::parseBindings(bindingsStr,
                                                         nullptr,
-                                                        mTarget);
+                                                        mContext);
         mBindingsButton->setIcon(QIcon());
         return true;
     } catch (const std::exception& e) {
@@ -648,7 +691,7 @@ bool ExpressionDialog::apply(const bool action)
     QJSValue eEvaluate;
     try {
         Expression::sAddScriptTo(scriptStr, bindings, *engine, eEvaluate,
-                                 Expression::sQrealAnimatorTester);
+                                 mResultTester);
     } catch (const std::exception& e) {
         mScriptError->setText(e.what());
         mBindingsButton->setIcon(mRedDotIcon);
@@ -662,9 +705,9 @@ bool ExpressionDialog::apply(const bool action)
                                         std::move(eEvaluate));
         if (expr && !expr->isValid()) { expr = nullptr; }
         if (action) {
-            mTarget->setExpressionAction(expr);
+            mSetExpressionAction(expr);
         } else {
-            mTarget->setExpression(expr);
+            mSetExpression(expr);
         }
     } catch (const std::exception& e) {
         return false;

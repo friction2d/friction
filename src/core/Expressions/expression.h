@@ -58,6 +58,7 @@ public:
                                      const ResultTester& resultTester);
 
     static ResultTester sQrealAnimatorTester;
+    static ResultTester sQStringAnimatorTester;
 
     bool setAbsFrame(const int absFrame);
 

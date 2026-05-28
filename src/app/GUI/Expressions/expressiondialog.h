@@ -34,14 +34,20 @@
 #include <QComboBox>
 #include <QSpinBox>
 #include <QDoubleSpinBox>
+#include <functional>
 
 #include "conncontext.h"
 #include "dialogs/dialog.h"
 #include "Private/esettings.h"
+#include "smartPointers/selfref.h"
 
 class QrealAnimator;
+class QStringAnimator;
 class ExpressionEditor;
 class PropertyBindingBase;
+class Property;
+class QJSValue;
+class Expression;
 
 class JSLexer;
 class JSEditor;
@@ -53,8 +59,27 @@ class ExpressionDialog : public Friction::Ui::Dialog
 public:
     ExpressionDialog(QrealAnimator* const target,
                      QWidget * const parent = nullptr);
+    ExpressionDialog(QStringAnimator* const target,
+                     QWidget * const parent = nullptr);
 
 private:
+    using ResultTester = std::function<void(const QJSValue&)>;
+    using ExpressionSetter = std::function<void(const qsptr<Expression>&)>;
+    struct TargetOps {
+        Property* context = nullptr;
+        QString name;
+        ResultTester tester;
+        std::function<QString()> getBindings;
+        std::function<QString()> getDefinitions;
+        std::function<QString()> getScript;
+        ExpressionSetter setExpression;
+        ExpressionSetter setExpressionAction;
+    };
+
+    ExpressionDialog(const TargetOps& ops, QWidget* const parent);
+    static TargetOps makeOps(QrealAnimator* const target);
+    static TargetOps makeOps(QStringAnimator* const target);
+
     using PropertyBindingMap = std::map<QString, QSharedPointer<PropertyBindingBase>>;
     bool getBindings(PropertyBindingMap& bindings);
     void updateScriptBindings();
@@ -76,7 +101,14 @@ private:
                     Friction::Core::ExpressionPresets::Expr *expr,
                     const bool &showId = true);
 
-    QrealAnimator* const mTarget;
+    Property* const mContext;
+    const QString mTargetName;
+    const ResultTester mResultTester;
+    const std::function<QString()> mGetBindings;
+    const std::function<QString()> mGetDefinitions;
+    const std::function<QString()> mGetScript;
+    const ExpressionSetter mSetExpression;
+    const ExpressionSetter mSetExpressionAction;
 
     QTabWidget *mTab;
     int mTabEditor;
