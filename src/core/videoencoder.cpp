@@ -281,18 +281,20 @@ static AVFrame *getVideoFrame(OutputStream * const ost,
                               const sk_sp<SkImage> &image) {
     AVCodecContext *c = ost->fCodec;
 
-    SkPixmap pixmap;
-    image->peekPixels(&pixmap);
+    if (c->width != image->width() || c->height != image->height()) {
+        RuntimeThrow("Image size don't match codec size");
+    }
 
-    /* scale from actual image size (may differ from codec size, e.g. 50% render resolution)
-     * up to codec output size; sws_getCachedContext reuses the context when dimensions match */
     ost->fSwsCtx = sws_getCachedContext(ost->fSwsCtx,
-                                        pixmap.width(), pixmap.height(),
+                                        c->width, c->height,
                                         AV_PIX_FMT_RGBA,
                                         c->width, c->height,
                                         c->pix_fmt, SWS_BICUBIC,
                                         nullptr, nullptr, nullptr);
     if(!ost->fSwsCtx) RuntimeThrow("Cannot initialize the conversion context");
+
+    SkPixmap pixmap;
+    image->peekPixels(&pixmap);
 
     // check if we need to convert to "unpremultiplied"
     const AVPixFmtDescriptor *desc = av_pix_fmt_desc_get(c->pix_fmt);
@@ -324,7 +326,7 @@ static AVFrame *getVideoFrame(OutputStream * const ost,
     if(ret < 0) AV_RuntimeThrow(ret, "Could not make AVFrame writable")
 
     sws_scale(ost->fSwsCtx, dstSk,
-              linesizesSk, 0, pixmap.height(), ost->fDstFrame->data,
+              linesizesSk, 0, c->height, ost->fDstFrame->data,
               ost->fDstFrame->linesize);
 
     ost->fDstFrame->pts = ost->fNextPts++;

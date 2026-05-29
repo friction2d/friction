@@ -324,6 +324,9 @@ void RenderWidget::render(RenderInstanceSettings &settings)
     const auto lay = MainWindow::sGetInstance()->getLayoutHandler();
     lay->setCurrentScene(settings.getTargetCanvas());
 
+    // set correct resolution
+    settings.getTargetCanvas()->setResolution(renderSettings.fResolution);
+
     // give the ui time to update before renderer starts
     QTimer::singleShot(1000, [&settings]() {
         RenderHandler::sInstance->renderFromSettings(&settings);
