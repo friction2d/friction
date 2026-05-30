@@ -242,7 +242,7 @@ void KeysView::wheelEvent(QWheelEvent *e)
     }
 #endif
 
-    const QPoint pos = e->pos();
+    const QPoint pos = e->position().toPoint();
     const QPoint posU = pos + QPoint(-eSizesUI::widget/2, 0);
     const qreal currentHoverFrame = static_cast<qreal>(posU.x()) / mPixelsPerFrame + mMinViewedFrame;
     // qDebug() << "currentHoverFrame" << currentHoverFrame;

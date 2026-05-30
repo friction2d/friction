@@ -50,7 +50,7 @@ GradientWidget::GradientWidget(QWidget * const parent)
     setContentsMargins(0, 0, 0, 0);
 
     const auto mMainLayout = new QVBoxLayout(this);
-    mMainLayout->setMargin(0);
+    mMainLayout->setContentsMargins(0, 0, 0, 0);
 
     mGradientsListWidget = new GradientsListWidget(this);
     mCurrentGradientWidget = new CurrentGradientWidget(this);

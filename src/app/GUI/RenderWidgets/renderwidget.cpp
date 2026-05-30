@@ -50,7 +50,7 @@ RenderWidget::RenderWidget(QWidget *parent)
     , mState(RenderState::none)
 {
     mMainLayout = new QVBoxLayout(this);
-    mMainLayout->setMargin(0);
+    mMainLayout->setContentsMargins(0, 0, 0, 0);
     mMainLayout->setSpacing(0);
     setLayout(mMainLayout);
 
@@ -131,7 +131,7 @@ RenderWidget::RenderWidget(QWidget *parent)
     mContWidget->setContentsMargins(0, 0, 0, 0);
     mContLayout = new QVBoxLayout(mContWidget);
     mContLayout->setAlignment(Qt::AlignTop);
-    mContLayout->setMargin(0);
+    mContLayout->setContentsMargins(0, 0, 0, 0);
     mContLayout->setSpacing(0);
     mContWidget->setLayout(mContLayout);
     mScrollArea = new ScrollArea(this);

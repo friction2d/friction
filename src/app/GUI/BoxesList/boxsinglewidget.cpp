@@ -713,7 +713,7 @@ void BoxSingleWidget::mouseReleaseEvent(QMouseEvent *event)
     const auto target = mTarget->getTarget();
 
     const auto bbox = enve_cast<BoundingBox*>(target);
-    if (event->button() == Qt::MidButton && bbox) {
+    if (event->button() == Qt::MiddleButton && bbox) {
         PropertyNameDialog::sRenameBox(bbox, this);
         return;
     }

@@ -142,7 +142,7 @@ void RenderInstanceWidget::iniGUI()
     QWidget *outputSettingsOptWidget = new QWidget(this);
     outputSettingsOptWidget->setContentsMargins(0, 0, 0, 0);
     const auto outputSettingsOptLayout = new QHBoxLayout(outputSettingsOptWidget);
-    outputSettingsOptLayout->setMargin(0);
+    outputSettingsOptLayout->setContentsMargins(0, 0, 0, 0);
     outputSettingsOptLayout->addWidget(mOutputSettingsProfilesButton);
     outputSettingsOptLayout->addWidget(mOutputSettingsButton);
 
@@ -193,7 +193,7 @@ void RenderInstanceWidget::iniGUI()
     QWidget *outputDestinationWidget = new QWidget(this);
     outputDestinationWidget->setContentsMargins(0, 0, 0, 0);
     const auto outputDesinationLayout = new QHBoxLayout(outputDestinationWidget);
-    outputDesinationLayout->setMargin(0);
+    outputDesinationLayout->setContentsMargins(0, 0, 0, 0);
 
     outputDesinationLayout->addWidget(mOutputDestinationButton);
     outputDesinationLayout->addWidget(mOutputDestinationLineEdit);
@@ -203,7 +203,6 @@ void RenderInstanceWidget::iniGUI()
 
     mContentLayout->addWidget(outputSettingsLabelWidget);
 
-    mContentLayout->setMargin(0);
     mContentLayout->setSpacing(0);
     mContentLayout->setContentsMargins(0, 0, 0, 0);
 }

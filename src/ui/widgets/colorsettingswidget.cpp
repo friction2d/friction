@@ -305,7 +305,7 @@ ColorSettingsWidget::ColorSettingsWidget(QWidget *parent)
     : QWidget(parent)
 {
     setContentsMargins(0, 0, 0, 0);
-    mWidgetsLayout->setMargin(0);
+    mWidgetsLayout->setContentsMargins(0, 0, 0, 0);
 
     mTabWidget->setFocusPolicy(Qt::NoFocus);
 

@@ -67,7 +67,7 @@ GeneralSettingsWidget::GeneralSettingsWidget(QWidget *parent)
     mAutoSaveWidget->setContentsMargins(0, 0, 0, 0);
     const auto mAutoSaveLayout = new QHBoxLayout(mAutoSaveWidget);
     mAutoSaveLayout->setContentsMargins(0, 0, 0, 0);
-    mAutoSaveLayout->setMargin(0);
+    mAutoSaveLayout->setContentsMargins(0, 0, 0, 0);
 
     mAutoSave = new QCheckBox(tr("Enable Auto Save"), this);
     mAutoSave->setCheckable(true);
@@ -147,7 +147,6 @@ GeneralSettingsWidget::GeneralSettingsWidget(QWidget *parent)
     mImportFileWidget->setContentsMargins(0, 0, 0, 0);
     const auto mImportFileLayout = new QHBoxLayout(mImportFileWidget);
     mImportFileLayout->setContentsMargins(0, 0, 0, 0);
-    mImportFileLayout->setMargin(0);
 
     const auto mImportFileLabel = new QLabel(tr("Default import directory"), this);
     mImportFileDir = new QComboBox(this);

@@ -96,7 +96,6 @@ ColorToolButton::ColorToolButton(Document& document,
 
     const auto mainLay = new QVBoxLayout(this);
     mainLay->setContentsMargins(0, 0, 0, 0);
-    mainLay->setMargin(0);
     mainLay->addWidget(mColorLabel);
 
     addAction(mColorAct);

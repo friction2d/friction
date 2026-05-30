@@ -58,7 +58,6 @@ UIDock::UIDock(QWidget *parent,
     setContentsMargins(0, 0, 0, 0);
     mLayout = new QVBoxLayout(this);
     mLayout->setContentsMargins(0, 0, 0, 0);
-    mLayout->setMargin(0);
     mLayout->setSpacing(0);
 
     if (showHeader) {
@@ -74,7 +73,6 @@ UIDock::UIDock(QWidget *parent,
         headerWidget->setSizePolicy(QSizePolicy::Expanding,
                                     QSizePolicy::Fixed);
         headerLayout->setContentsMargins(0, 0, 0, 0);
-        headerLayout->setMargin(0);
         headerLayout->setSpacing(0);
 
         const auto leftButton = new QPushButton(this);

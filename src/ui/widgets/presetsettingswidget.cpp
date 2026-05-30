@@ -84,7 +84,7 @@ void PresetSettingsWidget::setupResolutionPresetWidget()
 
     container->setContentsMargins(0, 0, 0, 0);
 
-    containerInnerLayout->setMargin(0);
+    containerInnerLayout->setContentsMargins(0, 0, 0, 0);
 
     containerLayout->addWidget(area);
 
@@ -187,7 +187,7 @@ void PresetSettingsWidget::setupFpsPresetWidget()
 
     container->setContentsMargins(0, 0, 0, 0);
 
-    containerInnerLayout->setMargin(0);
+    containerInnerLayout->setContentsMargins(0, 0, 0, 0);
 
     containerLayout->addWidget(area);
 

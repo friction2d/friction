@@ -362,11 +362,11 @@ void OutputSettingsDialog::setupFormatOptionsTree()
 
     container->setContentsMargins(10, 0, 10, 0);
     container->setMinimumHeight(150);
-    containerLayout->setMargin(0);
+    containerLayout->setContentsMargins(0, 0, 0, 0);
     containerLayout->addWidget(area);
 
     containerInner->setContentsMargins(0, 0, 0, 0);
-    containerInnerLayout->setMargin(0);
+    containerInnerLayout->setContentsMargins(0, 0, 0, 0);
 
     mFormatOptionsTree->setHeaderLabels(QStringList()
                                         << tr("Type")
@@ -436,7 +436,7 @@ void OutputSettingsDialog::setupFormatOptionsTree()
     });
 
     showHideWidget->setContentsMargins(0, 0, 10, 0);
-    showHideLayout->setMargin(0);
+    showHideLayout->setContentsMargins(0, 0, 0, 0);
     showHideLayout->addStretch();
     showHideLayout->addWidget(showHideButton);
 
