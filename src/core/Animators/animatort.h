@@ -75,7 +75,7 @@ void AnimatorT<T>::readValuesXEV(
         }
     } else if(ele.hasAttribute("value")) {
         const QString value = ele.attribute("value");
-        strToVal(this->mCurrentValue, &value);
+        strToVal(this->mCurrentValue, value);
     } else RuntimeThrow("No values/frames and no value provided");
 }
 
