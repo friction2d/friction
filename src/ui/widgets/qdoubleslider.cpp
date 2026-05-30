@@ -495,7 +495,7 @@ void QDoubleSlider::wheelEvent(QWheelEvent *event)
 }
 #endif
 
-void QDoubleSlider::enterEvent(QEvent *)
+void QDoubleSlider::enterEvent(QtEnterEvent *)
 {
     mHovered = true;
     setCursor(Qt::SizeHorCursor);

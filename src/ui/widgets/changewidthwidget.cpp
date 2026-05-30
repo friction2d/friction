@@ -73,7 +73,7 @@ void ChangeWidthWidget::mouseReleaseEvent(QMouseEvent *) {
     update();
 }
 
-void ChangeWidthWidget::enterEvent(QEvent *) {
+void ChangeWidthWidget::enterEvent(QtEnterEvent *) {
     mHover = true;
     update();
 }

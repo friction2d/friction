@@ -734,7 +734,7 @@ void BoxSingleWidget::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
-void BoxSingleWidget::enterEvent(QEvent *)
+void BoxSingleWidget::enterEvent(QtEnterEvent *)
 {
 #ifdef Q_OS_MAC
     setFocus();

@@ -29,6 +29,7 @@
 #include <QWidget>
 #include "Properties/boolproperty.h"
 #include "Properties/boolpropertycontainer.h"
+#include "../ui/enterevent.h"
 
 class BoolPropertyWidget : public QWidget {
     Q_OBJECT
@@ -40,7 +41,7 @@ public:
 protected:
     void mousePressEvent(QMouseEvent *);
     void paintEvent(QPaintEvent *);
-    void enterEvent(QEvent *);
+    void enterEvent(QtEnterEvent *);
     void leaveEvent(QEvent *);
 private:
     bool mHovered = false;
