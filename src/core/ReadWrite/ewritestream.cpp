@@ -98,6 +98,20 @@ eWriteStream &eWriteStream::operator<<(const uint64_t val) {
     return *this;
 }
 
+eWriteStream &eWriteStream::operator<<(const int64_t val)
+{
+    int32_t safeVal = static_cast<int32_t>(val);
+    write(&safeVal, sizeof(int32_t));
+    return *this;
+}
+
+eWriteStream &eWriteStream::operator<<(const long long val)
+{
+    int32_t safeVal = static_cast<int32_t>(val);
+    write(&safeVal, sizeof(int32_t));
+    return *this;
+}
+
 eWriteStream &eWriteStream::operator<<(const iValueRange val) {
     write(&val, sizeof(iValueRange));
     return *this;
@@ -118,13 +132,41 @@ eWriteStream &eWriteStream::operator<<(const QRectF &val) {
     return *this;
 }
 
-eWriteStream &eWriteStream::operator<<(const QMatrix &val) {
-    write(&val, sizeof(QMatrix));
+eWriteStream &eWriteStream::operator<<(const QTransform &val)
+{
+    // QMatrix (48 bytes)
+    qreal matrix2d[6] = {
+        val.m11(), val.m12(),
+        val.m21(), val.m22(),
+        val.dx(),  val.dy()
+    };
+
+    write(matrix2d, sizeof(matrix2d));
     return *this;
 }
 
-eWriteStream &eWriteStream::operator<<(const QColor &val) {
-    write(&val, sizeof(QColor));
+eWriteStream &eWriteStream::operator<<(const QColor &val)
+{
+    struct Qt5QColorLayout {
+        int32_t spec;
+        uint16_t alpha;
+        uint16_t red;
+        uint16_t green;
+        uint16_t blue;
+        uint16_t pad;
+        uint16_t pad2; // 16-bytes
+    };
+
+    Qt5QColorLayout oldColor;
+    oldColor.spec = static_cast<int32_t>(val.spec());
+    oldColor.alpha = (val.alpha() << 8) | val.alpha();
+    oldColor.red   = (val.red() << 8) | val.red();
+    oldColor.green = (val.green() << 8) | val.green();
+    oldColor.blue  = (val.blue() << 8) | val.blue();
+    oldColor.pad   = 0;
+    oldColor.pad2  = 0;
+
+    write(&oldColor, sizeof(Qt5QColorLayout));
     return *this;
 }
 

@@ -72,7 +72,7 @@ public:
     eReadStream& operator>>(qreal &val);
     eReadStream& operator>>(QPointF &val);
     eReadStream& operator>>(QRectF &val);
-    eReadStream& operator>>(QMatrix &val);
+    eReadStream& operator>>(QTransform &val);
     eReadStream& operator>>(QColor& val);
     eReadStream& operator>>(QString &val);
     eReadStream& operator>>(QByteArray &val);
