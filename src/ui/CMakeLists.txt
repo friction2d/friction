@@ -123,6 +123,7 @@ endif()
 set(
     HEADERS
     ui_global.h
+    enterevent.h
     dialogs/adjustscenedialog.h
     dialogs/applyexpressiondialog.h
     dialogs/commandpalette.h

@@ -48,7 +48,7 @@ void ButtonBase::mousePressEvent(QMouseEvent *) {
     emit pressed();
 }
 
-void ButtonBase::enterEvent(QEvent *) {
+void ButtonBase::enterEvent(QtEnterEvent *) {
     mHover = true;
     update();
 }
