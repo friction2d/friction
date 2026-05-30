@@ -282,7 +282,11 @@ void RenderInstanceWidget::mousePressEvent(QMouseEvent *e)
         delAct->setData(1);
         delAct->setEnabled(deletable);
 
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
+        const auto act = menu.exec(e->globalPos());
+#else
         const auto act = menu.exec(e->globalPosition().toPoint());
+#endif
         if (act) {
             switch (act->data().toInt()) {
             case 0:

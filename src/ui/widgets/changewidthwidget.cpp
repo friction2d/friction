@@ -54,17 +54,27 @@ void ChangeWidthWidget::paintEvent(QPaintEvent *) {
     p.end();
 }
 
-void ChangeWidthWidget::mouseMoveEvent(QMouseEvent *event) {
+void ChangeWidthWidget::mouseMoveEvent(QMouseEvent *event)
+{
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
+    const int newWidth = mCurrentWidth + event->x() - mPressX;
+#else
     const int newWidth = mCurrentWidth + event->position().x() - mPressX;
+#endif
     mCurrentWidth = clamp(newWidth, 10*eSizesUI::widget, 40*eSizesUI::widget);
     emit widthSet(mCurrentWidth);
     //mBoxesList->setFixedWidth(newWidth);
     updatePos();
 }
 
-void ChangeWidthWidget::mousePressEvent(QMouseEvent *event) {
+void ChangeWidthWidget::mousePressEvent(QMouseEvent *event)
+{
     mPressed = true;
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
+    mPressX = event->x();
+#else
     mPressX = event->position().x();
+#endif
     update();
 }
 

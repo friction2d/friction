@@ -28,6 +28,7 @@
 
 #include "core_global.h"
 
+#include <QRegularExpression>
 #include <functional>
 
 namespace NameFixer {

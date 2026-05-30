@@ -672,7 +672,11 @@ void BoxSingleWidget::mousePressEvent(QMouseEvent *event) {
             PropertyMenu pMenu(&menu, mParent->currentScene(), MainWindow::sGetInstance());
             pTarget->prp_setupTreeViewMenu(&pMenu);
         }
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
+        menu.exec(event->globalPos());
+#else
         menu.exec(event->globalPosition().toPoint());
+#endif
         setSelected(false);
     } else {
         mDragPressPos = event->pos().x() > mFillWidget->x();

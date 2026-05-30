@@ -26,6 +26,7 @@
 #include <QToolButton>
 #include <QStackedLayout>
 #include <QStatusBar>
+#include <QScreen>
 
 #include "timelinewidget.h"
 #include "widgets/framescrollbar.h"

@@ -167,7 +167,7 @@ void AudioHandler::initializeAudio(const QString &deviceName,
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
                                 mAudioDevice.id());
 #else
-                                mAudioDevice..deviceName());
+                                mAudioDevice.deviceName());
 #endif
     }
 
