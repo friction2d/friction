@@ -148,7 +148,7 @@ public:
 
     void rotateBy(const qreal rot);
     void scale(const qreal scaleBy);
-    void applyTransform(const QMatrix &transform) {
+    void applyTransform(const QTransform &transform) {
         setRelativePos(transform.map(getRelativePos()));
     }
     void setRadius(const qreal radius);

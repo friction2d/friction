@@ -26,7 +26,7 @@
 #ifndef TRANSFORMVALUES_H
 #define TRANSFORMVALUES_H
 
-#include <QMatrix>
+#include <QTransform>
 
 #include "core_global.h"
 
@@ -41,7 +41,7 @@ struct CORE_EXPORT TransformValues {
     qreal fShearX = 0;
     qreal fShearY = 0;
 
-    QMatrix calculate() const;
+    QTransform calculate() const;
 };
 
 #endif // TRANSFORMVALUES_H

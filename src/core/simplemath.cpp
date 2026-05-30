@@ -265,7 +265,7 @@ bool nearlyEqual(double lhs,
     return std::abs(lhs - rhs) <= eps;
 }
 
-QPointF mapLinear(const QMatrix &m,
+QPointF mapLinear(const QTransform &m,
                   const QPointF &p)
 {
     return {m.m11()*p.x() + m.m21()*p.y(),

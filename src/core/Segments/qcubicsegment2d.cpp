@@ -277,7 +277,7 @@ qCubicSegment2D qCubicSegment2D::rotated(const qreal deg) const {
     return result;
 }
 
-void qCubicSegment2D::transform(const QMatrix& transform) {
+void qCubicSegment2D::transform(const QTransform& transform) {
     mP0 = transform.map(p0());
     mC1 = transform.map(c1());
     mC2 = transform.map(c2());

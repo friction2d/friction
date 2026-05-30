@@ -108,7 +108,7 @@ void ParentEffect::applyEffect(const qreal relFrame,
                                qreal& scaleY,
                                qreal& shearX,
                                qreal& shearY,
-                               QMatrix& postTransform,
+                               QTransform& postTransform,
                                BoundingBox* const parent)
 {
     Q_UNUSED(parent)
@@ -176,7 +176,7 @@ bool ParentEffect::computeEffectTransform(const qreal relFrame,
                                           const qreal scaleXInfl,
                                           const qreal scaleYInfl,
                                           const qreal rotInfl,
-                                          QMatrix& outPostTransform,
+                                          QTransform& outPostTransform,
                                           const bool updateState)
 {
     if (!isVisible()) { return false; }
@@ -198,9 +198,9 @@ bool ParentEffect::computeEffectTransform(const qreal relFrame,
 
     if (!ensureBindState(relFrame)) { return false; }
 
-    const QMatrix targetRel = target->getRelativeTransformAtFrame(targetRelFrame);
-    const QMatrix targetInParentSpace = targetRel*mBindTargetParentToParentSpace;
-    const QMatrix targetLinear(targetInParentSpace.m11(),
+    const QTransform targetRel = target->getRelativeTransformAtFrame(targetRelFrame);
+    const QTransform targetInParentSpace = targetRel*mBindTargetParentToParentSpace;
+    const QTransform targetLinear(targetInParentSpace.m11(),
                                targetInParentSpace.m12(),
                                targetInParentSpace.m21(),
                                targetInParentSpace.m22(),
@@ -210,10 +210,10 @@ bool ParentEffect::computeEffectTransform(const qreal relFrame,
     const QPointF targetPivotInParent = targetInParentSpace.map(targetPivotRel);
 
     bool bindLinearInvertible = false;
-    const QMatrix bindLinearInv = mBindTargetLinearInParent.inverted(&bindLinearInvertible);
+    const QTransform bindLinearInv = mBindTargetLinearInParent.inverted(&bindLinearInvertible);
     if (!bindLinearInvertible) { return false; }
 
-    const QMatrix deltaLinear = targetLinear*bindLinearInv;
+    const QTransform deltaLinear = targetLinear*bindLinearInv;
     const TransformValues deltaValues = MatrixDecomposition::decompose(deltaLinear);
     const qreal rawDeltaAngle = std::atan2(deltaLinear.m12(),
                                            deltaLinear.m11());
@@ -240,7 +240,7 @@ bool ParentEffect::computeEffectTransform(const qreal relFrame,
     linearValues.fShearX = deltaValues.fShearX*scaleXInfl;
     linearValues.fShearY = deltaValues.fShearY*scaleYInfl;
 
-    const QMatrix linear = linearValues.calculate();
+    const QTransform linear = linearValues.calculate();
 
     const QPointF objectPivotLocal(baseValues.fPivotX,
                                    baseValues.fPivotY);
@@ -289,9 +289,9 @@ bool ParentEffect::computeEffectTransform(const qreal relFrame,
     QPointF noFollowPivot = mBindObjectPivotInParent;
     if (mNoFollowStateValid) {
         bool prevLinearInvertible = false;
-        const QMatrix prevLinearInv = mNoFollowLinearState.inverted(&prevLinearInvertible);
+        const QTransform prevLinearInv = mNoFollowLinearState.inverted(&prevLinearInvertible);
         if (prevLinearInvertible) {
-            const QMatrix deltaLinearStep = linear*prevLinearInv;
+            const QTransform deltaLinearStep = linear*prevLinearInv;
             const QPointF prevRel(mNoFollowPivotState.x() - targetPivotInParent.x(),
                                   mNoFollowPivotState.y() - targetPivotInParent.y());
             const QPointF nextRel = mapLinear(deltaLinearStep, prevRel);
@@ -316,7 +316,7 @@ bool ParentEffect::computeEffectTransform(const qreal relFrame,
     const QPointF offset(finalPivot.x() - linearAtObjectPivot.x(),
                          finalPivot.y() - linearAtObjectPivot.y());
 
-    outPostTransform = QMatrix(linear.m11(), linear.m12(),
+    outPostTransform = QTransform(linear.m11(), linear.m12(),
                                linear.m21(), linear.m22(),
                                offset.x(), offset.y());
 
@@ -340,19 +340,19 @@ void ParentEffect::captureBindState(const qreal relFrame)
     const qreal absFrame = prp_relFrameToAbsFrameF(relFrame);
     const qreal targetRelFrame = target->prp_absFrameToRelFrameF(absFrame);
 
-    const QMatrix inherited = parent->getInheritedTransformAtFrame(relFrame);
+    const QTransform inherited = parent->getInheritedTransformAtFrame(relFrame);
     bool inheritedInvertible = false;
-    const QMatrix inheritedInv = inherited.inverted(&inheritedInvertible);
+    const QTransform inheritedInv = inherited.inverted(&inheritedInvertible);
     if (!inheritedInvertible) {
         mBindStateValid = false;
         return;
     }
 
-    const QMatrix targetInherited = target->getInheritedTransformAtFrame(targetRelFrame);
+    const QTransform targetInherited = target->getInheritedTransformAtFrame(targetRelFrame);
     mBindTargetParentToParentSpace = targetInherited*inheritedInv;
-    const QMatrix targetRel = target->getRelativeTransformAtFrame(targetRelFrame);
-    const QMatrix targetInParentSpace = targetRel*mBindTargetParentToParentSpace;
-    const QMatrix targetLinear(targetInParentSpace.m11(),
+    const QTransform targetRel = target->getRelativeTransformAtFrame(targetRelFrame);
+    const QTransform targetInParentSpace = targetRel*mBindTargetParentToParentSpace;
+    const QTransform targetLinear(targetInParentSpace.m11(),
                                targetInParentSpace.m12(),
                                targetInParentSpace.m21(),
                                targetInParentSpace.m22(),
@@ -370,7 +370,7 @@ void ParentEffect::captureBindState(const qreal relFrame)
     mAccumDeltaAngleRad = 0.0;
     mDeltaAngleStateValid = false;
     mNoFollowPivotState = objectPivotInParent;
-    mNoFollowLinearState = QMatrix();
+    mNoFollowLinearState = QTransform();
     mNoFollowStateValid = true;
     const auto transform = parent->getBoxTransformAnimator();
 
@@ -445,7 +445,7 @@ void ParentEffect::handleInfluenceChanged()
     const TransformValues baseValues = getCurrentBaseValues(transform,
                                                             relFrame);
 
-    QMatrix oldPost;
+    QTransform oldPost;
     if (!computeEffectTransform(relFrame,
                                 baseValues,
                                 mPrevPosInfluence.x(),
@@ -459,7 +459,7 @@ void ParentEffect::handleInfluenceChanged()
         return;
     }
 
-    QMatrix newPost;
+    QTransform newPost;
     if (!computeEffectTransform(relFrame,
                                 baseValues,
                                 posXInfl,
@@ -474,14 +474,14 @@ void ParentEffect::handleInfluenceChanged()
     }
 
     bool invertible = false;
-    const QMatrix invNewPost = newPost.inverted(&invertible);
+    const QTransform invNewPost = newPost.inverted(&invertible);
     if (!invertible) {
         updatePrevInfluences(relFrame);
         return;
     }
 
-    const QMatrix baseRel = baseValues.calculate();
-    const QMatrix newBaseRel = baseRel*oldPost*invNewPost;
+    const QTransform baseRel = baseValues.calculate();
+    const QTransform newBaseRel = baseRel*oldPost*invNewPost;
 
     TransformValues newValues = MatrixDecomposition::decomposePivoted(newBaseRel,
                                                                       QPointF(baseValues.fPivotX,

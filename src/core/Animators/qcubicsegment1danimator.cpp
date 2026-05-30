@@ -32,7 +32,7 @@ qCubicSegment1DAnimator::qCubicSegment1DAnimator(const QString &name) :
 void qCubicSegment1DAnimator::prp_readPropertyXEV_impl(
         const QDomElement& ele, const XevImporter& imp) {
     Q_UNUSED(imp)
-    readValuesXEV(ele, [](qCubicSegment1D& seg, const QStringRef& str) {
+    readValuesXEV(ele, [](qCubicSegment1D& seg, const QStringView& str) {
         const auto valueStrs = str.split(' ', Qt::SkipEmptyParts);
         if(valueStrs.count() == 4) {
             const qreal p0 = XmlExportHelpers::stringToDouble(valueStrs[0]);

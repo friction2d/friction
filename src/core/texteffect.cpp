@@ -302,7 +302,7 @@ QMimeData *TextEffect::SWT_createMimeData() {
     return new eMimeData(QList<TextEffect*>() << this);
 }
 
-QMatrix TextEffect::getTransform(const qreal relFrame,
+QTransform TextEffect::getTransform(const qreal relFrame,
                                  const qreal influence,
                                  const QPointF& addPivot) const {
     const auto pivotAnim = mTransform->getPivotAnimator();
@@ -313,7 +313,7 @@ QMatrix TextEffect::getTransform(const qreal relFrame,
     const qreal yScale = scaleAnim->getEffectiveYValue(relFrame);
     const qreal xPivot = pivotAnim->getEffectiveXValue(relFrame) + addPivot.x();
     const qreal yPivot = pivotAnim->getEffectiveYValue(relFrame) + addPivot.y();
-    QMatrix transform;
+    QTransform transform;
     transform.translate(xPivot + posAnim->getEffectiveXValue(relFrame)*influence,
                         yPivot + posAnim->getEffectiveYValue(relFrame)*influence);
     transform.rotate(rotAnim->getEffectiveValue(relFrame)*influence);

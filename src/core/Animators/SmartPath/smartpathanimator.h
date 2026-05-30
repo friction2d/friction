@@ -112,7 +112,7 @@ public:
 
     qsptr<SmartPathAnimator> createFromDetached();
 
-    void applyTransform(const QMatrix &transform);
+    void applyTransform(const QTransform &transform);
 
     const SkPath& getCurrentPath();
 

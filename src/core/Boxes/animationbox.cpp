@@ -304,7 +304,7 @@ void AnimationBox::setupCanvasMenu(PropertyMenu * const menu)
 //}
 
 void AnimationBox::setupRenderData(const qreal relFrame,
-                                   const QMatrix& parentM,
+                                   const QTransform& parentM,
                                    BoxRenderData * const data,
                                    Canvas* const scene) {
     BoundingBox::setupRenderData(relFrame, parentM, data, scene);

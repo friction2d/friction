@@ -47,7 +47,7 @@ struct CORE_EXPORT CustomIdentifier {
         }
 
         static Version sFromString(const QString& str) {
-            const auto sep = str.splitRef('.');
+            const auto sep = str.split('.');
             if(sep.count() != 3) RuntimeThrow("Invalid Version format " + str);
             return {sep[0].toUInt(), sep[1].toUInt(), sep[2].toUInt()};
         }

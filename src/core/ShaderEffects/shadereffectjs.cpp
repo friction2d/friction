@@ -253,7 +253,7 @@ QStringList extractExternFromScript(QString& calc)
         const auto match = matchIterator.next();
         result << match.captured(1);
     }
-    calc.remove(QRegExp("\\bextern\\s+"));
+    calc.remove(QRegularExpression("\\bextern\\s+"));
     return result;
 }
 

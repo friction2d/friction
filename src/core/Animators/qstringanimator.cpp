@@ -36,7 +36,7 @@ QStringAnimator::QStringAnimator(const QString &name) :
 QDomElement createTextElement(SvgExporter& exp, const QString& text) {
     auto textEle = exp.createElement("text");
 
-    const QStringList lines = text.split(QRegExp("\n|\r\n|\r"));
+    const QStringList lines = text.split(QRegularExpression("\n|\r\n|\r"));
     for(int i = 0; i < lines.count(); i++) {
         const auto& line = lines.at(i);
         auto tspan = exp.createElement("tspan");
@@ -79,9 +79,9 @@ void QStringAnimator::prp_readPropertyXEV_impl(
         const QDomElement& ele, const XevImporter& imp) {
     if(ele.hasAttribute("frames")) {
         const auto framesStr = ele.attribute("frames");
-        const auto frameStrs = framesStr.splitRef(' ', Qt::SkipEmptyParts);
+        const auto frameStrs = framesStr.split(' ', Qt::SkipEmptyParts);
 
-        for(const QStringRef& frame : frameStrs) {
+        for(const QString& frame : frameStrs) {
             const int iFrame = XmlExportHelpers::stringToInt(frame);
             imp.processAsset(frame + ".txt", [&](QIODevice* const src) {
                 QString value;

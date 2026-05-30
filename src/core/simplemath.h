@@ -158,8 +158,10 @@ qreal clamp(const qreal val, const T1 &min, const T2 &max) {
 template <typename T1, typename T2>
 float clamp(const float val, const T1 &min, const T2 &max) {
     static_assert((std::is_same<T1, float>::value ||
+                   std::is_same<T1, double>::value ||
                   std::is_same<T1, int>::value) &&
                   (std::is_same<T2, float>::value ||
+                   std::is_same<T2, double>::value ||
                   std::is_same<T2, int>::value),
                   "float can be clamped only with ints and floats");
     if(val > max) return max;
@@ -204,7 +206,7 @@ extern bool nearlyEqual(double lhs,
                         double rhs);
 
 CORE_EXPORT
-QPointF mapLinear(const QMatrix& m,
+QPointF mapLinear(const QTransform& m,
                   const QPointF& p);
 
 #endif // SIMPLEMATH_H

@@ -110,7 +110,7 @@ FontsWidget::FontsWidget(QWidget *parent,
         fontFamilyWidget->setContentsMargins(0, 0, 0, 0);
 
         QHBoxLayout *fontFamilyLayout = new QHBoxLayout(fontFamilyWidget);
-        fontFamilyLayout->setMargin(0);
+        fontFamilyLayout->setContentsMargins(0, 0, 0, 0);
 
         fontFamilyLayout->addWidget(mFontFamilyCombo);
         fontFamilyLayout->addWidget(mFontStyleCombo);
@@ -258,7 +258,7 @@ const QStringList FontsWidget::filterFonts()
         QString font = families.at(i);
         if (font.startsWith(".")) { continue; } // get a lot of .someKindOfFont on macOS, ignore!
         if (font.contains("[") && font.contains("]")) {
-            fonts << font.remove(QRegExp("\\[(.*)\\]")).trimmed();
+            fonts << font.remove(QRegularExpression("\\[(.*)\\]")).trimmed();
         } else { fonts << font; }
     }
     fonts.removeDuplicates();

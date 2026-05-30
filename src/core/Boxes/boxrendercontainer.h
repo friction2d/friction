@@ -41,7 +41,7 @@ public:
                 const SkFilterQuality filter) const;
 
     void updatePaintTransformGivenNewTotalTransform(
-            const QMatrix &totalTransform);
+            const QTransform &totalTransform);
 
     void clear();
     void setSrcRenderData(BoxRenderData * const data);
@@ -62,7 +62,7 @@ protected:
     bool mAntiAlias = false;
     qreal mResolutionFraction;
     QRect mGlobalRect;
-    QMatrix mTransform;
+    QTransform mTransform;
     SkMatrix mPaintTransform;
     stdsptr<BoxRenderData> mSrcRenderData;
     sk_sp<SkImage> mImageSk;

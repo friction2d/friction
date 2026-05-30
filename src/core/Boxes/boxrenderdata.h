@@ -30,7 +30,7 @@
 #include <QWeakPointer>
 #include "Tasks/updatable.h"
 #include "Animators/animator.h"
-#include <QMatrix>
+#include <QTransform>
 class BoundingBox;
 class ShaderProgramCallerBase;
 #include "smartPointers/ememory.h"
@@ -87,12 +87,12 @@ public:
 
     uint fBoxStateId = 0;
 
-    QMatrix fResolutionScale;
-    QMatrix fScaledTransform;
-    QMatrix fInheritedTransform;
-    QMatrix fRelTransform;
-    QMatrix fTotalTransform;
-    QMatrix fRenderTransform;
+    QTransform fResolutionScale;
+    QTransform fScaledTransform;
+    QTransform fInheritedTransform;
+    QTransform fRelTransform;
+    QTransform fTotalTransform;
+    QTransform fRenderTransform;
 
     bool fRelBoundingRectSet = false;
     QRectF fRelBoundingRect;

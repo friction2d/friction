@@ -52,7 +52,7 @@ public:
     bool SWT_dropInto(const int index, const QMimeData * const data)
     { return BoundingBox::SWT_dropInto(index, data); }
 
-    void setupRenderData(const qreal relFrame, const QMatrix& parentM,
+    void setupRenderData(const qreal relFrame, const QTransform& parentM,
                          BoxRenderData * const data,
                          Canvas * const scene);
 

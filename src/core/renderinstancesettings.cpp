@@ -126,7 +126,6 @@ void RenderInstanceSettings::renderingAboutToStart() {
     mRenderSettings.fFrameInc = mRenderSettings.fBaseFps/mRenderSettings.fFps;
 }
 
-#include <QSound>
 void RenderInstanceSettings::setCurrentState(const RenderState &state,
                                              const QString &text) {
     mState = state;

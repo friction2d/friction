@@ -47,7 +47,7 @@ FollowPathEffect::FollowPathEffect() :
 
 void calculateFollowRotPosChange(
         const SkPath relPath,
-        const QMatrix transform,
+        const QTransform transform,
         const bool lengthBased,
         const bool rotate,
         const qreal infl,
@@ -140,7 +140,7 @@ void FollowPathEffect::applyEffect(const qreal relFrame,
         qreal& rot,
         qreal& scaleX, qreal& scaleY,
         qreal& shearX, qreal& shearY,
-        QMatrix& postTransform,
+        QTransform& postTransform,
         BoundingBox* const parent) {
     Q_UNUSED(pivotX)
     Q_UNUSED(pivotY)
