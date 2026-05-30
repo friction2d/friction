@@ -24,7 +24,6 @@
 #include <iostream>
 #include <QApplication>
 #include <QSurfaceFormat>
-#include <QDesktopWidget>
 
 #include "hardwareinfo.h"
 #include "Private/esettings.h"

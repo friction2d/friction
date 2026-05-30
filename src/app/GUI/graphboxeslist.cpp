@@ -262,7 +262,7 @@ void KeysView::graphPaint(QPainter *p) {
 
     p->setRenderHint(QPainter::Antialiasing);
 
-    QMatrix transform;
+    QTransform transform;
     transform.translate(-mPixelsPerFrame*(mMinViewedFrame - 0.5),
                         height() + mPixelsPerValUnit*mMinShownVal);
     transform.scale(mPixelsPerFrame, -mPixelsPerValUnit);

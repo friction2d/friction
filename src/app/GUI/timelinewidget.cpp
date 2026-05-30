@@ -25,7 +25,6 @@
 
 #include <QToolButton>
 #include <QStackedLayout>
-#include <QDesktopWidget>
 #include <QStatusBar>
 
 #include "timelinewidget.h"
@@ -58,11 +57,10 @@ TimelineWidget::TimelineWidget(Document &document,
 
     mMainLayout = new QGridLayout(this);
     mMainLayout->setSpacing(0);
-    mMainLayout->setMargin(0);
+    mMainLayout->setContentsMargins(0, 0, 0, 0);
 
     mMenuLayout = new QHBoxLayout();
     //mMenuLayout->setSpacing(0);
-    mMenuLayout->setMargin(0);
 
     mBoxesListMenuBar = new FakeMenuBar(this);
     mBoxesListMenuBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
@@ -260,7 +258,7 @@ TimelineWidget::TimelineWidget(Document &document,
     mFrameScrollBar->setSizePolicy(QSizePolicy::Minimum,
                                    QSizePolicy::Preferred);
 
-    const qreal dpi = QApplication::desktop()->logicalDpiX() / 96.0;
+    const qreal dpi = this->screen()->logicalDotsPerInchX() / 96.0;
     mFrameScrollBar->setFixedHeight(40 * dpi);
 
 //    connect(MemoryHandler::sGetInstance(), &MemoryHandler::memoryFreed,
@@ -447,7 +445,7 @@ void TimelineWidget::readStateXEV(XevReadBoxesHandler& boxReadHandler,
     const auto frameRangeStr = ele.attribute("frameRange");
     const auto frameStr = ele.attribute("frame");
 
-    const auto frameRangeValStrs = frameRangeStr.splitRef(' ');
+    const auto frameRangeValStrs = frameRangeStr.split(' ');
     if(frameRangeValStrs.count() != 2)
         RuntimeThrow("Invalid frame range value " + frameRangeStr);
 

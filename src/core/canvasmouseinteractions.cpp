@@ -54,7 +54,6 @@
 #include "MovablePoints/smartnodepoint.h"
 #include "MovablePoints/pathpivot.h"
 
-#include <QDesktopWidget>
 #include <QScreen>
 #include <QMouseEvent>
 #include <QMenu>
@@ -551,8 +550,8 @@ const QColor Canvas::pickPixelColor(const QPoint &pos)
     // Windows and X11 don't care
     QScreen *screen = QApplication::screenAt(pos);
     if (!screen) { return QColor(); }
-    WId wid = QApplication::desktop()->winId();
-    const auto pix = screen->grabWindow(wid, pos.x(), pos.y(), 1, 1);
+    QPoint localPos = pos - screen->geometry().topLeft();
+    const auto pix = screen->grabWindow(0, localPos.x(), localPos.y(), 1, 1);
     return QColor(pix.toImage().pixel(0, 0));
 }
 

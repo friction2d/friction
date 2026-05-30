@@ -27,8 +27,8 @@
 #include <QIcon>
 #include <QApplication>
 #include <QDebug>
-#include <QDesktopWidget>
 #include <QToolButton>
+#include <QScreen>
 
 const QString ThemeSupport::getAppIconName(const bool alt)
 {
@@ -231,7 +231,8 @@ const QString ThemeSupport::getThemeStyle(int iconSize)
         css = stylesheet.readAll();
         stylesheet.close();
     }
-    const qreal iconPixelRatio = iconSize * qApp->desktop()->devicePixelRatioF();
+    QScreen *screen = QGuiApplication::primaryScreen();
+    const qreal iconPixelRatio = iconSize * (screen ? screen->devicePixelRatio() : 1.0);
     return css.arg(getThemeButtonBaseColor().name(),
                    getThemeButtonBorderColor().name(),
                    getThemeBaseDarkerColor().name(),

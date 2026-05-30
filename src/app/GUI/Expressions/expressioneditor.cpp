@@ -87,7 +87,7 @@ void ExpressionEditor::keyPressEvent(QKeyEvent *e) {
     } else if(key == Qt::Key_Tab) {
         return QWidget::keyPressEvent(e);
     } else QTextEdit::keyPressEvent(e);
-    const bool input = e->text().contains(QRegExp("[A-Za-z0-9_ \\.\\$]"));
+    const bool input = e->text().contains(QRegularExpression("[A-Za-z0-9_ \\.\\$]"));
     const bool deletion = key == Qt::Key_Delete ||
             key == Qt::Key_Backspace;
     const bool arrows = key == Qt::Key_Right ||
