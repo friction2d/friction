@@ -98,6 +98,7 @@ eWriteStream &eWriteStream::operator<<(const uint64_t val) {
     return *this;
 }
 
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
 eWriteStream &eWriteStream::operator<<(const int64_t val)
 {
     int32_t safeVal = static_cast<int32_t>(val);
@@ -111,6 +112,7 @@ eWriteStream &eWriteStream::operator<<(const long long val)
     write(&safeVal, sizeof(int32_t));
     return *this;
 }
+#endif
 
 eWriteStream &eWriteStream::operator<<(const iValueRange val) {
     write(&val, sizeof(iValueRange));
@@ -147,6 +149,9 @@ eWriteStream &eWriteStream::operator<<(const QTransform &val)
 
 eWriteStream &eWriteStream::operator<<(const QColor &val)
 {
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
+    write(&val, sizeof(QColor));
+#else
     struct Qt5QColorLayout {
         int32_t spec;
         uint16_t alpha;
@@ -167,6 +172,8 @@ eWriteStream &eWriteStream::operator<<(const QColor &val)
     oldColor.pad2  = 0;
 
     write(&oldColor, sizeof(Qt5QColorLayout));
+#endif
+
     return *this;
 }
 

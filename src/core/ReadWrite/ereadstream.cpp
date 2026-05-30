@@ -147,6 +147,9 @@ eReadStream &eReadStream::operator>>(QTransform &val)
 
 eReadStream &eReadStream::operator>>(QColor &val)
 {
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
+    read(&val, sizeof(QColor));
+#else
     struct Qt5QColorLayout {
         int32_t spec;
         uint16_t alpha;
@@ -174,6 +177,8 @@ eReadStream &eReadStream::operator>>(QColor &val)
     } else {
         val = QColor();
     }
+#endif
+
     return *this;
 }
 

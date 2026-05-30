@@ -71,8 +71,10 @@ public:
     eWriteStream& operator<<(const int val);
     eWriteStream& operator<<(const uint val);
     eWriteStream& operator<<(const uint64_t val);
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
     eWriteStream& operator<<(const int64_t val);
     eWriteStream& operator<<(const long long val);
+#endif
     eWriteStream& operator<<(const iValueRange val);
     eWriteStream& operator<<(const qreal val);
     eWriteStream& operator<<(const QPointF& val);
