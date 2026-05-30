@@ -104,26 +104,18 @@ QString XmlExportHelpers::blendModeToString(const SkBlendMode blendMode) {
     }
 }
 
-qreal XmlExportHelpers::stringToDouble(const QStringRef& string) {
+qreal XmlExportHelpers::stringToDouble(const QStringView& string) {
     bool ok;
     const qreal value = string.toDouble(&ok);
     if(!ok) RuntimeThrow("Invalid value " + string.toString());
     return value;
 }
 
-qreal XmlExportHelpers::stringToDouble(const QString& string) {
-    return stringToDouble(&string);
-}
-
-int XmlExportHelpers::stringToInt(const QStringRef& string) {
+int XmlExportHelpers::stringToInt(const QStringView& string) {
     bool ok;
     const int value = string.toInt(&ok);
     if(!ok) RuntimeThrow("Invalid value " + string.toString());
     return value;
-}
-
-int XmlExportHelpers::stringToInt(const QString& string) {
-    return stringToInt(&string);
 }
 
 QDomElement XevExportHelpers::brushToElement(
@@ -140,7 +132,7 @@ SimpleBrushWrapper* XevExportHelpers::brushFromElement(const QDomElement& ele) {
     return BrushCollectionData::sGetBrush(coll, name);
 }
 
-QMatrix XmlExportHelpers::stringToMatrix(const QString& str) {
+QTransform XmlExportHelpers::stringToMatrix(const QString& str) {
     const auto vals = str.split(' ', Qt::SkipEmptyParts);
     if(vals.count() != 6) RuntimeThrow("Invalid matrix value '" + str + "'");
     const qreal m11 = stringToDouble(vals[0]);
@@ -149,10 +141,10 @@ QMatrix XmlExportHelpers::stringToMatrix(const QString& str) {
     const qreal m22 = stringToDouble(vals[3]);
     const qreal dx = stringToDouble(vals[4]);
     const qreal dy = stringToDouble(vals[5]);
-    return QMatrix(m11, m12, m21, m22, dx, dy);
+    return QTransform(m11, m12, m21, m22, dx, dy);
 }
 
-QString XmlExportHelpers::matrixToString(const QMatrix& m) {
+QString XmlExportHelpers::matrixToString(const QTransform& m) {
     return QString("%1 %2 %3 %4 %5 %6").arg(m.m11()).arg(m.m12()).
                                         arg(m.m21()).arg(m.m22()).
                                         arg(m.dx()).arg(m.dy());
