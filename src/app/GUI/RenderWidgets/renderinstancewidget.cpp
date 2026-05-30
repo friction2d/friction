@@ -31,7 +31,6 @@
 #include "outputsettingsprofilesdialog.h"
 #include "outputsettingsdisplaywidget.h"
 #include "rendersettingsdisplaywidget.h"
-#include "Private/esettings.h"
 #include "GUI/edialogs.h"
 
 #include "appsupport.h"
@@ -283,7 +282,7 @@ void RenderInstanceWidget::mousePressEvent(QMouseEvent *e)
         delAct->setData(1);
         delAct->setEnabled(deletable);
 
-        const auto act = menu.exec(e->globalPos());
+        const auto act = menu.exec(e->globalPosition().toPoint());
         if (act) {
             switch (act->data().toInt()) {
             case 0:
@@ -488,7 +487,6 @@ void RenderInstanceWidget::updateRenderSettings()
     updateFromSettings();
 }
 
-#include "Private/esettings.h"
 OutputProfilesListButton::OutputProfilesListButton(RenderInstanceWidget *parent) :
     QPushButton(parent) {
     mParentWidget = parent;

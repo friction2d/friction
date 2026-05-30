@@ -183,7 +183,7 @@ void BoxScroller::stopScrolling() {
 void BoxScroller::dropEvent(QDropEvent *event) {
     stopScrolling();
     mCurrentMimeData = event->mimeData();
-    mLastDragMoveY = event->pos().y();
+    mLastDragMoveY = event->position().toPoint().y();
     updateDropTarget();
     if(mDropTarget.isValid()) {
         const auto targetAbs = mDropTarget.fTargetParent;
@@ -202,7 +202,7 @@ void BoxScroller::dropEvent(QDropEvent *event) {
 
 void BoxScroller::dragEnterEvent(QDragEnterEvent *event) {
     const auto mimeData = event->mimeData();
-    mLastDragMoveY = event->pos().y();
+    mLastDragMoveY = event->position().toPoint().y();
     mCurrentMimeData = mimeData;
     updateDropTarget();
     //mDragging = true;
@@ -220,7 +220,7 @@ void BoxScroller::dragLeaveEvent(QDragLeaveEvent *event) {
 
 void BoxScroller::dragMoveEvent(QDragMoveEvent *event) {
     event->acceptProposedAction();
-    const int yPos = event->pos().y();
+    const int yPos = event->position().toPoint().y();
 
     if(yPos < 30) {
         if(!mScrollTimer->isActive()) {
