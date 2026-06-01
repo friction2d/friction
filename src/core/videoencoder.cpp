@@ -295,6 +295,8 @@ static AVFrame *getVideoFrame(OutputStream * const ost,
     }
 
     SkPixmap pixmap;
+    SkBitmap unpremulBitmap;
+
     image->peekPixels(&pixmap);
 
     // check if we need to convert to "unpremultiplied"
@@ -309,7 +311,6 @@ static AVFrame *getVideoFrame(OutputStream * const ost,
                                                      kRGBA_8888_SkColorType,
                                                      kUnpremul_SkAlphaType,
                                                      pixmap.info().refColorSpace());
-        SkBitmap unpremulBitmap;
         if (unpremulBitmap.tryAllocPixels(unpremulInfo)) {
             const bool converted = image->readPixels(unpremulInfo,
                                                      unpremulBitmap.getPixels(),
