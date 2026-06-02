@@ -28,12 +28,163 @@
 #include "Animators/transformanimator.h"
 #include "Boxes/boundingbox.h"
 #include "Boxes/containerbox.h"
+#include "Boxes/pathbox.h"
 #include "Boxes/rectangle.h"
 #include "canvas.h"
 #include "paintsettings.h"
+#include "simplemath.h"
+#include "skia/skiaincludes.h"
 
 #include <QColor>
 #include <QPointF>
+
+namespace {
+
+QJsonObject lottieStaticProperty(const QJsonValue& value)
+{
+    return QJsonObject{
+        {QStringLiteral("a"), 0},
+        {QStringLiteral("k"), value}
+    };
+}
+
+QJsonArray pointArray(const SkPoint& point)
+{
+    return QJsonArray{point.fX, point.fY};
+}
+
+QJsonArray tangentArray(const SkPoint& from, const SkPoint& to)
+{
+    return QJsonArray{to.fX - from.fX, to.fY - from.fY};
+}
+
+QJsonArray zeroTangent()
+{
+    return QJsonArray{0, 0};
+}
+
+struct LottieContour {
+    QJsonArray vertices;
+    QJsonArray inTangents;
+    QJsonArray outTangents;
+    bool closed = false;
+};
+
+void addMove(LottieContour& contour, const SkPoint& point)
+{
+    contour.vertices.append(pointArray(point));
+    contour.inTangents.append(zeroTangent());
+    contour.outTangents.append(zeroTangent());
+}
+
+void addLine(LottieContour& contour, const SkPoint& point)
+{
+    contour.vertices.append(pointArray(point));
+    contour.inTangents.append(zeroTangent());
+    contour.outTangents.append(zeroTangent());
+}
+
+void addCubic(LottieContour& contour,
+              const SkPoint& cp1,
+              const SkPoint& cp2,
+              const SkPoint& end)
+{
+    if (contour.vertices.isEmpty()) { addMove(contour, end); return; }
+
+    const int lastIndex = contour.vertices.size() - 1;
+    const auto lastVertex = contour.vertices.at(lastIndex).toArray();
+    const SkPoint start = SkPoint::Make(SkScalar(lastVertex.at(0).toDouble()),
+                                        SkScalar(lastVertex.at(1).toDouble()));
+    contour.outTangents.replace(lastIndex, tangentArray(start, cp1));
+    contour.vertices.append(pointArray(end));
+    contour.inTangents.append(tangentArray(end, cp2));
+    contour.outTangents.append(zeroTangent());
+}
+
+void addQuad(LottieContour& contour,
+             const SkPoint& control,
+             const SkPoint& end)
+{
+    if (contour.vertices.isEmpty()) { addMove(contour, end); return; }
+
+    const int lastIndex = contour.vertices.size() - 1;
+    const auto lastVertex = contour.vertices.at(lastIndex).toArray();
+    const SkPoint start = SkPoint::Make(SkScalar(lastVertex.at(0).toDouble()),
+                                        SkScalar(lastVertex.at(1).toDouble()));
+    const SkPoint cp1 = SkPoint::Make(start.fX + (control.fX - start.fX)*2/3,
+                                      start.fY + (control.fY - start.fY)*2/3);
+    const SkPoint cp2 = SkPoint::Make(end.fX + (control.fX - end.fX)*2/3,
+                                      end.fY + (control.fY - end.fY)*2/3);
+    addCubic(contour, cp1, cp2, end);
+}
+
+QJsonObject contourObject(const LottieContour& contour,
+                          const QString& name,
+                          const int index)
+{
+    QJsonObject path;
+    path.insert(QStringLiteral("i"), contour.inTangents);
+    path.insert(QStringLiteral("o"), contour.outTangents);
+    path.insert(QStringLiteral("v"), contour.vertices);
+    path.insert(QStringLiteral("c"), contour.closed);
+
+    QJsonObject shape;
+    shape.insert(QStringLiteral("ty"), QStringLiteral("sh"));
+    shape.insert(QStringLiteral("ks"), lottieStaticProperty(path));
+    shape.insert(QStringLiteral("nm"), QStringLiteral("%1 Path %2").arg(name).arg(index));
+    shape.insert(QStringLiteral("ind"), index);
+    return shape;
+}
+
+QJsonArray pathShapeObjects(const SkPath& path, const QString& name)
+{
+    QJsonArray shapes;
+    QList<LottieContour> contours;
+    LottieContour contour;
+    SkPath::Iter iter(path, false);
+    SkPoint pts[4];
+
+    for (;;) {
+        switch(iter.next(pts)) {
+        case SkPath::kMove_Verb:
+            if (!contour.vertices.isEmpty()) {
+                contours.append(contour);
+                contour = LottieContour();
+            }
+            addMove(contour, pts[0]);
+            break;
+        case SkPath::kLine_Verb:
+            addLine(contour, pts[1]);
+            break;
+        case SkPath::kQuad_Verb:
+            addQuad(contour, pts[1], pts[2]);
+            break;
+        case SkPath::kConic_Verb: {
+            const SkScalar tol = SK_Scalar1 / 1024;
+            SkAutoConicToQuads quadder;
+            const SkPoint* quadPts = quadder.computeQuads(pts, iter.conicWeight(), tol);
+            for (int i = 0; i < quadder.countQuads(); i++) {
+                addQuad(contour, quadPts[i*2 + 1], quadPts[i*2 + 2]);
+            }
+            break;
+        }
+        case SkPath::kCubic_Verb:
+            addCubic(contour, pts[1], pts[2], pts[3]);
+            break;
+        case SkPath::kClose_Verb:
+            contour.closed = true;
+            break;
+        case SkPath::kDone_Verb:
+            if (!contour.vertices.isEmpty()) { contours.append(contour); }
+            for (int i = 0; i < contours.size(); i++) {
+                shapes.append(contourObject(contours.at(i), name, i + 1));
+            }
+            return shapes;
+        }
+    }
+}
+
+}
 
 LottieLayerBuilder::LottieLayerBuilder(Canvas* const scene,
                                        const FrameRange& frameRange,
@@ -92,6 +243,13 @@ void LottieLayerBuilder::appendContainerLayers(const ContainerBox* const contain
             continue;
         }
 
+        const auto path = dynamic_cast<PathBox*>(box);
+        if (path) {
+            layers.append(buildPathLayer(path, nextId));
+            nextId++;
+            continue;
+        }
+
         layers.append(buildUnsupportedLayer(box, nextId));
         nextId++;
     }
@@ -122,33 +280,26 @@ QJsonObject LottieLayerBuilder::buildRectangleLayer(RectangleBox* const box,
     rect.insert(QStringLiteral("r"), staticProperty(qMin(qAbs(radius.x()),
                                                         qAbs(radius.y()))));
 
-    QColor fillColor(0, 0, 0, 0);
-    qreal fillOpacity = 0;
-    const auto fill = box->getFillSettings();
-    if (fill && fill->getPaintType() == PaintType::FLATPAINT) {
-        fillColor = fill->getColor(mFrameRange.fMin);
-        fillOpacity = fillColor.alphaF()*100;
-    }
+    QJsonArray shapes{rect};
+    appendPaintObjects(box, shapes);
+    shapes.append(shapeTransformObject());
 
-    QJsonObject fillObject;
-    fillObject.insert(QStringLiteral("ty"), QStringLiteral("fl"));
-    fillObject.insert(QStringLiteral("c"), staticProperty(colorArray(fillColor)));
-    fillObject.insert(QStringLiteral("o"), staticProperty(fillOpacity));
-    fillObject.insert(QStringLiteral("r"), 1);
-    fillObject.insert(QStringLiteral("bm"), 0);
-    fillObject.insert(QStringLiteral("nm"), QStringLiteral("Fill"));
+    layer.insert(QStringLiteral("shapes"), shapes);
+    return layer;
+}
 
-    QJsonObject shapeTransform;
-    shapeTransform.insert(QStringLiteral("ty"), QStringLiteral("tr"));
-    shapeTransform.insert(QStringLiteral("p"), staticProperty(QJsonArray{0, 0}));
-    shapeTransform.insert(QStringLiteral("a"), staticProperty(QJsonArray{0, 0}));
-    shapeTransform.insert(QStringLiteral("s"), staticProperty(QJsonArray{100, 100}));
-    shapeTransform.insert(QStringLiteral("r"), staticProperty(0));
-    shapeTransform.insert(QStringLiteral("o"), staticProperty(100));
-    shapeTransform.insert(QStringLiteral("sk"), staticProperty(0));
-    shapeTransform.insert(QStringLiteral("sa"), staticProperty(0));
+QJsonObject LottieLayerBuilder::buildPathLayer(PathBox* const box,
+                                               const int id) const
+{
+    auto layer = baseLayer(box->prp_getName(), id, 4);
+    layer.insert(QStringLiteral("ks"), transformObject(box));
 
-    layer.insert(QStringLiteral("shapes"), QJsonArray{rect, fillObject, shapeTransform});
+    QJsonArray shapes = pathShapeObjects(box->getRelativePath(mFrameRange.fMin),
+                                         box->prp_getName());
+    appendPaintObjects(box, shapes);
+    shapes.append(shapeTransformObject());
+
+    layer.insert(QStringLiteral("shapes"), shapes);
     return layer;
 }
 
@@ -194,7 +345,9 @@ QJsonObject LottieLayerBuilder::transformObject(const BoundingBox* const box) co
                 const QPointF pos = transform->getPosAnimator()->getEffectiveValue(frame);
                 const QPointF scale = transform->getScaleAnimator()->getEffectiveValue(frame);
                 const QPointF pivot = transform->getPivotAnimator()->getEffectiveValue(frame);
-                positions << QJsonArray{pos.x(), pos.y(), 0};
+                positions << QJsonArray{pos.x() + pivot.x(),
+                                         pos.y() + pivot.y(),
+                                         0};
                 scales << QJsonArray{scale.x()*100, scale.y()*100, 100};
                 anchors << QJsonArray{pivot.x(), pivot.y(), 0};
                 rotations << transform->getRotAnimator()->getEffectiveValue(frame);
@@ -314,6 +467,96 @@ QJsonObject LottieLayerBuilder::keyframeEase() const
         {QStringLiteral("x"), QJsonArray{0.667}},
         {QStringLiteral("y"), QJsonArray{1}}
     };
+}
+
+void LottieLayerBuilder::appendPaintObjects(const PathBox* const box,
+                                            QJsonArray& shapes) const
+{
+    const auto fill = box->getFillSettings();
+    if (fill && fill->getPaintType() == PaintType::FLATPAINT) {
+        shapes.append(fillObject(box));
+    }
+
+    const auto stroke = box->getStrokeSettings();
+    if (stroke &&
+        stroke->getPaintType() == PaintType::FLATPAINT &&
+        !isZero4Dec(stroke->getLineWidthAnimator()->getEffectiveValue(mFrameRange.fMin))) {
+        shapes.append(strokeObject(box));
+    }
+}
+
+QJsonObject LottieLayerBuilder::fillObject(const PathBox* const box) const
+{
+    QColor fillColor(0, 0, 0, 0);
+    qreal fillOpacity = 0;
+    const auto fill = box->getFillSettings();
+    if (fill) {
+        fillColor = fill->getColor(mFrameRange.fMin);
+        fillOpacity = fillColor.alphaF()*100;
+    }
+
+    QJsonObject object;
+    object.insert(QStringLiteral("ty"), QStringLiteral("fl"));
+    object.insert(QStringLiteral("c"), staticProperty(colorArray(fillColor)));
+    object.insert(QStringLiteral("o"), staticProperty(fillOpacity));
+    object.insert(QStringLiteral("r"), 1);
+    object.insert(QStringLiteral("bm"), 0);
+    object.insert(QStringLiteral("nm"), QStringLiteral("Fill"));
+    return object;
+}
+
+QJsonObject LottieLayerBuilder::strokeObject(const PathBox* const box) const
+{
+    QColor strokeColor(0, 0, 0, 0);
+    qreal strokeOpacity = 0;
+    qreal strokeWidth = 0;
+    int lineCap = 2;
+    int lineJoin = 2;
+
+    const auto stroke = box->getStrokeSettings();
+    if (stroke) {
+        strokeColor = stroke->getColor(mFrameRange.fMin);
+        strokeOpacity = strokeColor.alphaF()*100;
+        strokeWidth = stroke->getLineWidthAnimator()->getEffectiveValue(mFrameRange.fMin);
+
+        switch(stroke->getCapStyle()) {
+        case SkPaint::kButt_Cap: lineCap = 1; break;
+        case SkPaint::kSquare_Cap: lineCap = 3; break;
+        default: lineCap = 2; break;
+        }
+
+        switch(stroke->getJoinStyle()) {
+        case SkPaint::kMiter_Join: lineJoin = 1; break;
+        case SkPaint::kBevel_Join: lineJoin = 3; break;
+        default: lineJoin = 2; break;
+        }
+    }
+
+    QJsonObject object;
+    object.insert(QStringLiteral("ty"), QStringLiteral("st"));
+    object.insert(QStringLiteral("c"), staticProperty(colorArray(strokeColor)));
+    object.insert(QStringLiteral("o"), staticProperty(strokeOpacity));
+    object.insert(QStringLiteral("w"), staticProperty(strokeWidth));
+    object.insert(QStringLiteral("lc"), lineCap);
+    object.insert(QStringLiteral("lj"), lineJoin);
+    object.insert(QStringLiteral("ml"), 4);
+    object.insert(QStringLiteral("bm"), 0);
+    object.insert(QStringLiteral("nm"), QStringLiteral("Stroke"));
+    return object;
+}
+
+QJsonObject LottieLayerBuilder::shapeTransformObject() const
+{
+    QJsonObject shapeTransform;
+    shapeTransform.insert(QStringLiteral("ty"), QStringLiteral("tr"));
+    shapeTransform.insert(QStringLiteral("p"), staticProperty(QJsonArray{0, 0}));
+    shapeTransform.insert(QStringLiteral("a"), staticProperty(QJsonArray{0, 0}));
+    shapeTransform.insert(QStringLiteral("s"), staticProperty(QJsonArray{100, 100}));
+    shapeTransform.insert(QStringLiteral("r"), staticProperty(0));
+    shapeTransform.insert(QStringLiteral("o"), staticProperty(100));
+    shapeTransform.insert(QStringLiteral("sk"), staticProperty(0));
+    shapeTransform.insert(QStringLiteral("sa"), staticProperty(0));
+    return shapeTransform;
 }
 
 QJsonArray LottieLayerBuilder::colorArray(const QColor& color) const

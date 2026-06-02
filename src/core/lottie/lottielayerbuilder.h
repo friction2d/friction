@@ -31,6 +31,7 @@ class BoundingBox;
 class Canvas;
 class QColor;
 class ContainerBox;
+class PathBox;
 class RectangleBox;
 
 class CORE_EXPORT LottieLayerBuilder
@@ -49,6 +50,8 @@ private:
                                int& nextId) const;
     QJsonObject buildRectangleLayer(RectangleBox* const box,
                                     const int id) const;
+    QJsonObject buildPathLayer(PathBox* const box,
+                               const int id) const;
     QJsonObject buildUnsupportedLayer(const BoundingBox* const box,
                                       const int id) const;
 
@@ -64,6 +67,11 @@ private:
     bool sameScalarValues(const QList<qreal>& values) const;
     bool samePointValues(const QList<QJsonArray>& values) const;
     QJsonObject keyframeEase() const;
+    void appendPaintObjects(const PathBox* const box,
+                            QJsonArray& shapes) const;
+    QJsonObject fillObject(const PathBox* const box) const;
+    QJsonObject strokeObject(const PathBox* const box) const;
+    QJsonObject shapeTransformObject() const;
     QJsonArray colorArray(const QColor& color) const;
 
     Canvas* const mScene;
