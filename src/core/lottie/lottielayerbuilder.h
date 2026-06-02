@@ -47,7 +47,11 @@ private:
     QJsonObject buildBackgroundLayer() const;
     void appendContainerLayers(const ContainerBox* const container,
                                QJsonArray& layers,
-                               int& nextId) const;
+                               int& nextId,
+                               const int parentId = 0) const;
+    QJsonObject buildContainerLayer(const ContainerBox* const box,
+                                    const int id,
+                                    const int parentId) const;
     QJsonObject buildRectangleLayer(RectangleBox* const box,
                                     const int id) const;
     QJsonObject buildPathLayer(PathBox* const box,
@@ -58,6 +62,7 @@ private:
     QJsonObject baseLayer(const QString& name,
                           const int id,
                           const int type) const;
+    void assignParent(QJsonObject& layer, const int parentId) const;
     QJsonObject transformObject(const BoundingBox* const box = nullptr) const;
     QJsonObject staticProperty(const QJsonValue& value) const;
     QJsonObject animatedScalarProperty(const QList<qreal>& values) const;

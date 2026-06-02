@@ -223,7 +223,8 @@ QJsonObject LottieLayerBuilder::buildBackgroundLayer() const
 
 void LottieLayerBuilder::appendContainerLayers(const ContainerBox* const container,
                                                QJsonArray& layers,
-                                               int& nextId) const
+                                               int& nextId,
+                                               const int parentId) const
 {
     const auto& boxes = container->getContainedBoxes();
     for (auto it = boxes.crbegin(); it != boxes.crend(); ++it) {
@@ -232,27 +233,47 @@ void LottieLayerBuilder::appendContainerLayers(const ContainerBox* const contain
 
         const auto childContainer = dynamic_cast<const ContainerBox*>(box);
         if (childContainer) {
-            appendContainerLayers(childContainer, layers, nextId);
+            const int groupId = nextId++;
+            layers.append(buildContainerLayer(childContainer, groupId, parentId));
+            appendContainerLayers(childContainer, layers, nextId, groupId);
             continue;
         }
 
         const auto rectangle = dynamic_cast<RectangleBox*>(box);
         if (rectangle) {
-            layers.append(buildRectangleLayer(rectangle, nextId));
+            auto layer = buildRectangleLayer(rectangle, nextId);
+            assignParent(layer, parentId);
+            layers.append(layer);
             nextId++;
             continue;
         }
 
         const auto path = dynamic_cast<PathBox*>(box);
         if (path) {
-            layers.append(buildPathLayer(path, nextId));
+            auto layer = buildPathLayer(path, nextId);
+            assignParent(layer, parentId);
+            layers.append(layer);
             nextId++;
             continue;
         }
 
-        layers.append(buildUnsupportedLayer(box, nextId));
+        auto layer = buildUnsupportedLayer(box, nextId);
+        assignParent(layer, parentId);
+        layers.append(layer);
         nextId++;
     }
+}
+
+QJsonObject LottieLayerBuilder::buildContainerLayer(const ContainerBox* const box,
+                                                    const int id,
+                                                    const int parentId) const
+{
+    auto layer = baseLayer(box ? box->prp_getName() : QStringLiteral("Group"),
+                           id,
+                           3);
+    layer.insert(QStringLiteral("ks"), transformObject(box));
+    assignParent(layer, parentId);
+    return layer;
 }
 
 QJsonObject LottieLayerBuilder::buildRectangleLayer(RectangleBox* const box,
@@ -328,6 +349,13 @@ QJsonObject LottieLayerBuilder::baseLayer(const QString& name,
     layer.insert(QStringLiteral("bm"), 0);
     Q_UNUSED(mFps)
     return layer;
+}
+
+void LottieLayerBuilder::assignParent(QJsonObject& layer, const int parentId) const
+{
+    if (parentId > 0) {
+        layer.insert(QStringLiteral("parent"), parentId);
+    }
 }
 
 QJsonObject LottieLayerBuilder::transformObject(const BoundingBox* const box) const
