@@ -278,22 +278,29 @@ static void addVideoStream(OutputStream * const ost,
 }
 
 static AVFrame *getVideoFrame(OutputStream * const ost,
-                              const sk_sp<SkImage> &image) {
+                              const sk_sp<SkImage> &image)
+{
     AVCodecContext *c = ost->fCodec;
 
     if (c->width != image->width() || c->height != image->height()) {
         RuntimeThrow("Image size don't match codec size");
     }
 
+    /* rely on cache manager to produce fSwsCtx if it hasn't already
+     * been produced. */
     ost->fSwsCtx = sws_getCachedContext(ost->fSwsCtx,
                                         c->width, c->height,
                                         AV_PIX_FMT_RGBA,
                                         c->width, c->height,
                                         c->pix_fmt, SWS_BICUBIC,
                                         nullptr, nullptr, nullptr);
-    if(!ost->fSwsCtx) RuntimeThrow("Cannot initialize the conversion context");
+    if (!ost->fSwsCtx) {
+        RuntimeThrow("Cannot initialize the conversion context");
+    }
 
     SkPixmap pixmap;
+    SkBitmap unpremulBitmap;
+
     image->peekPixels(&pixmap);
 
     // check if we need to convert to "unpremultiplied"
@@ -308,7 +315,6 @@ static AVFrame *getVideoFrame(OutputStream * const ost,
                                                      kRGBA_8888_SkColorType,
                                                      kUnpremul_SkAlphaType,
                                                      pixmap.info().refColorSpace());
-        SkBitmap unpremulBitmap;
         if (unpremulBitmap.tryAllocPixels(unpremulInfo)) {
             const bool converted = image->readPixels(unpremulInfo,
                                                      unpremulBitmap.getPixels(),
@@ -320,13 +326,14 @@ static AVFrame *getVideoFrame(OutputStream * const ost,
 
     const uint8_t * const dstSk[] = {static_cast<uint8_t*>(pixmap.writable_addr())};
     int linesizesSk[4];
-    av_image_fill_linesizes(linesizesSk, AV_PIX_FMT_RGBA, image->width());
 
-    const int ret = av_frame_make_writable(ost->fDstFrame);
-    if(ret < 0) AV_RuntimeThrow(ret, "Could not make AVFrame writable")
+    av_image_fill_linesizes(linesizesSk, AV_PIX_FMT_RGBA, image->width());
+    const int ret = av_frame_make_writable(ost->fDstFrame) ;
+    if (ret < 0) { AV_RuntimeThrow(ret, "Could not make AVFrame writable") }
 
     sws_scale(ost->fSwsCtx, dstSk,
-              linesizesSk, 0, c->height, ost->fDstFrame->data,
+              linesizesSk, 0, c->height,
+              ost->fDstFrame->data,
               ost->fDstFrame->linesize);
 
     ost->fDstFrame->pts = ost->fNextPts++;
@@ -346,6 +353,7 @@ static void writeVideoFrame(AVFormatContext * const oc,
     } catch(...) {
         RuntimeThrow("Failed to retrieve video frame");
     }
+
 
     // encode the image
     const int ret = avcodec_send_frame(c, frame);

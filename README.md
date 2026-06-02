@@ -6,7 +6,7 @@
 
 > **This is [earlye's personal fork](https://github.com/earlye/friction).** See [earlye-fork.md](earlye-fork.md) for a summary of new features and bug fixes relative to upstream [friction2d/friction](https://github.com/friction2d/friction).
 
-![Screenshot of Friction 1.0.0](https://friction.graphics/assets/screenshots/100/friction-100rc2-screenshot.png?v=1)
+![Screenshot of Friction 1.0.0](https://friction.graphics/assets/screenshots/100/friction-100-linux-screenshot.png?v=1)
 
 ## Contribute
 
