@@ -38,6 +38,7 @@ SoundCacheContainer::SoundCacheContainer(const stdsptr<Samples>& samples,
 }
 
 stdsptr<eHddTask> SoundCacheContainer::createTmpFileDataSaver() {
+    if(!mSamples) return nullptr;
     return enve::make_shared<SoundContainerTmpFileDataSaver>(mSamples, this);
 }
 

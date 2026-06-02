@@ -30,7 +30,7 @@ TmpLoader::TmpLoader(const qsptr<QTemporaryFile> &file,
     mTmpFile(file), mTarget(target) {}
 
 void TmpLoader::process() {
-    if(!mTmpFile) return;
+    if(!mTmpFile) RuntimeThrow("Temporary cache file is missing.");
     if(mTmpFile->open()) {
         eReadStream src(mTmpFile.get());
         read(src);

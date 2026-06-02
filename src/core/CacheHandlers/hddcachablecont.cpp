@@ -49,6 +49,10 @@ eTask *HddCachableCont::scheduleDeleteTmpFile() {
 eTask *HddCachableCont::scheduleSaveToTmpFile() {
     if(mTmpSaveTask || mTmpFile) return nullptr;
     mTmpSaveTask = createTmpFileDataSaver();
+    if(!mTmpSaveTask) {
+        tmpFileSaveFailed();
+        return nullptr;
+    }
     mTmpSaveTask->queTask();
     return mTmpSaveTask.get();
 }
@@ -59,6 +63,10 @@ eTask *HddCachableCont::scheduleLoadFromTmpFile() {
     if(!mTmpSaveTask && !mTmpFile) return nullptr;
 
     mTmpLoadTask = createTmpFileDataLoader();
+    if(!mTmpLoadTask) {
+        tmpFileLoadFailed();
+        return nullptr;
+    }
     if(mTmpSaveTask)
         mTmpSaveTask->addDependent(mTmpLoadTask.get());
     mTmpLoadTask->queTask();
@@ -68,6 +76,16 @@ eTask *HddCachableCont::scheduleLoadFromTmpFile() {
 void HddCachableCont::setDataSavedToTmpFile(const qsptr<QTemporaryFile> &tmpFile) {
     mTmpSaveTask.reset();
     mTmpFile = tmpFile;
+}
+
+void HddCachableCont::tmpFileSaveFailed() {
+    mTmpSaveTask.reset();
+    if(!mDataInMemory && !mTmpFile) noDataLeft_k();
+}
+
+void HddCachableCont::tmpFileLoadFailed() {
+    mTmpLoadTask.reset();
+    if(!mDataInMemory && !mTmpFile && !mTmpSaveTask) noDataLeft_k();
 }
 
 void HddCachableCont::afterDataLoadedFromTmpFile() {

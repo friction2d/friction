@@ -49,6 +49,10 @@ int ImageCacheContainer::getByteCount() {
 }
 
 void ImageCacheContainer::setDataLoadedFromTmpFile(const sk_sp<SkImage> &img) {
+    if(!img) {
+        tmpFileLoadFailed();
+        return;
+    }
     replaceImage(img);
     afterDataLoadedFromTmpFile();
 }
@@ -58,6 +62,7 @@ int ImageCacheContainer::clearMemory() {
 }
 
 stdsptr<eHddTask> ImageCacheContainer::createTmpFileDataSaver() {
+    if(!getImage()) return nullptr;
     return enve::make_shared<ImgSaver>(this, getImage());
 }
 
