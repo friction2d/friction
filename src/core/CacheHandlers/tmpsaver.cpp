@@ -24,12 +24,18 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "tmpsaver.h"
+#include "appsupport.h"
+
+#include <QDir>
 
 TmpSaver::TmpSaver(HddCachableCont* const target) :
     mTarget(target) {}
 
 void TmpSaver::process() {
-    mTmpFile = qsptr<QTemporaryFile>(new QTemporaryFile());
+    QDir().mkpath(AppSupport::getAppTempPath());
+    const QString templ = AppSupport::getAppTempPath() +
+                          "/friction-cache-XXXXXX.tmp";
+    mTmpFile = qsptr<QTemporaryFile>(new QTemporaryFile(templ));
     if(mTmpFile->open()) {
         eWriteStream dst(mTmpFile.get());
         write(dst);
@@ -42,6 +48,13 @@ void TmpSaver::process() {
 
 void TmpSaver::afterProcessing() {
     if(!mTarget) return;
-    if(!mSavingSuccessful) return;
+    if(!mSavingSuccessful) {
+        mTarget->tmpFileSaveFailed();
+        return;
+    }
     mTarget->setDataSavedToTmpFile(mTmpFile);
+}
+
+void TmpSaver::afterCanceled() {
+    if(mTarget) mTarget->tmpFileSaveFailed();
 }

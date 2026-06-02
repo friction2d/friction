@@ -41,6 +41,7 @@ public:
 
     void process();
     void afterProcessing();
+    void afterCanceled();
 private:
     const stdptr<HddCachableCont> mTarget;
     bool mSavingSuccessful = false;

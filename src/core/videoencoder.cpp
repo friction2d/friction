@@ -276,16 +276,14 @@ static void addVideoStream(OutputStream * const ost,
 static AVFrame *getVideoFrame(OutputStream * const ost,
                               const sk_sp<SkImage> &image)
 {
-    AVCodecContext *c = ost->fCodec;
+    if(!image) RuntimeThrow("Missing image for video frame");
 
-    if (c->width != image->width() || c->height != image->height()) {
-        RuntimeThrow("Image size don't match codec size");
-    }
+    AVCodecContext *c = ost->fCodec;
 
     /* rely on cache manager to produce fSwsCtx if it hasn't already
      * been produced. */
     ost->fSwsCtx = sws_getCachedContext(ost->fSwsCtx,
-                                        c->width, c->height,
+                                        image->width(), image->height(),
                                         AV_PIX_FMT_RGBA,
                                         c->width, c->height,
                                         c->pix_fmt, SWS_BICUBIC,
@@ -297,7 +295,13 @@ static AVFrame *getVideoFrame(OutputStream * const ost,
     SkPixmap pixmap;
     SkBitmap unpremulBitmap;
 
-    image->peekPixels(&pixmap);
+    sk_sp<SkImage> rasterImage;
+    if(!image->peekPixels(&pixmap)) {
+        rasterImage = image->makeRasterImage();
+        if(!rasterImage || !rasterImage->peekPixels(&pixmap)) {
+            RuntimeThrow("Could not peek image pixels");
+        }
+    }
 
     // check if we need to convert to "unpremultiplied"
     const AVPixFmtDescriptor *desc = av_pix_fmt_desc_get(c->pix_fmt);
@@ -323,12 +327,13 @@ static AVFrame *getVideoFrame(OutputStream * const ost,
     const uint8_t * const dstSk[] = {static_cast<uint8_t*>(pixmap.writable_addr())};
     int linesizesSk[4];
 
-    av_image_fill_linesizes(linesizesSk, AV_PIX_FMT_RGBA, image->width());
+    av_image_fill_linesizes(linesizesSk, AV_PIX_FMT_RGBA, pixmap.width());
+    linesizesSk[0] = static_cast<int>(pixmap.rowBytes());
     const int ret = av_frame_make_writable(ost->fDstFrame) ;
     if (ret < 0) { AV_RuntimeThrow(ret, "Could not make AVFrame writable") }
 
     sws_scale(ost->fSwsCtx, dstSk,
-              linesizesSk, 0, c->height,
+              linesizesSk, 0, pixmap.height(),
               ost->fDstFrame->data,
               ost->fDstFrame->linesize);
 

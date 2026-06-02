@@ -36,6 +36,10 @@ void SoundContainerTmpFileDataLoader::read(eReadStream& src) {
 }
 
 void SoundContainerTmpFileDataLoader::afterProcessing() {
+    if(!mSamples) {
+        if(mTarget) mTarget->tmpFileLoadFailed();
+        return;
+    }
     mTarget->setDataLoadedFromTmpFile(mSamples);
 }
 
@@ -45,5 +49,6 @@ SoundContainerTmpFileDataSaver::SoundContainerTmpFileDataSaver(
     TmpSaver(target), mSamples(samples) {}
 
 void SoundContainerTmpFileDataSaver::write(eWriteStream& dst) {
+    if(!mSamples) return;
     mSamples->write(dst);
 }

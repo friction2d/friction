@@ -64,6 +64,7 @@ protected:
         TmpSaver(target), mImage(image) {}
 
     void write(eWriteStream& dst) {
+        if(!mImage) return;
         SkiaHelpers::writeImg(mImage, dst);
     }
 private:

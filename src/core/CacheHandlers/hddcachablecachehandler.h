@@ -99,7 +99,7 @@ public:
     }
 
     auto begin() const { return mConts.begin(); }
-    auto end() const { return mConts.begin(); }
+    auto end() const { return mConts.end(); }
 private:
     RangeMap<stdsptr<Cont>> mConts;
     UsedRange mUsedRange;

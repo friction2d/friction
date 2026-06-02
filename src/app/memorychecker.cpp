@@ -108,6 +108,17 @@ void MemoryChecker::sGetFreeKB(intKB& procFreeKB,
                   (task_info_t)&vm_info,
                   &vm_info_count) == KERN_SUCCESS) {
         bytes_in_use_by_app = vm_info.phys_footprint;
+    } else {
+        task_basic_info_data_t basic_info;
+        mach_msg_type_number_t basic_info_count = TASK_BASIC_INFO_COUNT;
+        if (task_info(mach_task_self(),
+                      TASK_BASIC_INFO,
+                      (task_info_t)&basic_info,
+                      &basic_info_count) == KERN_SUCCESS) {
+            bytes_in_use_by_app = basic_info.resident_size;
+        } else {
+            RuntimeThrow("Could not retrieve process memory usage");
+        }
     }
 #endif
 
