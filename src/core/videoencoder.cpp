@@ -24,11 +24,7 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "videoencoder.h"
-#include <QLoggingCategory>
-
-Q_LOGGING_CATEGORY(lcVideoEncoder, "friction.videoencoder", QtWarningMsg)
 #include <QByteArray>
-#include <QDebug>
 #include "Boxes/boxrendercontainer.h"
 #include "CacheHandlers/sceneframecontainer.h"
 #include "canvas.h"
@@ -294,6 +290,8 @@ static AVFrame *getVideoFrame(OutputStream * const ost,
     if(!ost->fSwsCtx) RuntimeThrow("Cannot initialize the conversion context");
 
     SkPixmap pixmap;
+    SkBitmap unpremulBitmap;
+
     image->peekPixels(&pixmap);
 
     // check if we need to convert to "unpremultiplied"
@@ -308,7 +306,6 @@ static AVFrame *getVideoFrame(OutputStream * const ost,
                                                      kRGBA_8888_SkColorType,
                                                      kUnpremul_SkAlphaType,
                                                      pixmap.info().refColorSpace());
-        SkBitmap unpremulBitmap;
         if (unpremulBitmap.tryAllocPixels(unpremulInfo)) {
             const bool converted = image->readPixels(unpremulInfo,
                                                      unpremulBitmap.getPixels(),
@@ -442,16 +439,16 @@ static void addAudioStream(OutputStream * const ost,
     }
 
 #ifdef QT_DEBUG
-    qCDebug(lcVideoEncoder) << "name" << "src" << "output";
-    qCDebug(lcVideoEncoder) << "channels" << inSound.channelCount() <<
+    qDebug() << "name" << "src" << "output";
+    qDebug() << "channels" << inSound.channelCount() <<
                               c->channels;
-    qCDebug(lcVideoEncoder) << "channel layout" << inSound.fChannelLayout <<
+    qDebug() << "channel layout" << inSound.fChannelLayout <<
                                     c->channel_layout;
-    qCDebug(lcVideoEncoder) << "sample rate" << inSound.fSampleRate <<
+    qDebug() << "sample rate" << inSound.fSampleRate <<
                                  c->sample_rate;
-    qCDebug(lcVideoEncoder) << "sample format" << av_get_sample_fmt_name(inSound.fSampleFormat) <<
+    qDebug() << "sample format" << av_get_sample_fmt_name(inSound.fSampleFormat) <<
                                    av_get_sample_fmt_name(c->sample_fmt);
-    qCDebug(lcVideoEncoder) << "bitrate" << settings.fAudioBitrate;
+    qDebug() << "bitrate" << settings.fAudioBitrate;
 #endif
 }
 
@@ -678,7 +675,6 @@ void VideoEncoder::interrupEncoding() {
 }
 
 void VideoEncoder::finishEncodingSuccess() {
-    qCDebug(lcVideoEncoder) << "VideoEncoder::finishEncodingSuccess";
     mRenderInstanceSettings->setCurrentState(RenderState::finished);
     mEncodingSuccesfull = true;
     finishEncodingNow();
@@ -738,7 +734,6 @@ static void closeStream(OutputStream * const ost) {
 }
 
 void VideoEncoder::finishEncodingNow() {
-    qCDebug(lcVideoEncoder) << "VideoEncoder::finishEncodingNow succesfull=" << mEncodingSuccesfull;
     if(!mCurrentlyEncoding) return;
 
     if(mEncodeVideo) flushStream(&mVideoStream, mFormatContext);
@@ -754,12 +749,7 @@ void VideoEncoder::finishEncodingNow() {
         }
     }
 
-    if(mEncodingSuccesfull) {
-        qCDebug(lcVideoEncoder) << "VideoEncoder::finishEncodingNow: writing trailer";
-        av_write_trailer(mFormatContext);
-    } else {
-        qCDebug(lcVideoEncoder) << "VideoEncoder::finishEncodingNow: skipping trailer (not successful)";
-    }
+    if(mEncodingSuccesfull) av_write_trailer(mFormatContext);
 
     /* Close each codec. */
     if(mEncodeVideo) closeStream(&mVideoStream);
