@@ -64,6 +64,7 @@
 #include "GUI/edialogs.h"
 #include "eimporters.h"
 #include "dialogs/exportsvgdialog.h"
+#include "dialogs/exportlottiedialog.h"
 #include "widgets/alignwidget.h"
 #include "widgets/welcomedialog.h"
 #include "Boxes/textbox.h"
@@ -107,6 +108,7 @@ MainWindow::MainWindow(Document& document,
     , mSaveBackAct(nullptr)
     , mPreviewSVGAct(nullptr)
     , mExportSVGAct(nullptr)
+    , mExportLottieAct(nullptr)
     , mRenderVideoAct(nullptr)
     , mCloseProjectAct(nullptr)
     , mLinkedAct(nullptr)
@@ -424,6 +426,7 @@ void MainWindow::updateSettingsForCurrentCanvas(Canvas* const scene)
 
     if (mPreviewSVGAct) { mPreviewSVGAct->setEnabled(scene); }
     if (mExportSVGAct) { mExportSVGAct->setEnabled(scene); }
+    if (mExportLottieAct) { mExportLottieAct->setEnabled(scene); }
     if (mSaveAct) { mSaveAct->setEnabled(scene); }
     if (mSaveAsAct) { mSaveAsAct->setEnabled(scene); }
     if (mSaveBackAct) { mSaveBackAct->setEnabled(scene); }
@@ -1208,6 +1211,20 @@ void MainWindow::exportSVG(const bool &preview)
     } else {
         dialog->showPreview(true /* close when done */);
     }
+}
+
+const QString MainWindow::checkBeforeExportLottie()
+{
+    return tr("Lottie export is currently an initial native exporter. "
+              "It writes composition timing, canvas size, background, and "
+              "keeps scene layers isolated for future vector mapping.");
+}
+
+void MainWindow::exportLottie()
+{
+    const auto dialog = new ExportLottieDialog(this, checkBeforeExportLottie());
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->show();
 }
 
 void MainWindow::updateLastOpenDir(const QString &path)

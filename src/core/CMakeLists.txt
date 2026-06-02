@@ -314,6 +314,8 @@ set(
     Animators/intanimator.cpp
     Animators/key.cpp
     Animators/boolanimator.cpp
+    lottie/lottieexporter.cpp
+    lottie/lottielayerbuilder.cpp
     svgexporter.cpp
     svgexporthelpers.cpp
     svgimporter.cpp

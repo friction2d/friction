@@ -144,6 +144,18 @@ void MainWindow::setupMenuBar()
     mExportSVGAct->setObjectName("ExportSVGAct");
     cmdAddAction(mExportSVGAct);
 
+    mExportLottieAct = mFileMenu->addAction(QIcon::fromTheme("output"),
+                                            tr("Export Lottie", "MenuBar_File"),
+                                            this, &MainWindow::exportLottie,
+                                            QKeySequence(AppSupport::getSettings("shortcuts",
+                                                                                 "exportLottie",
+                                                                                 "Alt+Shift+F12").toString()));
+    mExportLottieAct->setEnabled(false);
+    mExportLottieAct->setToolTip(tr("Export Lottie Animation"));
+    mExportLottieAct->setData(mExportLottieAct->toolTip());
+    mExportLottieAct->setObjectName("ExportLottieAct");
+    cmdAddAction(mExportLottieAct);
+
     mFileMenu->addSeparator();
     mCloseProjectAct = mFileMenu->addAction(QIcon::fromTheme("dialog-cancel"),
                                             tr("Close", "MenuBar_File"),
@@ -844,6 +856,7 @@ void MainWindow::setupMenuBar()
 
     mToolbar->addAction(mPreviewSVGAct);
     mToolbar->addAction(mExportSVGAct);
+    mToolbar->addAction(mExportLottieAct);
     mToolbar->updateActions();
 
     setMenuBar(mMenuBar);
