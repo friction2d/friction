@@ -238,8 +238,7 @@ void LottieLayerBuilder::appendContainerLayers(const ContainerBox* const contain
                                                const int parentId) const
 {
     const auto& boxes = container->getContainedBoxes();
-    for (auto it = boxes.crbegin(); it != boxes.crend(); ++it) {
-        const auto box = *it;
+    for (const auto box : boxes) {
         if (!box) { continue; }
 
         const auto childContainer = dynamic_cast<const ContainerBox*>(box);
