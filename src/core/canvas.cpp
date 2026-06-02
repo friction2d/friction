@@ -127,12 +127,17 @@ void Canvas::setResolution(const qreal percent)
 {
     if(isZero6Dec(mResolution - percent)) return;
     mResolution = percent;
+    invalidateSceneFramesCache();
+    prp_afterWholeInfluenceRangeChanged();
+    updateAllBoxes(UpdateReason::userChange);
+}
+
+void Canvas::invalidateSceneFramesCache()
+{
     mSceneFrame.reset();
     mLoadingSceneFrame.reset();
     mSceneFrameOutdated = true;
     mSceneFramesHandler.clear();
-    prp_afterWholeInfluenceRangeChanged();
-    updateAllBoxes(UpdateReason::userChange);
 }
 
 void Canvas::setCurrentGroupParentAsCurrentGroup()

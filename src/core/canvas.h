@@ -192,6 +192,7 @@ public:
     void setWorldToScreen(const QTransform& transform,
                           qreal devicePixelRatio);
     void setResolution(const qreal percent);
+    void invalidateSceneFramesCache();
 
     void applyCurrentTransformToSelected();
     QPointF getSelectedPointsAbsPivotPos();
