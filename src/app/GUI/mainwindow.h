@@ -168,7 +168,7 @@ public:
     const QString checkBeforeExportSVG();
     void exportSVG(const bool &preview = false);
     const QString checkBeforeExportLottie();
-    void exportLottie();
+    void exportLottie(const bool &preview = false);
     void updateLastOpenDir(const QString &path);
     void updateLastSaveDir(const QString &path);
     const QString getLastOpenDir();
@@ -245,6 +245,7 @@ private:
     QAction *mSaveBackAct;
     QAction *mPreviewSVGAct;
     QAction *mExportSVGAct;
+    QAction *mPreviewLottieAct;
     QAction *mExportLottieAct;
     QAction *mRenderVideoAct;
     QAction *mCloseProjectAct;

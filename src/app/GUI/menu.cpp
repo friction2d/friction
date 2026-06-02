@@ -144,6 +144,18 @@ void MainWindow::setupMenuBar()
     mExportSVGAct->setObjectName("ExportSVGAct");
     cmdAddAction(mExportSVGAct);
 
+    mPreviewLottieAct = mFileMenu->addAction(QIcon::fromTheme("seq_preview"),
+                                             tr("Preview Lottie", "MenuBar_File"),
+                                             this, [this]{ exportLottie(true); },
+                                             QKeySequence(AppSupport::getSettings("shortcuts",
+                                                                                  "previewLottie",
+                                                                                  "Alt+Ctrl+F12").toString()));
+    mPreviewLottieAct->setEnabled(false);
+    mPreviewLottieAct->setToolTip(tr("Preview Lottie Animation in Web Browser"));
+    mPreviewLottieAct->setData(mPreviewLottieAct->toolTip());
+    mPreviewLottieAct->setObjectName("PreviewLottieAct");
+    cmdAddAction(mPreviewLottieAct);
+
     mExportLottieAct = mFileMenu->addAction(QIcon::fromTheme("output"),
                                             tr("Export Lottie", "MenuBar_File"),
                                             this, &MainWindow::exportLottie,
@@ -856,6 +868,7 @@ void MainWindow::setupMenuBar()
 
     mToolbar->addAction(mPreviewSVGAct);
     mToolbar->addAction(mExportSVGAct);
+    mToolbar->addAction(mPreviewLottieAct);
     mToolbar->addAction(mExportLottieAct);
     mToolbar->updateActions();
 

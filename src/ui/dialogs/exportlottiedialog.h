@@ -26,7 +26,9 @@
 
 class Canvas;
 class QCheckBox;
+class QPushButton;
 class QSpinBox;
+class QTemporaryFile;
 class SceneChooser;
 
 class UI_EXPORT ExportLottieDialog : public Friction::Ui::Dialog
@@ -34,10 +36,17 @@ class UI_EXPORT ExportLottieDialog : public Friction::Ui::Dialog
 public:
     ExportLottieDialog(QWidget* const parent = nullptr,
                        const QString& warnings = QString());
+    void showPreview(const bool& closeWhenDone = false);
 
 private:
     bool exportTo(const QString& file);
+    bool writePreviewHtml(const QString& jsonFile,
+                          const QString& htmlFile);
     void finishedDialog(const QString& fileName);
+
+    QSharedPointer<QTemporaryFile> mPreviewJsonFile;
+    QSharedPointer<QTemporaryFile> mPreviewHtmlFile;
+    QPushButton* mPreviewButton;
 
     SceneChooser* mScene;
     QSpinBox* mFirstFrame;

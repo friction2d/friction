@@ -34,6 +34,7 @@
 #include <QDesktopServices>
 #include <QDialogButtonBox>
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -42,6 +43,8 @@
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QSpinBox>
+#include <QTemporaryFile>
+#include <QTextStream>
 #include <QUrl>
 #include <QVBoxLayout>
 
@@ -146,6 +149,13 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
     const auto buttonCancel = new QPushButton(QIcon::fromTheme("dialog-cancel"),
                                               tr("Close"),
                                               this);
+    mPreviewButton = new QPushButton(QIcon::fromTheme("seq_preview"),
+                                     tr("Preview"),
+                                     this);
+    mPreviewButton->setObjectName("LottiePreviewButton");
+
+    connect(mPreviewButton, &QPushButton::released,
+            this, [this] { showPreview(false); });
 
     connect(buttonExport, &QPushButton::clicked, this, [this]() {
         const QString fileType = tr("Lottie Files %1", "ExportDialog_FileType");
@@ -181,19 +191,52 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
         settingsLayout->addStretch();
     }
 
+    buttonsLayout->addWidget(mPreviewButton);
     buttonsLayout->addStretch();
     buttonsLayout->addWidget(buttonExport);
     buttonsLayout->addWidget(buttonCancel);
     settingsLayout->addWidget(buttons);
 
+    mPreviewButton->setEnabled(scene);
     buttonExport->setEnabled(scene);
     connect(mScene, &SceneChooser::currentChanged,
             this, [this, sceneButton, buttonExport](Canvas* const scene) {
         buttonExport->setEnabled(scene);
+        mPreviewButton->setEnabled(scene);
         sceneButton->setText(mScene->title());
     });
 
     setLayout(settingsLayout);
+}
+
+void ExportLottieDialog::showPreview(const bool& closeWhenDone)
+{
+    if (!mPreviewJsonFile) {
+        const QString templ = QString::fromUtf8("%1/%2_lottie_preview_XXXXXX.json").arg(AppSupport::getAppTempPath(),
+                                                                                        AppSupport::getAppName());
+        mPreviewJsonFile = QSharedPointer<QTemporaryFile>::create(templ);
+        mPreviewJsonFile->setAutoRemove(false);
+        mPreviewJsonFile->open();
+        mPreviewJsonFile->close();
+    }
+    if (!mPreviewHtmlFile) {
+        const QString templ = QString::fromUtf8("%1/%2_lottie_preview_XXXXXX.html").arg(AppSupport::getAppTempPath(),
+                                                                                        AppSupport::getAppName());
+        mPreviewHtmlFile = QSharedPointer<QTemporaryFile>::create(templ);
+        mPreviewHtmlFile->setAutoRemove(false);
+        mPreviewHtmlFile->open();
+        mPreviewHtmlFile->close();
+    }
+
+    const QString jsonFile = mPreviewJsonFile->fileName();
+    const QString htmlFile = mPreviewHtmlFile->fileName();
+    if (!exportTo(jsonFile) || !writePreviewHtml(jsonFile, htmlFile)) {
+        if (closeWhenDone) { close(); }
+        return;
+    }
+
+    QDesktopServices::openUrl(QUrl::fromLocalFile(htmlFile));
+    if (closeWhenDone) { close(); }
 }
 
 bool ExportLottieDialog::exportTo(const QString& file)
@@ -216,6 +259,49 @@ bool ExportLottieDialog::exportTo(const QString& file)
         gPrintExceptionCritical(e);
         return false;
     }
+}
+
+bool ExportLottieDialog::writePreviewHtml(const QString& jsonFile,
+                                          const QString& htmlFile)
+{
+    QFile json(jsonFile);
+    if (!json.open(QIODevice::ReadOnly)) { return false; }
+    const QByteArray encodedJson = json.readAll().toBase64();
+    json.close();
+
+    QFile html(htmlFile);
+    if (!html.open(QIODevice::WriteOnly | QIODevice::Truncate)) { return false; }
+
+    QTextStream stream(&html);
+    stream << "<!DOCTYPE html>\n";
+    stream << "<html>\n";
+    stream << "<head>\n";
+    stream << "<meta charset=\"utf-8\" />\n";
+    stream << "<title>" << tr("Lottie Preview") << "</title>\n";
+    stream << "<style>\n";
+    stream << "html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;}\n";
+    stream << "html{background:repeating-conic-gradient(#b0b0b0 0% 25%,transparent 0% 50%) 50%/40px 40px;}\n";
+    stream << "#preview{width:100%;height:100%;}\n";
+    stream << "#error{display:none;box-sizing:border-box;width:100%;height:100%;padding:24px;font:14px sans-serif;background:#202124;color:#f1f3f4;}\n";
+    stream << "</style>\n";
+    stream << "</head>\n";
+    stream << "<body>\n";
+    stream << "<div id=\"preview\"></div>\n";
+    stream << "<div id=\"error\"></div>\n";
+    stream << "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js\"></script>\n";
+    stream << "<script>\n";
+    stream << "const encoded='" << QString::fromLatin1(encodedJson) << "';\n";
+    stream << "const showError=(message)=>{const el=document.getElementById('error');el.textContent=message;el.style.display='block';document.getElementById('preview').style.display='none';};\n";
+    stream << "try{if(!window.lottie){throw new Error('Could not load lottie-web. Check your network connection.');}\n";
+    stream << "const animationData=JSON.parse(atob(encoded));\n";
+    stream << "lottie.loadAnimation({container:document.getElementById('preview'),renderer:'svg',loop:true,autoplay:true,animationData});\n";
+    stream << "}catch(error){showError(error.message || String(error));}\n";
+    stream << "</script>\n";
+    stream << "</body>\n";
+    stream << "</html>\n";
+    stream.flush();
+    html.close();
+    return true;
 }
 
 void ExportLottieDialog::finishedDialog(const QString& fileName)

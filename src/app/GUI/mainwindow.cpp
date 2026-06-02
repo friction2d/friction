@@ -108,6 +108,7 @@ MainWindow::MainWindow(Document& document,
     , mSaveBackAct(nullptr)
     , mPreviewSVGAct(nullptr)
     , mExportSVGAct(nullptr)
+    , mPreviewLottieAct(nullptr)
     , mExportLottieAct(nullptr)
     , mRenderVideoAct(nullptr)
     , mCloseProjectAct(nullptr)
@@ -426,6 +427,7 @@ void MainWindow::updateSettingsForCurrentCanvas(Canvas* const scene)
 
     if (mPreviewSVGAct) { mPreviewSVGAct->setEnabled(scene); }
     if (mExportSVGAct) { mExportSVGAct->setEnabled(scene); }
+    if (mPreviewLottieAct) { mPreviewLottieAct->setEnabled(scene); }
     if (mExportLottieAct) { mExportLottieAct->setEnabled(scene); }
     if (mSaveAct) { mSaveAct->setEnabled(scene); }
     if (mSaveAsAct) { mSaveAsAct->setEnabled(scene); }
@@ -1220,11 +1222,16 @@ const QString MainWindow::checkBeforeExportLottie()
               "keeps scene layers isolated for future vector mapping.");
 }
 
-void MainWindow::exportLottie()
+void MainWindow::exportLottie(const bool &preview)
 {
-    const auto dialog = new ExportLottieDialog(this, checkBeforeExportLottie());
+    const auto dialog = new ExportLottieDialog(this,
+                                               preview ? QString() : checkBeforeExportLottie());
     dialog->setAttribute(Qt::WA_DeleteOnClose);
-    dialog->show();
+    if (!preview) {
+        dialog->show();
+    } else {
+        dialog->showPreview(true /* close when done */);
+    }
 }
 
 void MainWindow::updateLastOpenDir(const QString &path)
