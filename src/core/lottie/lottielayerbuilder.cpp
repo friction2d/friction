@@ -31,6 +31,7 @@
 #include "Boxes/pathbox.h"
 #include "Boxes/rectangle.h"
 #include "canvas.h"
+#include "lottie/lottiepatheffects.h"
 #include "paintsettings.h"
 #include "simplemath.h"
 #include "skia/skiaincludes.h"
@@ -302,6 +303,7 @@ QJsonObject LottieLayerBuilder::buildRectangleLayer(RectangleBox* const box,
                                                         qAbs(radius.y()))));
 
     QJsonArray shapes{rect};
+    LottiePathEffects::appendBasePathEffects(box, mFrameRange, shapes);
     appendPaintObjects(box, shapes);
     shapes.append(shapeTransformObject());
 
@@ -317,6 +319,7 @@ QJsonObject LottieLayerBuilder::buildPathLayer(PathBox* const box,
 
     QJsonArray shapes = pathShapeObjects(box->getRelativePath(mFrameRange.fMin),
                                          box->prp_getName());
+    LottiePathEffects::appendBasePathEffects(box, mFrameRange, shapes);
     appendPaintObjects(box, shapes);
     shapes.append(shapeTransformObject());
 
