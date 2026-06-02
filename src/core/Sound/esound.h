@@ -55,11 +55,11 @@ public:
     int getSampleShift() const;
     SampleRange relSampleRange() const;
     SampleRange absSampleRange() const;
+    void drawWaveform(QPainter * const p, const qreal pixelsPerFrame,
+                      const FrameRange &absFrameRange, const int rowHeight);
 protected:
     qreal getCanvasFPS() const;
 private:
-    void drawWaveform(QPainter * const p, const qreal pixelsPerFrame,
-                      const FrameRange &absFrameRange, const int rowHeight);
     iValueRange absSecondToRelSecondsAbsStretch(const int absSecond);
 };
 

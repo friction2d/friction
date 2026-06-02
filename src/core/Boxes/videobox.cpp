@@ -158,6 +158,16 @@ QString VideoBox::getFilePath() {
     return mFileHandler.path();
 }
 
+void VideoBox::prp_drawTimelineControls(QPainter * const p,
+                                        const qreal pixelsPerFrame,
+                                        const FrameRange &absFrameRange,
+                                        const int rowHeight)
+{
+    drawDurationRectangle(p, pixelsPerFrame, absFrameRange, rowHeight);
+    mSound->drawWaveform(p, pixelsPerFrame, absFrameRange, rowHeight);
+    ComplexAnimator::prp_drawTimelineControls(p, pixelsPerFrame, absFrameRange, rowHeight);
+}
+
 const VideoBox::VideoSpecs VideoBox::getSpecs()
 {
     VideoSpecs specs;
