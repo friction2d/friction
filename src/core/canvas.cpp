@@ -125,7 +125,11 @@ qreal Canvas::getResolution() const
 
 void Canvas::setResolution(const qreal percent)
 {
+    if (isZero6Dec(mResolution - percent)) { return; }
     mResolution = percent;
+#ifdef Q_OS_MAC
+    invalidateSceneFramesCache();
+#endif
     prp_afterWholeInfluenceRangeChanged();
     updateAllBoxes(UpdateReason::userChange);
 }
