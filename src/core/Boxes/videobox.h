@@ -37,26 +37,32 @@ class CORE_EXPORT VideoBox : public AnimationBox {
 protected:
     VideoBox();
 
-    void prp_readPropertyXEV_impl(const QDomElement& ele, const XevImporter& imp);
-    QDomElement prp_writePropertyXEV_impl(const XevExporter& exp) const;
+    void prp_readPropertyXEV_impl(const QDomElement& ele, const XevImporter& imp) override;
+    QDomElement prp_writePropertyXEV_impl(const XevExporter& exp) const override;
 public:
     struct VideoSpecs {
         QSize dim;
         qreal fps;
         FrameRange range;
     };
-    void changeSourceFile();
+    void changeSourceFile() override;
 
-    void writeBoundingBox(eWriteStream& dst) const;
-    void readBoundingBox(eReadStream& src);
+    void writeBoundingBox(eWriteStream& dst) const override;
+    void readBoundingBox(eReadStream& src) override;
 
-    void setStretch(const qreal stretch);
+    void setStretch(const qreal stretch) override;
 
     eVideoSound* sound() const
     { return mSound.get(); }
     void setFilePath(const QString& path);
     QString getFilePath();
     const VideoSpecs getSpecs();
+
+    void prp_drawTimelineControls(QPainter * const p,
+                                  const qreal pixelsPerFrame,
+                                  const FrameRange &absFrameRange,
+                                  const int rowHeight) override;
+
 private:
     void setFilePathNoRename(const QString &path);
 
