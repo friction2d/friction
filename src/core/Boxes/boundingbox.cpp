@@ -555,6 +555,9 @@ void BoundingBox::planUpdate(const UpdateReason reason) {
     if(reason == UpdateReason::userChange) {
         mStateId++;
         mRenderDataHandler.clear();
+        if(const auto canvas = enve_cast<Canvas*>(this)) {
+            canvas->invalidateSceneFramesCache();
+        }
     }
 
     mDrawRenderContainer.setExpired(true);

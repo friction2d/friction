@@ -130,6 +130,14 @@ void Canvas::setResolution(const qreal percent)
     updateAllBoxes(UpdateReason::userChange);
 }
 
+void Canvas::invalidateSceneFramesCache()
+{
+    mSceneFrame.reset();
+    mLoadingSceneFrame.reset();
+    mSceneFrameOutdated = true;
+    mSceneFramesHandler.clear();
+}
+
 void Canvas::setCurrentGroupParentAsCurrentGroup()
 {
     setCurrentBoxesGroup(mCurrentContainer->getParentGroup());
