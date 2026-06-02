@@ -72,6 +72,7 @@ void LottieExporter::finish()
                 });
 
     const LottieLayerBuilder builder(mScene, mFrameRange, mFps);
+    root.insert(QStringLiteral("fonts"), builder.buildFonts());
     root.insert(QStringLiteral("layers"), builder.buildLayers(mBackground));
 
     QFile file(mPath);

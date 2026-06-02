@@ -30,6 +30,7 @@
 #include "Boxes/containerbox.h"
 #include "Boxes/pathbox.h"
 #include "Boxes/rectangle.h"
+#include "Boxes/textbox.h"
 #include "canvas.h"
 #include "lottie/lottiepatheffects.h"
 #include "paintsettings.h"
@@ -38,6 +39,7 @@
 
 #include <QColor>
 #include <QPointF>
+#include <QSet>
 
 namespace {
 
@@ -208,6 +210,14 @@ QJsonArray LottieLayerBuilder::buildLayers(const bool background) const
     return layers;
 }
 
+QJsonObject LottieLayerBuilder::buildFonts() const
+{
+    QJsonArray fonts;
+    QSet<QString> names;
+    if (mScene) { appendFonts(mScene, fonts, names); }
+    return QJsonObject{{QStringLiteral("list"), fonts}};
+}
+
 QJsonObject LottieLayerBuilder::buildBackgroundLayer() const
 {
     auto layer = baseLayer(QStringLiteral("Background"), 1, 1);
@@ -243,6 +253,15 @@ void LottieLayerBuilder::appendContainerLayers(const ContainerBox* const contain
         const auto rectangle = dynamic_cast<RectangleBox*>(box);
         if (rectangle) {
             auto layer = buildRectangleLayer(rectangle, nextId);
+            assignParent(layer, parentId);
+            layers.append(layer);
+            nextId++;
+            continue;
+        }
+
+        const auto text = dynamic_cast<TextBox*>(box);
+        if (text && canBuildNativeTextLayer(text)) {
+            auto layer = buildTextLayer(text, nextId);
             assignParent(layer, parentId);
             layers.append(layer);
             nextId++;
@@ -308,6 +327,64 @@ QJsonObject LottieLayerBuilder::buildRectangleLayer(RectangleBox* const box,
     shapes.append(shapeTransformObject());
 
     layer.insert(QStringLiteral("shapes"), shapes);
+    return layer;
+}
+
+QJsonObject LottieLayerBuilder::buildTextLayer(TextBox* const box,
+                                               const int id) const
+{
+    auto layer = baseLayer(box->prp_getName(), id, 5);
+    layer.insert(QStringLiteral("ks"), transformObject(box));
+
+    QColor fillColor(0, 0, 0);
+    const auto fill = box->getFillSettings();
+    if (fill && fill->getPaintType() == PaintType::FLATPAINT) {
+        fillColor = fill->getColor(mFrameRange.fMin);
+    }
+
+    QJsonObject document;
+    document.insert(QStringLiteral("s"), box->getFontSize());
+    document.insert(QStringLiteral("f"), fontName(box));
+    document.insert(QStringLiteral("t"), box->getCurrentValue());
+    document.insert(QStringLiteral("j"), 0);
+    document.insert(QStringLiteral("tr"), 0);
+    document.insert(QStringLiteral("lh"), box->getFontSize()*1.2);
+    document.insert(QStringLiteral("ls"), 0);
+    document.insert(QStringLiteral("sz"), QJsonArray{mScene ? mScene->getCanvasWidth() : 0,
+                                                     mScene ? mScene->getCanvasHeight() : 0});
+    document.insert(QStringLiteral("ps"), QJsonArray{0, -box->getFontSize()*0.75});
+    document.insert(QStringLiteral("fc"), QJsonArray{fillColor.redF(),
+                                                     fillColor.greenF(),
+                                                     fillColor.blueF()});
+
+    const auto stroke = box->getStrokeSettings();
+    if (stroke &&
+        stroke->getPaintType() == PaintType::FLATPAINT &&
+        !isZero4Dec(stroke->getLineWidthAnimator()->getEffectiveValue(mFrameRange.fMin))) {
+        const QColor strokeColor = stroke->getColor(mFrameRange.fMin);
+        document.insert(QStringLiteral("sc"), QJsonArray{strokeColor.redF(),
+                                                         strokeColor.greenF(),
+                                                         strokeColor.blueF()});
+        document.insert(QStringLiteral("sw"),
+                        stroke->getLineWidthAnimator()->getEffectiveValue(mFrameRange.fMin));
+    }
+
+    QJsonObject documentKey;
+    documentKey.insert(QStringLiteral("s"), document);
+    documentKey.insert(QStringLiteral("t"), mFrameRange.fMin);
+
+    QJsonObject textData;
+    textData.insert(QStringLiteral("d"), QJsonObject{
+                        {QStringLiteral("k"), QJsonArray{documentKey}}
+                    });
+    textData.insert(QStringLiteral("p"), QJsonObject());
+    textData.insert(QStringLiteral("m"), QJsonObject{
+                        {QStringLiteral("g"), 1},
+                        {QStringLiteral("a"), staticProperty(QJsonArray{0, 0})}
+                    });
+    textData.insert(QStringLiteral("a"), QJsonArray());
+
+    layer.insert(QStringLiteral("t"), textData);
     return layer;
 }
 
@@ -598,4 +675,74 @@ QJsonArray LottieLayerBuilder::colorArray(const QColor& color) const
         color.blueF(),
         color.alphaF()
     };
+}
+
+void LottieLayerBuilder::appendFonts(const ContainerBox* const container,
+                                     QJsonArray& fonts,
+                                     QSet<QString>& names) const
+{
+    if (!container) { return; }
+
+    const auto& boxes = container->getContainedBoxes();
+    for (const auto box : boxes) {
+        if (!box) { continue; }
+
+        const auto text = dynamic_cast<const TextBox*>(box);
+        if (text && canBuildNativeTextLayer(text)) {
+            const QString name = fontName(text);
+            if (!names.contains(name)) {
+                names.insert(name);
+                fonts.append(fontObject(text));
+            }
+        }
+
+        const auto childContainer = dynamic_cast<const ContainerBox*>(box);
+        if (childContainer) {
+            appendFonts(childContainer, fonts, names);
+        }
+    }
+}
+
+QJsonObject LottieLayerBuilder::fontObject(const TextBox* const box) const
+{
+    return QJsonObject{
+        {QStringLiteral("fName"), fontName(box)},
+        {QStringLiteral("fFamily"), box ? box->getFontFamily() : QStringLiteral("Sans")},
+        {QStringLiteral("fStyle"), fontStyleName(box)},
+        {QStringLiteral("ascent"), 75}
+    };
+}
+
+QString LottieLayerBuilder::fontName(const TextBox* const box) const
+{
+    const QString family = box ? box->getFontFamily() : QStringLiteral("Sans");
+    const QString style = fontStyleName(box);
+    QString name = style == QStringLiteral("Regular") ?
+                family :
+                QStringLiteral("%1-%2").arg(family, style);
+    return name.replace(QLatin1Char(' '), QLatin1Char('_'));
+}
+
+QString LottieLayerBuilder::fontStyleName(const TextBox* const box) const
+{
+    if (!box) { return QStringLiteral("Regular"); }
+
+    const auto& style = box->getFontStyle();
+    const bool bold = style.weight() >= SkFontStyle::kSemiBold_Weight;
+    const bool italic = style.slant() != SkFontStyle::kUpright_Slant;
+
+    if (bold && italic) { return QStringLiteral("BoldItalic"); }
+    if (bold) { return QStringLiteral("Bold"); }
+    if (italic) { return QStringLiteral("Italic"); }
+    return QStringLiteral("Regular");
+}
+
+bool LottieLayerBuilder::canBuildNativeTextLayer(const TextBox* const box) const
+{
+    return box &&
+           !box->hasTextEffects() &&
+           !box->hasBasePathEffects() &&
+           !box->hasFillEffects() &&
+           !box->hasOutlineBaseEffects() &&
+           !box->hasOutlineEffects();
 }

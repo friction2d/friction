@@ -26,6 +26,7 @@
 
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QSet>
 
 class BoundingBox;
 class Canvas;
@@ -33,6 +34,7 @@ class QColor;
 class ContainerBox;
 class PathBox;
 class RectangleBox;
+class TextBox;
 
 class CORE_EXPORT LottieLayerBuilder
 {
@@ -42,6 +44,7 @@ public:
                        const qreal fps);
 
     QJsonArray buildLayers(const bool background) const;
+    QJsonObject buildFonts() const;
 
 private:
     QJsonObject buildBackgroundLayer() const;
@@ -54,6 +57,8 @@ private:
                                     const int parentId) const;
     QJsonObject buildRectangleLayer(RectangleBox* const box,
                                     const int id) const;
+    QJsonObject buildTextLayer(TextBox* const box,
+                               const int id) const;
     QJsonObject buildPathLayer(PathBox* const box,
                                const int id) const;
     QJsonObject buildUnsupportedLayer(const BoundingBox* const box,
@@ -78,6 +83,13 @@ private:
     QJsonObject strokeObject(const PathBox* const box) const;
     QJsonObject shapeTransformObject() const;
     QJsonArray colorArray(const QColor& color) const;
+    void appendFonts(const ContainerBox* const container,
+                     QJsonArray& fonts,
+                     QSet<QString>& names) const;
+    QJsonObject fontObject(const TextBox* const box) const;
+    QString fontName(const TextBox* const box) const;
+    QString fontStyleName(const TextBox* const box) const;
+    bool canBuildNativeTextLayer(const TextBox* const box) const;
 
     Canvas* const mScene;
     const FrameRange mFrameRange;
