@@ -594,18 +594,20 @@ void LottieLayerBuilder::appendPaintObjects(const PathBox* const box,
 
 QJsonObject LottieLayerBuilder::fillObject(const PathBox* const box) const
 {
-    QColor fillColor(0, 0, 0, 0);
-    qreal fillOpacity = 0;
+    QList<QJsonArray> fillColors;
+    QList<qreal> fillOpacities;
     const auto fill = box->getFillSettings();
-    if (fill) {
-        fillColor = fill->getColor(mFrameRange.fMin);
-        fillOpacity = fillColor.alphaF()*100;
+    for (int frame = mFrameRange.fMin; frame <= mFrameRange.fMax; frame++) {
+        QColor fillColor(0, 0, 0, 0);
+        if (fill) { fillColor = fill->getColor(frame); }
+        fillColors << colorArray(fillColor);
+        fillOpacities << fillColor.alphaF()*100;
     }
 
     QJsonObject object;
     object.insert(QStringLiteral("ty"), QStringLiteral("fl"));
-    object.insert(QStringLiteral("c"), staticProperty(colorArray(fillColor)));
-    object.insert(QStringLiteral("o"), staticProperty(fillOpacity));
+    object.insert(QStringLiteral("c"), animatedPointProperty(fillColors));
+    object.insert(QStringLiteral("o"), animatedScalarProperty(fillOpacities));
     object.insert(QStringLiteral("r"), 1);
     object.insert(QStringLiteral("bm"), 0);
     object.insert(QStringLiteral("nm"), QStringLiteral("Fill"));
@@ -614,18 +616,14 @@ QJsonObject LottieLayerBuilder::fillObject(const PathBox* const box) const
 
 QJsonObject LottieLayerBuilder::strokeObject(const PathBox* const box) const
 {
-    QColor strokeColor(0, 0, 0, 0);
-    qreal strokeOpacity = 0;
-    qreal strokeWidth = 0;
+    QList<QJsonArray> strokeColors;
+    QList<qreal> strokeOpacities;
+    QList<qreal> strokeWidths;
     int lineCap = 2;
     int lineJoin = 2;
 
     const auto stroke = box->getStrokeSettings();
     if (stroke) {
-        strokeColor = stroke->getColor(mFrameRange.fMin);
-        strokeOpacity = strokeColor.alphaF()*100;
-        strokeWidth = stroke->getLineWidthAnimator()->getEffectiveValue(mFrameRange.fMin);
-
         switch(stroke->getCapStyle()) {
         case SkPaint::kButt_Cap: lineCap = 1; break;
         case SkPaint::kSquare_Cap: lineCap = 3; break;
@@ -639,11 +637,23 @@ QJsonObject LottieLayerBuilder::strokeObject(const PathBox* const box) const
         }
     }
 
+    for (int frame = mFrameRange.fMin; frame <= mFrameRange.fMax; frame++) {
+        QColor strokeColor(0, 0, 0, 0);
+        qreal strokeWidth = 0;
+        if (stroke) {
+            strokeColor = stroke->getColor(frame);
+            strokeWidth = stroke->getLineWidthAnimator()->getEffectiveValue(frame);
+        }
+        strokeColors << colorArray(strokeColor);
+        strokeOpacities << strokeColor.alphaF()*100;
+        strokeWidths << strokeWidth;
+    }
+
     QJsonObject object;
     object.insert(QStringLiteral("ty"), QStringLiteral("st"));
-    object.insert(QStringLiteral("c"), staticProperty(colorArray(strokeColor)));
-    object.insert(QStringLiteral("o"), staticProperty(strokeOpacity));
-    object.insert(QStringLiteral("w"), staticProperty(strokeWidth));
+    object.insert(QStringLiteral("c"), animatedPointProperty(strokeColors));
+    object.insert(QStringLiteral("o"), animatedScalarProperty(strokeOpacities));
+    object.insert(QStringLiteral("w"), animatedScalarProperty(strokeWidths));
     object.insert(QStringLiteral("lc"), lineCap);
     object.insert(QStringLiteral("lj"), lineJoin);
     object.insert(QStringLiteral("ml"), 4);
