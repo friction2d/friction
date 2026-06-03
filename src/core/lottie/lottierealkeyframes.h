@@ -33,6 +33,7 @@
 class QPointFAnimator;
 class QrealAnimator;
 class ColorAnimator;
+class Gradient;
 
 namespace LottieRealKeyframes {
 
@@ -48,6 +49,9 @@ QJsonObject point(QPointFAnimator* const animator,
 QJsonObject color(ColorAnimator* const animator,
                   const FrameRange& frameRange,
                   const bool alpha);
+QJsonObject gradientColors(Gradient* const gradient,
+                           const int stopCount,
+                           const FrameRange& frameRange);
 
 }
 

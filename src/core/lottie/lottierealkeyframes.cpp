@@ -22,6 +22,7 @@
 #include "lottie/lottierealkeyframes.h"
 
 #include "Animators/coloranimator.h"
+#include "Animators/gradient.h"
 #include "Animators/qpointfanimator.h"
 #include "Animators/qrealanimator.h"
 #include "Animators/qrealkey.h"
@@ -241,6 +242,108 @@ QJsonArray colorArray(const QList<ScalarKeys>& channels,
     return result;
 }
 
+qreal gradientStopPosition(const int index,
+                           const int stopCount)
+{
+    return stopCount <= 1 ? 0 : qreal(index)/(stopCount - 1);
+}
+
+void appendStaticEaseIn(QList<qreal>& xs,
+                        QList<qreal>& ys)
+{
+    xs << 1;
+    ys << 1;
+}
+
+void appendStaticEaseOut(QList<qreal>& xs,
+                         QList<qreal>& ys)
+{
+    xs << 0;
+    ys << 0;
+}
+
+void appendChannelEaseIn(QList<qreal>& xs,
+                         QList<qreal>& ys,
+                         const ScalarKeys& channel,
+                         const int index)
+{
+    const auto prev = channel.keys.at(index);
+    const auto next = channel.keys.at(index + 1);
+    const qreal startFrame = prev->getAbsFrame();
+    const qreal span = qMax(qreal(1), qreal(next->getAbsFrame() - prev->getAbsFrame()));
+    xs << (next->getC0AbsFrame() - startFrame)/span;
+    ys << normalizedValue(next->getC0Value(), prev->getValue(), next->getValue(), 1);
+}
+
+void appendChannelEaseOut(QList<qreal>& xs,
+                          QList<qreal>& ys,
+                          const ScalarKeys& channel,
+                          const int index)
+{
+    const auto prev = channel.keys.at(index);
+    const auto next = channel.keys.at(index + 1);
+    const qreal startFrame = prev->getAbsFrame();
+    const qreal span = qMax(qreal(1), qreal(next->getAbsFrame() - prev->getAbsFrame()));
+    xs << (prev->getC1AbsFrame() - startFrame)/span;
+    ys << normalizedValue(prev->getC1Value(), prev->getValue(), next->getValue(), 0);
+}
+
+QJsonObject gradientEaseIn(const QList<QList<ScalarKeys>>& stops,
+                           const int index)
+{
+    QList<qreal> xs;
+    QList<qreal> ys;
+    for (const auto& stop : stops) {
+        appendStaticEaseIn(xs, ys);
+        appendChannelEaseIn(xs, ys, stop.at(0), index);
+        appendChannelEaseIn(xs, ys, stop.at(1), index);
+        appendChannelEaseIn(xs, ys, stop.at(2), index);
+    }
+    for (const auto& stop : stops) {
+        appendStaticEaseIn(xs, ys);
+        appendChannelEaseIn(xs, ys, stop.at(3), index);
+    }
+    return easeObject(xs, ys);
+}
+
+QJsonObject gradientEaseOut(const QList<QList<ScalarKeys>>& stops,
+                            const int index)
+{
+    QList<qreal> xs;
+    QList<qreal> ys;
+    for (const auto& stop : stops) {
+        appendStaticEaseOut(xs, ys);
+        appendChannelEaseOut(xs, ys, stop.at(0), index);
+        appendChannelEaseOut(xs, ys, stop.at(1), index);
+        appendChannelEaseOut(xs, ys, stop.at(2), index);
+    }
+    for (const auto& stop : stops) {
+        appendStaticEaseOut(xs, ys);
+        appendChannelEaseOut(xs, ys, stop.at(3), index);
+    }
+    return easeObject(xs, ys);
+}
+
+QJsonArray gradientColorArray(const QList<QList<ScalarKeys>>& stops,
+                              const int index)
+{
+    QJsonArray result;
+    const int stopCount = stops.size();
+    for (int i = 0; i < stopCount; i++) {
+        const auto& stop = stops.at(i);
+        result.append(gradientStopPosition(i, stopCount));
+        result.append(stop.at(0).keys.at(index)->getValue());
+        result.append(stop.at(1).keys.at(index)->getValue());
+        result.append(stop.at(2).keys.at(index)->getValue());
+    }
+    for (int i = 0; i < stopCount; i++) {
+        const auto& stop = stops.at(i);
+        result.append(gradientStopPosition(i, stopCount));
+        result.append(stop.at(3).keys.at(index)->getValue());
+    }
+    return result;
+}
+
 }
 
 QJsonObject LottieRealKeyframes::scalar(QrealAnimator* const animator,
@@ -296,6 +399,51 @@ QJsonObject LottieRealKeyframes::color(ColorAnimator* const animator,
         if (i + 1 < keyCount) {
             keyframe.insert(QStringLiteral("i"), colorEaseIn(channels, i));
             keyframe.insert(QStringLiteral("o"), colorEaseOut(channels, i));
+        }
+        keyframes.append(keyframe);
+    }
+
+    return QJsonObject{
+        {QStringLiteral("a"), 1},
+        {QStringLiteral("k"), keyframes}
+    };
+}
+
+QJsonObject LottieRealKeyframes::gradientColors(Gradient* const gradient,
+                                                const int stopCount,
+                                                const FrameRange& frameRange)
+{
+    if (!gradient || stopCount < 2 ||
+        gradient->ca_getNumberOfChildren() != stopCount) {
+        return QJsonObject();
+    }
+
+    QList<QList<ScalarKeys>> stops;
+    QList<ScalarKeys> allChannels;
+    for (int i = 0; i < stopCount; i++) {
+        const auto color = gradient->getChild(i);
+        if (!color || color->getColorMode() != ColorMode::rgb) { return QJsonObject(); }
+
+        QList<ScalarKeys> channels{
+            scalarKeys(color->getVal1Animator(), frameRange),
+            scalarKeys(color->getVal2Animator(), frameRange),
+            scalarKeys(color->getVal3Animator(), frameRange),
+            scalarKeys(color->getAlphaAnimator(), frameRange)
+        };
+        for (const auto& channel : channels) { allChannels << channel; }
+        stops << channels;
+    }
+    if (!compatibleColorKeys(allChannels)) { return QJsonObject(); }
+
+    QJsonArray keyframes;
+    const int keyCount = allChannels.first().keys.size();
+    for (int i = 0; i < keyCount; i++) {
+        QJsonObject keyframe;
+        keyframe.insert(QStringLiteral("t"), allChannels.first().keys.at(i)->getAbsFrame());
+        keyframe.insert(QStringLiteral("s"), gradientColorArray(stops, i));
+        if (i + 1 < keyCount) {
+            keyframe.insert(QStringLiteral("i"), gradientEaseIn(stops, i));
+            keyframe.insert(QStringLiteral("o"), gradientEaseOut(stops, i));
         }
         keyframes.append(keyframe);
     }

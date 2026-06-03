@@ -727,19 +727,51 @@ QJsonObject LottieLayerBuilder::gradientObject(PaintSettingsAnimator* const sett
     object.insert(QStringLiteral("o"), animatedScalarProperty(opacities));
     object.insert(QStringLiteral("r"), 1);
     object.insert(QStringLiteral("bm"), 0);
+    const auto gradientReal = settings ?
+                LottieRealKeyframes::gradientColors(
+                    settings->getGradient(),
+                    stopCount,
+                    mFrameRange) :
+                QJsonObject();
     object.insert(QStringLiteral("g"), QJsonObject{
                       {QStringLiteral("p"), stopCount},
-                      {QStringLiteral("k"), animatedPointProperty(colors)}
+                      {QStringLiteral("k"),
+                       gradientReal.isEmpty() ?
+                           animatedPointProperty(colors) :
+                           gradientReal}
                   });
-    object.insert(QStringLiteral("s"), animatedPointProperty(starts));
-    object.insert(QStringLiteral("e"), animatedPointProperty(ends));
+    const auto startReal = settings && settings->getGradientPoints() ?
+                LottieRealKeyframes::point(
+                    settings->getGradientPoints()->startAnimator(),
+                    mFrameRange,
+                    [](const QPointF& point, const qreal) {
+                        return QJsonArray{point.x(), point.y()};
+                    }) :
+                QJsonObject();
+    object.insert(QStringLiteral("s"),
+                  startReal.isEmpty() ? animatedPointProperty(starts) : startReal);
+
+    const auto endReal = settings && settings->getGradientPoints() ?
+                LottieRealKeyframes::point(
+                    settings->getGradientPoints()->endAnimator(),
+                    mFrameRange,
+                    [](const QPointF& point, const qreal) {
+                        return QJsonArray{point.x(), point.y()};
+                    }) :
+                QJsonObject();
+    object.insert(QStringLiteral("e"),
+                  endReal.isEmpty() ? animatedPointProperty(ends) : endReal);
     object.insert(QStringLiteral("t"),
                   settings &&
                   settings->getGradientType() == GradientType::RADIAL ? 2 : 1);
     object.insert(QStringLiteral("nm"), name);
 
     if (stroke) {
-        object.insert(QStringLiteral("w"), animatedScalarProperty(widths));
+        const auto widthReal = outline ?
+                    LottieRealKeyframes::scalar(outline->getLineWidthAnimator(), mFrameRange) :
+                    QJsonObject();
+        object.insert(QStringLiteral("w"),
+                      widthReal.isEmpty() ? animatedScalarProperty(widths) : widthReal);
         object.insert(QStringLiteral("lc"), lineCap);
         object.insert(QStringLiteral("lj"), lineJoin);
         object.insert(QStringLiteral("ml"), 4);
