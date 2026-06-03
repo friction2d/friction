@@ -21,6 +21,7 @@
 
 #include "lottie/lottierealkeyframes.h"
 
+#include "Animators/coloranimator.h"
 #include "Animators/qpointfanimator.h"
 #include "Animators/qrealanimator.h"
 #include "Animators/qrealkey.h"
@@ -130,6 +131,28 @@ bool compatiblePointKeys(const ScalarKeys& x,
     return true;
 }
 
+bool compatibleColorKeys(const QList<ScalarKeys>& channels)
+{
+    if (channels.isEmpty()) { return false; }
+
+    const ScalarKeys* reference = nullptr;
+    for (const auto& channel : channels) {
+        if (!channel.valid) { return false; }
+        if (!reference) {
+            reference = &channel;
+            continue;
+        }
+        if (reference->keys.size() != channel.keys.size()) { return false; }
+        for (int i = 0; i < reference->keys.size(); i++) {
+            if (reference->keys.at(i)->getAbsFrame() != channel.keys.at(i)->getAbsFrame()) {
+                return false;
+            }
+        }
+    }
+
+    return reference && reference->keys.size() >= 2;
+}
+
 QJsonObject pointEaseIn(QrealKey* const xPrev,
                         QrealKey* const xNext,
                         QrealKey* const yPrev,
@@ -176,6 +199,48 @@ QJsonObject pointEaseOut(QrealKey* const xPrev,
     return easeObject(xs, ys);
 }
 
+QJsonObject colorEaseIn(const QList<ScalarKeys>& channels,
+                        const int index)
+{
+    QList<qreal> xs;
+    QList<qreal> ys;
+    for (const auto& channel : channels) {
+        const auto prev = channel.keys.at(index);
+        const auto next = channel.keys.at(index + 1);
+        const qreal startFrame = prev->getAbsFrame();
+        const qreal span = qMax(qreal(1), qreal(next->getAbsFrame() - prev->getAbsFrame()));
+        xs << (next->getC0AbsFrame() - startFrame)/span;
+        ys << normalizedValue(next->getC0Value(), prev->getValue(), next->getValue(), 1);
+    }
+    return easeObject(xs, ys);
+}
+
+QJsonObject colorEaseOut(const QList<ScalarKeys>& channels,
+                         const int index)
+{
+    QList<qreal> xs;
+    QList<qreal> ys;
+    for (const auto& channel : channels) {
+        const auto prev = channel.keys.at(index);
+        const auto next = channel.keys.at(index + 1);
+        const qreal startFrame = prev->getAbsFrame();
+        const qreal span = qMax(qreal(1), qreal(next->getAbsFrame() - prev->getAbsFrame()));
+        xs << (prev->getC1AbsFrame() - startFrame)/span;
+        ys << normalizedValue(prev->getC1Value(), prev->getValue(), next->getValue(), 0);
+    }
+    return easeObject(xs, ys);
+}
+
+QJsonArray colorArray(const QList<ScalarKeys>& channels,
+                      const int index)
+{
+    QJsonArray result;
+    for (const auto& channel : channels) {
+        result.append(channel.keys.at(index)->getValue());
+    }
+    return result;
+}
+
 }
 
 QJsonObject LottieRealKeyframes::scalar(QrealAnimator* const animator,
@@ -196,6 +261,41 @@ QJsonObject LottieRealKeyframes::scalar(QrealAnimator* const animator,
             const auto next = keys.keys.at(i + 1);
             keyframe.insert(QStringLiteral("i"), scalarEaseIn(key, next));
             keyframe.insert(QStringLiteral("o"), scalarEaseOut(key, next));
+        }
+        keyframes.append(keyframe);
+    }
+
+    return QJsonObject{
+        {QStringLiteral("a"), 1},
+        {QStringLiteral("k"), keyframes}
+    };
+}
+
+QJsonObject LottieRealKeyframes::color(ColorAnimator* const animator,
+                                       const FrameRange& frameRange,
+                                       const bool alpha)
+{
+    if (!animator || animator->getColorMode() != ColorMode::rgb) {
+        return QJsonObject();
+    }
+
+    QList<ScalarKeys> channels{
+        scalarKeys(animator->getVal1Animator(), frameRange),
+        scalarKeys(animator->getVal2Animator(), frameRange),
+        scalarKeys(animator->getVal3Animator(), frameRange)
+    };
+    if (alpha) { channels << scalarKeys(animator->getAlphaAnimator(), frameRange); }
+    if (!compatibleColorKeys(channels)) { return QJsonObject(); }
+
+    QJsonArray keyframes;
+    const int keyCount = channels.first().keys.size();
+    for (int i = 0; i < keyCount; i++) {
+        QJsonObject keyframe;
+        keyframe.insert(QStringLiteral("t"), channels.first().keys.at(i)->getAbsFrame());
+        keyframe.insert(QStringLiteral("s"), colorArray(channels, i));
+        if (i + 1 < keyCount) {
+            keyframe.insert(QStringLiteral("i"), colorEaseIn(channels, i));
+            keyframe.insert(QStringLiteral("o"), colorEaseOut(channels, i));
         }
         keyframes.append(keyframe);
     }

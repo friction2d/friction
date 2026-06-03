@@ -577,8 +577,20 @@ QJsonObject LottieLayerBuilder::fillObject(const PathBox* const box) const
 
     QJsonObject object;
     object.insert(QStringLiteral("ty"), QStringLiteral("fl"));
-    object.insert(QStringLiteral("c"), animatedPointProperty(fillColors));
-    object.insert(QStringLiteral("o"), animatedScalarProperty(fillOpacities));
+    const auto colorReal = fill ?
+                LottieRealKeyframes::color(fill->getColorAnimator(), mFrameRange, true) :
+                QJsonObject();
+    object.insert(QStringLiteral("c"),
+                  colorReal.isEmpty() ? animatedPointProperty(fillColors) : colorReal);
+
+    const auto opacityReal = fill && fill->getColorAnimator() ?
+                LottieRealKeyframes::scalar(
+                    fill->getColorAnimator()->getAlphaAnimator(),
+                    mFrameRange,
+                    [](const qreal value) { return value*100; }) :
+                QJsonObject();
+    object.insert(QStringLiteral("o"),
+                  opacityReal.isEmpty() ? animatedScalarProperty(fillOpacities) : opacityReal);
     object.insert(QStringLiteral("r"), 1);
     object.insert(QStringLiteral("bm"), 0);
     object.insert(QStringLiteral("nm"), QStringLiteral("Fill"));
@@ -629,9 +641,26 @@ QJsonObject LottieLayerBuilder::strokeObject(const PathBox* const box) const
 
     QJsonObject object;
     object.insert(QStringLiteral("ty"), QStringLiteral("st"));
-    object.insert(QStringLiteral("c"), animatedPointProperty(strokeColors));
-    object.insert(QStringLiteral("o"), animatedScalarProperty(strokeOpacities));
-    object.insert(QStringLiteral("w"), animatedScalarProperty(strokeWidths));
+    const auto colorReal = stroke ?
+                LottieRealKeyframes::color(stroke->getColorAnimator(), mFrameRange, true) :
+                QJsonObject();
+    object.insert(QStringLiteral("c"),
+                  colorReal.isEmpty() ? animatedPointProperty(strokeColors) : colorReal);
+
+    const auto opacityReal = stroke && stroke->getColorAnimator() ?
+                LottieRealKeyframes::scalar(
+                    stroke->getColorAnimator()->getAlphaAnimator(),
+                    mFrameRange,
+                    [](const qreal value) { return value*100; }) :
+                QJsonObject();
+    object.insert(QStringLiteral("o"),
+                  opacityReal.isEmpty() ? animatedScalarProperty(strokeOpacities) : opacityReal);
+
+    const auto widthReal = stroke ?
+                LottieRealKeyframes::scalar(stroke->getLineWidthAnimator(), mFrameRange) :
+                QJsonObject();
+    object.insert(QStringLiteral("w"),
+                  widthReal.isEmpty() ? animatedScalarProperty(strokeWidths) : widthReal);
     object.insert(QStringLiteral("lc"), lineCap);
     object.insert(QStringLiteral("lj"), lineJoin);
     object.insert(QStringLiteral("ml"), 4);

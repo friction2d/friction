@@ -32,6 +32,7 @@
 
 class QPointFAnimator;
 class QrealAnimator;
+class ColorAnimator;
 
 namespace LottieRealKeyframes {
 
@@ -44,6 +45,9 @@ QJsonObject scalar(QrealAnimator* const animator,
 QJsonObject point(QPointFAnimator* const animator,
                   const FrameRange& frameRange,
                   const PointValue& value);
+QJsonObject color(ColorAnimator* const animator,
+                  const FrameRange& frameRange,
+                  const bool alpha);
 
 }
 
