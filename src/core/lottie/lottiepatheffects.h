@@ -25,6 +25,7 @@
 #include "framerange.h"
 
 #include <QJsonArray>
+#include <QJsonObject>
 
 class PathBox;
 
@@ -33,6 +34,9 @@ namespace LottiePathEffects {
 void appendBasePathEffects(const PathBox* const box,
                            const FrameRange& frameRange,
                            QJsonArray& shapes);
+void appendStrokeDash(const PathBox* const box,
+                      const FrameRange& frameRange,
+                      QJsonObject& stroke);
 
 }
 

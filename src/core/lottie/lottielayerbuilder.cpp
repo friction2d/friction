@@ -649,6 +649,7 @@ QJsonObject LottieLayerBuilder::strokeObject(const PathBox* const box) const
     object.insert(QStringLiteral("ml"), 4);
     object.insert(QStringLiteral("bm"), 0);
     object.insert(QStringLiteral("nm"), QStringLiteral("Stroke"));
+    LottiePathEffects::appendStrokeDash(box, mFrameRange, object);
     return object;
 }
 

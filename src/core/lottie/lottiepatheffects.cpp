@@ -141,6 +141,34 @@ QJsonObject trimPathObject(PathEffect* const effect,
     return object;
 }
 
+QJsonObject strokeDashEntry(const QString& name,
+                            const QString& displayName,
+                            const QJsonObject& value)
+{
+    return QJsonObject{
+        {QStringLiteral("n"), name},
+        {QStringLiteral("nm"), displayName},
+        {QStringLiteral("v"), value}
+    };
+}
+
+QJsonArray dashValues(PathEffect* const effect,
+                      const FrameRange& frameRange)
+{
+    QList<qreal> values;
+    const auto size = qrealChild(effect, QStringLiteral("size"));
+    for (int frame = frameRange.fMin; frame <= frameRange.fMax; frame++) {
+        values << (size ? size->getEffectiveValue(frame) : 0);
+    }
+
+    const auto property = animatedScalarProperty(values, frameRange);
+    return QJsonArray{
+        strokeDashEntry(QStringLiteral("d"), QStringLiteral("dash"), property),
+        strokeDashEntry(QStringLiteral("g"), QStringLiteral("gap"), property),
+        strokeDashEntry(QStringLiteral("o"), QStringLiteral("offset"), staticProperty(0))
+    };
+}
+
 }
 
 void LottiePathEffects::appendBasePathEffects(const PathBox* const box,
@@ -157,5 +185,23 @@ void LottiePathEffects::appendBasePathEffects(const PathBox* const box,
         if (!effect || !effect->isVisible()) { continue; }
         if (effect->getEffectType() != PathEffectType::SUB) { continue; }
         shapes.append(trimPathObject(effect, frameRange));
+    }
+}
+
+void LottiePathEffects::appendStrokeDash(const PathBox* const box,
+                                         const FrameRange& frameRange,
+                                         QJsonObject& stroke)
+{
+    if (!box) { return; }
+
+    const auto effects = const_cast<PathBox*>(box)->getPathEffectsAnimators();
+    if (!effects || !effects->hasEffects()) { return; }
+
+    for (int i = 0; i < effects->ca_getNumberOfChildren(); i++) {
+        const auto effect = effects->getChild(i);
+        if (!effect || !effect->isVisible()) { continue; }
+        if (effect->getEffectType() != PathEffectType::DASH) { continue; }
+        stroke.insert(QStringLiteral("d"), dashValues(effect, frameRange));
+        return;
     }
 }
