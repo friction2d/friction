@@ -280,6 +280,8 @@ static void addVideoStream(OutputStream * const ost,
 static AVFrame *getVideoFrame(OutputStream * const ost,
                               const sk_sp<SkImage> &image)
 {
+    if (!image) { RuntimeThrow("Missing image frame"); }
+
     AVCodecContext *c = ost->fCodec;
 
     if (c->width != image->width() || c->height != image->height()) {
@@ -301,7 +303,9 @@ static AVFrame *getVideoFrame(OutputStream * const ost,
     SkPixmap pixmap;
     SkBitmap unpremulBitmap;
 
-    image->peekPixels(&pixmap);
+    if (!image->peekPixels(&pixmap)) {
+        RuntimeThrow("Could not peek image pixels");
+    }
 
     // check if we need to convert to "unpremultiplied"
     const AVPixFmtDescriptor *desc = av_pix_fmt_desc_get(c->pix_fmt);
@@ -327,12 +331,14 @@ static AVFrame *getVideoFrame(OutputStream * const ost,
     const uint8_t * const dstSk[] = {static_cast<uint8_t*>(pixmap.writable_addr())};
     int linesizesSk[4];
 
-    av_image_fill_linesizes(linesizesSk, AV_PIX_FMT_RGBA, image->width());
+    av_image_fill_linesizes(linesizesSk, AV_PIX_FMT_RGBA, pixmap.width());
+    linesizesSk[0] = static_cast<int>(pixmap.rowBytes());
+
     const int ret = av_frame_make_writable(ost->fDstFrame) ;
     if (ret < 0) { AV_RuntimeThrow(ret, "Could not make AVFrame writable") }
 
     sws_scale(ost->fSwsCtx, dstSk,
-              linesizesSk, 0, c->height,
+              linesizesSk, 0, pixmap.height(),
               ost->fDstFrame->data,
               ost->fDstFrame->linesize);
 

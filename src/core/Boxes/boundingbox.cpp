@@ -568,6 +568,11 @@ void BoundingBox::planUpdate(const UpdateReason reason) {
                            : getParentScene();
         if(!scene || (!scene->isRenderingOutput() && !scene->isRenderingPreview())) mStateId++;
         mRenderDataHandler.clear();
+#ifdef Q_OS_MAC
+        if (const auto canvas = enve_cast<Canvas*>(this)) {
+            canvas->invalidateSceneFramesCache();
+        }
+#endif
     }
 
     mDrawRenderContainer.setExpired(true);
