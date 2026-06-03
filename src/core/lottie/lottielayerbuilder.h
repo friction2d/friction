@@ -32,6 +32,7 @@ class BoundingBox;
 class Canvas;
 class QColor;
 class ContainerBox;
+class PaintSettingsAnimator;
 class PathBox;
 class RectangleBox;
 class TextBox;
@@ -80,7 +81,16 @@ private:
     void appendPaintObjects(const PathBox* const box,
                             QJsonArray& shapes) const;
     QJsonObject fillObject(const PathBox* const box) const;
+    QJsonObject gradientFillObject(const PathBox* const box) const;
     QJsonObject strokeObject(const PathBox* const box) const;
+    QJsonObject gradientStrokeObject(const PathBox* const box) const;
+    QJsonObject gradientObject(PaintSettingsAnimator* const settings,
+                               const QString& name,
+                               const bool stroke) const;
+    QJsonArray gradientColorArray(PaintSettingsAnimator* const settings,
+                                  const int frame,
+                                  const int stopCount) const;
+    int gradientStopCount(PaintSettingsAnimator* const settings) const;
     QJsonObject shapeTransformObject() const;
     QJsonArray colorArray(const QColor& color) const;
     void appendFonts(const ContainerBox* const container,

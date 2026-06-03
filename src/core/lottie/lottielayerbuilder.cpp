@@ -22,6 +22,8 @@
 #include "lottie/lottielayerbuilder.h"
 
 #include "Animators/coloranimator.h"
+#include "Animators/gradient.h"
+#include "Animators/gradientpoints.h"
 #include "Animators/paintsettingsanimator.h"
 #include "Animators/qpointfanimator.h"
 #include "Animators/qrealanimator.h"
@@ -582,13 +584,18 @@ void LottieLayerBuilder::appendPaintObjects(const PathBox* const box,
     const auto fill = box->getFillSettings();
     if (fill && fill->getPaintType() == PaintType::FLATPAINT) {
         shapes.append(fillObject(box));
+    } else if (fill && fill->getPaintType() == PaintType::GRADIENTPAINT) {
+        shapes.append(gradientFillObject(box));
     }
 
     const auto stroke = box->getStrokeSettings();
     if (stroke &&
-        stroke->getPaintType() == PaintType::FLATPAINT &&
         !isZero4Dec(stroke->getLineWidthAnimator()->getEffectiveValue(mFrameRange.fMin))) {
-        shapes.append(strokeObject(box));
+        if (stroke->getPaintType() == PaintType::FLATPAINT) {
+            shapes.append(strokeObject(box));
+        } else if (stroke->getPaintType() == PaintType::GRADIENTPAINT) {
+            shapes.append(gradientStrokeObject(box));
+        }
     }
 }
 
@@ -612,6 +619,13 @@ QJsonObject LottieLayerBuilder::fillObject(const PathBox* const box) const
     object.insert(QStringLiteral("bm"), 0);
     object.insert(QStringLiteral("nm"), QStringLiteral("Fill"));
     return object;
+}
+
+QJsonObject LottieLayerBuilder::gradientFillObject(const PathBox* const box) const
+{
+    return gradientObject(box ? box->getFillSettings() : nullptr,
+                          QStringLiteral("Gradient Fill"),
+                          false);
 }
 
 QJsonObject LottieLayerBuilder::strokeObject(const PathBox* const box) const
@@ -661,6 +675,122 @@ QJsonObject LottieLayerBuilder::strokeObject(const PathBox* const box) const
     object.insert(QStringLiteral("nm"), QStringLiteral("Stroke"));
     LottiePathEffects::appendStrokeDash(box, mFrameRange, object);
     return object;
+}
+
+QJsonObject LottieLayerBuilder::gradientStrokeObject(const PathBox* const box) const
+{
+    auto object = gradientObject(box ? box->getStrokeSettings() : nullptr,
+                                 QStringLiteral("Gradient Stroke"),
+                                 true);
+    LottiePathEffects::appendStrokeDash(box, mFrameRange, object);
+    return object;
+}
+
+QJsonObject LottieLayerBuilder::gradientObject(PaintSettingsAnimator* const settings,
+                                               const QString& name,
+                                               const bool stroke) const
+{
+    const int stopCount = gradientStopCount(settings);
+    const auto outline = dynamic_cast<OutlineSettingsAnimator*>(settings);
+    QList<QJsonArray> colors;
+    QList<QJsonArray> starts;
+    QList<QJsonArray> ends;
+    QList<qreal> opacities;
+    QList<qreal> widths;
+    int lineCap = 2;
+    int lineJoin = 2;
+
+    if (outline) {
+        switch(outline->getCapStyle()) {
+        case SkPaint::kButt_Cap: lineCap = 1; break;
+        case SkPaint::kSquare_Cap: lineCap = 3; break;
+        default: lineCap = 2; break;
+        }
+
+        switch(outline->getJoinStyle()) {
+        case SkPaint::kMiter_Join: lineJoin = 1; break;
+        case SkPaint::kBevel_Join: lineJoin = 3; break;
+        default: lineJoin = 2; break;
+        }
+    }
+
+    for (int frame = mFrameRange.fMin; frame <= mFrameRange.fMax; frame++) {
+        colors << gradientColorArray(settings, frame, stopCount);
+
+        QPointF startPoint(0, 0);
+        QPointF endPoint(0, 0);
+        if (settings && settings->getGradientPoints()) {
+            startPoint = settings->getGradientPoints()->getStartPoint(frame);
+            endPoint = settings->getGradientPoints()->getEndPoint(frame);
+        }
+        starts << QJsonArray{startPoint.x(), startPoint.y()};
+        ends << QJsonArray{endPoint.x(), endPoint.y()};
+        opacities << 100;
+        widths << (outline ? outline->getLineWidthAnimator()->getEffectiveValue(frame) : 0);
+    }
+
+    QJsonObject object;
+    object.insert(QStringLiteral("ty"), stroke ? QStringLiteral("gs") : QStringLiteral("gf"));
+    object.insert(QStringLiteral("o"), animatedScalarProperty(opacities));
+    object.insert(QStringLiteral("r"), 1);
+    object.insert(QStringLiteral("bm"), 0);
+    object.insert(QStringLiteral("g"), QJsonObject{
+                      {QStringLiteral("p"), stopCount},
+                      {QStringLiteral("k"), animatedPointProperty(colors)}
+                  });
+    object.insert(QStringLiteral("s"), animatedPointProperty(starts));
+    object.insert(QStringLiteral("e"), animatedPointProperty(ends));
+    object.insert(QStringLiteral("t"),
+                  settings &&
+                  settings->getGradientType() == GradientType::RADIAL ? 2 : 1);
+    object.insert(QStringLiteral("nm"), name);
+
+    if (stroke) {
+        object.insert(QStringLiteral("w"), animatedScalarProperty(widths));
+        object.insert(QStringLiteral("lc"), lineCap);
+        object.insert(QStringLiteral("lj"), lineJoin);
+        object.insert(QStringLiteral("ml"), 4);
+    }
+
+    return object;
+}
+
+QJsonArray LottieLayerBuilder::gradientColorArray(PaintSettingsAnimator* const settings,
+                                                  const int frame,
+                                                  const int stopCount) const
+{
+    QJsonArray values;
+    const auto gradient = settings ? settings->getGradient() : nullptr;
+    QGradientStops stops = gradient ?
+                gradient->getQGradientStops(settings->prp_relFrameToAbsFrameF(frame)) :
+                QGradientStops{{0, QColor(0, 0, 0)}};
+
+    if (stops.isEmpty()) { stops << QGradientStop(0, QColor(0, 0, 0)); }
+    while (stops.size() < stopCount) {
+        const qreal position = stopCount <= 1 ? 0 : qreal(stops.size())/(stopCount - 1);
+        stops << QGradientStop(position, stops.last().second);
+    }
+    while (stops.size() > stopCount) { stops.removeLast(); }
+
+    for (const auto& stop : stops) {
+        values.append(stop.first);
+        values.append(stop.second.redF());
+        values.append(stop.second.greenF());
+        values.append(stop.second.blueF());
+    }
+
+    for (const auto& stop : stops) {
+        values.append(stop.first);
+        values.append(stop.second.alphaF());
+    }
+    return values;
+}
+
+int LottieLayerBuilder::gradientStopCount(PaintSettingsAnimator* const settings) const
+{
+    const auto gradient = settings ? settings->getGradient() : nullptr;
+    const int stops = gradient ? gradient->getQGradientStops().size() : 0;
+    return qMax(2, stops);
 }
 
 QJsonObject LottieLayerBuilder::shapeTransformObject() const
