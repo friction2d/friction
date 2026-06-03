@@ -53,6 +53,7 @@ private:
     QSpinBox* mLastFrame;
     QCheckBox* mBackground;
     QCheckBox* mEmbedImages;
+    QCheckBox* mSvgRendererFix;
     QCheckBox* mNotify;
 };
 

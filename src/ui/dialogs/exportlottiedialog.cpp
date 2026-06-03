@@ -92,6 +92,10 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
     mEmbedImages->setChecked(AppSupport::getSettings("exportLottie",
                                                      "embedImages",
                                                      true).toBool());
+    mSvgRendererFix = new QCheckBox(tr("Force SVG renderer fix"), this);
+    mSvgRendererFix->setChecked(AppSupport::getSettings("exportLottie",
+                                                        "svgRendererFix",
+                                                        false).toBool());
     mNotify = new QCheckBox(tr("Notify when done"), this);
     mNotify->setChecked(AppSupport::getSettings("exportLottie",
                                                 "notify",
@@ -115,6 +119,12 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
                                 "embedImages",
                                 mEmbedImages->isChecked());
     });
+    connect(mSvgRendererFix, &QCheckBox::stateChanged,
+            this, [this] {
+        AppSupport::setSettings("exportLottie",
+                                "svgRendererFix",
+                                mSvgRendererFix->isChecked());
+    });
 
     twoColLayout->addPair(new QLabel(tr("Scene")), sceneButton);
     twoColLayout->addPair(new QLabel(tr("First Frame")), mFirstFrame);
@@ -128,7 +138,7 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
 
     const auto optsTwoCol = new TwoColumnLayout();
     optsTwoCol->addPair(mBackground, mEmbedImages);
-    optsTwoCol->addPair(mNotify, new QWidget(this));
+    optsTwoCol->addPair(mSvgRendererFix, mNotify);
     optsTwoCol->addSpacing(4);
 
     sceneWidget->setLayout(twoColLayout);
@@ -262,7 +272,8 @@ bool ExportLottieDialog::exportTo(const QString& file)
                                              frameRange,
                                              scene->getFps(),
                                              mBackground->isChecked(),
-                                             mEmbedImages->isChecked());
+                                             mEmbedImages->isChecked(),
+                                             mSvgRendererFix->isChecked());
         const auto taskSPtr = qsptr<LottieExporter>(task, &QObject::deleteLater);
         task->nextStep();
         TaskScheduler::instance()->addComplexTask(taskSPtr);

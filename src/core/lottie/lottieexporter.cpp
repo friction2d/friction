@@ -35,7 +35,8 @@ LottieExporter::LottieExporter(const QString& path,
                                const FrameRange& frameRange,
                                const qreal fps,
                                const bool background,
-                               const bool embedImages)
+                               const bool embedImages,
+                               const bool svgRendererFix)
     : ComplexTask(INT_MAX, tr("Lottie Export"))
     , mPath(path)
     , mScene(scene)
@@ -43,6 +44,7 @@ LottieExporter::LottieExporter(const QString& path,
     , mFps(fps)
     , mBackground(background)
     , mEmbedImages(embedImages)
+    , mSvgRendererFix(svgRendererFix)
 {
 
 }
@@ -66,7 +68,12 @@ void LottieExporter::finish()
     root.insert(QStringLiteral("nm"), mScene->prp_getName());
     root.insert(QStringLiteral("ddd"), 0);
 
-    const LottieLayerBuilder builder(mScene, mFrameRange, mFps, mPath, mEmbedImages);
+    const LottieLayerBuilder builder(mScene,
+                                     mFrameRange,
+                                     mFps,
+                                     mPath,
+                                     mEmbedImages,
+                                     mSvgRendererFix);
     const auto fonts = builder.buildFonts();
     if (!fonts.value(QStringLiteral("list")).toArray().isEmpty()) {
         root.insert(QStringLiteral("fonts"), fonts);

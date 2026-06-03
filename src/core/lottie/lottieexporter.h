@@ -35,7 +35,8 @@ public:
                    const FrameRange& frameRange,
                    const qreal fps,
                    const bool background,
-                   const bool embedImages = true);
+                   const bool embedImages = true,
+                   const bool svgRendererFix = false);
 
     void nextStep() override;
 
@@ -48,6 +49,7 @@ private:
     const qreal mFps;
     const bool mBackground;
     const bool mEmbedImages;
+    const bool mSvgRendererFix;
 };
 
 #endif // LOTTIEEXPORTER_H

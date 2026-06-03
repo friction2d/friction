@@ -231,12 +231,14 @@ LottieLayerBuilder::LottieLayerBuilder(Canvas* const scene,
                                        const FrameRange& frameRange,
                                        const qreal fps,
                                        const QString& path,
-                                       const bool embedImages)
+                                       const bool embedImages,
+                                       const bool svgRendererFix)
     : mScene(scene)
     , mFrameRange(frameRange)
     , mFps(fps)
     , mPath(path)
     , mEmbedImages(embedImages)
+    , mSvgRendererFix(svgRendererFix)
 {
 
 }
@@ -249,6 +251,7 @@ QJsonArray LottieLayerBuilder::buildLayers(const bool background) const
     int nextId = background ? 2 : 1;
     appendContainerLayers(mScene, layers, nextId);
     if (background) { layers.append(buildBackgroundLayer()); }
+    if (mSvgRendererFix) { layers.append(buildSvgRendererFixLayer(nextId)); }
     return layers;
 }
 
@@ -266,6 +269,41 @@ QJsonObject LottieLayerBuilder::buildFonts() const
     QSet<QString> names;
     if (mScene) { appendFonts(mScene, fonts, names); }
     return QJsonObject{{QStringLiteral("list"), fonts}};
+}
+
+QJsonObject LottieLayerBuilder::buildSvgRendererFixLayer(const int id) const
+{
+    auto layer = baseLayer(QStringLiteral("SVG Renderer Fix"), id, 3);
+
+    QJsonObject transform;
+    transform.insert(QStringLiteral("o"), staticProperty(0));
+    transform.insert(QStringLiteral("r"), staticProperty(0));
+    transform.insert(QStringLiteral("a"), staticProperty(QJsonArray{0, 0, 0}));
+    transform.insert(QStringLiteral("s"), staticProperty(QJsonArray{100, 100, 100}));
+    transform.insert(QStringLiteral("p"), QJsonObject{
+                         {QStringLiteral("a"), 1},
+                         {QStringLiteral("k"), QJsonArray{
+                              QJsonObject{
+                                  {QStringLiteral("t"), mFrameRange.fMin},
+                                  {QStringLiteral("s"), QJsonArray{0, 0, 0}},
+                                  {QStringLiteral("e"), QJsonArray{0.001, 0, 0}},
+                                  {QStringLiteral("i"), QJsonObject{
+                                       {QStringLiteral("x"), QJsonArray{0.833}},
+                                       {QStringLiteral("y"), QJsonArray{0.833}}
+                                   }},
+                                  {QStringLiteral("o"), QJsonObject{
+                                       {QStringLiteral("x"), QJsonArray{0.167}},
+                                       {QStringLiteral("y"), QJsonArray{0.167}}
+                                   }}
+                              },
+                              QJsonObject{
+                                  {QStringLiteral("t"), mFrameRange.fMax},
+                                  {QStringLiteral("s"), QJsonArray{0.001, 0, 0}}
+                              }
+                          }}
+                     });
+    layer.insert(QStringLiteral("ks"), transform);
+    return layer;
 }
 
 QJsonObject LottieLayerBuilder::buildBackgroundLayer() const

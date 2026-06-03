@@ -45,13 +45,15 @@ public:
                        const FrameRange& frameRange,
                        const qreal fps,
                        const QString& path = QString(),
-                       const bool embedImages = true);
+                       const bool embedImages = true,
+                       const bool svgRendererFix = false);
 
     QJsonArray buildLayers(const bool background) const;
     QJsonArray buildAssets() const;
     QJsonObject buildFonts() const;
 
 private:
+    QJsonObject buildSvgRendererFixLayer(const int id) const;
     QJsonObject buildBackgroundLayer() const;
     void appendContainerLayers(const ContainerBox* const container,
                                QJsonArray& layers,
@@ -116,6 +118,7 @@ private:
     const qreal mFps;
     const QString mPath;
     const bool mEmbedImages;
+    const bool mSvgRendererFix;
 };
 
 #endif // LOTTIELAYERBUILDER_H
