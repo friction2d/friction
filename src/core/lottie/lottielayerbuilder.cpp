@@ -305,24 +305,31 @@ QJsonObject LottieLayerBuilder::buildRectangleLayer(RectangleBox* const box,
     auto layer = baseLayer(box->prp_getName(), id, 4);
     layer.insert(QStringLiteral("ks"), transformObject(box));
 
-    const QPointF topLeft = box->getTopLeftAnimator()->getEffectiveValue(mFrameRange.fMin);
-    const QPointF bottomRight = box->getBottomRightAnimator()->getEffectiveValue(mFrameRange.fMin);
-    const QPointF radius = box->getRadiusAnimator()->getEffectiveValue(mFrameRange.fMin);
+    QList<QJsonArray> centers;
+    QList<QJsonArray> sizes;
+    QList<qreal> radii;
+    for (int frame = mFrameRange.fMin; frame <= mFrameRange.fMax; frame++) {
+        const QPointF topLeft = box->getTopLeftAnimator()->getEffectiveValue(frame);
+        const QPointF bottomRight = box->getBottomRightAnimator()->getEffectiveValue(frame);
+        const QPointF radius = box->getRadiusAnimator()->getEffectiveValue(frame);
 
-    const qreal x = qMin(topLeft.x(), bottomRight.x());
-    const qreal y = qMin(topLeft.y(), bottomRight.y());
-    const qreal width = qAbs(topLeft.x() - bottomRight.x());
-    const qreal height = qAbs(topLeft.y() - bottomRight.y());
+        const qreal x = qMin(topLeft.x(), bottomRight.x());
+        const qreal y = qMin(topLeft.y(), bottomRight.y());
+        const qreal width = qAbs(topLeft.x() - bottomRight.x());
+        const qreal height = qAbs(topLeft.y() - bottomRight.y());
+
+        centers << QJsonArray{x + width*0.5, y + height*0.5};
+        sizes << QJsonArray{width, height};
+        radii << qMin(qAbs(radius.x()), qAbs(radius.y()));
+    }
 
     QJsonObject rect;
     rect.insert(QStringLiteral("ty"), QStringLiteral("rc"));
     rect.insert(QStringLiteral("d"), 1);
     rect.insert(QStringLiteral("nm"), box->prp_getName());
-    rect.insert(QStringLiteral("p"), staticProperty(QJsonArray{x + width*0.5,
-                                                               y + height*0.5}));
-    rect.insert(QStringLiteral("s"), staticProperty(QJsonArray{width, height}));
-    rect.insert(QStringLiteral("r"), staticProperty(qMin(qAbs(radius.x()),
-                                                        qAbs(radius.y()))));
+    rect.insert(QStringLiteral("p"), animatedPointProperty(centers));
+    rect.insert(QStringLiteral("s"), animatedPointProperty(sizes));
+    rect.insert(QStringLiteral("r"), animatedScalarProperty(radii));
 
     QJsonArray shapes{rect};
     LottiePathEffects::appendBasePathEffects(box, mFrameRange, shapes);
