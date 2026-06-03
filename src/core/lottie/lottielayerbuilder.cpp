@@ -36,6 +36,7 @@
 #include "canvas.h"
 #include "lottie/lottieanimatedproperty.h"
 #include "lottie/lottiepatheffects.h"
+#include "lottie/lottierealkeyframes.h"
 #include "paintsettings.h"
 #include "simplemath.h"
 #include "skia/skiaincludes.h"
@@ -445,6 +446,16 @@ QJsonObject LottieLayerBuilder::transformObject(const BoundingBox* const box) co
     if (box) {
         const auto transform = box->getBoxTransformAnimator();
         if (transform) {
+            const auto pivot = transform->getPivotAnimator();
+            const auto pivotStatic = pivot &&
+                    !pivot->getXAnimator()->anim_hasKeys() &&
+                    !pivot->getXAnimator()->hasExpression() &&
+                    !pivot->getYAnimator()->anim_hasKeys() &&
+                    !pivot->getYAnimator()->hasExpression();
+            const QPointF staticPivot = pivotStatic ?
+                        pivot->getEffectiveValue(mFrameRange.fMin) :
+                        QPointF(0, 0);
+
             QList<QJsonArray> positions;
             QList<QJsonArray> scales;
             QList<QJsonArray> anchors;
@@ -465,11 +476,44 @@ QJsonObject LottieLayerBuilder::transformObject(const BoundingBox* const box) co
             }
 
             QJsonObject animated;
-            animated.insert(QStringLiteral("o"), animatedScalarProperty(opacities));
-            animated.insert(QStringLiteral("r"), animatedScalarProperty(rotations));
-            animated.insert(QStringLiteral("p"), animatedPointProperty(positions));
-            animated.insert(QStringLiteral("a"), animatedPointProperty(anchors));
-            animated.insert(QStringLiteral("s"), animatedPointProperty(scales));
+            const auto opacityReal = LottieRealKeyframes::scalar(
+                        transform->getOpacityAnimator(), mFrameRange);
+            animated.insert(QStringLiteral("o"),
+                            opacityReal.isEmpty() ? animatedScalarProperty(opacities) : opacityReal);
+
+            const auto rotationReal = LottieRealKeyframes::scalar(
+                        transform->getRotAnimator(), mFrameRange);
+            animated.insert(QStringLiteral("r"),
+                            rotationReal.isEmpty() ? animatedScalarProperty(rotations) : rotationReal);
+
+            QJsonObject positionReal;
+            if (pivotStatic) {
+                positionReal = LottieRealKeyframes::point(
+                            transform->getPosAnimator(), mFrameRange,
+                            [staticPivot](const QPointF& point, const qreal) {
+                                return QJsonArray{point.x() + staticPivot.x(),
+                                                  point.y() + staticPivot.y(),
+                                                  0};
+                            });
+            }
+            animated.insert(QStringLiteral("p"),
+                            positionReal.isEmpty() ? animatedPointProperty(positions) : positionReal);
+
+            const auto anchorReal = LottieRealKeyframes::point(
+                        transform->getPivotAnimator(), mFrameRange,
+                        [](const QPointF& point, const qreal) {
+                            return QJsonArray{point.x(), point.y(), 0};
+                        });
+            animated.insert(QStringLiteral("a"),
+                            anchorReal.isEmpty() ? animatedPointProperty(anchors) : anchorReal);
+
+            const auto scaleReal = LottieRealKeyframes::point(
+                        transform->getScaleAnimator(), mFrameRange,
+                        [](const QPointF& point, const qreal) {
+                            return QJsonArray{point.x()*100, point.y()*100, 100};
+                        });
+            animated.insert(QStringLiteral("s"),
+                            scaleReal.isEmpty() ? animatedPointProperty(scales) : scaleReal);
             return animated;
         }
     }

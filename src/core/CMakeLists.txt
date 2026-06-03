@@ -317,6 +317,7 @@ set(
     lottie/lottieexporter.cpp
     lottie/lottieanimatedproperty.cpp
     lottie/lottiejsonoptimizer.cpp
+    lottie/lottierealkeyframes.cpp
     lottie/lottielayerbuilder.cpp
     lottie/lottiepatheffects.cpp
     svgexporter.cpp
