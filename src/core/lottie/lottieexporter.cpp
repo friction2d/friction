@@ -34,13 +34,15 @@ LottieExporter::LottieExporter(const QString& path,
                                Canvas* const scene,
                                const FrameRange& frameRange,
                                const qreal fps,
-                               const bool background)
+                               const bool background,
+                               const bool embedImages)
     : ComplexTask(INT_MAX, tr("Lottie Export"))
     , mPath(path)
     , mScene(scene)
     , mFrameRange(frameRange)
     , mFps(fps)
     , mBackground(background)
+    , mEmbedImages(embedImages)
 {
 
 }
@@ -64,10 +66,14 @@ void LottieExporter::finish()
     root.insert(QStringLiteral("nm"), mScene->prp_getName());
     root.insert(QStringLiteral("ddd"), 0);
 
-    const LottieLayerBuilder builder(mScene, mFrameRange, mFps);
+    const LottieLayerBuilder builder(mScene, mFrameRange, mFps, mPath, mEmbedImages);
     const auto fonts = builder.buildFonts();
     if (!fonts.value(QStringLiteral("list")).toArray().isEmpty()) {
         root.insert(QStringLiteral("fonts"), fonts);
+    }
+    const auto assets = builder.buildAssets();
+    if (!assets.isEmpty()) {
+        root.insert(QStringLiteral("assets"), assets);
     }
     root.insert(QStringLiteral("layers"), builder.buildLayers(mBackground));
 

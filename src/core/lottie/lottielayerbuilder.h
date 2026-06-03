@@ -32,6 +32,7 @@ class BoundingBox;
 class Canvas;
 class QColor;
 class ContainerBox;
+class ImageBox;
 class PaintSettingsAnimator;
 class PathBox;
 class RectangleBox;
@@ -42,9 +43,12 @@ class CORE_EXPORT LottieLayerBuilder
 public:
     LottieLayerBuilder(Canvas* const scene,
                        const FrameRange& frameRange,
-                       const qreal fps);
+                       const qreal fps,
+                       const QString& path = QString(),
+                       const bool embedImages = true);
 
     QJsonArray buildLayers(const bool background) const;
+    QJsonArray buildAssets() const;
     QJsonObject buildFonts() const;
 
 private:
@@ -60,6 +64,8 @@ private:
                                     const int id) const;
     QJsonObject buildTextLayer(TextBox* const box,
                                const int id) const;
+    QJsonObject buildImageLayer(ImageBox* const box,
+                                const int id) const;
     QJsonObject buildPathLayer(PathBox* const box,
                                const int id) const;
     QJsonObject buildUnsupportedLayer(const BoundingBox* const box,
@@ -91,6 +97,14 @@ private:
     void appendFonts(const ContainerBox* const container,
                      QJsonArray& fonts,
                      QSet<QString>& names) const;
+    void appendImageAssets(const ContainerBox* const container,
+                           QJsonArray& assets,
+                           QSet<QString>& ids) const;
+    QJsonObject imageAsset(const ImageBox* const box) const;
+    QString imageAssetId(const ImageBox* const box) const;
+    QString imageAssetFileName(const ImageBox* const box) const;
+    QString imageAssetsDirName() const;
+    QString imageAssetsDirPath() const;
     QJsonObject fontObject(const TextBox* const box) const;
     QString fontName(const TextBox* const box) const;
     QString fontStyleName(const TextBox* const box) const;
@@ -99,6 +113,8 @@ private:
     Canvas* const mScene;
     const FrameRange mFrameRange;
     const qreal mFps;
+    const QString mPath;
+    const bool mEmbedImages;
 };
 
 #endif // LOTTIELAYERBUILDER_H

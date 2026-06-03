@@ -34,7 +34,8 @@ public:
                    Canvas* const scene,
                    const FrameRange& frameRange,
                    const qreal fps,
-                   const bool background);
+                   const bool background,
+                   const bool embedImages = true);
 
     void nextStep() override;
 
@@ -46,6 +47,7 @@ private:
     const FrameRange mFrameRange;
     const qreal mFps;
     const bool mBackground;
+    const bool mEmbedImages;
 };
 
 #endif // LOTTIEEXPORTER_H

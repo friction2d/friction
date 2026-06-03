@@ -30,6 +30,7 @@
 #include "Animators/transformanimator.h"
 #include "Boxes/boundingbox.h"
 #include "Boxes/containerbox.h"
+#include "Boxes/imagebox.h"
 #include "Boxes/pathbox.h"
 #include "Boxes/rectangle.h"
 #include "Boxes/textbox.h"
@@ -42,6 +43,10 @@
 #include "skia/skiaincludes.h"
 
 #include <QColor>
+#include <QByteArray>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
 #include <QPointF>
 #include <QSet>
 
@@ -68,6 +73,34 @@ QJsonArray tangentArray(const SkPoint& from, const SkPoint& to)
 QJsonArray zeroTangent()
 {
     return QJsonArray{0, 0};
+}
+
+sk_sp<SkImage> imageForBox(const ImageBox* const box)
+{
+    if (!box) { return nullptr; }
+    if (box->hasImage()) { return box->image(); }
+
+    const QString path = box->filePath();
+    if (path.isEmpty() || !QFileInfo::exists(path)) { return nullptr; }
+
+    const sk_sp<SkData> data = SkData::MakeFromFileName(path.toUtf8().constData());
+    return data ? SkImage::MakeFromEncoded(data) : nullptr;
+}
+
+sk_sp<SkData> pngData(const sk_sp<SkImage>& image)
+{
+    if (!image) { return nullptr; }
+    return image->encodeToData(SkEncodedImageFormat::kPNG, 100);
+}
+
+QString pngDataUri(const sk_sp<SkImage>& image)
+{
+    const sk_sp<SkData> png = pngData(image);
+    if (!png) { return QString(); }
+
+    const QByteArray bytes(static_cast<const char*>(png->data()), png->size());
+    return QStringLiteral("data:image/png;base64,%1")
+            .arg(QString::fromLatin1(bytes.toBase64()));
 }
 
 struct LottieContour {
@@ -195,10 +228,14 @@ QJsonArray pathShapeObjects(const SkPath& path, const QString& name)
 
 LottieLayerBuilder::LottieLayerBuilder(Canvas* const scene,
                                        const FrameRange& frameRange,
-                                       const qreal fps)
+                                       const qreal fps,
+                                       const QString& path,
+                                       const bool embedImages)
     : mScene(scene)
     , mFrameRange(frameRange)
     , mFps(fps)
+    , mPath(path)
+    , mEmbedImages(embedImages)
 {
 
 }
@@ -212,6 +249,14 @@ QJsonArray LottieLayerBuilder::buildLayers(const bool background) const
     appendContainerLayers(mScene, layers, nextId);
     if (background) { layers.append(buildBackgroundLayer()); }
     return layers;
+}
+
+QJsonArray LottieLayerBuilder::buildAssets() const
+{
+    QJsonArray assets;
+    QSet<QString> ids;
+    if (mScene) { appendImageAssets(mScene, assets, ids); }
+    return assets;
 }
 
 QJsonObject LottieLayerBuilder::buildFonts() const
@@ -265,6 +310,15 @@ void LottieLayerBuilder::appendContainerLayers(const ContainerBox* const contain
         const auto text = dynamic_cast<TextBox*>(box);
         if (text && canBuildNativeTextLayer(text)) {
             auto layer = buildTextLayer(text, nextId);
+            assignParent(layer, parentId);
+            layers.append(layer);
+            nextId++;
+            continue;
+        }
+
+        const auto image = dynamic_cast<ImageBox*>(box);
+        if (image && imageForBox(image)) {
+            auto layer = buildImageLayer(image, nextId);
             assignParent(layer, parentId);
             layers.append(layer);
             nextId++;
@@ -395,6 +449,21 @@ QJsonObject LottieLayerBuilder::buildTextLayer(TextBox* const box,
     textData.insert(QStringLiteral("a"), QJsonArray());
 
     layer.insert(QStringLiteral("t"), textData);
+    return layer;
+}
+
+QJsonObject LottieLayerBuilder::buildImageLayer(ImageBox* const box,
+                                                const int id) const
+{
+    auto layer = baseLayer(box->prp_getName(), id, 2);
+    layer.insert(QStringLiteral("ks"), transformObject(box));
+    layer.insert(QStringLiteral("refId"), imageAssetId(box));
+
+    const auto image = imageForBox(box);
+    if (image) {
+        layer.insert(QStringLiteral("w"), image->width());
+        layer.insert(QStringLiteral("h"), image->height());
+    }
     return layer;
 }
 
@@ -873,6 +942,99 @@ void LottieLayerBuilder::appendFonts(const ContainerBox* const container,
             appendFonts(childContainer, fonts, names);
         }
     }
+}
+
+void LottieLayerBuilder::appendImageAssets(const ContainerBox* const container,
+                                           QJsonArray& assets,
+                                           QSet<QString>& ids) const
+{
+    if (!container) { return; }
+
+    const auto& boxes = container->getContainedBoxes();
+    for (const auto box : boxes) {
+        if (!box) { continue; }
+
+        const auto image = dynamic_cast<const ImageBox*>(box);
+        if (image) {
+            const QString id = imageAssetId(image);
+            if (!ids.contains(id)) {
+                const auto asset = imageAsset(image);
+                if (!asset.isEmpty()) {
+                    ids.insert(id);
+                    assets.append(asset);
+                }
+            }
+        }
+
+        const auto childContainer = dynamic_cast<const ContainerBox*>(box);
+        if (childContainer) {
+            appendImageAssets(childContainer, assets, ids);
+        }
+    }
+}
+
+QJsonObject LottieLayerBuilder::imageAsset(const ImageBox* const box) const
+{
+    const auto image = imageForBox(box);
+    if (!image) { return QJsonObject(); }
+
+    QString path;
+    QString dir;
+    bool embedded = true;
+    if (mEmbedImages) {
+        path = pngDataUri(image);
+        if (path.isEmpty()) { return QJsonObject(); }
+    } else {
+        const sk_sp<SkData> data = pngData(image);
+        if (!data) { return QJsonObject(); }
+
+        const QString dirPath = imageAssetsDirPath();
+        if (dirPath.isEmpty()) { return QJsonObject(); }
+        QDir().mkpath(dirPath);
+
+        QFile file(QDir(dirPath).filePath(imageAssetFileName(box)));
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+            return QJsonObject();
+        }
+        file.write(static_cast<const char*>(data->data()), data->size());
+        file.close();
+
+        path = imageAssetFileName(box);
+        dir = imageAssetsDirName() + QStringLiteral("/");
+        embedded = false;
+    }
+
+    return QJsonObject{
+        {QStringLiteral("id"), imageAssetId(box)},
+        {QStringLiteral("w"), image->width()},
+        {QStringLiteral("h"), image->height()},
+        {QStringLiteral("u"), dir},
+        {QStringLiteral("p"), path},
+        {QStringLiteral("e"), embedded ? 1 : 0}
+    };
+}
+
+QString LottieLayerBuilder::imageAssetId(const ImageBox* const box) const
+{
+    return QStringLiteral("image_%1").arg(reinterpret_cast<quintptr>(box), 0, 16);
+}
+
+QString LottieLayerBuilder::imageAssetFileName(const ImageBox* const box) const
+{
+    return imageAssetId(box) + QStringLiteral(".png");
+}
+
+QString LottieLayerBuilder::imageAssetsDirName() const
+{
+    const QFileInfo info(mPath);
+    return info.completeBaseName() + QStringLiteral("_assets");
+}
+
+QString LottieLayerBuilder::imageAssetsDirPath() const
+{
+    const QFileInfo info(mPath);
+    if (info.absolutePath().isEmpty()) { return QString(); }
+    return QDir(info.absolutePath()).filePath(imageAssetsDirName());
 }
 
 QJsonObject LottieLayerBuilder::fontObject(const TextBox* const box) const

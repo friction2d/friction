@@ -88,6 +88,10 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
     mBackground->setChecked(AppSupport::getSettings("exportLottie",
                                                     "background",
                                                     true).toBool());
+    mEmbedImages = new QCheckBox(tr("Embed images"), this);
+    mEmbedImages->setChecked(AppSupport::getSettings("exportLottie",
+                                                     "embedImages",
+                                                     true).toBool());
     mNotify = new QCheckBox(tr("Notify when done"), this);
     mNotify->setChecked(AppSupport::getSettings("exportLottie",
                                                 "notify",
@@ -105,6 +109,12 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
                                 "notify",
                                 mNotify->isChecked());
     });
+    connect(mEmbedImages, &QCheckBox::stateChanged,
+            this, [this] {
+        AppSupport::setSettings("exportLottie",
+                                "embedImages",
+                                mEmbedImages->isChecked());
+    });
 
     twoColLayout->addPair(new QLabel(tr("Scene")), sceneButton);
     twoColLayout->addPair(new QLabel(tr("First Frame")), mFirstFrame);
@@ -117,7 +127,8 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
     optsWidget->setObjectName("BlueBox");
 
     const auto optsTwoCol = new TwoColumnLayout();
-    optsTwoCol->addPair(mBackground, mNotify);
+    optsTwoCol->addPair(mBackground, mEmbedImages);
+    optsTwoCol->addPair(mNotify, new QWidget(this));
     optsTwoCol->addSpacing(4);
 
     sceneWidget->setLayout(twoColLayout);
@@ -250,7 +261,8 @@ bool ExportLottieDialog::exportTo(const QString& file)
                                              scene,
                                              frameRange,
                                              scene->getFps(),
-                                             mBackground->isChecked());
+                                             mBackground->isChecked(),
+                                             mEmbedImages->isChecked());
         const auto taskSPtr = qsptr<LottieExporter>(task, &QObject::deleteLater);
         task->nextStep();
         TaskScheduler::instance()->addComplexTask(taskSPtr);
