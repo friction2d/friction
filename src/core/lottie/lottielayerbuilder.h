@@ -73,11 +73,6 @@ private:
     QJsonObject staticProperty(const QJsonValue& value) const;
     QJsonObject animatedScalarProperty(const QList<qreal>& values) const;
     QJsonObject animatedPointProperty(const QList<QJsonArray>& values) const;
-    QJsonArray scalarKeyframes(const QList<qreal>& values) const;
-    QJsonArray pointKeyframes(const QList<QJsonArray>& values) const;
-    bool sameScalarValues(const QList<qreal>& values) const;
-    bool samePointValues(const QList<QJsonArray>& values) const;
-    QJsonObject keyframeEase() const;
     void appendPaintObjects(const PathBox* const box,
                             QJsonArray& shapes) const;
     QJsonObject fillObject(const PathBox* const box) const;

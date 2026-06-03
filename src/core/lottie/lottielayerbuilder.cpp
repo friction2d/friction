@@ -34,6 +34,7 @@
 #include "Boxes/rectangle.h"
 #include "Boxes/textbox.h"
 #include "canvas.h"
+#include "lottie/lottieanimatedproperty.h"
 #include "lottie/lottiepatheffects.h"
 #include "paintsettings.h"
 #include "simplemath.h"
@@ -484,98 +485,17 @@ QJsonObject LottieLayerBuilder::transformObject(const BoundingBox* const box) co
 
 QJsonObject LottieLayerBuilder::staticProperty(const QJsonValue& value) const
 {
-    return QJsonObject{
-        {QStringLiteral("a"), 0},
-        {QStringLiteral("k"), value}
-    };
+    return LottieAnimatedProperty::staticProperty(value);
 }
 
 QJsonObject LottieLayerBuilder::animatedScalarProperty(const QList<qreal>& values) const
 {
-    if (values.isEmpty()) { return staticProperty(0); }
-    if (sameScalarValues(values)) { return staticProperty(values.first()); }
-    return QJsonObject{
-        {QStringLiteral("a"), 1},
-        {QStringLiteral("k"), scalarKeyframes(values)}
-    };
+    return LottieAnimatedProperty::scalar(values, mFrameRange);
 }
 
 QJsonObject LottieLayerBuilder::animatedPointProperty(const QList<QJsonArray>& values) const
 {
-    if (values.isEmpty()) { return staticProperty(QJsonArray()); }
-    if (samePointValues(values)) { return staticProperty(values.first()); }
-    return QJsonObject{
-        {QStringLiteral("a"), 1},
-        {QStringLiteral("k"), pointKeyframes(values)}
-    };
-}
-
-QJsonArray LottieLayerBuilder::scalarKeyframes(const QList<qreal>& values) const
-{
-    QJsonArray keyframes;
-    for (int i = 0; i < values.size(); i++) {
-        QJsonObject key;
-        key.insert(QStringLiteral("t"), mFrameRange.fMin + i);
-        key.insert(QStringLiteral("s"), QJsonArray{values.at(i)});
-        if (i + 1 < values.size()) {
-            key.insert(QStringLiteral("e"), QJsonArray{values.at(i + 1)});
-            key.insert(QStringLiteral("i"), keyframeEase());
-            key.insert(QStringLiteral("o"), keyframeEase());
-        }
-        keyframes.append(key);
-    }
-    return keyframes;
-}
-
-QJsonArray LottieLayerBuilder::pointKeyframes(const QList<QJsonArray>& values) const
-{
-    QJsonArray keyframes;
-    for (int i = 0; i < values.size(); i++) {
-        QJsonObject key;
-        key.insert(QStringLiteral("t"), mFrameRange.fMin + i);
-        key.insert(QStringLiteral("s"), values.at(i));
-        if (i + 1 < values.size()) {
-            key.insert(QStringLiteral("e"), values.at(i + 1));
-            key.insert(QStringLiteral("i"), keyframeEase());
-            key.insert(QStringLiteral("o"), keyframeEase());
-        }
-        keyframes.append(key);
-    }
-    return keyframes;
-}
-
-bool LottieLayerBuilder::sameScalarValues(const QList<qreal>& values) const
-{
-    if (values.isEmpty()) { return true; }
-    const qreal first = values.first();
-    for (const qreal value : values) {
-        if (!qFuzzyCompare(first + 1, value + 1)) { return false; }
-    }
-    return true;
-}
-
-bool LottieLayerBuilder::samePointValues(const QList<QJsonArray>& values) const
-{
-    if (values.isEmpty()) { return true; }
-    const auto first = values.first();
-    for (const auto& value : values) {
-        if (value.size() != first.size()) { return false; }
-        for (int i = 0; i < value.size(); i++) {
-            if (!qFuzzyCompare(first.at(i).toDouble() + 1,
-                               value.at(i).toDouble() + 1)) {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
-QJsonObject LottieLayerBuilder::keyframeEase() const
-{
-    return QJsonObject{
-        {QStringLiteral("x"), QJsonArray{0.667}},
-        {QStringLiteral("y"), QJsonArray{1}}
-    };
+    return LottieAnimatedProperty::point(values, mFrameRange);
 }
 
 void LottieLayerBuilder::appendPaintObjects(const PathBox* const box,

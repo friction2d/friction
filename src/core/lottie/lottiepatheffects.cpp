@@ -23,6 +23,7 @@
 
 #include "Animators/qrealanimator.h"
 #include "Boxes/pathbox.h"
+#include "lottie/lottieanimatedproperty.h"
 #include "PathEffects/patheffect.h"
 #include "PathEffects/patheffectcollection.h"
 #include "Properties/boolproperty.h"
@@ -34,57 +35,13 @@ namespace {
 
 QJsonObject staticProperty(const QJsonValue& value)
 {
-    return QJsonObject{
-        {QStringLiteral("a"), 0},
-        {QStringLiteral("k"), value}
-    };
-}
-
-QJsonObject keyframeEase()
-{
-    return QJsonObject{
-        {QStringLiteral("x"), QJsonArray{0.667}},
-        {QStringLiteral("y"), QJsonArray{1}}
-    };
-}
-
-bool sameScalarValues(const QList<qreal>& values)
-{
-    if (values.isEmpty()) { return true; }
-    const qreal first = values.first();
-    for (const qreal value : values) {
-        if (!qFuzzyCompare(first + 1, value + 1)) { return false; }
-    }
-    return true;
-}
-
-QJsonArray scalarKeyframes(const QList<qreal>& values,
-                           const FrameRange& frameRange)
-{
-    QJsonArray keyframes;
-    for (int i = 0; i < values.size(); i++) {
-        QJsonObject key;
-        key.insert(QStringLiteral("t"), frameRange.fMin + i);
-        key.insert(QStringLiteral("s"), QJsonArray{values.at(i)});
-        if (i + 1 < values.size()) {
-            key.insert(QStringLiteral("e"), QJsonArray{values.at(i + 1)});
-            key.insert(QStringLiteral("i"), keyframeEase());
-            key.insert(QStringLiteral("o"), keyframeEase());
-        }
-        keyframes.append(key);
-    }
-    return keyframes;
+    return LottieAnimatedProperty::staticProperty(value);
 }
 
 QJsonObject animatedScalarProperty(const QList<qreal>& values,
                                    const FrameRange& frameRange)
 {
-    if (values.isEmpty()) { return staticProperty(0); }
-    if (sameScalarValues(values)) { return staticProperty(values.first()); }
-    return QJsonObject{
-        {QStringLiteral("a"), 1},
-        {QStringLiteral("k"), scalarKeyframes(values, frameRange)}
-    };
+    return LottieAnimatedProperty::scalar(values, frameRange);
 }
 
 QrealAnimator* qrealChild(PathEffect* const effect,
