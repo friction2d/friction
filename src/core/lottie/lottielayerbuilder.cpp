@@ -36,6 +36,7 @@
 #include "Boxes/textbox.h"
 #include "canvas.h"
 #include "lottie/lottieanimatedproperty.h"
+#include "lottie/lottieblendmode.h"
 #include "lottie/lottiepatheffects.h"
 #include "lottie/lottierealkeyframes.h"
 #include "paintsettings.h"
@@ -347,7 +348,8 @@ QJsonObject LottieLayerBuilder::buildContainerLayer(const ContainerBox* const bo
 {
     auto layer = baseLayer(box ? box->prp_getName() : QStringLiteral("Group"),
                            id,
-                           3);
+                           3,
+                           box);
     layer.insert(QStringLiteral("ks"), transformObject(box));
     assignParent(layer, parentId);
     return layer;
@@ -356,7 +358,7 @@ QJsonObject LottieLayerBuilder::buildContainerLayer(const ContainerBox* const bo
 QJsonObject LottieLayerBuilder::buildRectangleLayer(RectangleBox* const box,
                                                     const int id) const
 {
-    auto layer = baseLayer(box->prp_getName(), id, 4);
+    auto layer = baseLayer(box->prp_getName(), id, 4, box);
     layer.insert(QStringLiteral("ks"), transformObject(box));
 
     QList<QJsonArray> centers;
@@ -397,7 +399,7 @@ QJsonObject LottieLayerBuilder::buildRectangleLayer(RectangleBox* const box,
 QJsonObject LottieLayerBuilder::buildTextLayer(TextBox* const box,
                                                const int id) const
 {
-    auto layer = baseLayer(box->prp_getName(), id, 5);
+    auto layer = baseLayer(box->prp_getName(), id, 5, box);
     layer.insert(QStringLiteral("ks"), transformObject(box));
 
     QColor fillColor(0, 0, 0);
@@ -455,7 +457,7 @@ QJsonObject LottieLayerBuilder::buildTextLayer(TextBox* const box,
 QJsonObject LottieLayerBuilder::buildImageLayer(ImageBox* const box,
                                                 const int id) const
 {
-    auto layer = baseLayer(box->prp_getName(), id, 2);
+    auto layer = baseLayer(box->prp_getName(), id, 2, box);
     layer.insert(QStringLiteral("ks"), transformObject(box));
     layer.insert(QStringLiteral("refId"), imageAssetId(box));
 
@@ -470,7 +472,7 @@ QJsonObject LottieLayerBuilder::buildImageLayer(ImageBox* const box,
 QJsonObject LottieLayerBuilder::buildPathLayer(PathBox* const box,
                                                const int id) const
 {
-    auto layer = baseLayer(box->prp_getName(), id, 4);
+    auto layer = baseLayer(box->prp_getName(), id, 4, box);
     layer.insert(QStringLiteral("ks"), transformObject(box));
 
     QJsonArray shapes = pathShapeObjects(box->getRelativePath(mFrameRange.fMin),
@@ -493,7 +495,8 @@ QJsonObject LottieLayerBuilder::buildUnsupportedLayer(const BoundingBox* const b
 
 QJsonObject LottieLayerBuilder::baseLayer(const QString& name,
                                           const int id,
-                                          const int type) const
+                                          const int type,
+                                          const BoundingBox* const box) const
 {
     QJsonObject layer;
     layer.insert(QStringLiteral("ddd"), 0);
@@ -505,7 +508,8 @@ QJsonObject LottieLayerBuilder::baseLayer(const QString& name,
     layer.insert(QStringLiteral("ip"), mFrameRange.fMin);
     layer.insert(QStringLiteral("op"), mFrameRange.fMax + 1);
     layer.insert(QStringLiteral("st"), 0);
-    layer.insert(QStringLiteral("bm"), 0);
+    layer.insert(QStringLiteral("bm"),
+                 box ? LottieBlendMode::value(box->getBlendMode()) : 0);
     Q_UNUSED(mFps)
     return layer;
 }

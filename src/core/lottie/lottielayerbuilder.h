@@ -73,7 +73,8 @@ private:
 
     QJsonObject baseLayer(const QString& name,
                           const int id,
-                          const int type) const;
+                          const int type,
+                          const BoundingBox* const box = nullptr) const;
     void assignParent(QJsonObject& layer, const int parentId) const;
     QJsonObject transformObject(const BoundingBox* const box = nullptr) const;
     QJsonObject staticProperty(const QJsonValue& value) const;
