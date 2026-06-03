@@ -81,7 +81,7 @@ void LottieExporter::finish()
     }
 
     const QJsonDocument doc(root);
-    file.write(doc.toJson(QJsonDocument::Indented));
+    file.write(doc.toJson(QJsonDocument::Compact));
     file.write("\n");
     file.close();
     setValue(INT_MAX);

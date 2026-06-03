@@ -180,6 +180,22 @@ QList<int> simplifiedPointIndices(const QList<QJsonArray>& values,
     return result;
 }
 
+QJsonObject linearInEase()
+{
+    return QJsonObject{
+        {QStringLiteral("x"), QJsonArray{0.833}},
+        {QStringLiteral("y"), QJsonArray{0.833}}
+    };
+}
+
+QJsonObject linearOutEase()
+{
+    return QJsonObject{
+        {QStringLiteral("x"), QJsonArray{0.167}},
+        {QStringLiteral("y"), QJsonArray{0.167}}
+    };
+}
+
 QJsonArray scalarKeyframes(const QList<qreal>& values,
                            const QList<int>& indices,
                            const FrameRange& frameRange)
@@ -193,8 +209,8 @@ QJsonArray scalarKeyframes(const QList<qreal>& values,
         if (i + 1 < indices.size()) {
             const int nextIndex = indices.at(i + 1);
             key.insert(QStringLiteral("e"), QJsonArray{values.at(nextIndex)});
-            key.insert(QStringLiteral("i"), LottieAnimatedProperty::keyframeEase());
-            key.insert(QStringLiteral("o"), LottieAnimatedProperty::keyframeEase());
+            key.insert(QStringLiteral("i"), linearInEase());
+            key.insert(QStringLiteral("o"), linearOutEase());
         }
         keyframes.append(key);
     }
@@ -214,8 +230,8 @@ QJsonArray pointKeyframes(const QList<QJsonArray>& values,
         if (i + 1 < indices.size()) {
             const int nextIndex = indices.at(i + 1);
             key.insert(QStringLiteral("e"), values.at(nextIndex));
-            key.insert(QStringLiteral("i"), LottieAnimatedProperty::keyframeEase());
-            key.insert(QStringLiteral("o"), LottieAnimatedProperty::keyframeEase());
+            key.insert(QStringLiteral("i"), linearInEase());
+            key.insert(QStringLiteral("o"), linearOutEase());
         }
         keyframes.append(key);
     }
@@ -257,13 +273,5 @@ QJsonObject LottieAnimatedProperty::point(const QList<QJsonArray>& values,
     return QJsonObject{
         {QStringLiteral("a"), 1},
         {QStringLiteral("k"), pointKeyframes(values, indices, frameRange)}
-    };
-}
-
-QJsonObject LottieAnimatedProperty::keyframeEase()
-{
-    return QJsonObject{
-        {QStringLiteral("x"), QJsonArray{0.667}},
-        {QStringLiteral("y"), QJsonArray{1}}
     };
 }

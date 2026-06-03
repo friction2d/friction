@@ -38,7 +38,6 @@ QJsonObject scalar(const QList<qreal>& values,
 QJsonObject point(const QList<QJsonArray>& values,
                   const FrameRange& frameRange,
                   const qreal tolerance = 0.001);
-QJsonObject keyframeEase();
 
 }
 
