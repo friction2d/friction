@@ -24,6 +24,7 @@
 #include "appsupport.h"
 #include "canvas.h"
 #include "exceptions.h"
+#include "lottie/lottiejsonoptimizer.h"
 #include "lottie/lottielayerbuilder.h"
 
 #include <QFile>
@@ -80,7 +81,7 @@ void LottieExporter::finish()
         RuntimeThrow("Could not open:\n\"" + mPath + "\"");
     }
 
-    const QJsonDocument doc(root);
+    const QJsonDocument doc(LottieJsonOptimizer::optimize(root));
     file.write(doc.toJson(QJsonDocument::Compact));
     file.write("\n");
     file.close();
