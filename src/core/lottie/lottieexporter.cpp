@@ -21,7 +21,6 @@
 
 #include "lottie/lottieexporter.h"
 
-#include "appsupport.h"
 #include "canvas.h"
 #include "exceptions.h"
 #include "lottie/lottiejsonoptimizer.h"
@@ -64,16 +63,12 @@ void LottieExporter::finish()
     root.insert(QStringLiteral("h"), mScene->getCanvasHeight());
     root.insert(QStringLiteral("nm"), mScene->prp_getName());
     root.insert(QStringLiteral("ddd"), 0);
-    root.insert(QStringLiteral("assets"), QJsonArray());
-    root.insert(QStringLiteral("markers"), QJsonArray());
-    root.insert(QStringLiteral("meta"), QJsonObject{
-                    {QStringLiteral("g"),
-                     QStringLiteral("%1 - %2").arg(AppSupport::getAppDisplayName(),
-                                                   AppSupport::getAppUrl())}
-                });
 
     const LottieLayerBuilder builder(mScene, mFrameRange, mFps);
-    root.insert(QStringLiteral("fonts"), builder.buildFonts());
+    const auto fonts = builder.buildFonts();
+    if (!fonts.value(QStringLiteral("list")).toArray().isEmpty()) {
+        root.insert(QStringLiteral("fonts"), fonts);
+    }
     root.insert(QStringLiteral("layers"), builder.buildLayers(mBackground));
 
     QFile file(mPath);
