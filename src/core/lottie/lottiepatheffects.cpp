@@ -24,6 +24,7 @@
 #include "Animators/qrealanimator.h"
 #include "Boxes/pathbox.h"
 #include "lottie/lottieanimatedproperty.h"
+#include "lottie/lottierealkeyframes.h"
 #include "PathEffects/patheffect.h"
 #include "PathEffects/patheffectcollection.h"
 #include "Properties/boolproperty.h"
@@ -42,6 +43,15 @@ QJsonObject animatedScalarProperty(const QList<qreal>& values,
                                    const FrameRange& frameRange)
 {
     return LottieAnimatedProperty::scalar(values, frameRange);
+}
+
+QJsonObject scalarProperty(QrealAnimator* const animator,
+                           const QList<qreal>& values,
+                           const FrameRange& frameRange,
+                           const LottieRealKeyframes::ScalarValue& value = nullptr)
+{
+    const auto real = LottieRealKeyframes::scalar(animator, frameRange, value);
+    return real.isEmpty() ? animatedScalarProperty(values, frameRange) : real;
 }
 
 QrealAnimator* qrealChild(PathEffect* const effect,
@@ -89,9 +99,13 @@ QJsonObject trimPathObject(PathEffect* const effect,
 
     QJsonObject object;
     object.insert(QStringLiteral("ty"), QStringLiteral("tm"));
-    object.insert(QStringLiteral("s"), animatedScalarProperty(starts, frameRange));
-    object.insert(QStringLiteral("e"), animatedScalarProperty(ends, frameRange));
-    object.insert(QStringLiteral("o"), animatedScalarProperty(offsets, frameRange));
+    object.insert(QStringLiteral("s"), scalarProperty(minLength, starts, frameRange));
+    object.insert(QStringLiteral("e"), scalarProperty(maxLength, ends, frameRange));
+    object.insert(QStringLiteral("o"),
+                  scalarProperty(offset,
+                                 offsets,
+                                 frameRange,
+                                 [](const qreal value) { return value*3.6; }));
     object.insert(QStringLiteral("m"), pathWise && pathWise->getValue() ? 2 : 1);
     object.insert(QStringLiteral("nm"), QStringLiteral("Sub-Path"));
     object.insert(QStringLiteral("hd"), false);
@@ -118,7 +132,7 @@ QJsonArray dashValues(PathEffect* const effect,
         values << (size ? size->getEffectiveValue(frame) : 0);
     }
 
-    const auto property = animatedScalarProperty(values, frameRange);
+    const auto property = scalarProperty(size, values, frameRange);
     return QJsonArray{
         strokeDashEntry(QStringLiteral("d"), QStringLiteral("dash"), property),
         strokeDashEntry(QStringLiteral("g"), QStringLiteral("gap"), property),
