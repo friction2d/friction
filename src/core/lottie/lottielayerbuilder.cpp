@@ -332,9 +332,22 @@ void LottieLayerBuilder::appendContainerLayers(const ContainerBox* const contain
 
         if (isAlphaMatteLayer(box) && i + 1 < boxes.size()) {
             const auto target = boxes.at(i + 1);
-            if (canBuildMatteLayer(box) && canBuildBoxLayer(target)) {
-                auto matteLayer = buildBoxLayer(box, nextId);
-                matteLayer.insert(QStringLiteral("td"), 1);
+            if (const auto targetContainer = dynamic_cast<const ContainerBox*>(target)) {
+                if (canBuildMatteLayer(box)) {
+                    const int groupId = nextId++;
+                    layers.append(buildContainerLayer(targetContainer, groupId, parentId));
+                    appendMaskedContainerLayers(box,
+                                                targetContainer,
+                                                layers,
+                                                nextId,
+                                                groupId,
+                                                parentId,
+                                                alphaMatteType(box));
+                    i++;
+                    continue;
+                }
+            } else if (canBuildMatteLayer(box) && canBuildBoxLayer(target)) {
+                auto matteLayer = buildMatteLayer(box, nextId);
                 assignParent(matteLayer, parentId);
                 layers.append(matteLayer);
                 nextId++;
@@ -370,6 +383,61 @@ void LottieLayerBuilder::appendContainerLayers(const ContainerBox* const contain
         layers.append(layer);
         nextId++;
     }
+}
+
+void LottieLayerBuilder::appendMaskedContainerLayers(BoundingBox* const matte,
+                                                     const ContainerBox* const container,
+                                                     QJsonArray& layers,
+                                                     int& nextId,
+                                                     const int parentId,
+                                                     const int matteParentId,
+                                                     const int matteType) const
+{
+    const auto& boxes = container->getContainedBoxes();
+    for (const auto box : boxes) {
+        if (!box) { continue; }
+
+        if (const auto childContainer = dynamic_cast<const ContainerBox*>(box)) {
+            const int groupId = nextId++;
+            layers.append(buildContainerLayer(childContainer, groupId, parentId));
+            appendMaskedContainerLayers(matte,
+                                        childContainer,
+                                        layers,
+                                        nextId,
+                                        groupId,
+                                        matteParentId,
+                                        matteType);
+            continue;
+        }
+
+        if (canBuildBoxLayer(box)) {
+            auto matteLayer = buildMatteLayer(matte, nextId);
+            assignParent(matteLayer, matteParentId);
+            layers.append(matteLayer);
+            nextId++;
+
+            auto targetLayer = buildBoxLayer(box, nextId);
+            targetLayer.insert(QStringLiteral("tt"), matteType);
+            assignParent(targetLayer, parentId);
+            layers.append(targetLayer);
+            nextId++;
+            continue;
+        }
+
+        auto layer = buildUnsupportedLayer(box, nextId);
+        assignParent(layer, parentId);
+        layers.append(layer);
+        nextId++;
+    }
+}
+
+QJsonObject LottieLayerBuilder::buildMatteLayer(BoundingBox* const box,
+                                                const int id) const
+{
+    auto layer = buildBoxLayer(box, id);
+    layer.insert(QStringLiteral("td"), 1);
+    layer.insert(QStringLiteral("bm"), 0);
+    return layer;
 }
 
 QJsonObject LottieLayerBuilder::buildBoxLayer(BoundingBox* const box,

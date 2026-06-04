@@ -59,6 +59,15 @@ private:
                                QJsonArray& layers,
                                int& nextId,
                                const int parentId = 0) const;
+    void appendMaskedContainerLayers(BoundingBox* const matte,
+                                     const ContainerBox* const container,
+                                     QJsonArray& layers,
+                                     int& nextId,
+                                     const int parentId,
+                                     const int matteParentId,
+                                     const int matteType) const;
+    QJsonObject buildMatteLayer(BoundingBox* const box,
+                                const int id) const;
     QJsonObject buildBoxLayer(BoundingBox* const box,
                               const int id) const;
     bool canBuildBoxLayer(const BoundingBox* const box) const;
