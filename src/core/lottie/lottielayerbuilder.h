@@ -59,6 +59,12 @@ private:
                                QJsonArray& layers,
                                int& nextId,
                                const int parentId = 0) const;
+    QJsonObject buildBoxLayer(BoundingBox* const box,
+                              const int id) const;
+    bool canBuildBoxLayer(const BoundingBox* const box) const;
+    bool canBuildMatteLayer(const BoundingBox* const box) const;
+    bool isAlphaMatteLayer(const BoundingBox* const box) const;
+    int alphaMatteType(const BoundingBox* const box) const;
     QJsonObject buildContainerLayer(const ContainerBox* const box,
                                     const int id,
                                     const int parentId) const;

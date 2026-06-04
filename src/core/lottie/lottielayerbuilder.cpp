@@ -326,8 +326,28 @@ void LottieLayerBuilder::appendContainerLayers(const ContainerBox* const contain
                                                const int parentId) const
 {
     const auto& boxes = container->getContainedBoxes();
-    for (const auto box : boxes) {
+    for (int i = 0; i < boxes.size(); i++) {
+        const auto box = boxes.at(i);
         if (!box) { continue; }
+
+        if (isAlphaMatteLayer(box) && i + 1 < boxes.size()) {
+            const auto target = boxes.at(i + 1);
+            if (canBuildMatteLayer(box) && canBuildBoxLayer(target)) {
+                auto matteLayer = buildBoxLayer(box, nextId);
+                matteLayer.insert(QStringLiteral("td"), 1);
+                assignParent(matteLayer, parentId);
+                layers.append(matteLayer);
+                nextId++;
+
+                auto targetLayer = buildBoxLayer(target, nextId);
+                targetLayer.insert(QStringLiteral("tt"), alphaMatteType(box));
+                assignParent(targetLayer, parentId);
+                layers.append(targetLayer);
+                nextId++;
+                i++;
+                continue;
+            }
+        }
 
         const auto childContainer = dynamic_cast<const ContainerBox*>(box);
         if (childContainer) {
@@ -337,36 +357,8 @@ void LottieLayerBuilder::appendContainerLayers(const ContainerBox* const contain
             continue;
         }
 
-        const auto rectangle = dynamic_cast<RectangleBox*>(box);
-        if (rectangle) {
-            auto layer = buildRectangleLayer(rectangle, nextId);
-            assignParent(layer, parentId);
-            layers.append(layer);
-            nextId++;
-            continue;
-        }
-
-        const auto text = dynamic_cast<TextBox*>(box);
-        if (text && canBuildNativeTextLayer(text)) {
-            auto layer = buildTextLayer(text, nextId);
-            assignParent(layer, parentId);
-            layers.append(layer);
-            nextId++;
-            continue;
-        }
-
-        const auto image = dynamic_cast<ImageBox*>(box);
-        if (image && imageForBox(image)) {
-            auto layer = buildImageLayer(image, nextId);
-            assignParent(layer, parentId);
-            layers.append(layer);
-            nextId++;
-            continue;
-        }
-
-        const auto path = dynamic_cast<PathBox*>(box);
-        if (path) {
-            auto layer = buildPathLayer(path, nextId);
+        if (canBuildBoxLayer(box)) {
+            auto layer = buildBoxLayer(box, nextId);
             assignParent(layer, parentId);
             layers.append(layer);
             nextId++;
@@ -378,6 +370,59 @@ void LottieLayerBuilder::appendContainerLayers(const ContainerBox* const contain
         layers.append(layer);
         nextId++;
     }
+}
+
+QJsonObject LottieLayerBuilder::buildBoxLayer(BoundingBox* const box,
+                                              const int id) const
+{
+    if (const auto rectangle = dynamic_cast<RectangleBox*>(box)) {
+        return buildRectangleLayer(rectangle, id);
+    }
+
+    if (const auto text = dynamic_cast<TextBox*>(box)) {
+        if (canBuildNativeTextLayer(text)) { return buildTextLayer(text, id); }
+    }
+
+    if (const auto image = dynamic_cast<ImageBox*>(box)) {
+        if (imageForBox(image)) { return buildImageLayer(image, id); }
+    }
+
+    if (const auto path = dynamic_cast<PathBox*>(box)) {
+        return buildPathLayer(path, id);
+    }
+
+    return QJsonObject();
+}
+
+bool LottieLayerBuilder::canBuildBoxLayer(const BoundingBox* const box) const
+{
+    if (!box) { return false; }
+    if (dynamic_cast<const RectangleBox*>(box)) { return true; }
+    if (const auto text = dynamic_cast<const TextBox*>(box)) {
+        return canBuildNativeTextLayer(text);
+    }
+    if (const auto image = dynamic_cast<const ImageBox*>(box)) {
+        return imageForBox(image).get();
+    }
+    return dynamic_cast<const PathBox*>(box);
+}
+
+bool LottieLayerBuilder::canBuildMatteLayer(const BoundingBox* const box) const
+{
+    return canBuildBoxLayer(box) && !dynamic_cast<const ImageBox*>(box);
+}
+
+bool LottieLayerBuilder::isAlphaMatteLayer(const BoundingBox* const box) const
+{
+    if (!box) { return false; }
+    const auto mode = box->getBlendMode();
+    return mode == SkBlendMode::kDstIn || mode == SkBlendMode::kDstOut;
+}
+
+int LottieLayerBuilder::alphaMatteType(const BoundingBox* const box) const
+{
+    if (!box) { return 1; }
+    return box->getBlendMode() == SkBlendMode::kDstOut ? 2 : 1;
 }
 
 QJsonObject LottieLayerBuilder::buildContainerLayer(const ContainerBox* const box,
