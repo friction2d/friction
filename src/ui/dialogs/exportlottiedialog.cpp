@@ -98,7 +98,7 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
                                                         false).toBool());
     mNativeText = new QCheckBox(tr("Native text (experimental)"), this);
     mNativeText->setToolTip(tr("Disabled: exports text as vector outlines for best renderer compatibility. "
-                               "Enabled: keeps simple text as native Lottie text, but it may not render "
+                               "\nEnabled: keeps simple text as native Lottie text, but it may not render "
                                "correctly in the canvas renderer."));
     mNativeText->setChecked(AppSupport::getSettings("exportLottie",
                                                     "nativeText",
