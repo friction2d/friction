@@ -722,7 +722,11 @@ bool AppSupport::isWayland()
 
 bool AppSupport::isFlatpak()
 {
+#ifdef Q_OS_LINUX
     return !QString(qgetenv("container")).isEmpty();
+#else
+    return false;
+#endif
 }
 
 const QString AppSupport::getAppImagePath()

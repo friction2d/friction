@@ -96,18 +96,22 @@ QString eDialogs::openDir(const QString &title, const QString &path) {
 
 QString eDialogs::saveFile(const QString &title,
                            const QString &path,
-                           const QString &filter) {
+                           const QString &filter,
+                           const QString &defSuffix)
+{
     QFileDialog dialog(nullptr, title, path);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
-    // dialog.setOption(QFileDialog::DontUseNativeDialog);
+    if (!defSuffix.isEmpty()) { dialog.setDefaultSuffix(defSuffix); }
     dialog.setFileMode(QFileDialog::AnyFile);
     dialog.setNameFilter(filter);
+
     auto iconProvider = new evIconProvider;
     dialog.setIconProvider(iconProvider);
-    if(dialog.exec()) {
+
+    if (dialog.exec()) {
         const QStringList paths = dialog.selectedFiles();
         const QString openPath(paths.isEmpty() ? "" : paths.first());
         return openPath;
     }
-    return "";
+    return QString();
 }
