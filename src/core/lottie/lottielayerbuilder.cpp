@@ -232,13 +232,15 @@ LottieLayerBuilder::LottieLayerBuilder(Canvas* const scene,
                                        const qreal fps,
                                        const QString& path,
                                        const bool embedImages,
-                                       const bool svgRendererFix)
+                                       const bool svgRendererFix,
+                                       const bool nativeText)
     : mScene(scene)
     , mFrameRange(frameRange)
     , mFps(fps)
     , mPath(path)
     , mEmbedImages(embedImages)
     , mSvgRendererFix(svgRendererFix)
+    , mNativeText(nativeText)
 {
 
 }
@@ -466,9 +468,7 @@ bool LottieLayerBuilder::canBuildBoxLayer(const BoundingBox* const box) const
 {
     if (!box) { return false; }
     if (dynamic_cast<const RectangleBox*>(box)) { return true; }
-    if (const auto text = dynamic_cast<const TextBox*>(box)) {
-        return canBuildNativeTextLayer(text);
-    }
+    if (dynamic_cast<const TextBox*>(box)) { return true; }
     if (const auto image = dynamic_cast<const ImageBox*>(box)) {
         return imageForBox(image).get();
     }
@@ -553,46 +553,9 @@ QJsonObject LottieLayerBuilder::buildTextLayer(TextBox* const box,
     auto layer = baseLayer(box->prp_getName(), id, 5, box);
     layer.insert(QStringLiteral("ks"), transformObject(box));
 
-    QColor fillColor(0, 0, 0);
-    const auto fill = box->getFillSettings();
-    if (fill && fill->getPaintType() == PaintType::FLATPAINT) {
-        fillColor = fill->getColor(mFrameRange.fMin);
-    }
-
-    QJsonObject document;
-    document.insert(QStringLiteral("s"), box->getFontSize());
-    document.insert(QStringLiteral("f"), fontName(box));
-    document.insert(QStringLiteral("t"), box->getCurrentValue());
-    document.insert(QStringLiteral("j"), 0);
-    document.insert(QStringLiteral("tr"), 0);
-    document.insert(QStringLiteral("lh"), box->getFontSize()*1.2);
-    document.insert(QStringLiteral("ls"), 0);
-    document.insert(QStringLiteral("sz"), QJsonArray{mScene ? mScene->getCanvasWidth() : 0,
-                                                     mScene ? mScene->getCanvasHeight() : 0});
-    document.insert(QStringLiteral("ps"), QJsonArray{0, -box->getFontSize()*0.75});
-    document.insert(QStringLiteral("fc"), QJsonArray{fillColor.redF(),
-                                                     fillColor.greenF(),
-                                                     fillColor.blueF()});
-
-    const auto stroke = box->getStrokeSettings();
-    if (stroke &&
-        stroke->getPaintType() == PaintType::FLATPAINT &&
-        !isZero4Dec(stroke->getLineWidthAnimator()->getEffectiveValue(mFrameRange.fMin))) {
-        const QColor strokeColor = stroke->getColor(mFrameRange.fMin);
-        document.insert(QStringLiteral("sc"), QJsonArray{strokeColor.redF(),
-                                                         strokeColor.greenF(),
-                                                         strokeColor.blueF()});
-        document.insert(QStringLiteral("sw"),
-                        stroke->getLineWidthAnimator()->getEffectiveValue(mFrameRange.fMin));
-    }
-
-    QJsonObject documentKey;
-    documentKey.insert(QStringLiteral("s"), document);
-    documentKey.insert(QStringLiteral("t"), mFrameRange.fMin);
-
     QJsonObject textData;
     textData.insert(QStringLiteral("d"), QJsonObject{
-                        {QStringLiteral("k"), QJsonArray{documentKey}}
+                        {QStringLiteral("k"), textDocumentKeyframes(box)}
                     });
     textData.insert(QStringLiteral("p"), QJsonObject());
     textData.insert(QStringLiteral("m"), QJsonObject{
@@ -603,6 +566,95 @@ QJsonObject LottieLayerBuilder::buildTextLayer(TextBox* const box,
 
     layer.insert(QStringLiteral("t"), textData);
     return layer;
+}
+
+QJsonObject LottieLayerBuilder::textDocumentObject(TextBox* const box,
+                                                   const int frame) const
+{
+    QColor fillColor(0, 0, 0);
+    const auto fill = box->getFillSettings();
+    if (fill && fill->getPaintType() == PaintType::FLATPAINT) {
+        fillColor = fill->getColor(frame);
+    }
+
+    const qreal fontSize = box->getFontSize();
+    const qreal lineHeight = box->getFontSpacing()*box->getLineSpacing(frame);
+    const qreal letterSpacing = box->getLetterSpacing(frame);
+    const qreal effectiveLineHeight = isZero4Dec(lineHeight) ? fontSize*1.2 : lineHeight;
+    QString normalizedText = box->getValueAtRelFrame(frame);
+    normalizedText.replace(QStringLiteral("\r\n"), QStringLiteral("\n"));
+    normalizedText.replace(QLatin1Char('\r'), QLatin1Char('\n'));
+    const int lineCount = qMax(1, normalizedText.count(QLatin1Char('\n')) + 1);
+    const qreal textHeight = (lineCount - 1)*effectiveLineHeight + fontSize;
+    const qreal maxWidth = qMax<qreal>(1, box->getMaxLineWidth(frame));
+    qreal horizontalOffset = 0;
+    const auto horizontalAlignment = box->getTextHAlignment();
+    if (horizontalAlignment & Qt::AlignRight) {
+        horizontalOffset = -maxWidth;
+    } else if (horizontalAlignment & Qt::AlignHCenter) {
+        horizontalOffset = -0.5*maxWidth;
+    }
+
+    qreal verticalOffset = 0;
+    const auto verticalAlignment = box->getTextVAlignment();
+    if (verticalAlignment & Qt::AlignBottom) {
+        verticalOffset = -textHeight;
+    } else if (verticalAlignment & Qt::AlignVCenter) {
+        verticalOffset = -0.5*textHeight;
+    }
+
+    QJsonObject document;
+    document.insert(QStringLiteral("s"), fontSize);
+    document.insert(QStringLiteral("f"), fontName(box));
+    document.insert(QStringLiteral("t"), normalizedText);
+    document.insert(QStringLiteral("j"), textJustification(box->getTextHAlignment()));
+    document.insert(QStringLiteral("tr"), qRound(letterSpacing*1000));
+    document.insert(QStringLiteral("lh"), effectiveLineHeight);
+    document.insert(QStringLiteral("ls"), 0);
+    document.insert(QStringLiteral("sz"), QJsonArray{maxWidth, textHeight});
+    document.insert(QStringLiteral("ps"),
+                    QJsonArray{horizontalOffset, -fontSize*0.75 + verticalOffset});
+    document.insert(QStringLiteral("fc"), QJsonArray{fillColor.redF(),
+                                                     fillColor.greenF(),
+                                                     fillColor.blueF()});
+
+    const auto stroke = box->getStrokeSettings();
+    if (stroke &&
+        stroke->getPaintType() == PaintType::FLATPAINT &&
+        !isZero4Dec(stroke->getLineWidthAnimator()->getEffectiveValue(frame))) {
+        const QColor strokeColor = stroke->getColor(frame);
+        document.insert(QStringLiteral("sc"), QJsonArray{strokeColor.redF(),
+                                                         strokeColor.greenF(),
+                                                         strokeColor.blueF()});
+        document.insert(QStringLiteral("sw"),
+                        stroke->getLineWidthAnimator()->getEffectiveValue(frame));
+    }
+
+    return document;
+}
+
+QJsonArray LottieLayerBuilder::textDocumentKeyframes(TextBox* const box) const
+{
+    QJsonArray keys;
+    QJsonObject previousDocument;
+    for (int frame = mFrameRange.fMin; frame <= mFrameRange.fMax; frame++) {
+        const QJsonObject document = textDocumentObject(box, frame);
+        if (frame != mFrameRange.fMin && document == previousDocument) { continue; }
+
+        QJsonObject key;
+        key.insert(QStringLiteral("s"), document);
+        key.insert(QStringLiteral("t"), frame);
+        keys.append(key);
+        previousDocument = document;
+    }
+    return keys;
+}
+
+int LottieLayerBuilder::textJustification(const Qt::Alignment alignment) const
+{
+    if (alignment & Qt::AlignRight) { return 1; }
+    if (alignment & Qt::AlignHCenter) { return 2; }
+    return 0;
 }
 
 QJsonObject LottieLayerBuilder::buildImageLayer(ImageBox* const box,
@@ -1228,10 +1280,30 @@ QString LottieLayerBuilder::fontStyleName(const TextBox* const box) const
 
 bool LottieLayerBuilder::canBuildNativeTextLayer(const TextBox* const box) const
 {
-    return box &&
-           !box->hasTextEffects() &&
-           !box->hasBasePathEffects() &&
-           !box->hasFillEffects() &&
-           !box->hasOutlineBaseEffects() &&
-           !box->hasOutlineEffects();
+    if (!mNativeText) { return false; }
+    if (!box ||
+        box->hasTextEffects() ||
+        box->hasBasePathEffects() ||
+        box->hasFillEffects() ||
+        box->hasOutlineBaseEffects() ||
+        box->hasOutlineEffects()) {
+        return false;
+    }
+
+    for (int frame = mFrameRange.fMin; frame <= mFrameRange.fMax; frame++) {
+        if (!isOne4Dec(box->getWordSpacing(frame))) { return false; }
+        if (!canBuildNativeTextValue(box->getValueAtRelFrame(frame))) { return false; }
+    }
+    return true;
+}
+
+bool LottieLayerBuilder::canBuildNativeTextValue(const QString& value) const
+{
+    for (const auto character : value) {
+        if (character == QLatin1Char('\n') || character == QLatin1Char('\r')) {
+            continue;
+        }
+        if (character.unicode() > 0x7f) { return false; }
+    }
+    return true;
 }

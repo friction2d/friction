@@ -27,6 +27,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QSet>
+#include <Qt>
 
 class BoundingBox;
 class Canvas;
@@ -46,7 +47,8 @@ public:
                        const qreal fps,
                        const QString& path = QString(),
                        const bool embedImages = true,
-                       const bool svgRendererFix = false);
+                       const bool svgRendererFix = false,
+                       const bool nativeText = false);
 
     QJsonArray buildLayers(const bool background) const;
     QJsonArray buildAssets() const;
@@ -81,6 +83,10 @@ private:
                                     const int id) const;
     QJsonObject buildTextLayer(TextBox* const box,
                                const int id) const;
+    QJsonObject textDocumentObject(TextBox* const box,
+                                   const int frame) const;
+    QJsonArray textDocumentKeyframes(TextBox* const box) const;
+    int textJustification(const Qt::Alignment alignment) const;
     QJsonObject buildImageLayer(ImageBox* const box,
                                 const int id) const;
     QJsonObject buildPathLayer(PathBox* const box,
@@ -127,6 +133,7 @@ private:
     QString fontName(const TextBox* const box) const;
     QString fontStyleName(const TextBox* const box) const;
     bool canBuildNativeTextLayer(const TextBox* const box) const;
+    bool canBuildNativeTextValue(const QString& value) const;
 
     Canvas* const mScene;
     const FrameRange mFrameRange;
@@ -134,6 +141,7 @@ private:
     const QString mPath;
     const bool mEmbedImages;
     const bool mSvgRendererFix;
+    const bool mNativeText;
 };
 
 #endif // LOTTIELAYERBUILDER_H

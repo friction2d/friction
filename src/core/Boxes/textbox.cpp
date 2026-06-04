@@ -254,12 +254,68 @@ SkScalar TextBox::getFontSize() const {
     return mFont.getSize();
 }
 
+SkScalar TextBox::getFontSpacing() const {
+    return mFont.getSpacing();
+}
+
 const QString& TextBox::getFontFamily() const {
     return mFamily;
 }
 
 const QString& TextBox::getCurrentValue() const {
     return mText->getCurrentValue();
+}
+
+QString TextBox::getValueAtRelFrame(const qreal relFrame) const {
+    return mText->getValueAtRelFrame(relFrame);
+}
+
+Qt::Alignment TextBox::getTextHAlignment() const {
+    return mHAlignment;
+}
+
+Qt::Alignment TextBox::getTextVAlignment() const {
+    return mVAlignment;
+}
+
+qreal TextBox::getLetterSpacing(const qreal relFrame) const {
+    return mLetterSpacing->getEffectiveValue(relFrame);
+}
+
+qreal TextBox::getWordSpacing(const qreal relFrame) const {
+    return mWordSpacing->getEffectiveValue(relFrame);
+}
+
+qreal TextBox::getLineSpacing(const qreal relFrame) const {
+    return mLineSpacing->getEffectiveValue(relFrame);
+}
+
+qreal TextBox::getMaxLineWidth(const qreal relFrame) const {
+    const QString textAtFrame = mText->getValueAtRelFrame(relFrame);
+    const qreal letterSpacing = mLetterSpacing->getEffectiveValue(relFrame);
+    const qreal wordSpacing = mWordSpacing->getEffectiveValue(relFrame);
+
+    qreal maxWidth = 0;
+    const QStringList lines = textAtFrame.split(QRegExp("\n|\r\n|\r"));
+    for(const auto& line : lines) {
+        maxWidth = qMax(maxWidth,
+                        horizontalAdvance(mFont, line, letterSpacing, wordSpacing));
+    }
+    return maxWidth;
+}
+
+qreal TextBox::getTextWidth(const QString& text,
+                            const qreal letterSpacing,
+                            const qreal wordSpacing) const {
+    return horizontalAdvance(mFont, text, letterSpacing, wordSpacing);
+}
+
+SkPath TextBox::getTextPath(const QString& text,
+                            const qreal x,
+                            const qreal y) const {
+    SkPath path;
+    textToPath(x, y, text, path);
+    return path;
 }
 
 void TextBox::setupCanvasMenu(PropertyMenu * const menu)

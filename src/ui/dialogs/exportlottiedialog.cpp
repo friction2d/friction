@@ -96,6 +96,13 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
     mSvgRendererFix->setChecked(AppSupport::getSettings("exportLottie",
                                                         "svgRendererFix",
                                                         false).toBool());
+    mNativeText = new QCheckBox(tr("Native text (experimental)"), this);
+    mNativeText->setToolTip(tr("Disabled: exports text as vector outlines for best renderer compatibility. "
+                               "Enabled: keeps simple text as native Lottie text, but it may not render "
+                               "correctly in the canvas renderer."));
+    mNativeText->setChecked(AppSupport::getSettings("exportLottie",
+                                                    "nativeText",
+                                                    false).toBool());
     mNotify = new QCheckBox(tr("Notify when done"), this);
     mNotify->setChecked(AppSupport::getSettings("exportLottie",
                                                 "notify",
@@ -125,6 +132,12 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
                                 "svgRendererFix",
                                 mSvgRendererFix->isChecked());
     });
+    connect(mNativeText, &QCheckBox::stateChanged,
+            this, [this] {
+        AppSupport::setSettings("exportLottie",
+                                "nativeText",
+                                mNativeText->isChecked());
+    });
 
     twoColLayout->addPair(new QLabel(tr("Scene")), sceneButton);
     twoColLayout->addPair(new QLabel(tr("First Frame")), mFirstFrame);
@@ -138,7 +151,8 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
 
     const auto optsTwoCol = new TwoColumnLayout();
     optsTwoCol->addPair(mBackground, mEmbedImages);
-    optsTwoCol->addPair(mSvgRendererFix, mNotify);
+    optsTwoCol->addPair(mSvgRendererFix, mNativeText);
+    optsTwoCol->addPair(mNotify, new QWidget(this));
     optsTwoCol->addSpacing(4);
 
     sceneWidget->setLayout(twoColLayout);
@@ -273,7 +287,8 @@ bool ExportLottieDialog::exportTo(const QString& file)
                                              scene->getFps(),
                                              mBackground->isChecked(),
                                              mEmbedImages->isChecked(),
-                                             mSvgRendererFix->isChecked());
+                                             mSvgRendererFix->isChecked(),
+                                             mNativeText->isChecked());
         const auto taskSPtr = qsptr<LottieExporter>(task, &QObject::deleteLater);
         task->nextStep();
         TaskScheduler::instance()->addComplexTask(taskSPtr);
