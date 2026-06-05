@@ -159,27 +159,18 @@ void addQuad(LottieContour& contour,
     addCubic(contour, cp1, cp2, end);
 }
 
-QJsonObject contourObject(const LottieContour& contour,
-                          const QString& name,
-                          const int index)
+QJsonObject contourPathObject(const LottieContour& contour)
 {
-    QJsonObject path;
-    path.insert(QStringLiteral("i"), contour.inTangents);
-    path.insert(QStringLiteral("o"), contour.outTangents);
-    path.insert(QStringLiteral("v"), contour.vertices);
-    path.insert(QStringLiteral("c"), contour.closed);
-
-    QJsonObject shape;
-    shape.insert(QStringLiteral("ty"), QStringLiteral("sh"));
-    shape.insert(QStringLiteral("ks"), lottieStaticProperty(path));
-    shape.insert(QStringLiteral("nm"), QStringLiteral("%1 Path %2").arg(name).arg(index));
-    shape.insert(QStringLiteral("ind"), index);
-    return shape;
+    return QJsonObject{
+        {QStringLiteral("i"), contour.inTangents},
+        {QStringLiteral("o"), contour.outTangents},
+        {QStringLiteral("v"), contour.vertices},
+        {QStringLiteral("c"), contour.closed}
+    };
 }
 
-QJsonArray pathShapeObjects(const SkPath& path, const QString& name)
+QList<LottieContour> pathContours(const SkPath& path)
 {
-    QJsonArray shapes;
     QList<LottieContour> contours;
     LottieContour contour;
     SkPath::Iter iter(path, false);
@@ -217,12 +208,108 @@ QJsonArray pathShapeObjects(const SkPath& path, const QString& name)
             break;
         case SkPath::kDone_Verb:
             if (!contour.vertices.isEmpty()) { contours.append(contour); }
-            for (int i = 0; i < contours.size(); i++) {
-                shapes.append(contourObject(contours.at(i), name, i + 1));
-            }
-            return shapes;
+            return contours;
         }
     }
+}
+
+bool compatibleContours(const QList<LottieContour>& a,
+                        const QList<LottieContour>& b)
+{
+    if (a.size() != b.size()) { return false; }
+    for (int i = 0; i < a.size(); i++) {
+        if (a.at(i).closed != b.at(i).closed) { return false; }
+        if (a.at(i).vertices.size() != b.at(i).vertices.size()) { return false; }
+        if (a.at(i).inTangents.size() != b.at(i).inTangents.size()) { return false; }
+        if (a.at(i).outTangents.size() != b.at(i).outTangents.size()) { return false; }
+    }
+    return true;
+}
+
+QJsonObject shapeInEase()
+{
+    return QJsonObject{
+        {QStringLiteral("x"), QJsonArray{0.833}},
+        {QStringLiteral("y"), QJsonArray{0.833}}
+    };
+}
+
+QJsonObject shapeOutEase()
+{
+    return QJsonObject{
+        {QStringLiteral("x"), QJsonArray{0.167}},
+        {QStringLiteral("y"), QJsonArray{0.167}}
+    };
+}
+
+QJsonArray pathShapeObjects(const QList<QList<LottieContour>>& frames,
+                            const QString& name,
+                            const FrameRange& frameRange)
+{
+    QJsonArray shapes;
+    if (frames.isEmpty()) { return shapes; }
+
+    const auto& firstContours = frames.first();
+    const bool animated = frames.size() > 1;
+    for (int contourIndex = 0; contourIndex < firstContours.size(); contourIndex++) {
+        QJsonObject shape;
+        shape.insert(QStringLiteral("ty"), QStringLiteral("sh"));
+        shape.insert(QStringLiteral("nm"),
+                     QStringLiteral("%1 Path %2").arg(name).arg(contourIndex + 1));
+        shape.insert(QStringLiteral("ind"), contourIndex + 1);
+
+        if (animated) {
+            QJsonArray keys;
+            QList<int> keyFrameIndices;
+            QJsonObject previousPath;
+            for (int frameIndex = 0; frameIndex < frames.size(); frameIndex++) {
+                const QJsonObject path = contourPathObject(frames.at(frameIndex).at(contourIndex));
+                if (frameIndex != 0 && path == previousPath) { continue; }
+
+                keyFrameIndices.append(frameIndex);
+                previousPath = path;
+            }
+
+            for (int keyIndex = 0; keyIndex < keyFrameIndices.size(); keyIndex++) {
+                const int frameIndex = keyFrameIndices.at(keyIndex);
+                const QJsonObject path = contourPathObject(frames.at(frameIndex).at(contourIndex));
+
+                QJsonObject key;
+                key.insert(QStringLiteral("t"), frameRange.fMin + frameIndex);
+                key.insert(QStringLiteral("s"), QJsonArray{path});
+                if (keyIndex + 1 < keyFrameIndices.size()) {
+                    const int nextFrameIndex = keyFrameIndices.at(keyIndex + 1);
+                    const QJsonObject nextPath =
+                            contourPathObject(frames.at(nextFrameIndex).at(contourIndex));
+                    key.insert(QStringLiteral("e"), QJsonArray{nextPath});
+                    key.insert(QStringLiteral("i"), shapeInEase());
+                    key.insert(QStringLiteral("o"), shapeOutEase());
+                }
+                keys.append(key);
+            }
+
+            if (keys.size() > 1) {
+                shape.insert(QStringLiteral("ks"), QJsonObject{
+                                 {QStringLiteral("a"), 1},
+                                 {QStringLiteral("k"), keys}
+                             });
+            } else {
+                shape.insert(QStringLiteral("ks"), lottieStaticProperty(previousPath));
+            }
+        } else {
+            shape.insert(QStringLiteral("ks"),
+                         lottieStaticProperty(contourPathObject(firstContours.at(contourIndex))));
+        }
+        shapes.append(shape);
+    }
+    return shapes;
+}
+
+QJsonArray pathShapeObjects(const SkPath& path, const QString& name)
+{
+    return pathShapeObjects(QList<QList<LottieContour>>{pathContours(path)},
+                            name,
+                            FrameRange{0, 0});
 }
 
 }
@@ -678,8 +765,21 @@ QJsonObject LottieLayerBuilder::buildPathLayer(PathBox* const box,
     auto layer = baseLayer(box->prp_getName(), id, 4, box);
     layer.insert(QStringLiteral("ks"), transformObject(box));
 
-    QJsonArray shapes = pathShapeObjects(box->getRelativePath(mFrameRange.fMin),
-                                         box->prp_getName());
+    QList<QList<LottieContour>> pathFrames;
+    bool compatible = true;
+    for (int frame = mFrameRange.fMin; frame <= mFrameRange.fMax; frame++) {
+        const auto contours = pathContours(box->getRelativePath(frame));
+        if (!pathFrames.isEmpty() && !compatibleContours(pathFrames.first(), contours)) {
+            compatible = false;
+            break;
+        }
+        pathFrames.append(contours);
+    }
+
+    QJsonArray shapes = compatible ?
+                pathShapeObjects(pathFrames, box->prp_getName(), mFrameRange) :
+                pathShapeObjects(box->getRelativePath(mFrameRange.fMin),
+                                 box->prp_getName());
     LottiePathEffects::appendBasePathEffects(box, mFrameRange, shapes);
     appendPaintObjects(box, shapes);
     shapes.append(shapeTransformObject());
