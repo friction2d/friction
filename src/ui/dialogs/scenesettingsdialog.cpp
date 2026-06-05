@@ -29,6 +29,7 @@
 #include "appsupport.h"
 #include "Private/document.h"
 #include "Private/esettings.h"
+#include "../../app/GUI/canvaswindow.h"
 
 SceneSettingsDialog::SceneSettingsDialog(Canvas * const canvas,
                                          QWidget * const parent)
@@ -367,6 +368,11 @@ void SceneSettingsDialog::sNewSceneDialog(Document& document,
         const auto block = newCanvas->blockUndoRedo();
         dialog->applySettingsToCanvas(newCanvas);
         newCanvas->anim_setAbsFrame(newCanvas->getFrameRange().fMin);
+        // --- Fit to canvas = Ctrl + 0 when creating a new file. ---
+        const auto target = KeyFocusTarget::KFT_getCurrentTarget();
+        const auto cwTarget = dynamic_cast<CanvasWindow*>(target);
+        if (cwTarget) { cwTarget->fitCanvasToSize(); }
+        // -----------------------------------------------------------
         dialog->close();
         docPtr->actionFinished();
     });
