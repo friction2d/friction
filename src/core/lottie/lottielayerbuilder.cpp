@@ -50,6 +50,8 @@
 #include <QFileInfo>
 #include <QPointF>
 #include <QSet>
+#include <algorithm>
+#include <limits>
 
 namespace {
 
@@ -226,6 +228,112 @@ bool compatibleContours(const QList<LottieContour>& a,
     return true;
 }
 
+qreal lottiePointValue(const QJsonArray& point,
+                       const int component)
+{
+    return point.at(component).toDouble();
+}
+
+qreal interpolated(const qreal start,
+                   const qreal end,
+                   const qreal progress)
+{
+    return start + (end - start)*progress;
+}
+
+qreal contourPointArrayError(const QJsonArray& start,
+                             const QJsonArray& end,
+                             const QJsonArray& value,
+                             const qreal progress)
+{
+    qreal error = 0;
+    for (int pointIndex = 0; pointIndex < value.size(); pointIndex++) {
+        const auto startPoint = start.at(pointIndex).toArray();
+        const auto endPoint = end.at(pointIndex).toArray();
+        const auto valuePoint = value.at(pointIndex).toArray();
+        for (int component = 0; component < valuePoint.size(); component++) {
+            const qreal expected = interpolated(lottiePointValue(startPoint, component),
+                                               lottiePointValue(endPoint, component),
+                                               progress);
+            error = qMax(error,
+                         qAbs(lottiePointValue(valuePoint, component) - expected));
+        }
+    }
+    return error;
+}
+
+qreal contourError(const QList<QList<LottieContour>>& frames,
+                   const int contourIndex,
+                   const int start,
+                   const int end,
+                   int& worstIndex)
+{
+    qreal worstError = 0;
+    worstIndex = -1;
+    const int span = end - start;
+    if (span <= 1) { return worstError; }
+
+    const auto& startContour = frames.at(start).at(contourIndex);
+    const auto& endContour = frames.at(end).at(contourIndex);
+    for (int frameIndex = start + 1; frameIndex < end; frameIndex++) {
+        const qreal progress = qreal(frameIndex - start)/span;
+        const auto& contour = frames.at(frameIndex).at(contourIndex);
+        qreal error = contourPointArrayError(startContour.vertices,
+                                             endContour.vertices,
+                                             contour.vertices,
+                                             progress);
+        error = qMax(error, contourPointArrayError(startContour.inTangents,
+                                                   endContour.inTangents,
+                                                   contour.inTangents,
+                                                   progress));
+        error = qMax(error, contourPointArrayError(startContour.outTangents,
+                                                   endContour.outTangents,
+                                                   contour.outTangents,
+                                                   progress));
+        if (error > worstError) {
+            worstError = error;
+            worstIndex = frameIndex;
+        }
+    }
+    return worstError;
+}
+
+void simplifyContourRange(const QList<QList<LottieContour>>& frames,
+                          const int contourIndex,
+                          const int start,
+                          const int end,
+                          const qreal tolerance,
+                          QSet<int>& indices)
+{
+    int worstIndex = -1;
+    const qreal error = contourError(frames, contourIndex, start, end, worstIndex);
+    if (worstIndex < 0 || error <= tolerance) { return; }
+
+    indices.insert(worstIndex);
+    simplifyContourRange(frames, contourIndex, start, worstIndex, tolerance, indices);
+    simplifyContourRange(frames, contourIndex, worstIndex, end, tolerance, indices);
+}
+
+QList<int> simplifiedContourIndices(const QList<QList<LottieContour>>& frames,
+                                    const int contourIndex)
+{
+    QList<int> result;
+    if (frames.isEmpty()) { return result; }
+    if (frames.size() == 1) { return QList<int>{0}; }
+
+    constexpr qreal tolerance = 0.25;
+    QSet<int> indices{0, frames.size() - 1};
+    simplifyContourRange(frames,
+                         contourIndex,
+                         0,
+                         frames.size() - 1,
+                         tolerance,
+                         indices);
+    result = indices.values();
+    std::sort(result.begin(), result.end());
+    return result;
+}
+
 QJsonObject shapeInEase()
 {
     return QJsonObject{
@@ -260,15 +368,7 @@ QJsonArray pathShapeObjects(const QList<QList<LottieContour>>& frames,
 
         if (animated) {
             QJsonArray keys;
-            QList<int> keyFrameIndices;
-            QJsonObject previousPath;
-            for (int frameIndex = 0; frameIndex < frames.size(); frameIndex++) {
-                const QJsonObject path = contourPathObject(frames.at(frameIndex).at(contourIndex));
-                if (frameIndex != 0 && path == previousPath) { continue; }
-
-                keyFrameIndices.append(frameIndex);
-                previousPath = path;
-            }
+            const QList<int> keyFrameIndices = simplifiedContourIndices(frames, contourIndex);
 
             for (int keyIndex = 0; keyIndex < keyFrameIndices.size(); keyIndex++) {
                 const int frameIndex = keyFrameIndices.at(keyIndex);
@@ -294,7 +394,10 @@ QJsonArray pathShapeObjects(const QList<QList<LottieContour>>& frames,
                                  {QStringLiteral("k"), keys}
                              });
             } else {
-                shape.insert(QStringLiteral("ks"), lottieStaticProperty(previousPath));
+                const int frameIndex = keyFrameIndices.isEmpty() ? 0 : keyFrameIndices.first();
+                shape.insert(QStringLiteral("ks"),
+                             lottieStaticProperty(
+                                 contourPathObject(frames.at(frameIndex).at(contourIndex))));
             }
         } else {
             shape.insert(QStringLiteral("ks"),
