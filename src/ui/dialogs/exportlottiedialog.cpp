@@ -323,7 +323,7 @@ bool ExportLottieDialog::writePreviewHtml(const QString& jsonFile,
     stream << "html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;}\n";
     stream << "html{background:repeating-conic-gradient(#b0b0b0 0% 25%,transparent 0% 50%) 50%/40px 40px;}\n";
     stream << "body{font:13px -apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;color:#f1f3f4;}\n";
-    stream << "#preview{width:100%;height:calc(100% - 56px);}\n";
+    stream << "#preview{width:100%;height:calc(100% - 56px);cursor:pointer;}\n";
     stream << "#controls{position:fixed;left:0;right:0;bottom:0;box-sizing:border-box;height:56px;display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(32,33,36,.92);box-shadow:0 -1px 8px rgba(0,0,0,.25);}\n";
     stream << "button,select{height:32px;border:1px solid #5f6368;border-radius:4px;background:#303134;color:#f1f3f4;font:inherit;}\n";
     stream << "button{min-width:38px;padding:0 10px;cursor:pointer;}\n";
@@ -385,7 +385,9 @@ bool ExportLottieDialog::writePreviewHtml(const QString& jsonFile,
     stream << "const applyMode=()=>{if(!anim){return;}const m=mode.value;anim.loop=m==='loop';if(m==='loop'||m==='once'){direction=1;anim.setDirection(1);}update();};\n";
     stream << "const onComplete=()=>{if(mode.value==='pingpong'){direction*=-1;anim.setDirection(direction);anim.goToAndPlay(direction>0?first():first()+total()-1,true);}update();};\n";
     stream << "const createAnimation=(startFrame,autoplay)=>{if(anim){anim.destroy();}container.innerHTML='';anim=lottie.loadAnimation({container,renderer:renderer.value,loop:true,autoplay:false,animationData,rendererSettings:{imagePreserveAspectRatio:'xMidYMid meet'}});anim.setSpeed(parseFloat(speed.value)||1);const renderFrame=()=>{const rel=current();anim.goToAndStop(first()+rel,true);if(!anim.isPaused){anim.play();}update();};anim.addEventListener('DOMLoaded',()=>{applyMode();anim.goToAndStop(startFrame,true);if(autoplay&&mode.value!=='once'){anim.play();}update();});anim.addEventListener('loaded_images',renderFrame);anim.addEventListener('enterFrame',update);anim.addEventListener('complete',onComplete);};\n";
-    stream << "play.addEventListener('click',()=>{if(anim.isPaused){anim.play();}else{anim.pause();}update();});\n";
+    stream << "const togglePlayback=()=>{if(!anim){return;}if(anim.isPaused){anim.play();}else{anim.pause();}update();};\n";
+    stream << "play.addEventListener('click',togglePlayback);\n";
+    stream << "container.addEventListener('click',togglePlayback);\n";
     stream << "restart.addEventListener('click',()=>{direction=1;anim.setDirection(1);anim.goToAndPlay(first(),true);update();});\n";
     stream << "mode.addEventListener('change',applyMode);\n";
     stream << "renderer.addEventListener('change',()=>{const rel=current();const paused=!anim||anim.isPaused;createAnimation(first()+rel,!paused);});\n";
