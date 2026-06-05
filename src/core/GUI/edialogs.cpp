@@ -106,7 +106,8 @@ QString eDialogs::saveFile(const QString &title,
     while (true) {
         QFileDialog dialog(nullptr, title, currentPath);
         dialog.setAcceptMode(QFileDialog::AcceptSave);
-        if (!defSuffix.isEmpty()) { dialog.setDefaultSuffix(defSuffix); }
+        if (!AppSupport::isFlatpak() &&
+            !defSuffix.isEmpty()) { dialog.setDefaultSuffix(defSuffix); }
         dialog.setFileMode(QFileDialog::AnyFile);
         dialog.setNameFilter(filter);
 
