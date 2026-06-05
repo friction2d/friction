@@ -304,8 +304,11 @@ bool ExportLottieDialog::writePreviewHtml(const QString& jsonFile,
 {
     QFile json(jsonFile);
     if (!json.open(QIODevice::ReadOnly)) { return false; }
-    const QByteArray encodedJson = json.readAll().toBase64();
+    const QByteArray jsonData = json.readAll();
     json.close();
+    const QByteArray encodedJson = jsonData.toBase64();
+    const QString assetsBase = QUrl::fromLocalFile(
+                QFileInfo(jsonFile).absolutePath() + QDir::separator()).toString();
 
     QFile html(htmlFile);
     if (!html.open(QIODevice::WriteOnly | QIODevice::Truncate)) { return false; }
@@ -359,9 +362,11 @@ bool ExportLottieDialog::writePreviewHtml(const QString& jsonFile,
     stream << "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js\"></script>\n";
     stream << "<script>\n";
     stream << "const encoded='" << QString::fromLatin1(encodedJson) << "';\n";
+    stream << "const assetsBase='" << assetsBase << "';\n";
     stream << "const showError=(message)=>{const el=document.getElementById('error');el.textContent=message;el.style.display='block';document.getElementById('preview').style.display='none';document.getElementById('controls').style.display='none';};\n";
     stream << "try{if(!window.lottie){throw new Error('Could not load lottie-web. Check your network connection.');}\n";
     stream << "const animationData=JSON.parse(atob(encoded));\n";
+    stream << "if(Array.isArray(animationData.assets)){animationData.assets.forEach((asset)=>{if(asset&&asset.e===0&&asset.p){const joined=(asset.u||'')+asset.p;asset.p=new URL(joined,assetsBase).href;asset.u='';}});}\n";
     stream << "const container=document.getElementById('preview');\n";
     stream << "const play=document.getElementById('play');\n";
     stream << "const restart=document.getElementById('restart');\n";
@@ -379,7 +384,7 @@ bool ExportLottieDialog::writePreviewHtml(const QString& jsonFile,
     stream << "const update=()=>{const t=total();const c=current();scrub.max=String(t-1);if(!dragging){scrub.value=String(c);}frame.textContent=(c+1)+' / '+t;play.textContent=(!anim||anim.isPaused)?'Play':'Pause';};\n";
     stream << "const applyMode=()=>{if(!anim){return;}const m=mode.value;anim.loop=m==='loop';if(m==='loop'||m==='once'){direction=1;anim.setDirection(1);}update();};\n";
     stream << "const onComplete=()=>{if(mode.value==='pingpong'){direction*=-1;anim.setDirection(direction);anim.goToAndPlay(direction>0?first():first()+total()-1,true);}update();};\n";
-    stream << "const createAnimation=(startFrame,autoplay)=>{if(anim){anim.destroy();}container.innerHTML='';anim=lottie.loadAnimation({container,renderer:renderer.value,loop:true,autoplay:false,animationData});anim.setSpeed(parseFloat(speed.value)||1);anim.addEventListener('DOMLoaded',()=>{applyMode();anim.goToAndStop(startFrame,true);if(autoplay&&mode.value!=='once'){anim.play();}update();});anim.addEventListener('enterFrame',update);anim.addEventListener('complete',onComplete);};\n";
+    stream << "const createAnimation=(startFrame,autoplay)=>{if(anim){anim.destroy();}container.innerHTML='';anim=lottie.loadAnimation({container,renderer:renderer.value,loop:true,autoplay:false,animationData,rendererSettings:{imagePreserveAspectRatio:'xMidYMid meet'}});anim.setSpeed(parseFloat(speed.value)||1);const renderFrame=()=>{const rel=current();anim.goToAndStop(first()+rel,true);if(!anim.isPaused){anim.play();}update();};anim.addEventListener('DOMLoaded',()=>{applyMode();anim.goToAndStop(startFrame,true);if(autoplay&&mode.value!=='once'){anim.play();}update();});anim.addEventListener('loaded_images',renderFrame);anim.addEventListener('enterFrame',update);anim.addEventListener('complete',onComplete);};\n";
     stream << "play.addEventListener('click',()=>{if(anim.isPaused){anim.play();}else{anim.pause();}update();});\n";
     stream << "restart.addEventListener('click',()=>{direction=1;anim.setDirection(1);anim.goToAndPlay(first(),true);update();});\n";
     stream << "mode.addEventListener('change',applyMode);\n";
