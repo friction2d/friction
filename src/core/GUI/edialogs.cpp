@@ -31,6 +31,8 @@
 #include <QFileIconProvider>
 #include <QFileSystemModel>
 #include <QSortFilterProxyModel>
+#include <QMessageBox>
+
 #include "themesupport.h"
 
 class evIconProvider : public QFileIconProvider {
@@ -99,22 +101,40 @@ QString eDialogs::saveFile(const QString &title,
                            const QString &filter,
                            const QString &defSuffix)
 {
-    QFileDialog dialog(nullptr, title, path);
-    dialog.setAcceptMode(QFileDialog::AcceptSave);
-    if (!defSuffix.isEmpty()) { dialog.setDefaultSuffix(defSuffix); }
-    dialog.setFileMode(QFileDialog::AnyFile);
-    dialog.setNameFilter(filter);
+    QString currentPath = path;
 
-    evIconProvider iconProvider;
-    dialog.setIconProvider(&iconProvider);
+    while (true) {
+        QFileDialog dialog(nullptr, title, currentPath);
+        dialog.setAcceptMode(QFileDialog::AcceptSave);
+        if (!defSuffix.isEmpty()) { dialog.setDefaultSuffix(defSuffix); }
+        dialog.setFileMode(QFileDialog::AnyFile);
+        dialog.setNameFilter(filter);
 
-    if (dialog.exec()) {
+        evIconProvider iconProvider;
+        dialog.setIconProvider(&iconProvider);
+
+        if (!dialog.exec()) { return QString(); }
+
         const QStringList paths = dialog.selectedFiles();
-        const QString openPath(paths.isEmpty() ? "" : paths.first());
-        if (AppSupport::isFlatpak()) {
-            if (QUrl(openPath).isLocalFile()) { return QUrl(openPath).toLocalFile(); }
+        if (paths.isEmpty()) { return QString(); }
+
+        QString openPath = paths.first();
+        if (QUrl(openPath).isLocalFile()) {
+            openPath = QUrl(openPath).toLocalFile();
+        }
+
+        QFileInfo fileInfo(openPath);
+        if (AppSupport::isFlatpak() &&
+            !defSuffix.isEmpty() &&
+            fileInfo.suffix().isEmpty()) {
+            QMessageBox::warning(nullptr,
+                                 QObject::tr("Missing file extension"),
+                                 QObject::tr("Please add missing file extension (%1)").arg(defSuffix));
+            currentPath = openPath + "." + defSuffix;
+            continue;
         }
         return openPath;
     }
+
     return QString();
 }
