@@ -321,7 +321,7 @@ bool ExportLottieDialog::writePreviewHtml(const QString& jsonFile,
     stream << "<title>" << tr("Lottie Preview") << "</title>\n";
     stream << "<style>\n";
     stream << "html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;}\n";
-    stream << "html{background:repeating-conic-gradient(#b0b0b0 0% 25%,transparent 0% 50%) 50%/40px 40px;}\n";
+    stream << "html{background:#fff;}\n";
     stream << "body{font:13px -apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;color:#f1f3f4;}\n";
     stream << "#preview{width:100%;height:calc(100% - 56px);cursor:pointer;}\n";
     stream << "#controls{position:fixed;left:0;right:0;bottom:0;box-sizing:border-box;height:56px;display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(32,33,36,.92);box-shadow:0 -1px 8px rgba(0,0,0,.25);}\n";
@@ -350,6 +350,12 @@ bool ExportLottieDialog::writePreviewHtml(const QString& jsonFile,
     stream << "<option value=\"canvas\" selected>Canvas</option>\n";
     stream << "<option value=\"svg\">SVG</option>\n";
     stream << "</select>\n";
+    stream << "<select id=\"background\">\n";
+    stream << "<option value=\"white\" selected>White</option>\n";
+    stream << "<option value=\"black\">Black</option>\n";
+    stream << "<option value=\"gray\">Gray</option>\n";
+    stream << "<option value=\"transparent\">Transparent</option>\n";
+    stream << "</select>\n";
     stream << "<select id=\"speed\">\n";
     stream << "<option value=\"0.25\">0.25x</option>\n";
     stream << "<option value=\"0.5\">0.5x</option>\n";
@@ -374,6 +380,7 @@ bool ExportLottieDialog::writePreviewHtml(const QString& jsonFile,
     stream << "const frame=document.getElementById('frame');\n";
     stream << "const mode=document.getElementById('mode');\n";
     stream << "const renderer=document.getElementById('renderer');\n";
+    stream << "const background=document.getElementById('background');\n";
     stream << "const speed=document.getElementById('speed');\n";
     stream << "let anim=null;\n";
     stream << "let dragging=false;\n";
@@ -383,6 +390,7 @@ bool ExportLottieDialog::writePreviewHtml(const QString& jsonFile,
     stream << "const current=()=>Math.max(0, Math.min(total()-1, Math.floor(((anim && anim.currentFrame) || 0)-first())));\n";
     stream << "const update=()=>{const t=total();const c=current();scrub.max=String(t-1);if(!dragging){scrub.value=String(c);}frame.textContent=(c+1)+' / '+t;play.textContent=(!anim||anim.isPaused)?'Play':'Pause';};\n";
     stream << "const applyMode=()=>{if(!anim){return;}const m=mode.value;anim.loop=m==='loop';if(m==='loop'||m==='once'){direction=1;anim.setDirection(1);}update();};\n";
+    stream << "const applyBackground=()=>{const checker='repeating-conic-gradient(#b0b0b0 0% 25%,transparent 0% 50%) 50%/40px 40px';const colors={white:'#fff',black:'#000',gray:'#808080'};const value=background.value;if(value==='transparent'){document.documentElement.style.background=checker;document.body.style.background='transparent';return;}document.documentElement.style.background=colors[value]||colors.white;document.body.style.background=colors[value]||colors.white;};\n";
     stream << "const onComplete=()=>{if(mode.value==='pingpong'){direction*=-1;anim.setDirection(direction);anim.goToAndPlay(direction>0?first():first()+total()-1,true);}update();};\n";
     stream << "const createAnimation=(startFrame,autoplay)=>{if(anim){anim.destroy();}container.innerHTML='';anim=lottie.loadAnimation({container,renderer:renderer.value,loop:true,autoplay:false,animationData,rendererSettings:{imagePreserveAspectRatio:'xMidYMid meet'}});anim.setSpeed(parseFloat(speed.value)||1);const renderFrame=()=>{const rel=current();anim.goToAndStop(first()+rel,true);if(!anim.isPaused){anim.play();}update();};anim.addEventListener('DOMLoaded',()=>{applyMode();anim.goToAndStop(startFrame,true);if(autoplay&&mode.value!=='once'){anim.play();}update();});anim.addEventListener('loaded_images',renderFrame);anim.addEventListener('enterFrame',update);anim.addEventListener('complete',onComplete);};\n";
     stream << "const togglePlayback=()=>{if(!anim){return;}if(anim.isPaused){anim.play();}else{anim.pause();}update();};\n";
@@ -390,10 +398,12 @@ bool ExportLottieDialog::writePreviewHtml(const QString& jsonFile,
     stream << "container.addEventListener('click',togglePlayback);\n";
     stream << "restart.addEventListener('click',()=>{direction=1;anim.setDirection(1);anim.goToAndPlay(first(),true);update();});\n";
     stream << "mode.addEventListener('change',applyMode);\n";
+    stream << "background.addEventListener('change',applyBackground);\n";
     stream << "renderer.addEventListener('change',()=>{const rel=current();const paused=!anim||anim.isPaused;createAnimation(first()+rel,!paused);});\n";
     stream << "speed.addEventListener('change',()=>{anim.setSpeed(parseFloat(speed.value)||1);});\n";
     stream << "scrub.addEventListener('input',()=>{dragging=true;anim.goToAndStop(first()+(parseInt(scrub.value,10)||0),true);update();});\n";
     stream << "scrub.addEventListener('change',()=>{dragging=false;update();});\n";
+    stream << "applyBackground();\n";
     stream << "createAnimation(first(),true);\n";
     stream << "update();\n";
     stream << "}catch(error){showError(error.message || String(error));}\n";
