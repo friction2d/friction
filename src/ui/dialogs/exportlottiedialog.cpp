@@ -204,17 +204,22 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
 
     connect(buttonCancel, &QPushButton::clicked, this, &QDialog::reject);
 
-    if (!warnings.isEmpty()) {
-        const auto warnWidget = new QPlainTextEdit(this);
-        warnWidget->setSizePolicy(QSizePolicy::Expanding,
-                                  QSizePolicy::Expanding);
-        warnWidget->setMinimumHeight(100);
-        warnWidget->setReadOnly(true);
-        warnWidget->setPlainText(warnings);
-        settingsLayout->addWidget(warnWidget);
-    } else {
-        settingsLayout->addStretch();
-    }
+    const QString features = tr("Lottie export supports shapes, paths, groups, masks, "
+                                "blend modes, images, text outlines/native text, "
+                                "transform keyframes, animated paths, stroke drawing, "
+                                "gradients, external or embedded assets, optimized "
+                                "keyframes, and HTML preview with playback controls, "
+                                "renderer selector, background selector, linked image "
+                                "support, and SVG-renderer preview workaround.");
+    Q_UNUSED(warnings)
+
+    const auto warnWidget = new QPlainTextEdit(this);
+    warnWidget->setSizePolicy(QSizePolicy::Expanding,
+                              QSizePolicy::Expanding);
+    warnWidget->setMinimumHeight(100);
+    warnWidget->setReadOnly(true);
+    warnWidget->setPlainText(features);
+    settingsLayout->addWidget(warnWidget);
 
     buttonsLayout->addWidget(mPreviewButton);
     buttonsLayout->addStretch();
@@ -352,6 +357,8 @@ bool ExportLottieDialog::writePreviewHtml(const QString& jsonFile,
     stream << "<option value=\"1\" selected>1x</option>\n";
     stream << "<option value=\"1.5\">1.5x</option>\n";
     stream << "<option value=\"2\">2x</option>\n";
+    stream << "<option value=\"3\">3x</option>\n";
+    stream << "<option value=\"4\">4x</option>\n";
     stream << "</select>\n";
     stream << "</div>\n";
     stream << "<div id=\"error\"></div>\n";
