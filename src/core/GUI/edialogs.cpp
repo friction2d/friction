@@ -105,12 +105,15 @@ QString eDialogs::saveFile(const QString &title,
     dialog.setFileMode(QFileDialog::AnyFile);
     dialog.setNameFilter(filter);
 
-    auto iconProvider = new evIconProvider;
-    dialog.setIconProvider(iconProvider);
+    evIconProvider iconProvider;
+    dialog.setIconProvider(&iconProvider);
 
     if (dialog.exec()) {
         const QStringList paths = dialog.selectedFiles();
         const QString openPath(paths.isEmpty() ? "" : paths.first());
+        if (AppSupport::isFlatpak()) {
+            if (QUrl(openPath).isLocalFile()) { return QUrl(openPath).toLocalFile(); }
+        }
         return openPath;
     }
     return QString();
