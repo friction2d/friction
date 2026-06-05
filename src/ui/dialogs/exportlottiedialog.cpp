@@ -92,10 +92,6 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
     mEmbedImages->setChecked(AppSupport::getSettings("exportLottie",
                                                      "embedImages",
                                                      true).toBool());
-    mSvgRendererFix = new QCheckBox(tr("Force SVG renderer fix"), this);
-    mSvgRendererFix->setChecked(AppSupport::getSettings("exportLottie",
-                                                        "svgRendererFix",
-                                                        false).toBool());
     mNativeText = new QCheckBox(tr("Native text (experimental)"), this);
     mNativeText->setToolTip(tr("Disabled: exports text as vector outlines for best renderer compatibility. "
                                "\nEnabled: keeps simple text as native Lottie text, but it may not render "
@@ -126,12 +122,6 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
                                 "embedImages",
                                 mEmbedImages->isChecked());
     });
-    connect(mSvgRendererFix, &QCheckBox::stateChanged,
-            this, [this] {
-        AppSupport::setSettings("exportLottie",
-                                "svgRendererFix",
-                                mSvgRendererFix->isChecked());
-    });
     connect(mNativeText, &QCheckBox::stateChanged,
             this, [this] {
         AppSupport::setSettings("exportLottie",
@@ -151,7 +141,7 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
 
     const auto optsTwoCol = new TwoColumnLayout();
     optsTwoCol->addPair(mBackground, mEmbedImages);
-    optsTwoCol->addPair(mSvgRendererFix, mNativeText);
+    optsTwoCol->addPair(mNativeText, new QWidget(this));
     optsTwoCol->addPair(mNotify, new QWidget(this));
     optsTwoCol->addSpacing(4);
 
@@ -287,7 +277,7 @@ bool ExportLottieDialog::exportTo(const QString& file)
                                              scene->getFps(),
                                              mBackground->isChecked(),
                                              mEmbedImages->isChecked(),
-                                             mSvgRendererFix->isChecked(),
+                                             false,
                                              mNativeText->isChecked());
         const auto taskSPtr = qsptr<LottieExporter>(task, &QObject::deleteLater);
         task->nextStep();
@@ -371,8 +361,15 @@ bool ExportLottieDialog::writePreviewHtml(const QString& jsonFile,
     stream << "const assetsBase='" << assetsBase << "';\n";
     stream << "const showError=(message)=>{const el=document.getElementById('error');el.textContent=message;el.style.display='block';document.getElementById('preview').style.display='none';document.getElementById('controls').style.display='none';};\n";
     stream << "try{if(!window.lottie){throw new Error('Could not load lottie-web. Check your network connection.');}\n";
-    stream << "const animationData=JSON.parse(atob(encoded));\n";
-    stream << "if(Array.isArray(animationData.assets)){animationData.assets.forEach((asset)=>{if(asset&&asset.e===0&&asset.p){const joined=(asset.u||'')+asset.p;asset.p=new URL(joined,assetsBase).href;asset.u='';}});}\n";
+    stream << "const baseAnimationData=JSON.parse(atob(encoded));\n";
+    // TODO: Remove this preview-only workaround if lottie-web's SVG renderer
+    // handles static layer transforms consistently. Some static exports render
+    // correctly in canvas and other players, but lottie-web SVG can place layers
+    // at the wrong origin unless the animation contains at least one tiny
+    // animated transform. Keep the exported JSON clean and patch only the
+    // temporary in-memory preview data when the user selects the SVG renderer.
+    stream << "const appendSvgRendererFix=(data)=>{if(!Array.isArray(data.layers)||data.layers.some((layer)=>layer&&layer.nm==='SVG Renderer Fix')){return;}const nextId=data.layers.reduce((id,layer)=>Math.max(id,Number(layer&&layer.ind)||0),0)+1;const ip=Math.floor(data.ip||0);const last=Math.max(ip+1,Math.floor((data.op||ip+2)-1));data.layers.push({ddd:0,ind:nextId,ty:3,nm:'SVG Renderer Fix',sr:1,ip:ip,op:last+1,st:0,bm:0,ks:{o:{a:0,k:0},r:{a:0,k:0},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]},p:{a:1,k:[{t:ip,s:[0,0,0],e:[0.001,0,0],i:{x:[0.833],y:[0.833]},o:{x:[0.167],y:[0.167]}},{t:last,s:[0.001,0,0]}]}}});};\n";
+    stream << "const buildAnimationData=(rendererName)=>{const data=JSON.parse(JSON.stringify(baseAnimationData));if(Array.isArray(data.assets)){data.assets.forEach((asset)=>{if(asset&&asset.e===0&&asset.p){const joined=(asset.u||'')+asset.p;asset.p=new URL(joined,assetsBase).href;asset.u='';}});}if(rendererName==='svg'){appendSvgRendererFix(data);}return data;};\n";
     stream << "const container=document.getElementById('preview');\n";
     stream << "const play=document.getElementById('play');\n";
     stream << "const restart=document.getElementById('restart');\n";
@@ -385,6 +382,7 @@ bool ExportLottieDialog::writePreviewHtml(const QString& jsonFile,
     stream << "let anim=null;\n";
     stream << "let dragging=false;\n";
     stream << "let direction=1;\n";
+    stream << "let animationData=buildAnimationData(renderer.value);\n";
     stream << "const first=()=>Math.floor(animationData.ip || 0);\n";
     stream << "const total=()=>Math.max(1, Math.floor((anim && anim.totalFrames) || (animationData.op-animationData.ip) || 1));\n";
     stream << "const current=()=>Math.max(0, Math.min(total()-1, Math.floor(((anim && anim.currentFrame) || 0)-first())));\n";
@@ -392,7 +390,7 @@ bool ExportLottieDialog::writePreviewHtml(const QString& jsonFile,
     stream << "const applyMode=()=>{if(!anim){return;}const m=mode.value;anim.loop=m==='loop';if(m==='loop'||m==='once'){direction=1;anim.setDirection(1);}update();};\n";
     stream << "const applyBackground=()=>{const checker='repeating-conic-gradient(#b0b0b0 0% 25%,transparent 0% 50%) 50%/40px 40px';const colors={white:'#fff',black:'#000',gray:'#808080'};const value=background.value;if(value==='transparent'){document.documentElement.style.background=checker;document.body.style.background='transparent';return;}document.documentElement.style.background=colors[value]||colors.white;document.body.style.background=colors[value]||colors.white;};\n";
     stream << "const onComplete=()=>{if(mode.value==='pingpong'){direction*=-1;anim.setDirection(direction);anim.goToAndPlay(direction>0?first():first()+total()-1,true);}update();};\n";
-    stream << "const createAnimation=(startFrame,autoplay)=>{if(anim){anim.destroy();}container.innerHTML='';anim=lottie.loadAnimation({container,renderer:renderer.value,loop:true,autoplay:false,animationData,rendererSettings:{imagePreserveAspectRatio:'xMidYMid meet'}});anim.setSpeed(parseFloat(speed.value)||1);const renderFrame=()=>{const rel=current();anim.goToAndStop(first()+rel,true);if(!anim.isPaused){anim.play();}update();};anim.addEventListener('DOMLoaded',()=>{applyMode();anim.goToAndStop(startFrame,true);if(autoplay&&mode.value!=='once'){anim.play();}update();});anim.addEventListener('loaded_images',renderFrame);anim.addEventListener('enterFrame',update);anim.addEventListener('complete',onComplete);};\n";
+    stream << "const createAnimation=(startFrame,autoplay)=>{if(anim){anim.destroy();}animationData=buildAnimationData(renderer.value);container.innerHTML='';anim=lottie.loadAnimation({container,renderer:renderer.value,loop:true,autoplay:false,animationData,rendererSettings:{imagePreserveAspectRatio:'xMidYMid meet'}});anim.setSpeed(parseFloat(speed.value)||1);const renderFrame=()=>{const rel=current();anim.goToAndStop(first()+rel,true);if(!anim.isPaused){anim.play();}update();};anim.addEventListener('DOMLoaded',()=>{applyMode();anim.goToAndStop(startFrame,true);if(autoplay&&mode.value!=='once'){anim.play();}update();});anim.addEventListener('loaded_images',renderFrame);anim.addEventListener('enterFrame',update);anim.addEventListener('complete',onComplete);};\n";
     stream << "const togglePlayback=()=>{if(!anim){return;}if(anim.isPaused){anim.play();}else{anim.pause();}update();};\n";
     stream << "play.addEventListener('click',togglePlayback);\n";
     stream << "container.addEventListener('click',togglePlayback);\n";
