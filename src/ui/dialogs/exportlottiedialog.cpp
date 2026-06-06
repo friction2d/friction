@@ -31,6 +31,7 @@
 #include "widgets/twocolumnlayout.h"
 
 #include <QCheckBox>
+#include <QComboBox>
 #include <QDesktopServices>
 #include <QDialogButtonBox>
 #include <QDir>
@@ -92,6 +93,16 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
     mEmbedImages->setChecked(AppSupport::getSettings("exportLottie",
                                                      "embedImages",
                                                      true).toBool());
+    mPreviewBackground = new QComboBox(this);
+    mPreviewBackground->addItem(tr("White"), QStringLiteral("white"));
+    mPreviewBackground->addItem(tr("Black"), QStringLiteral("black"));
+    mPreviewBackground->addItem(tr("Gray"), QStringLiteral("gray"));
+    mPreviewBackground->addItem(tr("Transparent"), QStringLiteral("transparent"));
+    const QString previewBackground = AppSupport::getSettings("exportLottie",
+                                                              "previewBackground",
+                                                              "white").toString();
+    const int previewBackgroundIndex = mPreviewBackground->findData(previewBackground);
+    mPreviewBackground->setCurrentIndex(qMax(0, previewBackgroundIndex));
     mNativeText = new QCheckBox(tr("Native text (experimental)"), this);
     mNativeText->setToolTip(tr("Disabled: exports text as vector outlines for best renderer compatibility. "
                                "\nEnabled: keeps simple text as native Lottie text, but it may not render "
@@ -122,6 +133,13 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
                                 "embedImages",
                                 mEmbedImages->isChecked());
     });
+    connect(mPreviewBackground,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, [this] {
+        AppSupport::setSettings("exportLottie",
+                                "previewBackground",
+                                mPreviewBackground->currentData());
+    });
     connect(mNativeText, &QCheckBox::stateChanged,
             this, [this] {
         AppSupport::setSettings("exportLottie",
@@ -143,6 +161,7 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
     optsTwoCol->addPair(mBackground, mEmbedImages);
     optsTwoCol->addPair(mNativeText, new QWidget(this));
     optsTwoCol->addPair(mNotify, new QWidget(this));
+    optsTwoCol->addPair(new QLabel(tr("Preview background")), mPreviewBackground);
     optsTwoCol->addSpacing(4);
 
     sceneWidget->setLayout(twoColLayout);
@@ -304,6 +323,7 @@ bool ExportLottieDialog::writePreviewHtml(const QString& jsonFile,
     const QByteArray encodedJson = jsonData.toBase64();
     const QString assetsBase = QUrl::fromLocalFile(
                 QFileInfo(jsonFile).absolutePath() + QDir::separator()).toString();
+    const QString previewBackground = mPreviewBackground->currentData().toString();
 
     QFile html(htmlFile);
     if (!html.open(QIODevice::WriteOnly | QIODevice::Truncate)) { return false; }
@@ -344,7 +364,8 @@ bool ExportLottieDialog::writePreviewHtml(const QString& jsonFile,
     stream << "<div class=\"controlGroup\">\n";
     stream << "<button id=\"renderer\" type=\"button\" value=\"canvas\">Canvas</button>\n";
     stream << "<button id=\"wireframe\" type=\"button\">Wireframe</button>\n";
-    stream << "<button id=\"background\" type=\"button\" value=\"white\">Background</button>\n";
+    stream << "<button id=\"background\" type=\"button\" value=\""
+           << previewBackground << "\">Background</button>\n";
     stream << "</div>\n";
     stream << "<div class=\"controlGroup\">\n";
     stream << "<button id=\"mode\" type=\"button\" value=\"loop\">Loop</button>\n";

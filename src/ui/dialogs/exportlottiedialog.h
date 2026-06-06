@@ -26,6 +26,7 @@
 
 class Canvas;
 class QCheckBox;
+class QComboBox;
 class QPushButton;
 class QSpinBox;
 class QTemporaryFile;
@@ -53,6 +54,7 @@ private:
     QSpinBox* mLastFrame;
     QCheckBox* mBackground;
     QCheckBox* mEmbedImages;
+    QComboBox* mPreviewBackground;
     QCheckBox* mNativeText;
     QCheckBox* mNotify;
 };
