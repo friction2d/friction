@@ -55,7 +55,7 @@ void InternalLinkBox::setLinkTarget(BoundingBox * const linkTarget) {
 }
 
 void InternalLinkBox::setupRenderData(const qreal relFrame,
-                                      const QMatrix& parentM,
+                                      const QTransform& parentM,
                                       BoxRenderData * const data,
                                       Canvas* const scene) {
     const auto linkTarget = getLinkTarget();

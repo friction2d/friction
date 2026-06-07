@@ -64,7 +64,7 @@ void InternalLinkCanvas::prp_setupTreeViewMenu(PropertyMenu * const menu) {
 }
 
 void InternalLinkCanvas::setupRenderData(const qreal relFrame,
-                                         const QMatrix& parentM,
+                                         const QTransform& parentM,
                                          BoxRenderData * const data,
                                          Canvas* const scene) {
     if (!scene) { return; }

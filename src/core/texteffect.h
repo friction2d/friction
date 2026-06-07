@@ -67,7 +67,7 @@ public:
     qreal getGuideLineWidth() const;
     qreal getGuideLineHeight() const;
 private:
-    QMatrix getTransform(const qreal relFrame,
+    QTransform getTransform(const qreal relFrame,
                          const qreal influence,
                          const QPointF &addPivot) const;
 

@@ -107,7 +107,7 @@ FillStrokeSettingsWidget::FillStrokeSettingsWidget(Document &document,
     const auto lineLayout = new QHBoxLayout(lineWidget);
 
     lineWidget->setContentsMargins(0, 0, 0 ,0);
-    lineLayout->setMargin(0);
+    lineLayout->setContentsMargins(0, 0, 0, 0);
 
     const auto lineLabel = new QLabel(tr("Width"), this);
 
@@ -143,14 +143,14 @@ FillStrokeSettingsWidget::FillStrokeSettingsWidget(Document &document,
     const auto mStrokeJoinCapLayout = new QVBoxLayout(mStrokeJoinCapWidget);
 
     mStrokeJoinCapWidget->setContentsMargins(0, 0, 0, 0);
-    mStrokeJoinCapLayout->setMargin(0);
+    mStrokeJoinCapLayout->setContentsMargins(0, 0, 0, 0);
 
     // join
     const auto mJoinStyleWidget = new QWidget(this);
     const auto mJoinStyleLayout = new QHBoxLayout(mJoinStyleWidget);
 
     mJoinStyleWidget->setContentsMargins(0, 0, 0, 0);
-    mJoinStyleLayout->setMargin(0);
+    mJoinStyleLayout->setContentsMargins(0, 0, 0, 0);
 
     mBevelJoinStyleButton = new QPushButton(QIcon::fromTheme("joinBevel"),
                                             QString(), this);
@@ -189,7 +189,7 @@ FillStrokeSettingsWidget::FillStrokeSettingsWidget(Document &document,
     const auto mCapStyleLayout = new QHBoxLayout(mCapStyleWidget);
 
     mCapStyleWidget->setContentsMargins(0, 0, 0, 0);
-    mCapStyleLayout->setMargin(0);
+    mCapStyleLayout->setContentsMargins(0, 0, 0, 0);
 
     mFlatCapStyleButton = new QPushButton(QIcon::fromTheme("capFlat"),
                                           QString(), this);
@@ -231,7 +231,7 @@ FillStrokeSettingsWidget::FillStrokeSettingsWidget(Document &document,
     const auto mGradientTypeLayout = new QHBoxLayout(mGradientTypeWidget);
 
     mGradientTypeWidget->setContentsMargins(0, 0, 0, 0);
-    mGradientTypeLayout->setMargin(0);
+    mGradientTypeLayout->setContentsMargins(0, 0, 0, 0);
 
     mLinearGradientButton = new QPushButton(QIcon::fromTheme("fill_gradient_2"), tr("Linear"), this);
     mRadialGradientButton = new QPushButton(QIcon::fromTheme("fill_gradient_radial_2"), tr("Radial"), this);
@@ -282,7 +282,7 @@ FillStrokeSettingsWidget::FillStrokeSettingsWidget(Document &document,
     const auto mStrokeSettingsLayout = new QHBoxLayout(mStrokeSettingsWidget);
 
     mStrokeSettingsWidget->setContentsMargins(0, 0, 0, 0);
-    mStrokeSettingsLayout->setMargin(0);
+    mStrokeSettingsLayout->setContentsMargins(0, 0, 0, 0);
 
     mStrokeSettingsLayout->addWidget(lineWidget);
     mStrokeSettingsLayout->addWidget(mStrokeJoinCapWidget);
@@ -291,7 +291,7 @@ FillStrokeSettingsWidget::FillStrokeSettingsWidget(Document &document,
     const auto mTargetLayout = new QHBoxLayout(mTargetWidget);
 
     mTargetWidget->setContentsMargins(0, 0, 0, 0);
-    mTargetLayout->setMargin(0);
+    mTargetLayout->setContentsMargins(0, 0, 0, 0);
 
     mTargetLayout->addWidget(mFillTargetButton);
     mTargetLayout->addWidget(mStrokeTargetButton);
@@ -300,7 +300,7 @@ FillStrokeSettingsWidget::FillStrokeSettingsWidget(Document &document,
     const auto mColorTypeLayout = new QHBoxLayout(mColorTypeWidget);
 
     mColorTypeWidget->setContentsMargins(0, 0, 0, 0);
-    mColorTypeLayout->setMargin(0);
+    mColorTypeLayout->setContentsMargins(0, 0, 0, 0);
 
     mColorTypeLayout->addWidget(mFillNoneButton);
     mColorTypeLayout->addWidget(mFillFlatButton);
@@ -321,7 +321,6 @@ FillStrokeSettingsWidget::FillStrokeSettingsWidget(Document &document,
 
     const auto mLayout = new QVBoxLayout(this);
     mLayout->setContentsMargins(0, 0, 0, 0);
-    mLayout->setMargin(0);
 
     mFillAndStrokeWidget->setObjectName("DarkWidget");
     if (noScroll) {

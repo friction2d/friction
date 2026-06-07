@@ -146,7 +146,7 @@ HardwareSupport PathBox::hardwareSupport() const {
     return HardwareSupport::cpuPreffered;
 }
 
-void PathBox::setupRenderData(const qreal relFrame, const QMatrix& parentM,
+void PathBox::setupRenderData(const qreal relFrame, const QTransform& parentM,
                               BoxRenderData * const data,
                               Canvas* const scene) {
     if(!scene) return;

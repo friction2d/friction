@@ -128,22 +128,25 @@ struct eColorSetting : public eSettingBase<QColor>
         const QString oneVal = QStringLiteral("\\s*(\\d+)\\s*");
         const QString oneValC = QStringLiteral("\\s*(\\d+)\\s*,");
 
-        QRegExp rx("rgba\\("
-                        "\\s*(\\d+)\\s*,"
-                        "\\s*(\\d+)\\s*,"
-                        "\\s*(\\d+)\\s*,"
-                        "\\s*(\\d+)\\s*"
-                   "\\)",
-                   Qt::CaseInsensitive);
-        if(rx.exactMatch(valueStr)) {
-            rx.indexIn(valueStr);
-            const QStringList intRGBA = rx.capturedTexts();
+        QRegularExpression rx("^rgba\\("
+                              "\\s*(\\d+)\\s*,"
+                              "\\s*(\\d+)\\s*,"
+                              "\\s*(\\d+)\\s*,"
+                              "\\s*(\\d+)\\s*"
+                              "\\)$",
+                              QRegularExpression::CaseInsensitiveOption);
+
+        QRegularExpressionMatch match = rx.match(valueStr);
+        if (match.hasMatch()) {
+            const QStringList intRGBA = match.capturedTexts();
             fValue.setRgb(intRGBA.at(1).toInt(),
                           intRGBA.at(2).toInt(),
                           intRGBA.at(3).toInt(),
                           intRGBA.at(4).toInt());
             return true;
-        } else return false;
+        } else {
+            return false;
+        }
     }
 
     void writeValue() const {

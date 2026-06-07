@@ -117,7 +117,7 @@ public:
     void updateDissolvedNodePosition(const int nodeId);
     void updateDissolvedNodePosition(const int nodeId, Node * const node);
 
-    void applyTransform(const QMatrix &transform)
+    void applyTransform(const QTransform &transform)
     { mNodes.applyTransform(transform); }
 
     bool read(eReadStream& src);

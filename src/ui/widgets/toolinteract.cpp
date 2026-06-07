@@ -385,7 +385,7 @@ void ToolInteract::setupGridButton()
         const auto label = new QLabel(tr("Threshold"), wid);
 
         wid->setContentsMargins(0, 0, 0, 0);
-        lay->setMargin(4);
+        lay->setContentsMargins(4, 4, 4, 4);
 
         lay->addWidget(label);
         lay->addWidget(spin);

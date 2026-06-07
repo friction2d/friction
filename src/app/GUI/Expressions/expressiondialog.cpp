@@ -554,35 +554,42 @@ void ExpressionDialog::updateScriptDefinitions()
     }
 
     {
-        QRegExp funcDefs("(class|function)\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\s*(\\([a-zA-Z0-9_, ]*\\))");
-        int pos = 0;
-        while ((pos = funcDefs.indexIn(scriptContext, pos)) != -1) {
-              QStringList funcs = funcDefs.capturedTexts();
-              for (int i = 2; i < funcs.count() - 1; i += 3) {
-                  const auto& func = funcs.at(i);
-                  const auto& funcArgs = funcs.at(i + 1);
-                  if (func.isEmpty()) { continue; }
-                  mScriptApi->add(func + funcArgs);
-                  mScriptLexer->addDefinition(func);
-                  mDefsLexer->addDefinition(func);
-              }
-              pos += funcDefs.matchedLength();
+        QRegularExpression funcDefs("(class|function)\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\s*(\\([a-zA-Z0-9_, ]*\\))");
+        auto matchIterator = funcDefs.globalMatch(scriptContext);
+
+        while (matchIterator.hasNext()) {
+            QRegularExpressionMatch match = matchIterator.next();
+            QStringList funcs = match.capturedTexts();
+
+            for (int i = 2; i < funcs.count() - 1; i += 3) {
+                const auto& func = funcs.at(i);
+                const auto& funcArgs = funcs.at(i + 1);
+                if (func.isEmpty()) { continue; }
+
+                mScriptApi->add(func + funcArgs);
+                mScriptLexer->addDefinition(func);
+                mDefsLexer->addDefinition(func);
+            }
         }
     }
 
     {
-        QRegExp varDefs("([a-zA-Z_][a-zA-Z0-9_]*)\\s*=\\s*(?!=)");
-        int pos = 0;
-        while ((pos = varDefs.indexIn(scriptContext, pos)) != -1) {
-              QStringList vars = varDefs.capturedTexts();
-              for (int i = 1; i < vars.count(); i++) {
-                  const auto& var = vars.at(i);
-                  if (var.isEmpty()) { continue; }
-                  mScriptApi->add(var);
-                  mScriptLexer->addDefinition(var);
-                  mDefsLexer->addDefinition(var);
-              }
-              pos += varDefs.matchedLength();
+        QRegularExpression varDefs("([a-zA-Z_][a-zA-Z0-9_]*)\\s*=\\s*(?!=)");
+
+        auto matchIterator = varDefs.globalMatch(scriptContext);
+
+        while (matchIterator.hasNext()) {
+            QRegularExpressionMatch match = matchIterator.next();
+            QStringList vars = match.capturedTexts();
+
+            for (int i = 1; i < vars.count(); i++) {
+                const auto& var = vars.at(i);
+                if (var.isEmpty()) { continue; }
+
+                mScriptApi->add(var);
+                mScriptLexer->addDefinition(var);
+                mDefsLexer->addDefinition(var);
+            }
         }
     }
 }

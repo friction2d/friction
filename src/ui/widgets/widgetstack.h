@@ -27,6 +27,7 @@
 #define WIDGETSTACK_H
 
 #include "ui_global.h"
+#include "enterevent.h"
 
 #include <QWidget>
 #include <QPainter>
@@ -189,7 +190,7 @@ protected:
         emit finishedChanging();
     }
 
-    void enterEvent(QEvent *) {
+    void enterEvent(QtEnterEvent *) {
         enterEventB();
     }
 
@@ -233,7 +234,7 @@ protected:
         emit finishedChanging();
     }
 
-    void enterEvent(QEvent *) {
+    void enterEvent(QtEnterEvent *) {
         enterEventB();
     }
 

@@ -69,7 +69,7 @@ WelcomeDialog::WelcomeDialog(QMenu *recentMenu,
     const auto buttonWid = new QWidget(this);
     buttonWid->setContentsMargins(0, 0, 0, 0);
     const auto buttonLay = new QHBoxLayout(buttonWid);
-    buttonLay->setMargin(0);
+    buttonLay->setContentsMargins(0, 0, 0, 0);
 
     const auto newButton = new QPushButton(QIcon::fromTheme("file_blank"),
                                            tr("New"),

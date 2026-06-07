@@ -27,7 +27,7 @@
 
 #include <QPainter>
 #include <QApplication>
-#include <QDesktopWidget>
+#include <QScreen>
 
 #include "skia/skiaincludes.h"
 #include "skia/skqtconversions.h"
@@ -35,15 +35,18 @@
 #include <QGuiApplication>
 
 ValueInput::ValueInput() {
-    const int dpi = QApplication::desktop()->logicalDpiX();
+    QScreen *screen = QGuiApplication::primaryScreen();
+    qreal dpi = screen ? screen->logicalDotsPerInchX() : 96.0;
+    qreal dpr = screen ? screen->devicePixelRatio() : 1.0;
     mFont = toSkFont(QApplication::font(),
-                     dpi * qApp->desktop()->devicePixelRatioF(),
+                     dpi * dpr,
                      72);
 }
 
 void ValueInput::draw(SkCanvas *canvas, const int y) {
     SkPaint paint;
-    const qreal pixelRatio = qApp->desktop()->devicePixelRatioF();
+    QScreen *screen = QGuiApplication::primaryScreen();
+    const qreal pixelRatio = screen ? screen->devicePixelRatio() : 1.0;
     const auto transStr = getText();
     const int textWidth = QApplication::fontMetrics().horizontalAdvance(transStr)*pixelRatio;
     const SkRect inputRect = SkRect::MakeXYWH(2*eSizesUI::widget*pixelRatio,

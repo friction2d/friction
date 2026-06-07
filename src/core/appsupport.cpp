@@ -938,7 +938,7 @@ bool AppSupport::removeXDGDesktopIntegration()
         QFile fileName(QString("%1/%2").arg(path, file));
         if (fileName.exists()) {
             if (!fileName.remove()) {
-                qWarning() << "Failed to remove" << fileName;
+                qWarning() << "Failed to remove" << fileName.fileName();
                 return false;
             }
         }
@@ -1039,6 +1039,12 @@ void AppSupport::initEnv(const bool &isRenderer)
 #if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
     // GLX not supported!
     qputenv("QT_XCB_GL_INTEGRATION", "xcb_egl");
+#endif
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    qputenv("QT_WIDGETS_RHI", "1");
+    qputenv("QT_WIDGETS_RHI_BACKEND", "opengl");
+    qputenv("QSG_RHI_BACKEND", "opengl");
 #endif
 }
 

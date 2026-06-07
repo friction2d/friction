@@ -131,7 +131,7 @@ struct CORE_EXPORT qCubicSegment2D {
 
     qCubicSegment2D rotated(const qreal deg) const;
 
-    void transform(const QMatrix& transform);
+    void transform(const QTransform& transform);
 
     void rotate(const qreal deg);
 

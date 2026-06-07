@@ -128,7 +128,7 @@ ShaderEffectCreator::Identifier ShaderEffectCreator::sReadIdentifierXEV(
     const QString name = ele.attribute("name");
     const QString grePath = ele.attribute("grePath");
     const QString propsStr = ele.attribute("properties");
-    const auto propsStrList = propsStr.splitRef(',');
+    const auto propsStrList = propsStr.split(',');
     QList<ShaderPropertyType> props;
     for(const auto &propStr : propsStrList) {
         const int propInt = XmlExportHelpers::stringToInt(propStr);
@@ -213,10 +213,11 @@ QPointF attrToQPointF(const QDomElement &elem,
                       const QString& def,
                       const bool allowSingleValue) {
     const QString valS = elem.attribute(attr, def);
-    const QRegExp rx("\\[" REGEX_TWO_FLOATS "\\]");
-    if(rx.exactMatch(valS)) {
-        rx.indexIn(valS);
-        const QStringList xy = rx.capturedTexts();
+    const QRegularExpression rx("^\\[" REGEX_TWO_FLOATS "\\]$");
+    QRegularExpressionMatch match = rx.match(valS);
+
+    if (match.hasMatch()) {
+        const QStringList xy = match.capturedTexts();
         return {xy.at(1).toDouble(), xy.at(2).toDouble()};
     } else if(allowSingleValue) {
         bool ok;
@@ -233,19 +234,21 @@ QColor attrToQColor(const QDomElement &elem,
                     const QString& attr,
                     const QString& def) {
     const QString valS = elem.attribute(attr, def);
-    const QRegExp rxRGBA("\\[" REGEX_FOUR_FLOATS "\\]");
-    if(rxRGBA.exactMatch(valS)) {
-        rxRGBA.indexIn(valS);
-        const QStringList rgba = rxRGBA.capturedTexts();
+    const QRegularExpression rxRGBA("^\\[" REGEX_FOUR_FLOATS "\\]$");
+    QRegularExpressionMatch match = rxRGBA.match(valS);
+
+    if (match.hasMatch()) {
+        const QStringList rgba = match.capturedTexts();
         return QColor::fromRgbF(rgba.at(1).toDouble(),
                                 rgba.at(2).toDouble(),
                                 rgba.at(3).toDouble(),
                                 rgba.at(4).toDouble());
     } else {
-        const QRegExp rxRGB("\\[" REGEX_THREE_FLOATS "\\]");
-        if(rxRGB.exactMatch(valS)) {
-            rxRGB.indexIn(valS);
-            const QStringList rgb = rxRGB.capturedTexts();
+        const QRegularExpression rxRGB("^\\[" REGEX_THREE_FLOATS "\\]$");
+        QRegularExpressionMatch match = rxRGB.match(valS);
+
+        if (match.hasMatch()) {
+            const QStringList rgb = match.capturedTexts();
             return QColor::fromRgbF(rgb.at(1).toDouble(),
                                     rgb.at(2).toDouble(),
                                     rgb.at(3).toDouble());
@@ -360,8 +363,10 @@ void readPropertyCreators(const QDomElement &elem,
                          stdsptr<UniformSpecifierCreator>& uniC) {
     const QString name = elem.attribute("name");
     if(name.isEmpty()) RuntimeThrow("Property name not defined.");
-    const QRegExp rx("[A-Za-z_][A-Za-z0-9_]*");
-    if(!rx.exactMatch(name)) RuntimeThrow("Invalid Property name '" + name + "'.");
+    const QRegularExpression rx("^[A-Za-z_][A-Za-z0-9_]*$");
+    if (!rx.match(name).hasMatch()) {
+        RuntimeThrow("Invalid Property name '" + name + "'.");
+    }
 
     const QString type = elem.attribute("type");
     if(type.isEmpty()) RuntimeThrow("Property type not defined for " + name + ".");

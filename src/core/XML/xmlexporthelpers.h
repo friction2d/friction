@@ -45,13 +45,10 @@ namespace XmlExportHelpers {
     QString blendModeToString(const SkBlendMode blendMode);
 
     CORE_EXPORT
-    qreal stringToDouble(const QStringRef& string);
+    qreal stringToDouble(const QStringView& string);
+
     CORE_EXPORT
-    qreal stringToDouble(const QString& string);
-    CORE_EXPORT
-    int stringToInt(const QStringRef& string);
-    CORE_EXPORT
-    int stringToInt(const QString& string);
+    int stringToInt(const QStringView& string);
 
     template <typename T, typename S>
     T stringToEnum(const S& string) {
@@ -73,9 +70,9 @@ namespace XmlExportHelpers {
     }
 
     CORE_EXPORT
-    QMatrix stringToMatrix(const QString& str);
+    QTransform stringToMatrix(const QString& str);
     CORE_EXPORT
-    QString matrixToString(const QMatrix& m);
+    QString matrixToString(const QTransform& m);
 };
 
 namespace XevExportHelpers {

@@ -672,7 +672,11 @@ void BoxSingleWidget::mousePressEvent(QMouseEvent *event) {
             PropertyMenu pMenu(&menu, mParent->currentScene(), MainWindow::sGetInstance());
             pTarget->prp_setupTreeViewMenu(&pMenu);
         }
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
         menu.exec(event->globalPos());
+#else
+        menu.exec(event->globalPosition().toPoint());
+#endif
         setSelected(false);
     } else {
         mDragPressPos = event->pos().x() > mFillWidget->x();
@@ -713,7 +717,7 @@ void BoxSingleWidget::mouseReleaseEvent(QMouseEvent *event)
     const auto target = mTarget->getTarget();
 
     const auto bbox = enve_cast<BoundingBox*>(target);
-    if (event->button() == Qt::MidButton && bbox) {
+    if (event->button() == Qt::MiddleButton && bbox) {
         PropertyNameDialog::sRenameBox(bbox, this);
         return;
     }
@@ -734,7 +738,7 @@ void BoxSingleWidget::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
-void BoxSingleWidget::enterEvent(QEvent *)
+void BoxSingleWidget::enterEvent(QtEnterEvent *)
 {
 #ifdef Q_OS_MAC
     setFocus();

@@ -121,7 +121,7 @@ void LetterRenderData::initialize(const qreal relFrame,
 
 }
 
-void LetterRenderData::applyTransform(const QMatrix &transform) {
+void LetterRenderData::applyTransform(const QTransform &transform) {
     fRelTransform = transform*fRelTransform;
     fTotalTransform = fRelTransform*fInheritedTransform;
     fLetterPos = transform.map(fLetterPos);
@@ -161,7 +161,7 @@ void WordRenderData::initialize(const qreal relFrame,
     }
 }
 
-void WordRenderData::applyTransform(const QMatrix &transform) {
+void WordRenderData::applyTransform(const QTransform &transform) {
     fRelTransform = transform*fRelTransform;
     fTotalTransform = fRelTransform*fInheritedTransform;
     fWordPos = transform.map(fWordPos);
@@ -227,7 +227,7 @@ void LineRenderData::initialize(const qreal relFrame,
     if(i0 < line.length()) wordFinished(i0, line.length() - 1);
 }
 
-void LineRenderData::applyTransform(const QMatrix &transform) {
+void LineRenderData::applyTransform(const QTransform &transform) {
     fRelTransform = transform*fRelTransform;
     fTotalTransform = fRelTransform*fInheritedTransform;
     fLinePos = transform.map(fLinePos);
@@ -257,7 +257,7 @@ void TextBoxRenderData::initialize(const QString &text,
                                    const Qt::Alignment vAlignment,
                                    TextBox * const parent,
                                    Canvas* const scene) {
-    const QStringList lines = text.split(QRegExp("\n|\r\n|\r"));
+    const QStringList lines = text.split(QRegularExpression("\n|\r\n|\r"));
 
     qreal maxWidth = 0;
 

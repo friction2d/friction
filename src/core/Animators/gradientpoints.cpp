@@ -51,7 +51,7 @@ void GradientPoints::enable() {
     mEnabled = true;
 }
 
-void GradientPoints::applyTransform(const QMatrix &transform) {
+void GradientPoints::applyTransform(const QTransform &transform) {
     mStartAnimator->applyTransform(transform);
     mEndAnimator->applyTransform(transform);
 }

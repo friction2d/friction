@@ -103,7 +103,7 @@ private:
 class CORE_EXPORT GradientTransformSetting : public PaintSetting {
 public:
     GradientTransformSetting(const Target& target,
-                             const QMatrix& trans) :
+                             const QTransform& trans) :
         PaintSetting(target), mTransform(trans) {}
 protected:
     void applyToPS(PaintSettingsAnimator * const target) const {
@@ -111,7 +111,7 @@ protected:
         target->setGradientTransform(dec);
     }
 private:
-    const QMatrix mTransform;
+    const QTransform mTransform;
 };
 
 class CORE_EXPORT GradientTypePaintSetting : public PaintSetting {

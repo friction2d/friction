@@ -27,6 +27,7 @@
 #define SAVEDCOLORBUTTON_H
 
 #include "ui_global.h"
+#include "enterevent.h"
 
 #include <QWidget>
 #include <QMouseEvent>
@@ -46,7 +47,7 @@ public:
 protected:
     void paintEvent(QPaintEvent *);
     void mousePressEvent(QMouseEvent *e);
-    void enterEvent(QEvent*) {
+    void enterEvent(QtEnterEvent*) {
         mHovered = true;
         update();
     }

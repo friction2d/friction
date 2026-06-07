@@ -28,8 +28,25 @@
 
 #include "core_global.h"
 
-#include <QAudioOutput>
+#include <QIODevice>
 #include <QDebug>
+#include <QAudioFormat>
+
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+#include <QAudioSink>
+#include <QAudioDevice>
+#include <QMediaDevices>
+using QtAudioDevice = QAudioDevice;
+using QtAudioOutput = QAudioSink;
+using QtAudioSampleFormat = QAudioFormat::SampleFormat;
+#define AUDIO_SAMPLE_FORMAT QAudioFormat::Int32
+#else
+#include <QAudioOutput>
+using QtAudioDevice = QAudioDeviceInfo;
+using QtAudioOutput = QAudioOutput;
+using QtAudioSampleFormat = QAudioFormat::SampleType;
+#define AUDIO_SAMPLE_FORMAT QAudioFormat::SignedInt
+#endif
 
 struct CORE_EXPORT eSoundSettingsData;
 
@@ -51,21 +68,9 @@ public:
         }
     };
 
-    DataRequest dataRequest()
-    {
-        if (mAudioOutput && mAudioOutput->state() != QAudio::StoppedState) {
-            if (mAudioOutput->bytesFree() >= mAudioOutput->periodSize()) {
-                return {mAudioBuffer.data(), mAudioOutput->periodSize()};
-            }
-        }
-        return {nullptr, 0};
-    }
+    DataRequest dataRequest();
 
-    void provideData(const DataRequest& request)
-    {
-        if (!request || !mAudioIOOutput) { return; }
-        mAudioIOOutput->write(request.fData, request.fSize);
-    }
+    void provideData(const DataRequest& request);
 
     void initializeAudio(eSoundSettingsData &soundSettings,
                          const QString &deviceName = QString());
@@ -78,17 +83,17 @@ public:
     void setVolume(const int value);
     qreal getVolume();
     const QString getDeviceName();
-    QAudioDeviceInfo findDevice(const QString &deviceName);
+    QtAudioDevice findDevice(const QString &deviceName);
     const QStringList listDevices();
 
-    QAudioOutput* audioOutput() const { return mAudioOutput; }
+    QtAudioOutput* audioOutput() const { return mAudioOutput; }
 
 signals:
     void deviceChanged();
 
 private:
-    QAudioDeviceInfo mAudioDevice;
-    QAudioOutput *mAudioOutput = nullptr;
+    QtAudioDevice mAudioDevice;
+    QtAudioOutput *mAudioOutput = nullptr;
     QIODevice *mAudioIOOutput = nullptr; // not owned
     QAudioFormat mAudioFormat;
 

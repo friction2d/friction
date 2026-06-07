@@ -44,7 +44,7 @@ protected:
             qreal &scaleX, qreal &scaleY,
             qreal &shearX, qreal &shearY,
             BoundingBox* const parent,
-            const QMatrix& transform);
+            const QTransform& transform);
 protected:
     void setRotScaleAfterTargetChange(
                 BoundingBox* const oldTarget,

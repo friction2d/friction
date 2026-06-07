@@ -74,7 +74,7 @@ protected:
     bool resultUpToDate() const { return mResultUpToDate; }
     void setResultUpToDate(const bool upToDate) { mResultUpToDate = upToDate; }
 
-    using StringToValue = std::function<void(T&, QStringRef)>;
+    using StringToValue = std::function<void(T&, QStringView)>;
     void readValuesXEV(const QDomElement& ele, const StringToValue& strToVal);
     using ValueToString = std::function<QString(const T&)>;
     void writeValuesXEV(QDomElement& ele, const ValueToString& valToStr) const;
@@ -224,10 +224,10 @@ void InterOptimalAnimatorT<T, K>::readValuesXEV(
         const QString ctrlModeStrs = ele.attribute("ctrlModes");
         const QString ctrlValueStrs = ele.attribute("ctrlValues");
 
-        const auto values = valueStrs.splitRef(';');
-        const auto framess = frameStrs.splitRef(';');
-        const auto ctrlModes = ctrlModeStrs.splitRef(';');
-        const auto ctrlValuess = ctrlValueStrs.splitRef(';');
+        const auto values = valueStrs.split(';');
+        const auto framess = frameStrs.split(';');
+        const auto ctrlModes = ctrlModeStrs.split(';');
+        const auto ctrlValuess = ctrlValueStrs.split(';');
         if(values.count() != framess.count())
             RuntimeThrow("The values count does not match the frames count");
         if(ctrlModes.count() != framess.count())
@@ -239,11 +239,11 @@ void InterOptimalAnimatorT<T, K>::readValuesXEV(
             const auto& value = values[i];
             const auto frames = framess[i].split(' ');
             if(frames.count() != 3) {
-                RuntimeThrow("Invalid frames count " + framess[i].toString());
+                RuntimeThrow("Invalid frames count " + framess[i]);
             }
             const auto ctrlValues = ctrlValuess[i].split(' ');
             if(ctrlValues.count() != 2) {
-                RuntimeThrow("Invalid ctrlValues count " + ctrlValuess[i].toString());
+                RuntimeThrow("Invalid ctrlValues count " + ctrlValuess[i]);
             }
             const auto ctrlModeStr = ctrlModes[i];
             const auto ctrlMode = XmlExportHelpers::stringToEnum<CtrlsMode>(
@@ -280,7 +280,7 @@ void InterOptimalAnimatorT<T, K>::readValuesXEV(
     } else if(ele.hasAttribute("value")) {
         const QString value = ele.attribute("value");
         auto& baseValue = this->baseValue();
-        strToVal(baseValue, &value);
+        strToVal(baseValue, value);
     } else RuntimeThrow("No values/frames and no value provided");
 
     prp_afterWholeInfluenceRangeChanged();

@@ -345,7 +345,7 @@ void BoundingBox::applyTransformEffects(
         qreal& rot,
         qreal& scaleX, qreal& scaleY,
         qreal& shearX, qreal& shearY,
-        QMatrix& postTransform) {
+        QTransform& postTransform) {
     mTransformEffectCollection->applyEffects(relFrame,
                                              pivotX, pivotY,
                                              posX, posY,
@@ -585,7 +585,7 @@ stdsptr<BoxRenderData> BoundingBox::queExternalRender(
 }
 
 stdsptr<BoxRenderData> BoundingBox::queRender(
-        const qreal relFrame, const QMatrix& parentM) {
+        const qreal relFrame, const QTransform& parentM) {
     const auto renderData = updateCurrentRenderData(relFrame);
     if(!renderData) return nullptr;
     setupRenderData(relFrame, parentM, renderData, getParentScene());
@@ -739,11 +739,11 @@ void BoundingBox::drawBoundingRect(SkCanvas * const canvas,
                                     true, eSizesUI::widget*0.25f);
 }
 
-QMatrix BoundingBox::getTotalTransform() const {
+QTransform BoundingBox::getTotalTransform() const {
     return mTransformAnimator->getTotalTransform();
 }
 
-QMatrix BoundingBox::getRelativeTransformAtCurrentFrame() const {
+QTransform BoundingBox::getRelativeTransformAtCurrentFrame() const {
     return getRelativeTransformAtFrame(anim_getCurrentRelFrame());
 }
 
@@ -1078,7 +1078,7 @@ void BoundingBox::finishTransform() {
 }
 
 void BoundingBox::setupRenderData(const qreal relFrame,
-                                  const QMatrix& parentM,
+                                  const QTransform& parentM,
                                   BoxRenderData * const data,
                                   Canvas* const scene) {
     setupWithoutRasterEffects(relFrame, parentM, data, scene);
@@ -1086,7 +1086,7 @@ void BoundingBox::setupRenderData(const qreal relFrame,
 }
 
 void BoundingBox::setupWithoutRasterEffects(const qreal relFrame,
-                                            const QMatrix& parentM,
+                                            const QTransform& parentM,
                                             BoxRenderData * const data,
                                             Canvas* const scene) {
     //Q_ASSERT(scene);
@@ -1230,19 +1230,19 @@ void BoundingBox::addTransformEffect(const qsptr<TransformEffect> &transformEffe
 //    }
 //}
 
-QMatrix BoundingBox::getRelativeTransformAtFrame(const qreal relFrame) const {
+QTransform BoundingBox::getRelativeTransformAtFrame(const qreal relFrame) const {
     if(isZero6Dec(relFrame - anim_getCurrentRelFrame()))
         return mTransformAnimator->getRelativeTransform();
     return mTransformAnimator->getRelativeTransformAtFrame(relFrame);
 }
 
-QMatrix BoundingBox::getInheritedTransformAtFrame(const qreal relFrame) const {
+QTransform BoundingBox::getInheritedTransformAtFrame(const qreal relFrame) const {
     if(isZero6Dec(relFrame - anim_getCurrentRelFrame()))
         return mTransformAnimator->getInheritedTransform();
     return mTransformAnimator->getInheritedTransformAtFrame(relFrame);
 }
 
-QMatrix BoundingBox::getTotalTransformAtFrame(const qreal relFrame) const {
+QTransform BoundingBox::getTotalTransformAtFrame(const qreal relFrame) const {
     if(isZero6Dec(relFrame - anim_getCurrentRelFrame()))
         return mTransformAnimator->getTotalTransform();
     return mTransformAnimator->getTotalTransformAtFrame(relFrame);

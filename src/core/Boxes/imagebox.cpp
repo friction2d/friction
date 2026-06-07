@@ -132,7 +132,7 @@ void ImageBox::changeSourceFile() {
     if(!importPath.isEmpty()) setFilePath(importPath);
 }
 
-void ImageBox::setupRenderData(const qreal relFrame, const QMatrix& parentM,
+void ImageBox::setupRenderData(const qreal relFrame, const QTransform& parentM,
                                BoxRenderData * const data,
                                Canvas* const scene)
 {

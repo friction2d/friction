@@ -27,7 +27,7 @@
 #define SKQTCONVERSIONS_H
 
 #include <QRectF>
-#include <QMatrix>
+#include <QTransform>
 #include <QColor>
 #include <QFont>
 
@@ -72,10 +72,10 @@ extern SkRect toSkRect(const QRectF &rect);
 // m21 - skewX
 // m22 - scaleY
 CORE_EXPORT
-extern QMatrix toQMatrix(const SkMatrix &matrix);
+extern QTransform toQTransform(const SkMatrix &matrix);
 
 CORE_EXPORT
-extern SkMatrix toSkMatrix(const QMatrix &matrix);
+extern SkMatrix toSkMatrix(const QTransform &matrix);
 
 extern inline QPointF toQPointF(const SkPoint &point) {
     return QPointF(toQreal(point.x()),

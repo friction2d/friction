@@ -29,7 +29,7 @@
 #include <QtMath>
 #include <complex>
 #include <QDebug>
-#include <QMatrix>
+#include <QTransform>
 #include <QList>
 typedef std::complex<double> cmplx;
 

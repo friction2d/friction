@@ -64,7 +64,7 @@ public:
                           QWidget * const parent = nullptr);
     ~CanvasWindow();
     Canvas *getCurrentCanvas();
-    const QMatrix& getViewTransform() const
+    const QTransform& getViewTransform() const
     { return mViewTransform; }
 
     void setCurrentCanvas(Canvas * const canvas);
@@ -132,7 +132,7 @@ private:
     Actions& mActions;
 
     QSize mOldSize{-1, -1};
-    QMatrix mViewTransform;
+    QTransform mViewTransform;
     QPointF mPrevMousePos;
     QPointF mPrevPressPos;
     //bool mValidPaintTarget = false;

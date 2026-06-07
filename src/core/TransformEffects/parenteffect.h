@@ -49,7 +49,7 @@ public:
                      qreal &scaleY,
                      qreal &shearX,
                      qreal &shearY,
-                     QMatrix& postTransform,
+                     QTransform& postTransform,
                      BoundingBox* const parent) override;
 
 private:
@@ -63,7 +63,7 @@ private:
                                 const qreal scaleXInfl,
                                 const qreal scaleYInfl,
                                 const qreal rotInfl,
-                                QMatrix& outPostTransform,
+                                QTransform& outPostTransform,
                                 const bool updateState);
 
     void handleInfluenceChanged();
@@ -91,13 +91,13 @@ private:
     bool mPrevInfluenceValid = false;
     QPointF mBindTargetPivotInParent;
     QPointF mBindObjectPivotInParent;
-    QMatrix mBindTargetParentToParentSpace;
-    QMatrix mBindTargetLinearInParent;
+    QTransform mBindTargetParentToParentSpace;
+    QTransform mBindTargetLinearInParent;
     bool mBindStateValid = false;
     qreal mAccumDeltaAngleRad = 0.0;
     bool mDeltaAngleStateValid = false;
     QPointF mNoFollowPivotState;
-    QMatrix mNoFollowLinearState;
+    QTransform mNoFollowLinearState;
     bool mNoFollowStateValid = false;
     QPointF mLastBaseMove;
     bool mLastBaseMoveValid = false;

@@ -52,7 +52,7 @@ Window::Window(QWidget *parent,
 
     setContentsMargins(0, 0, 0, 0);
     mLayout = new QVBoxLayout(this);
-    mLayout->setMargin(0);
+    mLayout->setContentsMargins(0, 0, 0, 0);
     mLayout->addWidget(child);
 
     loadState(visible);

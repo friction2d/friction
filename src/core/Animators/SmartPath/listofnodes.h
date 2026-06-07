@@ -88,7 +88,7 @@ public:
     void appendNodes(ListOfNodes&& src);
     void prependNodes(ListOfNodes&& src);
 
-    void applyTransform(const QMatrix &transform);
+    void applyTransform(const QTransform &transform);
 
     typedef QList<stdsptr<Node>>::const_iterator const_iterator;
     typedef QList<stdsptr<Node>>::iterator iterator;

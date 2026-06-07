@@ -261,7 +261,7 @@ void drawTransparencyMesh(SkCanvas* const canvas,
 
 void Canvas::renderSk(SkCanvas* const canvas,
                       const QRect& drawRect,
-                      const QMatrix& viewTrans,
+                      const QTransform& viewTrans,
                       const bool mouseGrabbing)
 {
     mDrawnSinceQue = true;

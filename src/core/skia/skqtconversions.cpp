@@ -58,8 +58,8 @@ SkRect toSkRect(const QRectF &rect) {
 // m12 - skewY
 // m21 - skewX
 // m22 - scaleY
-QMatrix toQMatrix(const SkMatrix &matrix) {
-    return QMatrix(toQreal(matrix.getScaleX()),
+QTransform toQTransform(const SkMatrix &matrix) {
+    return QTransform(toQreal(matrix.getScaleX()),
                    toQreal(matrix.getSkewY()),
                    toQreal(matrix.getSkewX()),
                    toQreal(matrix.getScaleY()),
@@ -67,7 +67,7 @@ QMatrix toQMatrix(const SkMatrix &matrix) {
                    toQreal(matrix.getTranslateY()));
 }
 
-SkMatrix toSkMatrix(const QMatrix &matrix) {
+SkMatrix toSkMatrix(const QTransform &matrix) {
     SkMatrix skMatrix;
     skMatrix.reset();
     skMatrix.set(SkMatrix::kMScaleX, toSkScalar(matrix.m11()));
@@ -281,7 +281,7 @@ QFont toQFont(const SkFont &skfont, const int skPPI, const int qPPI) {
     typeface->getFamilyName(&family);
     qFont.setFamily(family.c_str());
     qFont.setStretch(stretch);
-    qFont.setWeight(weight);
+    qFont.setWeight(static_cast<QFont::Weight>(weight));
     qFont.setStyle(style);
     qFont.setPointSizeF(skfont.getSize()*skPPI/qPPI);
     return qFont;

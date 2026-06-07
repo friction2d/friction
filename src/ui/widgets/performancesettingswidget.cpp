@@ -258,7 +258,7 @@ void PerformanceSettingsWidget::setupRasterEffectWidgets()
 
     container->setContentsMargins(0, 0, 0, 0);
 
-    containerInnerLayout->setMargin(5);
+    containerInnerLayout->setContentsMargins(0, 0, 0, 0);
 
     containerLayout->addWidget(area);
 
@@ -277,7 +277,7 @@ void PerformanceSettingsWidget::setupRasterEffectWidgets()
         const auto lay = new QHBoxLayout(wid);
 
         wid->setContentsMargins(0, 0, 0, 0);
-        lay->setMargin(0);
+        lay->setContentsMargins(0, 0, 0, 0);
         lay->addWidget(label);
         lay->addWidget(box);
 

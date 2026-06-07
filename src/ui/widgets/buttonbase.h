@@ -27,6 +27,7 @@
 #define BUTTONBASE_H
 
 #include "ui_global.h"
+#include "enterevent.h"
 
 #include <QWidget>
 
@@ -40,7 +41,7 @@ public:
 protected:
     void mouseReleaseEvent(QMouseEvent *) final;
     void mousePressEvent(QMouseEvent *) final;
-    void enterEvent(QEvent *) final;
+    void enterEvent(QtEnterEvent *event) final;
     void leaveEvent(QEvent *) final;
 
     void paintEvent(QPaintEvent *) final;

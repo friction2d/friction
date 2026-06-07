@@ -157,7 +157,7 @@ SkPath SmartPathCollection::getPathAtRelFrame(const qreal relFrame) const {
     return result;
 }
 
-void SmartPathCollection::applyTransform(const QMatrix &transform) const {
+void SmartPathCollection::applyTransform(const QTransform &transform) const {
     const int iMax = ca_getNumberOfChildren() - 1;
     for(int i = 0; i <= iMax; i++) {
         const auto path = ca_getChildAt<SmartPathAnimator>(i);
