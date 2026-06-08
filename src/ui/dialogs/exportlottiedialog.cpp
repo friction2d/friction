@@ -324,6 +324,12 @@ bool ExportLottieDialog::writePreviewHtml(const QString& jsonFile,
     const QString assetsBase = QUrl::fromLocalFile(
                 QFileInfo(jsonFile).absolutePath() + QDir::separator()).toString();
     const QString previewBackground = mPreviewBackground->currentData().toString();
+    QString projectName = QFileInfo(Document::sInstance->fEvFile).baseName();
+    if (projectName.isEmpty()) { projectName = tr("Untitled"); }
+    const qreal jsonSizeKb = jsonData.size() / 1024.0;
+    const QString jsonSize = jsonSizeKb < 1024.0 ?
+                tr("%1 KB").arg(QString::number(jsonSizeKb, 'f', 1)) :
+                tr("%1 MB").arg(QString::number(jsonSizeKb / 1024.0, 'f', 2));
 
     QFile html(htmlFile);
     if (!html.open(QIODevice::WriteOnly | QIODevice::Truncate)) { return false; }
@@ -344,6 +350,9 @@ bool ExportLottieDialog::writePreviewHtml(const QString& jsonFile,
     stream << "#controls{position:fixed;left:0;right:0;top:0;z-index:2;box-sizing:border-box;min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 9px;background:#efefef;border-bottom:1px solid rgb(203,203,203);box-shadow:0 4px 12px rgba(0,0,0,.22);opacity:0;transition:opacity 140ms ease;}\n";
     stream << "#controls:hover,body:hover #controls,body:hover #progressWrap{opacity:1;}\n";
     stream << ".controlGroup{display:flex;align-items:center;gap:0;min-width:0;}\n";
+    stream << "#previewInfo{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:baseline;gap:7px;color:#323232;white-space:nowrap;pointer-events:none;}\n";
+    stream << "#previewName{font-weight:600;}\n";
+    stream << "#previewSize{font-size:11px;color:#888;}\n";
     stream << "#progressWrap{position:fixed;left:0;right:0;bottom:0;z-index:2;display:flex;align-items:center;gap:10px;box-sizing:border-box;padding:8px 10px;background:#efefef;border-top:1px solid rgb(203,203,203);box-shadow:0 4px 12px rgba(0,0,0,.22);opacity:0;transition:opacity 140ms ease;}\n";
     stream << "button{height:30px;border:1px solid #b0b0b0;background:#fff;color:#323232;font:inherit;min-width:34px;padding:0 9px;cursor:pointer;}\n";
     stream << "button:hover,button.active{color:#fff;background:#000;border-color:#000;}\n";
@@ -367,6 +376,11 @@ bool ExportLottieDialog::writePreviewHtml(const QString& jsonFile,
     stream << "<button id=\"background\" type=\"button\" value=\""
            << previewBackground << "\">Background</button>\n";
     stream << "</div>\n";
+    stream << "<div id=\"previewInfo\"><span id=\"previewName\">"
+           << projectName.toHtmlEscaped()
+           << "</span><span id=\"previewSize\">"
+           << jsonSize.toHtmlEscaped()
+           << "</span></div>\n";
     stream << "<div class=\"controlGroup\">\n";
     stream << "<button id=\"mode\" type=\"button\" value=\"loop\">Loop</button>\n";
     stream << "<button id=\"speed\" type=\"button\" value=\"1\">1x</button>\n";
