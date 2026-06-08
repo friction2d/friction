@@ -147,6 +147,7 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
         const QString format = mFormat->currentData().toString();
         AppSupport::setSettings("exportLottie", "format", format);
         mEmbedImages->setEnabled(format == QStringLiteral("json"));
+        emit formatChanged(format);
     });
     connect(mPreviewBackground,
             QOverload<int>::of(&QComboBox::currentIndexChanged),
@@ -210,12 +211,22 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
                                               tr("Close"),
                                               this);
     mPreviewButton = new QPushButton(QIcon::fromTheme("seq_preview"),
-                                     tr("Preview"),
+                                     mFormat->currentData().toString() == QStringLiteral("lottie") ?
+                                         tr("Preview dotLottie") :
+                                         tr("Preview Lottie"),
                                      this);
     mPreviewButton->setObjectName("LottiePreviewButton");
 
     connect(mPreviewButton, &QPushButton::released,
             this, [this] { showPreview(false); });
+    connect(mFormat,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, [this] {
+        mPreviewButton->setText(
+                    mFormat->currentData().toString() == QStringLiteral("lottie") ?
+                        tr("Preview dotLottie") :
+                        tr("Preview Lottie"));
+    });
 
     connect(buttonExport, &QPushButton::clicked, this, [this]() {
         const QString fileType = tr("Lottie Files %1", "ExportDialog_FileType");
@@ -282,13 +293,20 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
 
 void ExportLottieDialog::showPreview(const bool& closeWhenDone)
 {
-    if (!mPreviewJsonFile) {
-        const QString templ = QString::fromUtf8("%1/%2_lottie_preview_XXXXXX.json").arg(AppSupport::getAppTempPath(),
-                                                                                        AppSupport::getAppName());
-        mPreviewJsonFile = QSharedPointer<QTemporaryFile>::create(templ);
-        mPreviewJsonFile->setAutoRemove(false);
-        mPreviewJsonFile->open();
-        mPreviewJsonFile->close();
+    const QString extension = mFormat->currentData().toString();
+    if (mPreviewAnimationFile &&
+            QFileInfo(mPreviewAnimationFile->fileName()).suffix() != extension) {
+        mPreviewAnimationFile.reset();
+    }
+    if (!mPreviewAnimationFile) {
+        const QString templ = QString::fromUtf8("%1/%2_lottie_preview_XXXXXX.%3")
+                .arg(AppSupport::getAppTempPath(),
+                     AppSupport::getAppName(),
+                     extension);
+        mPreviewAnimationFile = QSharedPointer<QTemporaryFile>::create(templ);
+        mPreviewAnimationFile->setAutoRemove(false);
+        mPreviewAnimationFile->open();
+        mPreviewAnimationFile->close();
     }
     if (!mPreviewHtmlFile) {
         const QString templ = QString::fromUtf8("%1/%2_lottie_preview_XXXXXX.html").arg(AppSupport::getAppTempPath(),
@@ -299,9 +317,9 @@ void ExportLottieDialog::showPreview(const bool& closeWhenDone)
         mPreviewHtmlFile->close();
     }
 
-    const QString jsonFile = mPreviewJsonFile->fileName();
+    const QString animationFile = mPreviewAnimationFile->fileName();
     const QString htmlFile = mPreviewHtmlFile->fileName();
-    if (!exportTo(jsonFile) || !writePreviewHtml(jsonFile, htmlFile)) {
+    if (!exportTo(animationFile) || !writePreviewHtml(animationFile, htmlFile)) {
         if (closeWhenDone) { close(); }
         return;
     }
@@ -335,23 +353,28 @@ bool ExportLottieDialog::exportTo(const QString& file)
     }
 }
 
-bool ExportLottieDialog::writePreviewHtml(const QString& jsonFile,
+bool ExportLottieDialog::writePreviewHtml(const QString& animationFile,
                                           const QString& htmlFile)
 {
-    QFile json(jsonFile);
-    if (!json.open(QIODevice::ReadOnly)) { return false; }
-    const QByteArray jsonData = json.readAll();
-    json.close();
-    const QByteArray encodedJson = jsonData.toBase64();
+    QFile animation(animationFile);
+    if (!animation.open(QIODevice::ReadOnly)) { return false; }
+    const QByteArray animationData = animation.readAll();
+    animation.close();
+    const QByteArray encodedAnimation = animationData.toBase64();
+    const bool dotLottie = animationFile.endsWith(QStringLiteral(".lottie"),
+                                                  Qt::CaseInsensitive);
     const QString assetsBase = QUrl::fromLocalFile(
-                QFileInfo(jsonFile).absolutePath() + QDir::separator()).toString();
+                QFileInfo(animationFile).absolutePath() + QDir::separator()).toString();
     const QString previewBackground = mPreviewBackground->currentData().toString();
     QString projectName = QFileInfo(Document::sInstance->fEvFile).baseName();
     if (projectName.isEmpty()) { projectName = tr("Untitled"); }
-    const qreal jsonSizeKb = jsonData.size() / 1024.0;
-    const QString jsonSize = jsonSizeKb < 1024.0 ?
-                tr("%1 KB").arg(QString::number(jsonSizeKb, 'f', 1)) :
-                tr("%1 MB").arg(QString::number(jsonSizeKb / 1024.0, 'f', 2));
+    const QString previewName = dotLottie ?
+                tr("Preview dotLottie - %1").arg(projectName) :
+                tr("Preview Lottie - %1").arg(projectName);
+    const qreal fileSizeKb = animationData.size() / 1024.0;
+    const QString fileSize = fileSizeKb < 1024.0 ?
+                tr("%1 KB").arg(QString::number(fileSizeKb, 'f', 1)) :
+                tr("%1 MB").arg(QString::number(fileSizeKb / 1024.0, 'f', 2));
 
     QFile html(htmlFile);
     if (!html.open(QIODevice::WriteOnly | QIODevice::Truncate)) { return false; }
@@ -361,12 +384,13 @@ bool ExportLottieDialog::writePreviewHtml(const QString& jsonFile,
     stream << "<html>\n";
     stream << "<head>\n";
     stream << "<meta charset=\"utf-8\" />\n";
-    stream << "<title>" << tr("Lottie Preview") << "</title>\n";
+    stream << "<title>" << previewName.toHtmlEscaped() << "</title>\n";
     stream << "<style>\n";
     stream << "html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;}\n";
     stream << "html{background:#fff;}\n";
     stream << "body{font:13px -apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;color:#f1f3f4;}\n";
     stream << "#preview{width:100%;height:100%;cursor:pointer;}\n";
+    stream << "#preview canvas{display:block;width:100%;height:100%;}\n";
     stream << "#preview.wireframe svg path{fill:rgba(239,100,116,.1)!important;stroke:rgba(239,100,116,.78)!important;stroke-width:2px!important;vector-effect:non-scaling-stroke!important;opacity:1!important;}\n";
     stream << "#preview.outlines svg path{fill:none!important;stroke:rgba(239,100,116,.9)!important;stroke-width:2px!important;vector-effect:non-scaling-stroke!important;opacity:1!important;}\n";
     stream << "#controls{position:fixed;left:0;right:0;top:0;z-index:2;box-sizing:border-box;min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 9px;background:#efefef;border-bottom:1px solid rgb(203,203,203);box-shadow:0 4px 12px rgba(0,0,0,.22);opacity:0;transition:opacity 140ms ease;}\n";
@@ -383,13 +407,15 @@ bool ExportLottieDialog::writePreviewHtml(const QString& jsonFile,
     stream << "button#background{border-radius:0 6px 6px 0;}\n";
     stream << "button#mode{border-radius:6px 0 0 6px;border-right-width:0;}\n";
     stream << "button#speed{border-radius:0 6px 6px 0;}\n";
+    stream << "body.dotlottie button#renderer,body.dotlottie button#wireframe{display:none;}\n";
+    stream << "body.dotlottie button#background{border-radius:6px;}\n";
     stream << "button.active{border-color:#8ab4f8;color:#d2e3fc;}\n";
     stream << "#frame{min-width:92px;text-align:right;color:#c6bdc5;}\n";
     stream << "#scrub{flex:1;min-width:80px;accent-color:#000;}\n";
     stream << "#error{display:none;box-sizing:border-box;width:100%;height:100%;padding:24px;font:14px sans-serif;background:#202124;color:#f1f3f4;}\n";
     stream << "</style>\n";
     stream << "</head>\n";
-    stream << "<body>\n";
+    stream << "<body" << (dotLottie ? " class=\"dotlottie\"" : "") << ">\n";
     stream << "<div id=\"preview\"></div>\n";
     stream << "<div id=\"controls\">\n";
     stream << "<div class=\"controlGroup\">\n";
@@ -399,9 +425,9 @@ bool ExportLottieDialog::writePreviewHtml(const QString& jsonFile,
            << previewBackground << "\">Background</button>\n";
     stream << "</div>\n";
     stream << "<div id=\"previewInfo\"><span id=\"previewName\">"
-           << projectName.toHtmlEscaped()
+           << previewName.toHtmlEscaped()
            << "</span><span id=\"previewSize\">"
-           << jsonSize.toHtmlEscaped()
+           << fileSize.toHtmlEscaped()
            << "</span></div>\n";
     stream << "<div class=\"controlGroup\">\n";
     stream << "<button id=\"mode\" type=\"button\" value=\"loop\">Loop</button>\n";
@@ -413,9 +439,50 @@ bool ExportLottieDialog::writePreviewHtml(const QString& jsonFile,
     stream << "<span id=\"frame\">0 / 0</span>\n";
     stream << "</div>\n";
     stream << "<div id=\"error\"></div>\n";
+    if (dotLottie) {
+    stream << "<script type=\"module\">\n";
+    stream << "const encoded='" << QString::fromLatin1(encodedAnimation) << "';\n";
+    stream << "const showError=(message)=>{const el=document.getElementById('error');el.textContent=message;el.style.display='block';document.getElementById('preview').style.display='none';document.getElementById('controls').style.display='none';document.getElementById('progressWrap').style.display='none';};\n";
+    stream << "try{\n";
+    stream << "const {DotLottie}=await import('https://cdn.jsdelivr.net/npm/@lottiefiles/dotlottie-web@0.74.0/+esm');\n";
+    stream << "const raw=atob(encoded);const bytes=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++){bytes[i]=raw.charCodeAt(i);}\n";
+    stream << "const container=document.getElementById('preview');\n";
+    stream << "const canvas=document.createElement('canvas');container.appendChild(canvas);\n";
+    stream << "const scrub=document.getElementById('scrub');\n";
+    stream << "const frame=document.getElementById('frame');\n";
+    stream << "const mode=document.getElementById('mode');\n";
+    stream << "const background=document.getElementById('background');\n";
+    stream << "const speed=document.getElementById('speed');\n";
+    stream << "let dragging=false;let onceCompleted=false;\n";
+    stream << "const cycle=(button,options)=>{const index=options.findIndex((option)=>option[0]===button.value);const next=options[(index+1)%options.length];button.value=next[0];button.textContent=next[1];};\n";
+    stream << "const backgroundOptions=[['white','White'],['black','Black'],['gray','Gray'],['transparent','Transparent']];\n";
+    stream << "const modeOptions=[['loop','Loop'],['pingpong','Ping-pong'],['once','Once']];\n";
+    stream << "const speedOptions=[['0.1','0.1x'],['0.25','0.25x'],['0.5','0.5x'],['1','1x'],['1.5','1.5x'],['2','2x'],['3','3x'],['4','4x']];\n";
+    stream << "const anim=new DotLottie({canvas,data:bytes.buffer,autoplay:false,loop:true,renderConfig:{autoResize:true},layout:{fit:'contain',align:[0.5,0.5]}});\n";
+    stream << "const total=()=>Math.max(1,Math.floor(anim.totalFrames||1));\n";
+    stream << "const current=()=>Math.max(0,Math.min(total()-1,Math.floor(anim.currentFrame||0)));\n";
+    stream << "const update=()=>{const t=total();const c=current();scrub.max=String(t-1);if(!dragging){scrub.value=String(c);}frame.textContent=c+' / '+(t-1);};\n";
+    stream << "const applyMode=()=>{onceCompleted=false;const m=mode.value;anim.setMode(m==='pingpong'?'bounce':'forward');anim.setLoop(m!=='once');update();};\n";
+    stream << "const applyBackground=()=>{const checker='repeating-conic-gradient(#b0b0b0 0% 25%,transparent 0% 50%) 50%/40px 40px';const colors={white:'#fff',black:'#000',gray:'#808080'};const value=background.value;if(value==='transparent'){document.documentElement.style.background=checker;document.body.style.background='transparent';return;}document.documentElement.style.background=colors[value]||colors.white;document.body.style.background=colors[value]||colors.white;};\n";
+    stream << "const togglePlayback=()=>{if(mode.value==='once'&&onceCompleted){onceCompleted=false;anim.setFrame(0);anim.play();}else if(anim.isPlaying){anim.pause();}else{anim.play();}update();};\n";
+    stream << "container.addEventListener('click',togglePlayback);\n";
+    stream << "mode.addEventListener('click',()=>{cycle(mode,modeOptions);applyMode();});\n";
+    stream << "background.addEventListener('click',()=>{cycle(background,backgroundOptions);background.textContent='Background';applyBackground();});\n";
+    stream << "speed.addEventListener('click',()=>{cycle(speed,speedOptions);anim.setSpeed(parseFloat(speed.value)||1);});\n";
+    stream << "scrub.addEventListener('input',()=>{dragging=true;onceCompleted=false;anim.setFrame(parseInt(scrub.value,10)||0);update();});\n";
+    stream << "scrub.addEventListener('change',()=>{dragging=false;update();});\n";
+    stream << "anim.addEventListener('load',()=>{applyMode();anim.setSpeed(parseFloat(speed.value)||1);anim.play();update();});\n";
+    stream << "anim.addEventListener('frame',update);\n";
+    stream << "anim.addEventListener('complete',()=>{if(mode.value==='once'){onceCompleted=true;}update();});\n";
+    stream << "anim.addEventListener('loadError',(event)=>showError(event.error||'Could not load dotLottie animation.'));\n";
+    stream << "anim.addEventListener('renderError',(event)=>showError(event.error||'Could not render dotLottie animation.'));\n";
+    stream << "applyBackground();update();\n";
+    stream << "}catch(error){showError(error.message || String(error));}\n";
+    stream << "</script>\n";
+    } else {
     stream << "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js\"></script>\n";
     stream << "<script>\n";
-    stream << "const encoded='" << QString::fromLatin1(encodedJson) << "';\n";
+    stream << "const encoded='" << QString::fromLatin1(encodedAnimation) << "';\n";
     stream << "const assetsBase='" << assetsBase << "';\n";
     stream << "const showError=(message)=>{const el=document.getElementById('error');el.textContent=message;el.style.display='block';document.getElementById('preview').style.display='none';document.getElementById('controls').style.display='none';document.getElementById('progressWrap').style.display='none';};\n";
     stream << "try{if(!window.lottie){throw new Error('Could not load lottie-web. Check your network connection.');}\n";
@@ -470,6 +537,7 @@ bool ExportLottieDialog::writePreviewHtml(const QString& jsonFile,
     stream << "update();\n";
     stream << "}catch(error){showError(error.message || String(error));}\n";
     stream << "</script>\n";
+    }
     stream << "</body>\n";
     stream << "</html>\n";
     stream.flush();

@@ -34,18 +34,23 @@ class SceneChooser;
 
 class UI_EXPORT ExportLottieDialog : public Friction::Ui::Dialog
 {
+    Q_OBJECT
+
 public:
     ExportLottieDialog(QWidget* const parent = nullptr,
                        const QString& warnings = QString());
     void showPreview(const bool& closeWhenDone = false);
 
+signals:
+    void formatChanged(const QString& format);
+
 private:
     bool exportTo(const QString& file);
-    bool writePreviewHtml(const QString& jsonFile,
+    bool writePreviewHtml(const QString& animationFile,
                           const QString& htmlFile);
     void finishedDialog(const QString& fileName);
 
-    QSharedPointer<QTemporaryFile> mPreviewJsonFile;
+    QSharedPointer<QTemporaryFile> mPreviewAnimationFile;
     QSharedPointer<QTemporaryFile> mPreviewHtmlFile;
     QPushButton* mPreviewButton;
 

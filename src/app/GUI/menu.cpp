@@ -36,6 +36,25 @@
 
 using namespace Friction;
 
+void MainWindow::updatePreviewLottieAction(const QString& format)
+{
+    if (!mPreviewLottieAct) { return; }
+
+    const QString currentFormat = format.isEmpty() ?
+                AppSupport::getSettings("exportLottie", "format", "json").toString() :
+                format;
+    const bool dotLottie = currentFormat == QStringLiteral("lottie");
+    const QString text = dotLottie ?
+                tr("Preview dotLottie", "MenuBar_File") :
+                tr("Preview Lottie", "MenuBar_File");
+    const QString toolTip = dotLottie ?
+                tr("Preview dotLottie Animation in Web Browser") :
+                tr("Preview Lottie Animation in Web Browser");
+    mPreviewLottieAct->setText(text);
+    mPreviewLottieAct->setToolTip(toolTip);
+    mPreviewLottieAct->setData(toolTip);
+}
+
 void MainWindow::setupMenuBar()
 {
     mMenuBar = new QMenuBar(nullptr);
@@ -155,6 +174,7 @@ void MainWindow::setupMenuBar()
     mPreviewLottieAct->setData(mPreviewLottieAct->toolTip());
     mPreviewLottieAct->setObjectName("PreviewLottieAct");
     cmdAddAction(mPreviewLottieAct);
+    updatePreviewLottieAction();
 
     mExportLottieAct = mFileMenu->addAction(QIcon::fromTheme("output"),
                                             tr("Export Lottie", "MenuBar_File"),

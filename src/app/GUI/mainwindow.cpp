@@ -1227,6 +1227,8 @@ void MainWindow::exportLottie(const bool &preview)
     const auto dialog = new ExportLottieDialog(this,
                                                preview ? QString() : checkBeforeExportLottie());
     dialog->setAttribute(Qt::WA_DeleteOnClose);
+    connect(dialog, &ExportLottieDialog::formatChanged,
+            this, &MainWindow::updatePreviewLottieAction);
     if (!preview) {
         dialog->show();
     } else {

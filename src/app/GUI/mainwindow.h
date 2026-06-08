@@ -221,6 +221,7 @@ private:
     static MainWindow *sInstance;
 
     void updateRecentMenu();
+    void updatePreviewLottieAction(const QString& format = QString());
 
     void addRecentFile(const QString &recent);
     void readRecentFiles();
