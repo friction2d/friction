@@ -42,6 +42,10 @@
 #include <QClipboard>
 #include <QMimeData>
 
+#ifdef Q_OS_MAC
+#include <QOperatingSystemVersion>
+#endif
+
 #include "GUI/edialogs.h"
 #include "dialogs/applyexpressiondialog.h"
 #include "dialogs/markereditordialog.h"
@@ -183,6 +187,23 @@ MainWindow::MainWindow(Document& document,
 
     setupLayout();
     readSettings(openProject);
+
+#ifdef Q_OS_MAC
+    // https://github.com/friction2d/friction/issues/774
+    // workaround "black screen" on wake for macOS 26
+    connect(qApp, &QGuiApplication::applicationStateChanged,
+            this, [this](Qt::ApplicationState state) {
+        if (state == Qt::ApplicationActive) {
+            const auto currentOS = QOperatingSystemVersion::current();
+            if (currentOS.majorVersion() >= 16) {
+                this->update();
+                if (this->centralWidget()) { this->centralWidget()->update(); }
+                QEvent *updateEvent = new QEvent(QEvent::UpdateRequest);
+                QCoreApplication::postEvent(this, updateEvent);
+            }
+        }
+    });
+#endif
 }
 
 MainWindow::~MainWindow()
