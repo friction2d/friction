@@ -76,6 +76,13 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
 
     mFirstFrame = new QSpinBox(this);
     mLastFrame = new QSpinBox(this);
+    mFormat = new QComboBox(this);
+    mFormat->addItem(tr("Lottie JSON"), QStringLiteral("json"));
+    mFormat->addItem(tr("dotLottie"), QStringLiteral("lottie"));
+    const QString format = AppSupport::getSettings("exportLottie",
+                                                   "format",
+                                                   "json").toString();
+    mFormat->setCurrentIndex(qMax(0, mFormat->findData(format)));
 
     const int minFrame = scene ? scene->getMinFrame() : 0;
     const int maxFrame = scene ? scene->getMaxFrame() : 0;
@@ -93,6 +100,7 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
     mEmbedImages->setChecked(AppSupport::getSettings("exportLottie",
                                                      "embedImages",
                                                      true).toBool());
+    mEmbedImages->setEnabled(mFormat->currentData().toString() == QStringLiteral("json"));
     mPreviewBackground = new QComboBox(this);
     mPreviewBackground->addItem(tr("White"), QStringLiteral("white"));
     mPreviewBackground->addItem(tr("Black"), QStringLiteral("black"));
@@ -133,6 +141,13 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
                                 "embedImages",
                                 mEmbedImages->isChecked());
     });
+    connect(mFormat,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, [this] {
+        const QString format = mFormat->currentData().toString();
+        AppSupport::setSettings("exportLottie", "format", format);
+        mEmbedImages->setEnabled(format == QStringLiteral("json"));
+    });
     connect(mPreviewBackground,
             QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, [this] {
@@ -150,6 +165,7 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
     twoColLayout->addPair(new QLabel(tr("Scene")), sceneButton);
     twoColLayout->addPair(new QLabel(tr("First Frame")), mFirstFrame);
     twoColLayout->addPair(new QLabel(tr("Last Frame")), mLastFrame);
+    twoColLayout->addPair(new QLabel(tr("Format")), mFormat);
 
     const auto sceneWidget = new QGroupBox(tr("Scene"), this);
     const auto optsWidget = new QGroupBox(tr("Options"), this);
@@ -203,13 +219,18 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
 
     connect(buttonExport, &QPushButton::clicked, this, [this]() {
         const QString fileType = tr("Lottie Files %1", "ExportDialog_FileType");
+        const QString extension = mFormat->currentData().toString();
         QString saveAs = eDialogs::saveFile(tr("Export Lottie"),
                                             AppSupport::getSettings("files",
                                                                     "recentExported",
                                                                     QDir::homePath()).toString(),
-                                            fileType.arg("(*.json)"));
+                                            fileType.arg(QStringLiteral("(*.%1)")
+                                                         .arg(extension)));
         if (saveAs.isEmpty()) { return; }
-        if (!saveAs.endsWith(".json")) { saveAs.append(".json"); }
+        const QString suffix = QStringLiteral(".") + extension;
+        if (!saveAs.endsWith(suffix, Qt::CaseInsensitive)) {
+            saveAs.append(suffix);
+        }
         QFileInfo saveInfo(saveAs);
         AppSupport::setSettings("files",
                                 "recentExported",
@@ -227,7 +248,8 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
                                 "blend modes, images, text outlines/native text, "
                                 "transform keyframes, animated paths, stroke drawing, "
                                 "gradients, external or embedded assets, optimized "
-                                "keyframes, and HTML preview with playback controls, "
+                                "keyframes, JSON or dotLottie packaging, and HTML "
+                                "preview with playback controls, "
                                 "renderer selector, background selector, linked image "
                                 "support, and SVG-renderer preview workaround.");
     Q_UNUSED(warnings)

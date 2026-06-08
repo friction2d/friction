@@ -52,6 +52,7 @@ private:
     SceneChooser* mScene;
     QSpinBox* mFirstFrame;
     QSpinBox* mLastFrame;
+    QComboBox* mFormat;
     QCheckBox* mBackground;
     QCheckBox* mEmbedImages;
     QComboBox* mPreviewBackground;

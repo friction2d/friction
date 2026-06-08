@@ -23,12 +23,31 @@
 
 #include "canvas.h"
 #include "exceptions.h"
+#include "lottie/dotlottiewriter.h"
 #include "lottie/lottiejsonoptimizer.h"
 #include "lottie/lottielayerbuilder.h"
 
+#include <QDir>
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QRegularExpression>
+#include <QTemporaryDir>
+
+#include <memory>
+
+namespace {
+
+QString safeAnimationId(QString name)
+{
+    name = name.toLower();
+    name.replace(QRegularExpression(QStringLiteral("[^a-z0-9_-]+")),
+                 QStringLiteral("_"));
+    name.remove(QRegularExpression(QStringLiteral("^_+|_+$")));
+    return name.isEmpty() ? QStringLiteral("animation") : name;
+}
+
+}
 
 LottieExporter::LottieExporter(const QString& path,
                                Canvas* const scene,
@@ -59,6 +78,18 @@ void LottieExporter::nextStep()
 void LottieExporter::finish()
 {
     if (!mScene) { RuntimeThrow("No scene selected"); }
+    const bool dotLottie = mPath.endsWith(QStringLiteral(".lottie"),
+                                         Qt::CaseInsensitive);
+    std::unique_ptr<QTemporaryDir> dotLottieDir;
+    if (dotLottie) {
+        dotLottieDir = std::make_unique<QTemporaryDir>();
+        if (!dotLottieDir->isValid()) {
+            RuntimeThrow("Could not create temporary dotLottie directory");
+        }
+    }
+    const QString builderPath = dotLottie ?
+                QDir(dotLottieDir->path()).filePath(QStringLiteral("animation.json")) :
+                mPath;
 
     QJsonObject root;
     root.insert(QStringLiteral("v"), QStringLiteral("5.7.11"));
@@ -73,8 +104,8 @@ void LottieExporter::finish()
     const LottieLayerBuilder builder(mScene,
                                      mFrameRange,
                                      mFps,
-                                     mPath,
-                                     mEmbedImages,
+                                     builderPath,
+                                     dotLottie ? false : mEmbedImages,
                                      mSvgRendererFix,
                                      mNativeText);
     const auto fonts = builder.buildFonts();
@@ -87,14 +118,24 @@ void LottieExporter::finish()
     }
     root.insert(QStringLiteral("layers"), builder.buildLayers(mBackground));
 
-    QFile file(mPath);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-        RuntimeThrow("Could not open:\n\"" + mPath + "\"");
-    }
+    if (dotLottie) {
+        const QString animationName = mScene->prp_getName();
+        DotLottieWriter::write(mPath,
+                               safeAnimationId(animationName),
+                               animationName,
+                               root,
+                               QDir(dotLottieDir->path()).filePath(
+                                   QStringLiteral("animation_assets")));
+    } else {
+        QFile file(mPath);
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+            RuntimeThrow("Could not open:\n\"" + mPath + "\"");
+        }
 
-    const QJsonDocument doc(LottieJsonOptimizer::optimize(root));
-    file.write(doc.toJson(QJsonDocument::Compact));
-    file.write("\n");
-    file.close();
+        const QJsonDocument doc(LottieJsonOptimizer::optimize(root));
+        file.write(doc.toJson(QJsonDocument::Compact));
+        file.write("\n");
+        file.close();
+    }
     setValue(INT_MAX);
 }
