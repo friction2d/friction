@@ -520,10 +520,14 @@ void LottieLayerBuilder::appendContainerLayers(const ContainerBox* const contain
     const auto& boxes = container->getContainedBoxes();
     for (int i = 0; i < boxes.size(); i++) {
         const auto box = boxes.at(i);
-        if (!box) { continue; }
+        if (!box || !box->isVisible()) { continue; }
 
         if (isAlphaMatteLayer(box) && i + 1 < boxes.size()) {
             const auto target = boxes.at(i + 1);
+            if (!target || !target->isVisible()) {
+                i++;
+                continue;
+            }
             if (const auto targetContainer = dynamic_cast<const ContainerBox*>(target)) {
                 if (canBuildMatteLayer(box)) {
                     const int groupId = nextId++;
@@ -587,7 +591,7 @@ void LottieLayerBuilder::appendMaskedContainerLayers(BoundingBox* const matte,
 {
     const auto& boxes = container->getContainedBoxes();
     for (const auto box : boxes) {
-        if (!box) { continue; }
+        if (!box || !box->isVisible()) { continue; }
 
         if (const auto childContainer = dynamic_cast<const ContainerBox*>(box)) {
             const int groupId = nextId++;
@@ -1336,7 +1340,7 @@ void LottieLayerBuilder::appendFonts(const ContainerBox* const container,
 
     const auto& boxes = container->getContainedBoxes();
     for (const auto box : boxes) {
-        if (!box) { continue; }
+        if (!box || !box->isVisible()) { continue; }
 
         const auto text = dynamic_cast<const TextBox*>(box);
         if (text && canBuildNativeTextLayer(text)) {
@@ -1362,7 +1366,7 @@ void LottieLayerBuilder::appendImageAssets(const ContainerBox* const container,
 
     const auto& boxes = container->getContainedBoxes();
     for (const auto box : boxes) {
-        if (!box) { continue; }
+        if (!box || !box->isVisible()) { continue; }
 
         const auto image = dynamic_cast<const ImageBox*>(box);
         if (image) {
