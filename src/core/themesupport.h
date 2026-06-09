@@ -30,6 +30,7 @@
 #include <QList>
 #include <QSize>
 #include <QToolBar>
+#include <QFileIconProvider>
 
 #include "include/core/SkColor.h"
 
@@ -80,6 +81,16 @@ public:
                                       QAction *act);
     static const QColor getLightDarkColor(const QColor &color,
                                           const int &factor);
+};
+
+class CORE_EXPORT ThemeIconProvider : public QFileIconProvider
+{
+public:
+    ThemeIconProvider();
+    QIcon icon(const QFileInfo & info) const;
+
+private:
+    QIcon mIcon;
 };
 
 #endif // THEMESUPPORT_H

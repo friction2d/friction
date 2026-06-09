@@ -42,6 +42,10 @@
 #include <QRegularExpression>
 #include <QMessageBox>
 #include <QFontDatabase>
+#include <QDesktopServices>
+#include <QFileDialog>
+#include <QProcess>
+#include <QInputDialog>
 
 #include <iostream>
 #include <ostream>
@@ -262,10 +266,6 @@ const QString AppSupport::getAppConfigPath()
     if (isAppPortable()) {
         const QString appPath = getAppPath();
         if (QFileInfo(appPath).isWritable()) { path = QString("%1/config").arg(appPath); }
-/*#ifdef Q_OS_LINUX
-        const QString appimage = getAppImagePath();
-        if (!appimage.isEmpty() && QFileInfo(appimage).isWritable()) { path = QString("%1.config").arg(appimage); }
-#endif*/
     }
     QDir dir(path);
     if (!dir.exists()) { dir.mkpath(path); }
@@ -277,36 +277,209 @@ const QString AppSupport::getAppPath()
     return QApplication::applicationDirPath();
 }
 
-const QString AppSupport::getAppTempPath()
+const QString AppSupport::getAppCachePath()
 {
-#ifdef Q_OS_LINUX
-    if (isFlatpak()) {
-        // TODO: we should check on startup if we run as flatpak, if settings 'tempDir'
-        // is empty then popup a dialog with an option to set a shared temp folder
-        QString path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-        if (!path.isEmpty()) {
-            path.append("/friction-temp");
-            if (!QFile::exists(path)) {
-                QDir dir(path);
-                dir.mkpath(path);
-            }
-            if (QFile::exists(path)) { return path; }
+#if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
+    QString def = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+#else
+    QString def = QDir::tempPath();
+#endif
+    QString path;
+    if (isAppPortable()) { path = QString("%1/Cache").arg(getAppConfigPath()); }
+    else { path = getSettings("settings", "CustomCachePath", def).toString(); }
+    if (!path.isEmpty()) { QDir().mkpath(path); }
+    return path;
+}
+
+const QString AppSupport::getAppTempPath(const QString &filename)
+{
+    const QString cache = getAppCachePath();
+    if (cache.isEmpty() || filename.isEmpty()) { return QString(); }
+    return QString::fromUtf8("%1/%2").arg(cache, filename);
+}
+
+const QString AppSupport::getExistingDirectory(QWidget *parent,
+                                               const QString &caption,
+                                               const QString &path)
+{
+    return QFileDialog::getExistingDirectory(parent, caption, path,
+                                             QFileDialog::ShowDirsOnly |
+                                             QFileDialog::DontResolveSymlinks);
+}
+
+const QString AppSupport::getSaveFile(QWidget *parent,
+                                      const QString &caption,
+                                      const QString &path,
+                                      const QString &filter,
+                                      const QString &suffix)
+{
+    QString currentPath = path;
+    while (true) {
+        QFileDialog dialog(parent, caption, currentPath);
+        dialog.setAcceptMode(QFileDialog::AcceptSave);
+        if (!isFlatpak() &&
+            !suffix.isEmpty()) { dialog.setDefaultSuffix(suffix); }
+        dialog.setFileMode(QFileDialog::AnyFile);
+        dialog.setNameFilter(filter);
+
+        ThemeIconProvider iconProvider;
+        dialog.setIconProvider(&iconProvider);
+
+        if (!dialog.exec()) { return QString(); }
+
+        const QStringList paths = dialog.selectedFiles();
+        if (paths.isEmpty()) { return QString(); }
+
+        QString openPath = paths.first();
+        if (QUrl(openPath).isLocalFile()) {
+            openPath = QUrl(openPath).toLocalFile();
         }
-    } else {
-        // Allow users to set a custom folder to share temp files with sandboxed web browsers
-        // This is needed since Ubuntu snaps can't access /tmp, XDG_RUNTIME_DIR, or XDG dot folders
-        // "security" before users! ;)
-        QString path = getSettings("files", "tempDir").toString().trimmed();
-        if (!path.isEmpty()) {
-            if (!QFile::exists(path)) {
-                QDir dir(path);
-                dir.mkpath(path);
-            }
-            if (QFile::exists(path)) { return path; }
+
+        if (isFlatpak() &&
+            !suffix.isEmpty() &&
+            QFileInfo(openPath).suffix().toLower() != suffix.toLower()) {
+            QMessageBox::warning(parent,
+                                 tr("Missing file extension"),
+                                 tr("Please add missing file extension (<b>%1</b>)").arg(suffix));
+            continue;
+        }
+        return openPath;
+    }
+    return QString();
+}
+
+const QString AppSupport::getSaveSequence(QWidget *parent,
+                                          const QString &caption,
+                                          const QString &path)
+{
+    QFileInfo fileInfo(path);
+    QString defaultDir = fileInfo.absolutePath();
+    QString baseName = fileInfo.baseName();
+    QString suffix = fileInfo.suffix();
+
+    if (baseName.isEmpty() || suffix.isEmpty()) { return QString(); }
+
+    int percentIdx = baseName.indexOf('%');
+    if (percentIdx != -1) {
+        baseName = baseName.left(percentIdx);
+        if (baseName.endsWith('_') || baseName.endsWith('-')) {
+            baseName.chop(1);
         }
     }
-#endif
-    return QDir::tempPath();
+
+    QString selectedDir = getExistingDirectory(parent, caption, defaultDir);
+
+    if (selectedDir.isEmpty()) { return QString(); }
+
+    bool ok;
+    QString finalBaseName = QInputDialog::getText(parent,
+                                                  QObject::tr("Image Files"),
+                                                  QObject::tr("Enter basename for images:"),
+                                                  QLineEdit::Normal,
+                                                  baseName, &ok);
+
+    if (!ok || finalBaseName.isEmpty()) { return QString(); }
+    finalBaseName = finalBaseName.trimmed();
+
+    if (!finalBaseName.contains("%")) {
+        if (!finalBaseName.endsWith('_') &&
+            !finalBaseName.endsWith('-')) {
+            finalBaseName.append("_");
+        }
+        finalBaseName.append("%05d");
+    }
+
+    QString sequencePath = QString("%1/%2.%3").arg(selectedDir,
+                                                   finalBaseName,
+                                                   suffix);
+    return sequencePath;
+}
+
+const QString AppSupport::getOpenFile(QWidget *parent,
+                                      const QString &caption,
+                                      const QString &path,
+                                      const QString &filter)
+{
+    QFileDialog dialog(parent, caption, path);
+    dialog.setNameFilter(filter);
+
+    ThemeIconProvider iconProvider;
+    dialog.setIconProvider(&iconProvider);
+
+    if (dialog.exec()) {
+        const QStringList paths = dialog.selectedFiles();
+        if (paths.isEmpty()) { return QString(); }
+
+        QString openPath = paths.first();
+        if (QUrl(openPath).isLocalFile()) {
+            openPath = QUrl(openPath).toLocalFile();
+        }
+        return openPath;
+    }
+
+    return QString();
+}
+
+const QStringList AppSupport::getOpenFiles(QWidget *parent,
+                                       const QString &caption,
+                                       const QString &path,
+                                       const QString &filter)
+{
+    QFileDialog dialog(parent, caption, path);
+    dialog.setFileMode(QFileDialog::ExistingFiles);
+    dialog.setNameFilter(filter);
+
+    ThemeIconProvider iconProvider;
+    dialog.setIconProvider(&iconProvider);
+
+    if (dialog.exec()) {
+        return dialog.selectedFiles();
+    }
+
+    return QStringList();
+}
+
+const QString AppSupport::getOpenDirectory(QWidget *parent,
+                                           const QString &caption,
+                                           const QString &path)
+{
+    QFileDialog dialog(parent, caption, path);
+    dialog.setFileMode(QFileDialog::Directory);
+    dialog.setOption(QFileDialog::ShowDirsOnly);
+
+    ThemeIconProvider iconProvider;
+    dialog.setIconProvider(&iconProvider);
+
+    if (dialog.exec()) {
+        const QStringList paths = dialog.selectedFiles();
+        if (paths.isEmpty()) { return QString(); }
+
+        QString openPath = paths.first();
+        if (QUrl(openPath).isLocalFile()) {
+            openPath = QUrl(openPath).toLocalFile();
+        }
+        return openPath;
+    }
+
+    return QString();
+}
+
+void AppSupport::openUrl(const QUrl &url)
+{
+    if (url.isEmpty()) { return; }
+    if (!isFlatpak()) {
+        const QString browserPath = getSettings("settings",
+                                                "CustomBrowserPath").toString();
+        QStringList browserArgs = getSettings("settings",
+                                              "CustomBrowserArgs").toStringList();
+        browserArgs << url.toString();
+        if (!browserPath.trimmed().isEmpty()) {
+            if (QProcess::startDetached(browserPath, browserArgs)) {
+                return;
+            }
+        }
+    }
+    QDesktopServices::openUrl(url);
 }
 
 const QString AppSupport::getAppOutputProfilesPath()
@@ -701,12 +874,6 @@ const QPair<QStringList, bool> AppSupport::hasWriteAccess()
 bool AppSupport::isAppPortable()
 {
     const QString path = getAppPath();
-/*#ifdef Q_OS_LINUX
-    const QString appimage = getAppImagePath();
-    if (!appimage.isEmpty()) {
-        return QFile::exists(appimage);// && QFileInfo(appimage).isWritable();
-    }
-#endif*/
     return QFile::exists(QString("%1/portable.txt").arg(path)) && QFileInfo(path).isWritable();
 }
 
@@ -723,7 +890,7 @@ bool AppSupport::isWayland()
 bool AppSupport::isFlatpak()
 {
 #ifdef Q_OS_LINUX
-    return !QString(qgetenv("container")).isEmpty();
+    return QFile::exists("/.flatpak-info");
 #else
     return false;
 #endif
@@ -1046,7 +1213,7 @@ QPair<bool, int> AppSupport::handleXDGArgs(const bool &isRenderer,
                                            const QStringList &args)
 {
     QPair<bool,int> status(false, 0);
-    if ((!isAppPortable() && !isAppImage()) || isRenderer) { return status; }
+    if ((!isAppPortable() && !isAppImage()) || isRenderer || isFlatpak()) { return status; }
     if (args.contains("--xdg-remove")) {
         const bool removedXDG = removeXDGDesktopIntegration();
         qWarning() << "Removed XDG Integration:" << removedXDG;

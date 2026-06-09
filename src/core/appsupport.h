@@ -82,7 +82,31 @@ public:
     static const QString getAppBranchUrl();
     static const QString getAppConfigPath();
     static const QString getAppPath();
-    static const QString getAppTempPath();
+    static const QString getAppCachePath();
+    static const QString getAppTempPath(const QString &filename);
+    static const QString getExistingDirectory(QWidget *parent,
+                                              const QString &caption,
+                                              const QString &path);
+    static const QString getSaveFile(QWidget *parent,
+                                     const QString &caption,
+                                     const QString &path,
+                                     const QString &filter,
+                                     const QString &suffix = QString());
+    static const QString getSaveSequence(QWidget *parent,
+                                         const QString &caption,
+                                         const QString &path);
+    static const QString getOpenFile(QWidget *parent,
+                                     const QString &caption,
+                                     const QString &path,
+                                     const QString &filter);
+    static const QStringList getOpenFiles(QWidget *parent,
+                                          const QString &caption,
+                                          const QString &path,
+                                          const QString &filter);
+    static const QString getOpenDirectory(QWidget *parent,
+                                          const QString &caption,
+                                          const QString &path);
+    static void openUrl(const QUrl &url);
     static const QString getAppOutputProfilesPath();
     static const QString getAppPathEffectsPath();
     static const QString getAppRasterEffectsPath();

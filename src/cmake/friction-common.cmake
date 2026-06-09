@@ -30,6 +30,7 @@ option(MAC_DEPLOY "Mac Deploy" OFF)
 option(WIN_DEPLOY "Windows Deploy" OFF)
 option(BUILD_SKIA "Build skia" ON)
 option(SKIA_STATIC "Static skia" OFF)
+
 set(SKIA_LIB_PATH "/mnt/skia" CACHE STRING "Path to prebuilt skia library")
 
 if(${LINUX_DEPLOY})
@@ -85,6 +86,7 @@ find_package(
     #Svg
     REQUIRED
 )
+
 set(QT_LIBRARIES
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Gui

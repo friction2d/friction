@@ -27,20 +27,23 @@
 
 #include "Boxes/containerbox.h"
 #include "filesourcescache.h"
-#include "GUI/edialogs.h"
+#include "appsupport.h"
 
 SvgFileCacheHandler::SvgFileCacheHandler() {}
 
 void SvgFileCacheHandler::reload() {}
 
-void SvgFileCacheHandler::replace() {
-    const QString importPath = eDialogs::openFile(
-                "Replace SVG Source " + path(), path(),
-                "Files (*.svg)");
-    if(!importPath.isEmpty()) {
+void SvgFileCacheHandler::replace()
+{
+    const QString importPath = AppSupport::getOpenFile(nullptr,
+                                                       tr("Replace SVG Source %1").arg(path()),
+                                                       path(),
+                                                       tr("SVG Files (*.svg)"));
+
+    if (!importPath.isEmpty()) {
         const QFile file(importPath);
-        if(!file.exists()) return;
-        if(hasVectorExt(importPath)) {
+        if (!file.exists()) { return; }
+        if (hasVectorExt(importPath)) {
             try {
                 setPath(importPath);
             } catch(const std::exception& e) {

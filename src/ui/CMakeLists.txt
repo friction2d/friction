@@ -50,7 +50,6 @@ set(
     dialogs/exportsvgdialog.cpp
     dialogs/markereditordialog.cpp
     dialogs/qrealpointvaluedialog.cpp
-    dialogs/renderoutputwidget.cpp
     dialogs/scenesettingsdialog.cpp
     gradientwidgets/currentgradientwidget.cpp
     gradientwidgets/displayedgradientswidget.cpp
@@ -131,7 +130,6 @@ set(
     dialogs/exportsvgdialog.h
     dialogs/markereditordialog.h
     dialogs/qrealpointvaluedialog.h
-    dialogs/renderoutputwidget.h
     dialogs/scenesettingsdialog.h
     gradientwidgets/currentgradientwidget.h
     gradientwidgets/displayedgradientswidget.h

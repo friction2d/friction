@@ -330,3 +330,15 @@ const QColor ThemeSupport::getLightDarkColor(const QColor &color,
     }
     return col;
 }
+
+ThemeIconProvider::ThemeIconProvider()
+{
+    mIcon = QIcon::fromTheme(ThemeSupport::getAppIconName(true));
+}
+
+QIcon ThemeIconProvider::icon(const QFileInfo &info) const
+{
+    const QString name = info.fileName().toLower();
+    if (name.endsWith(".friction")) { return mIcon; }
+    return QFileIconProvider::icon(info);
+}

@@ -26,7 +26,6 @@
 #include "GUI/global.h"
 #include "canvas.h"
 #include "svgexporter.h"
-#include "GUI/edialogs.h"
 #include "widgets/twocolumnlayout.h"
 #include "appsupport.h"
 
@@ -243,12 +242,14 @@ ExportSvgDialog::ExportSvgDialog(QWidget* const parent,
 
     connect(buttonExport, &QPushButton::clicked, this, [this]() {
         const QString fileType = tr("SVG Files %1", "ExportDialog_FileType");
-        QString saveAs = eDialogs::saveFile(tr("Export SVG"),
-                                            AppSupport::getSettings("files",
-                                                                    "recentExported",
-                                                                    QDir::homePath()).toString(),
-                                            fileType.arg("(*.svg)"),
-                                            "svg");
+        QString saveAs = AppSupport::getSaveFile(this,
+                                                 tr("Export SVG"),
+                                                 AppSupport::getSettings("files",
+                                                                         "recentExported",
+                                                                         QDir::homePath()).toString(),
+                                                 fileType.arg("(*.svg)"),
+                                                 "svg");
+        qWarning() << "Save As" << saveAs;
         if (saveAs.isEmpty()) { return; }
 
         QFileInfo saveInfo(saveAs);
@@ -304,22 +305,26 @@ ExportSvgDialog::ExportSvgDialog(QWidget* const parent,
 
 void ExportSvgDialog::showPreview(const bool &closeWhenDone)
 {
+    const QString fileName = AppSupport::getAppTempPath("friction_svg_preview_XXXXXX.html");
+    QString actualFileName = fileName;
+
     if (!mPreviewFile) {
-        const QString templ = QString::fromUtf8("%1/%2_svg_preview_XXXXXX.html").arg(AppSupport::getAppTempPath(),
-                                                                                     AppSupport::getAppName());
-        mPreviewFile = qsptr<QTemporaryFile>::create(templ);
+        mPreviewFile = qsptr<QTemporaryFile>::create(fileName);
         mPreviewFile->setAutoRemove(false);
         mPreviewFile->open();
         mPreviewFile->close();
     }
-    const auto fileName = mPreviewFile->fileName();
-    const auto task = exportTo(fileName, true);
+    actualFileName = mPreviewFile->fileName();
+
+    const auto task = exportTo(actualFileName, true);
     if (!task) {
         if (closeWhenDone) { close(); }
         return;
     }
-    task->addDependent({[fileName, this, closeWhenDone]() {
-                            QDesktopServices::openUrl(QUrl::fromLocalFile(fileName));
+    task->addDependent({[actualFileName,
+                         this,
+                         closeWhenDone]() {
+                            AppSupport::openUrl(QUrl::fromLocalFile(actualFileName));
                             if (closeWhenDone) { close(); }
                         }, nullptr});
 }
@@ -393,5 +398,5 @@ void ExportSvgDialog::finishedDialog(const QString &fileName)
         break;
     default:;
     }
-    if (!url.isEmpty()) { QDesktopServices::openUrl(url); }
+    if (!url.isEmpty()) { AppSupport::openUrl(url); }
 }

@@ -24,7 +24,6 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "internallinkbox.h"
-#include "GUI/edialogs.h"
 #include "canvas.h"
 #include "Timeline/durationrectangle.h"
 #include "Animators/transformanimator.h"

@@ -28,7 +28,7 @@
 #include "Boxes/videobox.h"
 #include "CacheHandlers/imagecachecontainer.h"
 
-#include "GUI/edialogs.h"
+#include "appsupport.h"
 #include "filesourcescache.h"
 
 #include "videoframeloader.h"
@@ -145,14 +145,17 @@ void VideoDataHandler::clearCache() {
     mFrameLoaders.clear();
 }
 
-void VideoFileHandler::replace() {
-    const QString importPath = eDialogs::openFile(
-                "Replace Video Source " + path(), path(),
-                "Video Files (" + FileExtensions::videoFilters() + ")");
-    if(!importPath.isEmpty()) {
+void VideoFileHandler::replace()
+{
+    const QString importPath = AppSupport::getOpenFile(nullptr,
+                                                       tr("Replace Video Source %1").arg(path()),
+                                                       path(),
+                                                       tr("Video Files (%1)").arg(FileExtensions::videoFilters()));
+
+    if (!importPath.isEmpty()) {
         const QFile file(importPath);
-        if(!file.exists()) return;
-        if(hasVideoExt(importPath)) {
+        if (!file.exists()) { return; }
+        if (hasVideoExt(importPath)) {
             try {
                 setPath(importPath);
             } catch(const std::exception& e) {

@@ -25,8 +25,7 @@
 
 #include "imagesequencecachehandler.h"
 
-#include "GUI/edialogs.h"
-
+#include "appsupport.h"
 #include "filesourcescache.h"
 #include "fileshandler.h"
 
@@ -73,9 +72,12 @@ void ImageSequenceFileHandler::reload() {
     if(mFrameImageHandlers.isEmpty()) setMissing(true);
 }
 
-void ImageSequenceFileHandler::replace() {
-    const auto dir = eDialogs::openDir("Import Image Sequence", path());
-    if(!dir.isEmpty()) setPath(dir);
+void ImageSequenceFileHandler::replace()
+{
+    const auto dir = AppSupport::getOpenDirectory(nullptr,
+                                                  tr("Import Image Sequence"),
+                                                  path());
+    if (!dir.isEmpty()) { setPath(dir); }
 }
 
 ImageSequenceCacheHandler::ImageSequenceCacheHandler(

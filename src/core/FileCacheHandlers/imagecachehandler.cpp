@@ -28,7 +28,7 @@
 #include "filecachehandler.h"
 //#include "Ora/oraimporter.h"
 
-#include "GUI/edialogs.h"
+#include "appsupport.h"
 #include "filesourcescache.h"
 
 ImageFileDataHandler::ImageFileDataHandler() {}
@@ -118,9 +118,9 @@ void ImageLoader::afterCanceled()
 
 void ImageFileHandler::replace()
 {
-    const QString filters = FileExtensions::imageFilters();
-    const auto importPath = eDialogs::openFile(
-                tr("Change Source"), path(),
-                "Image Files (" + filters + ")");
-    if(!importPath.isEmpty()) { setPath(importPath); }
+    const auto importPath = AppSupport::getOpenFile(nullptr,
+                                                    tr("Change Source"),
+                                                    path(),
+                                                    tr("Image Files (%1)").arg(FileExtensions::imageFilters()));
+    if (!importPath.isEmpty()) { setPath(importPath); }
 }

@@ -26,9 +26,9 @@
 #include "imagesequencebox.h"
 #include "FileCacheHandlers/imagesequencecachehandler.h"
 #include "filesourcescache.h"
-#include "GUI/edialogs.h"
 #include "fileshandler.h"
 #include "Boxes/containerbox.h"
+#include "appsupport.h"
 
 ImageSequenceFileHandler* imageSequenceFileHandlerGetter(const QString& path) {
     const auto fileHandler = FilesHandler::sInstance;
@@ -65,10 +65,12 @@ void ImageSequenceBox::setFolderPath(const QString &folderPath) {
     mFileHandler.assign(folderPath);
 }
 
-void ImageSequenceBox::changeSourceFile() {
-    const auto dir = eDialogs::openDir("Import Image Sequence",
-                                       mFileHandler.path());
-    if(!dir.isEmpty()) setFolderPath(dir);
+void ImageSequenceBox::changeSourceFile()
+{
+    const auto dir = AppSupport::getOpenDirectory(nullptr,
+                                                  tr("Import Image Sequence"),
+                                                  mFileHandler.path());
+    if (!dir.isEmpty()) { setFolderPath(dir); }
 }
 
 void ImageSequenceBox::writeBoundingBox(eWriteStream& dst) const {

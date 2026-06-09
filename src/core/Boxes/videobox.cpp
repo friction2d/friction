@@ -42,6 +42,7 @@ extern "C" {
 #include "filesourcescache.h"
 #include "fileshandler.h"
 #include "typemenu.h"
+#include "appsupport.h"
 
 VideoFileHandler* videoFileHandlerGetter(const QString& path) {
     return FilesHandler::sInstance->getFileHandler<VideoFileHandler>(path);
@@ -132,12 +133,13 @@ void VideoBox::prp_readPropertyXEV_impl(const QDomElement& ele,
     setFilePathNoRename(absSrc);
 }
 
-#include "GUI/edialogs.h"
-void VideoBox::changeSourceFile() {
-    const QString path = eDialogs::openFile(
-                "Change Source", getFilePath(),
-                "Video Files (" + FileExtensions::videoFilters() + ")");
-    if(!path.isEmpty()) setFilePath(path);
+void VideoBox::changeSourceFile()
+{
+    const QString path = AppSupport::getOpenFile(nullptr,
+                                                 tr("Change Source"),
+                                                 getFilePath(),
+                                                 tr("Video Files (%1)").arg(FileExtensions::videoFilters()));
+    if (!path.isEmpty()) { setFilePath(path); }
 }
 
 void VideoBox::setStretch(const qreal stretch) {
