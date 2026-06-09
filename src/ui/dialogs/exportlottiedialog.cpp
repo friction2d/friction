@@ -376,13 +376,13 @@ bool ExportLottieDialog::writePreviewHtml(const QString& animationFile,
     stream << "#preview canvas{display:block;width:100%;height:100%;}\n";
     stream << "#preview.wireframe svg path{fill:rgba(239,100,116,.1)!important;stroke:rgba(239,100,116,.78)!important;stroke-width:2px!important;vector-effect:non-scaling-stroke!important;opacity:1!important;}\n";
     stream << "#preview.outlines svg path{fill:none!important;stroke:rgba(239,100,116,.9)!important;stroke-width:2px!important;vector-effect:non-scaling-stroke!important;opacity:1!important;}\n";
-    stream << "#controls{position:fixed;left:0;right:0;top:0;z-index:2;box-sizing:border-box;min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 9px;background:#efefef;border-bottom:1px solid rgb(203,203,203);box-shadow:0 4px 12px rgba(0,0,0,.22);opacity:0;transition:opacity 140ms ease;}\n";
-    stream << "#controls:hover,body:hover #controls,body:hover #progressWrap{opacity:1;}\n";
+    stream << "#controls{position:fixed;left:0;right:0;top:0;z-index:2;box-sizing:border-box;min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 9px;background:#efefef;border-bottom:1px solid rgb(203,203,203);box-shadow:0 4px 12px rgba(0,0,0,.22);opacity:1;transition:opacity 500ms ease;}\n";
     stream << ".controlGroup{display:flex;align-items:center;gap:0;min-width:0;}\n";
     stream << "#previewInfo{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:baseline;gap:7px;color:#323232;white-space:nowrap;pointer-events:none;}\n";
     stream << "#previewName{font-weight:600;}\n";
     stream << "#previewSize{font-size:11px;color:#888;}\n";
-    stream << "#progressWrap{position:fixed;left:0;right:0;bottom:0;z-index:2;display:flex;align-items:center;gap:10px;box-sizing:border-box;padding:8px 10px;background:#efefef;border-top:1px solid rgb(203,203,203);box-shadow:0 4px 12px rgba(0,0,0,.22);opacity:0;transition:opacity 140ms ease;}\n";
+    stream << "#progressWrap{position:fixed;left:0;right:0;bottom:0;z-index:2;display:flex;align-items:center;gap:10px;box-sizing:border-box;padding:8px 10px;background:#efefef;border-top:1px solid rgb(203,203,203);box-shadow:0 4px 12px rgba(0,0,0,.22);opacity:1;transition:opacity 500ms ease;}\n";
+    stream << "body.controlsHidden #controls,body.controlsHidden #progressWrap{opacity:0;pointer-events:none;}\n";
     stream << "button{height:30px;border:1px solid #b0b0b0;background:#fff;color:#323232;font:inherit;min-width:34px;padding:0 9px;cursor:pointer;}\n";
     stream << "button:hover,button.active{color:#fff;background:#000;border-color:#000;}\n";
     stream << "button#renderer{border-radius:6px 0 0 6px;border-right-width:0;}\n";
@@ -422,6 +422,13 @@ bool ExportLottieDialog::writePreviewHtml(const QString& animationFile,
     stream << "<span id=\"frame\">0 / 0</span>\n";
     stream << "</div>\n";
     stream << "<div id=\"error\"></div>\n";
+    stream << "<script>\n";
+    stream << "let controlsTimer=null;\n";
+    stream << "const showControls=()=>{document.body.classList.remove('controlsHidden');clearTimeout(controlsTimer);controlsTimer=setTimeout(()=>document.body.classList.add('controlsHidden'),2000);};\n";
+    stream << "document.addEventListener('mousemove',showControls,{passive:true});\n";
+    stream << "document.addEventListener('pointerdown',showControls,{passive:true});\n";
+    stream << "showControls();\n";
+    stream << "</script>\n";
     if (dotLottie) {
     stream << "<script type=\"module\">\n";
     stream << "const encoded='" << QString::fromLatin1(encodedAnimation) << "';\n";
