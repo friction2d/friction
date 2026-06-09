@@ -188,7 +188,7 @@ void RenderInstanceWidget::iniGUI()
         const QString dst = mOutputDestinationLineEdit->text();
         if (dst.trimmed().isEmpty()) { return; }
         QDesktopServices::openUrl(dst.contains("%0") ?
-                                      QFileInfo(dst).absolutePath() :
+                                      QUrl::fromLocalFile(QFileInfo(dst).absolutePath()) :
                                       QUrl::fromLocalFile(dst));
     });
 
@@ -379,17 +379,21 @@ void RenderInstanceWidget::openOutputDestinationDialog()
         }
     } else { return; }
 
-    qWarning() << "supported extensions" << supportedExts;
-    qWarning() << "selected extension" << selectedExt;
+    if (AppSupport::isFlatpak()) {
+        qWarning() << "supported extensions" << supportedExts;
+        qWarning() << "selected extension" << selectedExt;
+    }
 
     QString iniText = mSettings.getOutputDestination();
     if (iniText.isEmpty()) {
         iniText = QString("%1/%2%3").arg(Document::sInstance->projectDirectory(),
-                                          tr("untitled"),
-                                          selectedExt);
+                                         tr("untitled"),
+                                         selectedExt);
     }
 
-    qWarning() << "initial output destination" << iniText;
+    if (AppSupport::isFlatpak()) {
+        qWarning() << "initial output destination" << iniText;
+    }
 
     QString saveAs;
 
@@ -404,7 +408,9 @@ void RenderInstanceWidget::openOutputDestinationDialog()
                                          supportedExts);
     }
 
-    qWarning() << "output destination is now" << saveAs;
+    if (AppSupport::isFlatpak()) {
+        qWarning() << "output destination is now" << saveAs;
+    }
 
     if (saveAs.isEmpty()) { return; }
 
