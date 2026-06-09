@@ -41,7 +41,6 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
-#include <QPlainTextEdit>
 #include <QPushButton>
 #include <QSpinBox>
 #include <QTemporaryFile>
@@ -53,6 +52,8 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
                                        const QString& warnings)
     : Friction::Ui::Dialog(parent)
 {
+    Q_UNUSED(warnings)
+
     setWindowTitle(tr("Export Lottie"));
 
     const auto settingsLayout = new QVBoxLayout();
@@ -166,7 +167,6 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
     twoColLayout->addPair(new QLabel(tr("Scene")), sceneButton);
     twoColLayout->addPair(new QLabel(tr("First Frame")), mFirstFrame);
     twoColLayout->addPair(new QLabel(tr("Last Frame")), mLastFrame);
-    twoColLayout->addPair(new QLabel(tr("Format")), mFormat);
 
     const auto sceneWidget = new QGroupBox(tr("Scene"), this);
     const auto optsWidget = new QGroupBox(tr("Options"), this);
@@ -175,10 +175,11 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
     optsWidget->setObjectName("BlueBox");
 
     const auto optsTwoCol = new TwoColumnLayout();
+    optsTwoCol->addPair(new QLabel(tr("Format")), mFormat);
+    optsTwoCol->addPair(new QLabel(tr("Preview background")), mPreviewBackground);
     optsTwoCol->addPair(mBackground, mEmbedImages);
     optsTwoCol->addPair(mNativeText, new QWidget(this));
     optsTwoCol->addPair(mNotify, new QWidget(this));
-    optsTwoCol->addPair(new QLabel(tr("Preview background")), mPreviewBackground);
     optsTwoCol->addSpacing(4);
 
     sceneWidget->setLayout(twoColLayout);
@@ -254,24 +255,6 @@ ExportLottieDialog::ExportLottieDialog(QWidget* const parent,
     });
 
     connect(buttonCancel, &QPushButton::clicked, this, &QDialog::reject);
-
-    const QString features = tr("Lottie export supports shapes, paths, groups, masks, "
-                                "blend modes, images, text outlines/native text, "
-                                "transform keyframes, animated paths, stroke drawing, "
-                                "gradients, external or embedded assets, optimized "
-                                "keyframes, JSON or dotLottie packaging, and HTML "
-                                "preview with playback controls, "
-                                "renderer selector, background selector, linked image "
-                                "support, and SVG-renderer preview workaround.");
-    Q_UNUSED(warnings)
-
-    const auto warnWidget = new QPlainTextEdit(this);
-    warnWidget->setSizePolicy(QSizePolicy::Expanding,
-                              QSizePolicy::Expanding);
-    warnWidget->setMinimumHeight(100);
-    warnWidget->setReadOnly(true);
-    warnWidget->setPlainText(features);
-    settingsLayout->addWidget(warnWidget);
 
     buttonsLayout->addWidget(mPreviewButton);
     buttonsLayout->addStretch();
