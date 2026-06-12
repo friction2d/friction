@@ -33,6 +33,7 @@
 #include "Boxes/imagebox.h"
 #include "Boxes/pathbox.h"
 #include "Boxes/rectangle.h"
+#include "Boxes/smartvectorpath.h"
 #include "Boxes/textbox.h"
 #include "canvas.h"
 #include "lottie/lottieanimatedproperty.h"
@@ -262,6 +263,32 @@ qreal contourPointArrayError(const QJsonArray& start,
     return error;
 }
 
+bool sameContourFrames(const QList<QList<LottieContour>>& frames,
+                       const int contourIndex,
+                       const qreal tolerance)
+{
+    if (frames.isEmpty()) { return true; }
+
+    const auto& first = frames.first().at(contourIndex);
+    for (int frameIndex = 1; frameIndex < frames.size(); frameIndex++) {
+        const auto& contour = frames.at(frameIndex).at(contourIndex);
+        qreal error = contourPointArrayError(first.vertices,
+                                             first.vertices,
+                                             contour.vertices,
+                                             0);
+        error = qMax(error, contourPointArrayError(first.inTangents,
+                                                   first.inTangents,
+                                                   contour.inTangents,
+                                                   0));
+        error = qMax(error, contourPointArrayError(first.outTangents,
+                                                   first.outTangents,
+                                                   contour.outTangents,
+                                                   0));
+        if (error > tolerance) { return false; }
+    }
+    return true;
+}
+
 qreal contourError(const QList<QList<LottieContour>>& frames,
                    const int contourIndex,
                    const int start,
@@ -322,6 +349,10 @@ QList<int> simplifiedContourIndices(const QList<QList<LottieContour>>& frames,
     if (frames.size() == 1) { return QList<int>{0}; }
 
     constexpr qreal tolerance = 0.25;
+    if (sameContourFrames(frames, contourIndex, tolerance)) {
+        return QList<int>{0};
+    }
+
     QSet<int> indices{0, frames.size() - 1};
     simplifyContourRange(frames,
                          contourIndex,
@@ -871,6 +902,17 @@ QJsonObject LottieLayerBuilder::buildPathLayer(PathBox* const box,
 {
     auto layer = baseLayer(box->prp_getName(), id, 4, box);
     layer.insert(QStringLiteral("ks"), transformObject(box));
+
+    const auto smartPath = dynamic_cast<SmartVectorPath*>(box);
+    if (smartPath && !smartPath->getPathAnimator()->anim_hasKeys()) {
+        QJsonArray shapes = pathShapeObjects(box->getRelativePath(mFrameRange.fMin),
+                                             box->prp_getName());
+        LottiePathEffects::appendBasePathEffects(box, mFrameRange, shapes);
+        appendPaintObjects(box, shapes);
+        shapes.append(shapeTransformObject());
+        layer.insert(QStringLiteral("shapes"), shapes);
+        return layer;
+    }
 
     QList<QList<LottieContour>> pathFrames;
     bool compatible = true;
