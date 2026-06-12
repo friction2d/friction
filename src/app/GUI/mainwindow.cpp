@@ -64,6 +64,7 @@
 #include "GUI/edialogs.h"
 #include "eimporters.h"
 #include "dialogs/exportsvgdialog.h"
+#include "dialogs/exportlottiedialog.h"
 #include "widgets/alignwidget.h"
 #include "widgets/welcomedialog.h"
 #include "Boxes/textbox.h"
@@ -107,6 +108,8 @@ MainWindow::MainWindow(Document& document,
     , mSaveBackAct(nullptr)
     , mPreviewSVGAct(nullptr)
     , mExportSVGAct(nullptr)
+    , mPreviewLottieAct(nullptr)
+    , mExportLottieAct(nullptr)
     , mRenderVideoAct(nullptr)
     , mCloseProjectAct(nullptr)
     , mLinkedAct(nullptr)
@@ -424,6 +427,8 @@ void MainWindow::updateSettingsForCurrentCanvas(Canvas* const scene)
 
     if (mPreviewSVGAct) { mPreviewSVGAct->setEnabled(scene); }
     if (mExportSVGAct) { mExportSVGAct->setEnabled(scene); }
+    if (mPreviewLottieAct) { mPreviewLottieAct->setEnabled(scene); }
+    if (mExportLottieAct) { mExportLottieAct->setEnabled(scene); }
     if (mSaveAct) { mSaveAct->setEnabled(scene); }
     if (mSaveAsAct) { mSaveAsAct->setEnabled(scene); }
     if (mSaveBackAct) { mSaveBackAct->setEnabled(scene); }
@@ -1200,6 +1205,27 @@ void MainWindow::exportSVG(const bool &preview)
     const auto dialog = new ExportSvgDialog(this,
                                             preview ? QString() : checkBeforeExportSVG());
     dialog->setAttribute(Qt::WA_DeleteOnClose);
+    if (!preview) {
+        dialog->show();
+    } else {
+        dialog->showPreview(true /* close when done */);
+    }
+}
+
+const QString MainWindow::checkBeforeExportLottie()
+{
+    return tr("Lottie export is currently an initial native exporter. "
+              "It writes composition timing, canvas size, background, and "
+              "keeps scene layers isolated for future vector mapping.");
+}
+
+void MainWindow::exportLottie(const bool &preview)
+{
+    const auto dialog = new ExportLottieDialog(this,
+                                               preview ? QString() : checkBeforeExportLottie());
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    connect(dialog, &ExportLottieDialog::formatChanged,
+            this, &MainWindow::updatePreviewLottieAction);
     if (!preview) {
         dialog->show();
     } else {
