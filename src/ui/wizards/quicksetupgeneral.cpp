@@ -56,12 +56,13 @@ QuickSetupGeneralPage::QuickSetupGeneralPage(QWidget *parent)
         const auto browserPathBtn = new QToolButton(this);
         browserPathBtn->setText("...");
 
-        const QString customBrowser = AppSupport::getSettings("settings",
+        // disable for now
+        // quick setup should not read existing settings
+        /*const QString customBrowser = AppSupport::getSettings("settings",
                                                               "CustomBrowserPath").toString();
-
         if (!customBrowser.trimmed().isEmpty()) {
             browserPath->setText(customBrowser);
-        }
+        }*/
 
         lay->addWidget(browserPath);
         lay->addWidget(browserPathBtn);
@@ -72,11 +73,11 @@ QuickSetupGeneralPage::QuickSetupGeneralPage(QWidget *parent)
 
         connect(browserPathBtn, &QToolButton::clicked,
                 [browserPath, this]() {
-                    QString file = AppSupport::getOpenFile(this,
-                                                           tr("Select Browser Executable"),
-                                                           QString(),
-                                                           tr("Executables (*);;All Files (*)"));
-                    if (!file.isEmpty()) { browserPath->setText(file); }
+            QString file = AppSupport::getOpenFile(this,
+                                                   tr("Select Browser Executable"),
+                                                   QString(),
+                                                   tr("Executables (*);;All Files (*)"));
+            if (!file.isEmpty()) { browserPath->setText(file); }
         });
     }
 
@@ -95,12 +96,13 @@ QuickSetupGeneralPage::QuickSetupGeneralPage(QWidget *parent)
         const auto cachePathBtn = new QToolButton(this);
         cachePathBtn->setText("...");
 
-        const QString customCache = AppSupport::getSettings("settings",
+        // disable for now
+        // quick setup should not read existing settings
+        /*const QString customCache = AppSupport::getSettings("settings",
                                                             "CustomCachePath").toString();
-
         if (!customCache.trimmed().isEmpty()) {
             cachePath->setText(customCache);
-        }
+        }*/
 
         lay->addWidget(cachePath);
         lay->addWidget(cachePathBtn);
@@ -111,10 +113,10 @@ QuickSetupGeneralPage::QuickSetupGeneralPage(QWidget *parent)
 
         connect(cachePathBtn, &QToolButton::clicked,
                 [cachePath, this]() {
-                    QString dir = AppSupport::getExistingDirectory(this,
-                                                                   tr("Select Cache Folder"),
-                                                                   cachePath->text());
-                    if (!dir.isEmpty()) { cachePath->setText(dir); }
+            QString dir = AppSupport::getExistingDirectory(this,
+                                                           tr("Select Cache Folder"),
+                                                           cachePath->text());
+            if (!dir.isEmpty()) { cachePath->setText(dir); }
         });
 
     }
