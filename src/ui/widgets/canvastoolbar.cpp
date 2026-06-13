@@ -29,6 +29,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QDebug>
+#include <QLocale>
 
 using namespace Friction::Ui;
 
@@ -68,8 +69,8 @@ CanvasToolBar::CanvasToolBar(QWidget *parent)
         addWidget(space);
     }
 
-    mMemoryLabel = addAction(QIcon::fromTheme("memory"), tr("0 MB"));
-    mMemoryLabel->setToolTip(tr("0 MB used"));
+    mMemoryLabel = addAction(QIcon::fromTheme("memory"), QString());
+    mMemoryLabel->setToolTip(tr("No memory used"));
 
     setupDimensions();
     setupResolution();
@@ -110,8 +111,12 @@ QComboBox *CanvasToolBar::getResolutionComboBox()
 
 void CanvasToolBar::setMemoryUsage(const intMB &usage)
 {
-    mMemoryLabel->setToolTip(tr("%1 MB used").arg(usage.fValue));
-    mMemoryLabel->setText(tr("%1 MB").arg(usage.fValue));
+    const longB bytes = longB(usage);
+    const QString humanReadable = QLocale::system().formattedDataSize(bytes.fValue, 2,
+                                                                      QLocale::DataSizeIecFormat);
+
+    mMemoryLabel->setToolTip(tr("%1 memory used").arg(humanReadable));
+    mMemoryLabel->setText(humanReadable);
 }
 
 void CanvasToolBar::setupDimensions()
