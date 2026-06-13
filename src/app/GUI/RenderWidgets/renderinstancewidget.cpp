@@ -447,6 +447,9 @@ RenderInstanceWidget::getExportImageExtensions(const OutputSettings &settings)
         } else if (codecName == "tiff") {
             ext.first = ".tif";
             ext.second << "*.tif" << "*.tiff";
+        } else if (codecName == "exr") {
+            ext.first = ".exr";
+            ext.second << "*.exr";
         } else if (codecName.endsWith("jpeg")) {
             ext.first = ".jpg";
             ext.second << "*.jpg" << "*.jpeg";
