@@ -597,12 +597,10 @@ void BoxSingleWidget::loadStaticPixmaps(int iconSize)
     if (sStaticPixmapsLoaded) { return; }
     if (!ThemeSupport::hasIconSize(iconSize)) {
         QMessageBox::warning(nullptr,
-                             tr("Icon issues"),
+                             tr("Scaling issues"),
                              tr("<p>Requested icon size <b>%1</b> is not available,"
-                                " expect blurry icons.</p>"
-                                "<p>Note that this may happen if you change the display scaling"
-                                " in Windows without restarting."
-                                " If you still have issues after restarting please report this issue.</p>").arg(iconSize));
+                                " expect blurry icons and possible UI size issues. This is usually related to font scaling.</p>"
+                                "<p>Disable <b>'HiDPI PassThrough'</b> in preferences, then restart Friction.</p>").arg(iconSize));
     }
     const auto pixmapSize = ThemeSupport::getIconSize(iconSize);
     qDebug() << "pixmaps size" << pixmapSize;
