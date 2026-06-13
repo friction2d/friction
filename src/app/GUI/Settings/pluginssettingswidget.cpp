@@ -28,7 +28,6 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
-#include <QFileDialog>
 #include <QDir>
 #include <QFile>
 #include <QTreeWidgetItem>
@@ -74,9 +73,9 @@ PluginsSettingsWidget::PluginsSettingsWidget(QWidget *parent)
 
     connect(mShaderPathButton, &QPushButton::pressed,
             this, [this]() {
-        QString path = QFileDialog::getExistingDirectory(this,
-                                                         tr("Select directory"),
-                                                         QDir::homePath());
+        QString path = AppSupport::getExistingDirectory(this,
+                                                        tr("Select directory"),
+                                                        QDir::homePath());
         if (QFile::exists(path)) { mShaderPath->setText(path); }
     });
 
