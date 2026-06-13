@@ -38,9 +38,18 @@ OutputSettingsDialog::OutputSettingsDialog(const OutputSettings &settings,
     setWindowTitle(tr("Output Settings"));
 
     mSupportedFormats = {
-        FormatCodecs(QList<AVCodecID>() << AV_CODEC_ID_PNG << AV_CODEC_ID_TIFF << AV_CODEC_ID_MJPEG << AV_CODEC_ID_LJPEG,
+        FormatCodecs(QList<AVCodecID>() << AV_CODEC_ID_PNG,
+                     QList<AVCodecID>(),
+                     "*.png"),
+        FormatCodecs(QList<AVCodecID>() << AV_CODEC_ID_TIFF,
+                     QList<AVCodecID>(),
+                     "*.tif"),
+        FormatCodecs(QList<AVCodecID>() << AV_CODEC_ID_MJPEG << AV_CODEC_ID_LJPEG,
                      QList<AVCodecID>(),
                      "*.jpg"),
+        FormatCodecs(QList<AVCodecID>() << AV_CODEC_ID_EXR,
+                     QList<AVCodecID>(),
+                     "*.exr"),
         FormatCodecs(QList<AVCodecID>() << AV_CODEC_ID_PRORES << AV_CODEC_ID_PNG << AV_CODEC_ID_QTRLE << AV_CODEC_ID_H264,
                      QList<AVCodecID>() << AV_CODEC_ID_MP3 << AV_CODEC_ID_AAC << AV_CODEC_ID_AC3 << AV_CODEC_ID_FLAC << AV_CODEC_ID_VORBIS << AV_CODEC_ID_WAVPACK,
                      "*.mov"),
@@ -49,28 +58,28 @@ OutputSettingsDialog::OutputSettingsDialog(const OutputSettings &settings,
                      "*.mp4"),
         FormatCodecs(QList<AVCodecID>() << AV_CODEC_ID_H264 << AV_CODEC_ID_MPEG4 << AV_CODEC_ID_MPEG2VIDEO << AV_CODEC_ID_HEVC,
                      QList<AVCodecID>() << AV_CODEC_ID_MP3 << AV_CODEC_ID_AAC << AV_CODEC_ID_AC3 << AV_CODEC_ID_FLAC << AV_CODEC_ID_VORBIS << AV_CODEC_ID_WAVPACK,
-        "*.mkv"),
+                     "*.mkv"),
         FormatCodecs(QList<AVCodecID>() << AV_CODEC_ID_H264 << AV_CODEC_ID_MPEG4 << AV_CODEC_ID_MPEG2VIDEO << AV_CODEC_ID_HEVC << AV_CODEC_ID_RAWVIDEO << AV_CODEC_ID_LJPEG,
                      QList<AVCodecID>() << AV_CODEC_ID_MP3 << AV_CODEC_ID_AAC << AV_CODEC_ID_AC3 << AV_CODEC_ID_FLAC << AV_CODEC_ID_VORBIS << AV_CODEC_ID_WAVPACK,
-        "*.avi"),
+                     "*.avi"),
         FormatCodecs(QList<AVCodecID>() << AV_CODEC_ID_VP8 << AV_CODEC_ID_VP9,
                      QList<AVCodecID>() << AV_CODEC_ID_VORBIS << AV_CODEC_ID_OPUS,
-        "*.webm"),
+                     "*.webm"),
         FormatCodecs(QList<AVCodecID>(),
                      QList<AVCodecID>() << AV_CODEC_ID_MP3 << AV_CODEC_ID_AAC << AV_CODEC_ID_AC3 << AV_CODEC_ID_FLAC << AV_CODEC_ID_VORBIS << AV_CODEC_ID_WAVPACK,
-        "*.mp3"),
+                     "*.mp3"),
         FormatCodecs(QList<AVCodecID>(),
                      QList<AVCodecID>() << AV_CODEC_ID_FLAC,
-        "*.flac"),
+                     "*.flac"),
         FormatCodecs(QList<AVCodecID>(),
                      QList<AVCodecID>() << AV_CODEC_ID_MP3 << AV_CODEC_ID_AAC << AV_CODEC_ID_AC3 << AV_CODEC_ID_FLAC << AV_CODEC_ID_VORBIS << AV_CODEC_ID_WAVPACK << AV_CODEC_ID_PCM_U8 << AV_CODEC_ID_PCM_S16LE << AV_CODEC_ID_PCM_S24LE << AV_CODEC_ID_PCM_S32LE << AV_CODEC_ID_PCM_S64LE << AV_CODEC_ID_PCM_F32LE << AV_CODEC_ID_PCM_F64LE,
-        "*.wav"),
+                     "*.wav"),
         FormatCodecs(QList<AVCodecID>(),
                      QList<AVCodecID>() << AV_CODEC_ID_MP3 << AV_CODEC_ID_AAC << AV_CODEC_ID_AC3 << AV_CODEC_ID_FLAC << AV_CODEC_ID_VORBIS << AV_CODEC_ID_WAVPACK,
-        "*.ogg"),
+                     "*.ogg"),
         FormatCodecs(QList<AVCodecID>(),
                      QList<AVCodecID>() << AV_CODEC_ID_MP3 << AV_CODEC_ID_AAC << AV_CODEC_ID_AC3 << AV_CODEC_ID_FLAC << AV_CODEC_ID_VORBIS << AV_CODEC_ID_WAVPACK,
-        "*.aiff")
+                     "*.aiff")
     };
 
     mMainLayout = new QVBoxLayout(this);
@@ -197,6 +206,8 @@ OutputSettingsDialog::OutputSettingsDialog(const OutputSettings &settings,
 
     updateAvailableOutputFormats();
     restoreInitialSettings();
+
+    updateAvailableCodecs();
 }
 
 OutputSettings OutputSettingsDialog::getSettings() {
