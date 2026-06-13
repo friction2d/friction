@@ -817,11 +817,8 @@ void MainWindow::setupMenuBar()
 
     help->addSeparator();
     help->addAction(QIcon::fromTheme("renderlayers"),
-                    tr("Reinstall default render profiles"),
-                    this, &MainWindow::askInstallRenderPresets);
-    help->addAction(QIcon::fromTheme("renderlayers"),
-                    tr("Reinstall default expressions presets"),
-                    this, &MainWindow::askInstallExpressionsPresets);
+                    tr("Install default presets"),
+                    this, &MainWindow::askInstallDefaultPresets);
     help->addAction(QIcon::fromTheme("color"),
                     tr("Restore default fill and stroke"),
                     this, &MainWindow::askRestoreFillStrokeDefault);

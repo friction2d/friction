@@ -371,8 +371,7 @@ private:
     void openRenderQueueWindow();
     void closedRenderQueueWindow();
 
-    void askInstallRenderPresets();
-    void askInstallExpressionsPresets();
+    void askInstallDefaultPresets();
     void askRestoreFillStrokeDefault();
     void askRestoreDefaultUi();
 
