@@ -76,6 +76,7 @@ set(
     widgets/canvassettingswidget.cpp
     widgets/canvastoolbar.cpp
     widgets/changewidthwidget.cpp
+    widgets/checkboxes.cpp
     widgets/colortoolbar.cpp
     widgets/colortoolbutton.cpp
     widgets/colorlabel.cpp
@@ -113,6 +114,11 @@ set(
     widgets/widgetstack.cpp
     widgets/widgetwrappernode.cpp
     widgets/wrappernode.cpp
+    wizards/installpresets.cpp
+    wizards/wizardpage.cpp
+    wizards/quicksetup.cpp
+    wizards/quicksetupgeneral.cpp
+    wizards/quicksetuppresets.cpp
 )
 
 if(APPLE)
@@ -157,6 +163,7 @@ set(
     widgets/canvassettingswidget.h
     widgets/canvastoolbar.h
     widgets/changewidthwidget.h
+    widgets/checkboxes.h
     widgets/colortoolbar.h
     widgets/colortoolbutton.h
     widgets/colorlabel.h
@@ -196,6 +203,11 @@ set(
     widgets/widgetstack.h
     widgets/widgetwrappernode.h
     widgets/wrappernode.h
+    wizards/installpresets.h
+    wizards/wizardpage.h
+    wizards/quicksetup.h
+    wizards/quicksetupgeneral.h
+    wizards/quicksetuppresets.h
 )
 
 if(NOT WIN32)
