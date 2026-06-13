@@ -105,17 +105,15 @@ const ExpressionPresets::Expr
 ExpressionPresets::readExpr(const QString &path)
 {
     ExpressionPresets::Expr expr;
-    expr.valid = false;
-
-    if (!QFile::exists(path)) { return expr; }
+    expr.valid = ExpressionPresets::isValidExprFile(path);
+    if (!expr.valid) { return expr; }
 
     QSettings fexpr(path, QSettings::IniFormat);
 
     expr.core = path.startsWith(":");
-    expr.valid = true;
     expr.version = fexpr.value("version").toDouble();
     expr.id = fexpr.value("id").toString();
-    expr.enabled = !mDisabled.contains(expr.id);
+    expr.enabled = true;
     expr.path = path;
     expr.title = fexpr.value("title").toString();
     expr.author = fexpr.value("author").toString();
@@ -181,11 +179,19 @@ void ExpressionPresets::loadExpr(const QString &path)
         return;
     }
 
-    const auto expr = readExpr(path);
+    auto expr = readExpr(path);
+    expr.enabled = isExprEnabled(expr.id);
 
-    if (!hasExpr(expr.id)) {
+    if (!hasExpr(expr.id) && expr.enabled) {
         qDebug() << "Added expression" << expr.title << expr.id;
         mExpr << expr;
+    } else {
+        if (hasExpr(expr.id)) {
+            qWarning() << "Expression already exists" << expr.id;
+        }
+        if (!expr.enabled) {
+            qWarning() << "Expression is disabled" << expr.id;
+        }
     }
 }
 
@@ -361,55 +367,14 @@ bool ExpressionPresets::isValidExprFile(const QString &path)
     return false;
 }
 
-void ExpressionPresets::firstRun()
+bool ExpressionPresets::isExprEnabled(const QString &id)
 {
-    const QString path = AppSupport::getAppUserExPresetsPath();
-    const bool firstrun = AppSupport::getSettings("settings",
-                                                  "firstRunExprPresets",
-                                                  true).toBool();
-    if (!firstrun || path.isEmpty()) { return; }
-
-    QStringList presets;
-    presets << "copyX.fexpr";
-    presets << "copyY.fexpr";
-    presets << "noise.fexpr";
-    presets << "orbitX.fexpr";
-    presets << "orbitY.fexpr";
-    presets << "oscillation.fexpr";
-    presets << "rotation.fexpr";
-    presets << "time.fexpr";
-    presets << "trackObject.fexpr";
-    presets << "wave.fexpr";
-    presets << "wiggle.fexpr";
-
-    for (const auto &preset : presets) {
-        const auto expr = readExpr(QString(":/expressions/%1").arg(preset));
-        if (!expr.valid) { continue; }
-        QFile file(QString("%1/%2.fexpr").arg(path, expr.id));
-        if (file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
-            QFile res(expr.path);
-            if (res.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                file.write(res.readAll());
-                res.close();
-            } else {
-                qWarning() << "Failed to find expression preset" << res.fileName();
-            }
-            file.close();
-        } else {
-            qWarning() << "Failed to install expression preset" << file.fileName();
-        }
-    }
-
-    AppSupport::setSettings("settings",
-                            "firstRunExprPresets",
-                            false);
+    return !mDisabled.contains(id);
 }
 
 void ExpressionPresets::scanAll(const bool &clear)
 {
     if (clear) { mExpr.clear(); }
-
-    firstRun();
 
     mDisabled = AppSupport::getSettings("settings",
                                         "ExpressionsDisabled").toStringList();
