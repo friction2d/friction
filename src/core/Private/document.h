@@ -89,7 +89,7 @@ public:
                                                           true).toBool();
     bool fGizmoScaleVisibility = AppSupport::getSettings("gizmos",
                                                          "Scale",
-                                                         false).toBool();
+                                                         true).toBool();
     bool fGizmoShearVisibility = AppSupport::getSettings("gizmos",
                                                          "Shear",
                                                          false).toBool();
