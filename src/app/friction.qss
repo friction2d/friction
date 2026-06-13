@@ -705,3 +705,8 @@ QToolButton#ToolBoxGizmo[popupMode="1"]::menu-arrow {
     width: %10px;
     height: %10px;
 }
+
+QLabel#wizardHint {
+    color: lightgray;
+    font-size: small;
+}
