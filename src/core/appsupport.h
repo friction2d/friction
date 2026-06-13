@@ -24,6 +24,7 @@
 #ifndef APPSUPPORT_H
 #define APPSUPPORT_H
 
+#include "Private/memorystructs.h"
 #include "core_global.h"
 
 #include <QObject>
@@ -52,7 +53,9 @@ public:
                               const QString &group);
     static QVariant getSettings(const QString &group,
                                 const QString &key,
-                                const QVariant &fallback = QVariant());
+                                const QVariant &fallback = QVariant(),
+                                const QString &app = QString(),
+                                const QString &org = QString());
     static QVariant getSettings(QSettings *settings,
                                 const QString &group,
                                 const QString &key,
@@ -60,7 +63,9 @@ public:
     static void setSettings(const QString &group,
                             const QString &key,
                             const QVariant &value,
-                            bool append = false);
+                            bool append = false,
+                            const QString &app = QString(),
+                            const QString &org = QString());
     static void setSettings(QSettings *settings,
                             const QString &group,
                             const QString &key,
@@ -74,7 +79,7 @@ public:
     static const QString getAppVersion();
     static const QString getAppBuildInfo(bool html = false);
     static const QString getAppDesc();
-    static const QString getAppCompany();
+    static const QString getAppOrg();
     static const QString getAppContributorsUrl();
     static const QString getAppIssuesUrl();
     static const QString getAppLatestReleaseUrl();
@@ -138,6 +143,17 @@ public:
     static void saveResolutionPreset(const int w, const int h);
     static bool removeResolutionPreset(const int w, const int h);
     static QPair<bool, bool> getResolutionPresetStatus();
+
+    static void installPresets(const QString &sourcePath,
+                               const QString &destPath,
+                               const bool force = false,
+                               const QStringList &presets = QStringList());
+    static void installRenderPresets(const bool force = false,
+                                     const QStringList &customPresets = QStringList());
+    static void installExprPresets(const bool force = false,
+                                   const QStringList &customPresets = QStringList());
+
+    static QStringList getOpenGLInfo();
     static const QString filterTextAZW(const QString &text);
     static const QString filterFormatsName(const QString &text);
     static int getProjectVersion(const QString &fileName = QString());
@@ -168,6 +184,7 @@ public:
     static void setFont(const QString &path);
     static QString getOfflineDocs();
     static QString getOnlineDocs();
+    static intKB getTotalRamBytes();
 };
 
 #endif // APPSUPPORT_H

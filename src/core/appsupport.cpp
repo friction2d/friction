@@ -22,9 +22,12 @@
 */
 
 #include "appsupport.h"
-#include "hardwareinfo.h"
+#include "Private/Tasks/offscreenqgl33c.h"
+#include "Private/memorystructs.h"
 #include "ReadWrite/evformat.h"
 #include "ReadWrite/filefooter.h"
+#include "themesupport.h"
+#include "Expressions/expressionpresets.h"
 
 #include <QApplication>
 #include <QDebug>
@@ -50,11 +53,21 @@
 #include <iostream>
 #include <ostream>
 
+
+#if defined(Q_OS_WIN)
+#include "windowsincludes.h"
+#elif defined(Q_OS_MACOS)
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#endif
+
 extern "C" {
 #include <libavutil/log.h>
 #include <libavformat/avformat.h>
 #include <libavutil/avutil.h>
 }
+
+using namespace Friction::Core;
 
 AppSupport::AppSupport(QObject *parent)
     : QObject{parent}
@@ -84,11 +97,17 @@ void AppSupport::clearSettings(QSettings *settings,
 
 QVariant AppSupport::getSettings(const QString &group,
                                  const QString &key,
-                                 const QVariant &fallback)
+                                 const QVariant &fallback,
+                                 const QString &app,
+                                 const QString &org)
 {
     if (AppSupport::isAppPortable()) {
         QSettings settings(QString("%1/friction.conf").arg(getAppConfigPath()),
                            QSettings::IniFormat);
+        return getSettings(&settings, group, key, fallback);
+    }
+    if (!app.isEmpty() && !org.isEmpty()) {
+        QSettings settings(app, org);
         return getSettings(&settings, group, key, fallback);
     }
     QSettings settings;
@@ -111,7 +130,9 @@ QVariant AppSupport::getSettings(QSettings *settings,
 void AppSupport::setSettings(const QString &group,
                              const QString &key,
                              const QVariant &value,
-                             bool append)
+                             bool append,
+                             const QString &app,
+                             const QString &org)
 {
     if (AppSupport::isAppPortable()) {
         QSettings settings(QString("%1/friction.conf").arg(getAppConfigPath()),
@@ -119,8 +140,13 @@ void AppSupport::setSettings(const QString &group,
         setSettings(&settings, group, key, value, append);
         return;
     }
-    QSettings settings;
-    setSettings(&settings, group, key, value, append);
+    if (!app.isEmpty() && !org.isEmpty()) {
+        QSettings settings(app, org);
+        setSettings(&settings, group, key, value, append);
+    } else {
+        QSettings settings;
+        setSettings(&settings, group, key, value, append);
+    }
 }
 
 void AppSupport::setSettings(QSettings *settings,
@@ -228,7 +254,7 @@ const QString AppSupport::getAppDesc()
     return QString::fromUtf8("Motion Graphics");
 }
 
-const QString AppSupport::getAppCompany()
+const QString AppSupport::getAppOrg()
 {
     return getAppName();
 }
@@ -263,12 +289,15 @@ const QString AppSupport::getAppConfigPath()
     QString path = QString::fromUtf8("%1/%2")
                    .arg(QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation),
                         getAppName());
+
     if (isAppPortable()) {
         const QString appPath = getAppPath();
         if (QFileInfo(appPath).isWritable()) { path = QString("%1/config").arg(appPath); }
     }
+
     QDir dir(path);
     if (!dir.exists()) { dir.mkpath(path); }
+
     return path;
 }
 
@@ -513,7 +542,7 @@ const QString AppSupport::getAppShaderEffectsPath(bool restore)
                                                "CustomShaderPath",
                                                def).toString();
     QDir dir(path);
-    if (!dir.exists() && path.startsWith(getAppConfigPath())) { dir.mkpath(path); }
+    if (!dir.exists()) { dir.mkpath(path); }
     return path;
 }
 
@@ -816,6 +845,139 @@ QPair<bool, bool> AppSupport::getResolutionPresetStatus()
     return status;
 }
 
+void AppSupport::installPresets(const QString &sourcePath,
+                                const QString &destPath,
+                                const bool force,
+                                const QStringList &presets)
+{
+    if (sourcePath.trimmed().isEmpty() ||
+        destPath.trimmed().isEmpty() ||
+        presets.size() < 1 ||
+        !QFileInfo(destPath).isWritable()) {
+        qWarning() << "not able to install presets"
+                   << sourcePath
+                   << destPath
+                   << force
+                   << presets;
+        return;
+    }
+
+    for (const auto &preset : presets) {
+        const QString resPath(QString("%1/%2").arg(sourcePath,
+                                                   preset));
+        if (!QFile::exists(resPath)) {
+            qWarning() << "source preset does not exist" << resPath;
+            continue;
+        }
+
+        const QString filePath(QString("%1/%2").arg(destPath,
+                                                    preset));
+        if (QFile::exists(filePath) && !force) {
+            qWarning() << "dest preset already exists" << filePath;
+            continue;
+        }
+
+        QFile file(filePath);
+        if (file.open(QIODevice::WriteOnly |
+                      QIODevice::Text |
+                      QIODevice::Truncate)) {
+            qWarning() << "installing preset:" << resPath << filePath;
+            QFile res(resPath);
+            if (res.open(QIODevice::ReadOnly |
+                         QIODevice::Text)) {
+                file.write(res.readAll());
+                res.close();
+            }
+            file.close();
+        }
+    }
+}
+
+void AppSupport::installRenderPresets(const bool force,
+                                      const QStringList &customPresets)
+{
+    QStringList presets = customPresets;
+    QString sourcePath = ":/presets/render";
+    QString destPath = AppSupport::getAppOutputProfilesPath();
+
+    if (presets.isEmpty()) {
+        presets << "001-friction-preset-mp4-h264.conf"
+                << "002-friction-preset-mp4-h264-mp3.conf"
+                << "003-friction-preset-prores-444.conf"
+                << "004-friction-preset-prores-444-aac.conf"
+                << "005-friction-preset-png.conf"
+                << "006-friction-preset-tiff.conf"
+                << "007-friction-preset-webm.conf"
+                << "008-friction-preset-exr.conf";
+    }
+
+    qDebug() << "install render presets"
+             << sourcePath
+             << destPath
+             << force
+             << presets;
+
+    installPresets(sourcePath,
+                   destPath,
+                   force,
+                   presets);
+}
+
+void AppSupport::installExprPresets(const bool force,
+                                    const QStringList &customPresets)
+{
+    QStringList list;
+    QStringList presets = customPresets;
+    QString sourcePath = ":/expressions";
+    QString destPath = AppSupport::getAppUserExPresetsPath();
+
+    if (presets.isEmpty()) {
+        presets << "copyX.fexpr"
+                << "copyY.fexpr"
+                << "noise.fexpr"
+                << "orbitX.fexpr"
+                << "orbitY.fexpr"
+                << "oscillation.fexpr"
+                << "rotation.fexpr"
+                << "time.fexpr"
+                << "trackObject.fexpr"
+                << "wave.fexpr"
+                << "wiggle.fexpr";
+    }
+
+    for (const auto &preset : presets) {
+        const auto expr = ExpressionPresets::readExpr(QString("%1/%2")
+                                                          .arg(sourcePath,
+                                                               preset));
+        if (expr.valid) { list << preset; }
+        else { qWarning() << "not a valid expr" << sourcePath << preset; }
+    }
+
+    qDebug() << "install expr presets"
+             << sourcePath
+             << destPath
+             << force
+             << list;
+
+    installPresets(sourcePath,
+                   destPath,
+                   force,
+                   list);
+}
+
+QStringList AppSupport::getOpenGLInfo()
+{
+    OffscreenQGL33c gl;
+    gl.initialize();
+    gl.makeCurrent();
+    const QString vendor(reinterpret_cast<const char*>(gl.glGetString(GL_VENDOR)));
+    const QString renderer(reinterpret_cast<const char*>(gl.glGetString(GL_RENDERER)));
+    const QString version(reinterpret_cast<const char*>(gl.glGetString(GL_VERSION)));
+    gl.doneCurrent();
+
+    return {vendor, renderer, version};
+}
+
 const QString AppSupport::filterTextAZW(const QString &text)
 {
     QRegularExpression regex("\\s|\\W");
@@ -873,18 +1035,28 @@ const QPair<QStringList, bool> AppSupport::hasWriteAccess()
 
 bool AppSupport::isAppPortable()
 {
+    if (isFlatpak()) { return false; }
+
     const QString path = getAppPath();
     return QFile::exists(QString("%1/portable.txt").arg(path)) && QFileInfo(path).isWritable();
 }
 
 bool AppSupport::isAppImage()
 {
+#ifdef Q_OS_LINUX
     return !getAppImagePath().simplified().isEmpty();
+#else
+    return false;
+#endif
 }
 
 bool AppSupport::isWayland()
 {
+#if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
     return QGuiApplication::platformName().startsWith("wayland");
+#else
+    return false;
+#endif
 }
 
 bool AppSupport::isFlatpak()
@@ -1317,4 +1489,35 @@ QString AppSupport::getOfflineDocs()
 QString AppSupport::getOnlineDocs()
 {
     return QString("%1/documentation").arg(getAppUrl());
+}
+
+intKB AppSupport::getTotalRamBytes() {
+#if defined(Q_OS_WIN)
+    MEMORYSTATUSEX statex;
+    statex.dwLength = sizeof (statex);
+    GlobalMemoryStatusEx(&statex);
+    const longB totalBytes(statex.ullTotalPhys);
+    return intKB(totalBytes);
+#elif defined(Q_OS_LINUX)
+    intKB memTotal(0);
+    FILE * const meminfo = fopen("/proc/meminfo", "r");
+    if (meminfo) {
+        char line[256];
+        while(fgets(line, sizeof(line), meminfo)) {
+            if (sscanf(line, "MemTotal: %d kB", &memTotal.fValue) == 1) {
+                fclose(meminfo);
+                return memTotal;
+            }
+        }
+        fclose(meminfo);
+    }
+    return memTotal;
+#elif defined(Q_OS_MACOS)
+    int mib [] = { CTL_HW, HW_MEMSIZE };
+    int64_t bytes = 0;
+    size_t length = sizeof(bytes);
+    const int ret = sysctl(mib, 2, &bytes, &length, NULL, 0);
+    if(ret) RuntimeThrow("Failed to retrieve memory using sysctl");
+    return intKB(longB(bytes));
+#endif
 }
