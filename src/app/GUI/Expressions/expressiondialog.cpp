@@ -891,14 +891,14 @@ void ExpressionDialog::exportPreset()
 
     if (!editDialog(tr("Export Preset"), &expr)) { return; }
 
-    QString path = AppSupport::getSaveFile(this,
-                                           tr("Export Preset"),
-                                           AppSupport::getSettings("files",
-                                                                   "lastExprExportDir",
-                                                                   QDir::homePath()).toString(),
-                                           "Expressions (*.fexpr)");
+    const QString path = AppSupport::getSaveFile(this,
+                                                 tr("Export Preset"),
+                                                 AppSupport::getSettings("files",
+                                                                         "lastExprExportDir",
+                                                                         QDir::homePath()).toString(),
+                                                 "Expressions (*.fexpr)",
+                                                 "fexpr");
     if (path.trimmed().isEmpty()) { return; }
-    if (QFileInfo(path).suffix() != "fexpr") { path.append(".fexpr"); }
 
     if (mSettings->fExpressions.saveExpr(expr, path)) {
         QMessageBox::information(this,
