@@ -316,58 +316,22 @@ void MainWindow::closedRenderQueueWindow()
                                             tr("Queue"));
 }
 
-void MainWindow::initRenderPresets(const bool reinstall)
-{
-    const bool doInstall = reinstall ? true : AppSupport::getSettings("settings",
-                                                                      "firstRunRenderPresets",
-                                                                      true).toBool();
-    if (!doInstall) { return; }
-    const QString path = AppSupport::getAppOutputProfilesPath();
-    if (path.isEmpty() || !QFileInfo(path).isWritable()) { return; }
-
-    QStringList presets;
-    presets << "001-friction-preset-mp4-h264.conf";
-    presets << "002-friction-preset-mp4-h264-mp3.conf";
-    presets << "003-friction-preset-prores-444.conf";
-    presets << "004-friction-preset-prores-444-aac.conf";
-    presets << "005-friction-preset-png.conf";
-    presets << "006-friction-preset-tiff.conf";
-
-    for (const auto &preset : presets) {
-        QString filePath(QString("%1/%2").arg(path, preset));
-        if (QFile::exists(filePath) && !reinstall) { continue; }
-        QFile file(filePath);
-        if (file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
-            QFile res(QString(":/presets/render/%1").arg(preset));
-            if (res.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                file.write(res.readAll());
-                res.close();
-            }
-            file.close();
-        }
-    }
-
-    AppSupport::setSettings("settings", "firstRunRenderPresets", false);
-}
-
 void MainWindow::askInstallRenderPresets()
 {
     const auto result = QMessageBox::question(this,
                                               tr("Install Render Profiles"),
-                                              tr("Are you sure you want to install the default render profiles?"
-                                                 "<p style='font-weight: normal;font-style: italic'>Note that a restart of the application is required to detect new profiles.</p>"));
+                                              tr("Are you sure you want to install the default render profiles?"));
     if (result != QMessageBox::Yes) { return; }
-    initRenderPresets(true);
+    AppSupport::installRenderPresets(true);
 }
 
 void MainWindow::askInstallExpressionsPresets()
 {
     const auto result = QMessageBox::question(this,
-                                              tr("Install default Expressions Presets"),
-                                              tr("Are you sure you want to install the default Expressions Presets?"
-                                                 "<p style='font-weight: normal;font-style: italic'>Note that:<ul><li>any user modification to default presets will be removed.</li><li>a restart of the application is required to install them all.</li></ul></p>"));
+                                              tr("Install Expressions Presets"),
+                                              tr("Are you sure you want to install the default expressions presets?"));
     if (result != QMessageBox::Yes) { return; }
-    AppSupport::setSettings("settings", "firstRunExprPresets", true);
+    AppSupport::installExprPresets(true);
 }
 
 void MainWindow::askRestoreFillStrokeDefault()
@@ -852,8 +816,6 @@ void MainWindow::readSettings(const QString &openProject)
     else if (isMax) { showMaximized(); }
 
     updateAutoSaveBackupState();
-
-    initRenderPresets();
 
     if (!openProject.isEmpty()) {
         QTimer::singleShot(10,

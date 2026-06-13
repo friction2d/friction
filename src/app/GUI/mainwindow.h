@@ -371,7 +371,6 @@ private:
     void openRenderQueueWindow();
     void closedRenderQueueWindow();
 
-    void initRenderPresets(const bool reinstall = false);
     void askInstallRenderPresets();
     void askInstallExpressionsPresets();
     void askRestoreFillStrokeDefault();
