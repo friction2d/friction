@@ -36,6 +36,7 @@
 #include "videoencoder.h"
 #include "appsupport.h"
 #include "themesupport.h"
+#include "wizards/quicksetup.h"
 
 #ifdef Q_OS_WIN
 #include <QSplashScreen>
@@ -76,25 +77,61 @@ void generateAlphaMesh(QPixmap& alphaMesh,
     p.end();
 }
 
-void setScaleFactor()
+void setScaleFactor(const bool passThrough)
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 #endif
-    bool passThrough = true;
-    QSettings settings("friction", "friction");
-    const QString key = "settings/interfaceScalingPassThrough";
-    if (settings.contains(key)) { passThrough = settings.value(key).toBool(); }
     QApplication::setHighDpiScaleFactorRoundingPolicy(passThrough ?
                                                           Qt::HighDpiScaleFactorRoundingPolicy::PassThrough :
                                                           Qt::HighDpiScaleFactorRoundingPolicy::RoundPreferFloor);
 }
 
+void runQuickSetup(int argc, char *argv[])
+{
+    QApplication::setApplicationName(AppSupport::getAppName());
+    QApplication::setOrganizationName(AppSupport::getAppOrg());
+    setScaleFactor(false);
+    QApplication app(argc, argv);
+
+    ThemeSupport::setupTheme();
+    Friction::Ui::QuickSetup wizard;
+    wizard.exec();
+    AppSupport::setSettings("settings", "firstRun", false);
+    app.exit(0);
+}
+
+void earlySettings(int argc,
+                   char *argv[],
+                   bool *hdpiPassThrough,
+                   bool *firstRun)
+{
+    QApplication::setApplicationName(AppSupport::getAppName());
+    QApplication::setOrganizationName(AppSupport::getAppOrg());
+    QApplication app(argc, argv);
+
+    *hdpiPassThrough = AppSupport::getSettings("settings",
+                                               "interfaceScalingPassThrough",
+                                               true).toBool();
+    *firstRun = AppSupport::getSettings("settings",
+                                        "firstRun",
+                                        true).toBool();
+
+    app.exit(0);
+}
+
 int main(int argc, char *argv[])
 {
-    // check if cli renderer (not supported yet)
-    const bool isRenderer = false; // AppSupport::hasArg(argc, argv, "--renderer");
+    // get early settings
+    const bool isRenderer = false;
+    bool hdpiPassThrough, firstRun;
+    earlySettings(argc,
+                  argv,
+                  &hdpiPassThrough,
+                  &firstRun);
+    qDebug() << "HiDPI Pass Through?" << hdpiPassThrough;
+    qDebug() << "First Run?" << firstRun;
 
     // init env variables
     AppSupport::initEnv(isRenderer);
@@ -102,14 +139,17 @@ int main(int argc, char *argv[])
     // version info
     AppSupport::printVersion();
 
+    // first run
+    if (firstRun) { runQuickSetup(argc, argv); }
+
     // init app
     QApplication::setApplicationDisplayName(AppSupport::getAppDisplayName());
     QApplication::setApplicationName(AppSupport::getAppName());
-    QApplication::setOrganizationName(AppSupport::getAppCompany());
+    QApplication::setOrganizationName(AppSupport::getAppOrg());
     QApplication::setOrganizationDomain(AppSupport::getAppDomain());
     QApplication::setApplicationVersion(AppSupport::getAppVersion());
 
-    setScaleFactor();
+    setScaleFactor(hdpiPassThrough);
     setDefaultFormat();
 
     QApplication app(argc, argv);
@@ -125,7 +165,7 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    // init splash (windows-only)
+    // init windows
 #ifdef Q_OS_WIN
     // load custom font if exists
     const auto fontBundle = QString("%1/font.ttf").arg(AppSupport::getAppPath());
@@ -136,6 +176,10 @@ int main(int argc, char *argv[])
     else { QApplication::setFont(QApplication::font("QMessageBox")); }
 #endif
 
+    if (!isRenderer) {
+        QWindowsWindowFunctions::setHasBorderInFullScreenDefault(true);
+    }
+
     QSplashScreen splash(QPixmap(":/icons/splash/splash-00001.png"));
     splash.show();
     splash.raise();
@@ -144,12 +188,6 @@ int main(int argc, char *argv[])
 #endif
 
     // init hardware
-#ifdef Q_OS_WIN
-    if (!isRenderer) {
-        QWindowsWindowFunctions::setHasBorderInFullScreenDefault(true);
-    }
-#endif
-
 #ifndef Q_OS_DARWIN
     const bool threadedOpenGL = QOpenGLContext::supportsThreadedOpenGL();
     if (!threadedOpenGL) {
