@@ -67,6 +67,8 @@ private:
 
     qsptr<eVideoSound> mSound;
     FileHandlerObjRef<VideoFileHandler> mFileHandler;
+
+    bool mLegacyFramerate = false;
 };
 
 #endif // VIDEOBOX_H

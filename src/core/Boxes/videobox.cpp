@@ -106,6 +106,11 @@ void VideoBox::fileHandlerAfterAssigned(VideoFileHandler *obj) {
 
 void VideoBox::setCorrectFps()
 {
+    if (mLegacyFramerate) {
+        qDebug() << "this VideoBox has legacy framerate, ignore setCorrectFps";
+        return;
+    }
+
     auto const pScene = getParentScene();
     if (!pScene) { return; }
 
@@ -131,10 +136,12 @@ void VideoBox::setCorrectFps()
     animationDataChanged();
 }
 
-void VideoBox::writeBoundingBox(eWriteStream& dst) const {
+void VideoBox::writeBoundingBox(eWriteStream& dst) const
+{
     AnimationBox::writeBoundingBox(dst);
     dst.writeFilePath(mFileHandler->path());
     dst << getStretch();
+    dst << mLegacyFramerate;
 }
 
 void VideoBox::readBoundingBox(eReadStream& src) {
@@ -146,12 +153,18 @@ void VideoBox::readBoundingBox(eReadStream& src) {
         src >> stretch;
         setStretch(stretch);
     }
+    if (src.evFileVersion() >= EvFormat::frameRateFixes) {
+        bool legacy;
+        src >> legacy;
+        mLegacyFramerate = legacy;
+    } else { mLegacyFramerate = true; }
 }
 
 QDomElement VideoBox::prp_writePropertyXEV_impl(const XevExporter& exp) const {
     auto result = AnimationBox::prp_writePropertyXEV_impl(exp);
     const QString& absSrc = mFileHandler.path();
     XevExportHelpers::setAbsAndRelFileSrc(absSrc, result, exp);
+    // TODO: write mLegacyFramerate
     return result;
 }
 
@@ -159,6 +172,7 @@ void VideoBox::prp_readPropertyXEV_impl(const QDomElement& ele,
                                         const XevImporter& imp) {
     AnimationBox::prp_readPropertyXEV_impl(ele, imp);
     const QString absSrc = XevExportHelpers::getAbsAndRelFileSrc(ele, imp);
+    // TODO: read mLegacyFramerate
     setFilePathNoRename(absSrc);
 }
 
