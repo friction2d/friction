@@ -69,6 +69,36 @@ const HddCachableCacheHandler &VideoFrameHandler::getCacheHandler() const {
     return mDataHandler->getCacheHandler();
 }
 
+void VideoFrameHandler::setVideoStreamFps(const qreal fps)
+{
+    if (mVideoStreamsData) {
+        mVideoStreamsData->fFps = fps;
+    }
+}
+
+qreal VideoFrameHandler::videoStreamFps() const
+{
+    if (mVideoStreamsData) {
+        return mVideoStreamsData->fFps;
+    }
+    return 0;
+}
+
+void VideoFrameHandler::setVideoStreamFrameCount(const int count)
+{
+    if (mVideoStreamsData) {
+        mVideoStreamsData->fFrameCount = count;
+    }
+}
+
+int VideoFrameHandler::videoStreamFrameCount() const
+{
+    if (mVideoStreamsData) {
+        return mVideoStreamsData->fFrameCount;
+    }
+    return 0;
+}
+
 VideoFrameLoader *VideoFrameHandler::getFrameLoader(const int frame) {
     return mDataHandler->getFrameLoader(frame);
 }

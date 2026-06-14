@@ -99,6 +99,15 @@ Canvas::Canvas(Document &document,
     //anim_setAbsFrame(0);
 
     //setCanvasMode(MOVE_PATH);
+
+    // update fps for videos if new frame range
+    connect(this, &Canvas::newFrameRange, this, [this]() {
+        for (const auto &box : getContainedBoxes()) {
+            if (const auto &vbox = enve_cast<VideoBox*>(box)) {
+                vbox->setCorrectFps();
+            }
+        }
+    });
 }
 
 void Canvas::setWorldToScreen(const QTransform& transform,

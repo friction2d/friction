@@ -67,6 +67,8 @@ VideoBox::VideoBox() : AnimationBox("Video", eBoxType::video),
 
     connect(this, &eBoxOrSound::parentChanged,
             mSound.get(), &eBoxOrSound::setParentGroup);
+    connect(this, &eBoxOrSound::parentChanged,
+            this, &VideoBox::setCorrectFps);
 }
 
 void VideoBox::fileHandlerConnector(ConnContext &conn, VideoFileHandler *obj) {
@@ -99,6 +101,33 @@ void VideoBox::fileHandlerAfterAssigned(VideoFileHandler *obj) {
     getAnimationDurationRect()->setRasterCacheHandler(cacheHandler);
 
     soundDataChanged();
+    animationDataChanged();
+}
+
+void VideoBox::setCorrectFps()
+{
+    auto const pScene = getParentScene();
+    if (!pScene) { return; }
+
+    auto const dataHandler = mFileHandler->getFrameHandler();
+    if (!dataHandler) { return; }
+
+    qsptr<VideoFrameHandler> vframeHandler;
+    vframeHandler = enve::make_shared<VideoFrameHandler>(dataHandler);
+
+    // Any changes we make to the video in the timeline have to be reflected on the video stream,
+    // that's why we have to apply the changes to dataHandler and vframeHandler.
+    qreal newmod = (pScene->getFps() /  dataHandler->getFps());
+
+    qDebug() << "VideoBox::setCorrectFps" << newmod;
+
+    dataHandler->setFps(dataHandler->getFps() * newmod);
+    vframeHandler->setVideoStreamFps(dataHandler->getFps());
+
+    dataHandler->setFrameCount(vframeHandler->videoStreamFrameCount() * newmod);
+    vframeHandler->setVideoStreamFrameCount(vframeHandler->videoStreamFrameCount() * newmod);
+
+    setAnimationFramesHandler(vframeHandler);
     animationDataChanged();
 }
 
