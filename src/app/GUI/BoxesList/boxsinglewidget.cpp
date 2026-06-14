@@ -675,7 +675,7 @@ void BoxSingleWidget::loadStaticPixmaps(int iconSize)
     GRAPH_PROPERTY_ICON = new QPixmap(QIcon::fromTheme("graph_property_2").pixmap(pixmapSize));
     PROMOTE_TO_LAYER_ICON = new QPixmap(QIcon::fromTheme("layer").pixmap(pixmapSize));
 
-    BOX_PATH = new QPixmap(QIcon::fromTheme("drawPath").pixmap(pixmapSize));
+    BOX_PATH = new QPixmap(QIcon::fromTheme("pathCreate").pixmap(pixmapSize));
     BOX_CIRCLE = new QPixmap(QIcon::fromTheme("circleCreate").pixmap(pixmapSize));
     BOX_RECT = new QPixmap(QIcon::fromTheme("rectCreate").pixmap(pixmapSize));
     BOX_TEXT = new QPixmap(QIcon::fromTheme("textCreate").pixmap(pixmapSize));
