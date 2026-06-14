@@ -73,6 +73,18 @@ public:
     static QPixmap* GRAPH_PROPERTY_ICON;
     static QPixmap* PROMOTE_TO_LAYER_ICON;
 
+    static QPixmap* BOX_PATH;
+    static QPixmap* BOX_CIRCLE;
+    static QPixmap* BOX_RECT;
+    static QPixmap* BOX_TEXT;
+    static QPixmap* BOX_NULL;
+    static QPixmap* BOX_IMAGE;
+    static QPixmap* BOX_VIDEO;
+    static QPixmap* BOX_SOUND;
+    static QPixmap* BOX_GROUP;
+    static QPixmap* BOX_LINK;
+    static QPixmap* BOX_SEQ;
+
     static bool sStaticPixmapsLoaded;
     static void loadStaticPixmaps(int iconSize);
     static void clearStaticPixmaps();
@@ -147,6 +159,7 @@ private:
 
     bool mHover = false;
 
+    PixmapActionButton *mBoxButton;
     PixmapActionButton *mRecordButton;
     PixmapActionButton *mContentButton;
     PixmapActionButton *mVisibleButton;
