@@ -48,12 +48,14 @@ QuickSetup::QuickSetup(QWidget *parent)
 
 void QuickSetup::accept()
 {
-    {
-        const auto val = field("CustomBrowserPath");
-        if (val.isValid()) {
-            const QString path = val.toString().trimmed();
-            qDebug() << "browser path" << path;
-            if (!path.isEmpty()) { AppSupport::setSettings("settings", "CustomBrowserPath", path); }
+    if (!AppSupport::isFlatpak()) {
+        {
+            const auto val = field("CustomBrowserPath");
+            if (val.isValid()) {
+                const QString path = val.toString().trimmed();
+                qDebug() << "browser path" << path;
+                if (!path.isEmpty()) { AppSupport::setSettings("settings", "CustomBrowserPath", path); }
+            }
         }
     }
     {
@@ -83,6 +85,7 @@ void QuickSetup::accept()
             AppSupport::setSettings("gizmos", "Position", enabled);
             AppSupport::setSettings("gizmos", "Rotate", enabled);
             AppSupport::setSettings("gizmos", "Scale", enabled);
+            // shear is off by default, so we don't add it here
         }
     }
     {

@@ -88,59 +88,48 @@ void setScaleFactor(const bool passThrough)
                                                           Qt::HighDpiScaleFactorRoundingPolicy::RoundPreferFloor);
 }
 
-void runQuickSetup(int argc, char *argv[])
+void earlySettings(char *argv[],
+                   bool *hdpiPassThrough)
 {
-    QApplication::setApplicationName(AppSupport::getAppName());
-    QApplication::setOrganizationName(AppSupport::getAppOrg());
-    setScaleFactor(false);
-    QApplication app(argc, argv);
+    // we can't use AppSupport for this
+    const QString key = "settings/interfaceScalingPassThrough";
 
-    ThemeSupport::setupTheme();
-    Friction::Ui::QuickSetup wizard;
-    wizard.exec();
-    AppSupport::setSettings("settings", "firstRun", false);
-    app.exit(0);
-}
+#ifdef Q_OS_WIN
+    // we need to consider portable mode on Windows
+    const QString exePath = QString::fromLocal8Bit(argv[0]);
+    const QString appDir = QFileInfo(exePath).absolutePath();
+    const bool isPortable = QFile::exists(QString("%1/portable.txt").arg(appDir));
+    const QString portableConfigPath = QString("%1/config/friction.conf").arg(appDir);
 
-void earlySettings(int argc,
-                   char *argv[],
-                   bool *hdpiPassThrough,
-                   bool *firstRun)
-{
-    QApplication::setApplicationName(AppSupport::getAppName());
-    QApplication::setOrganizationName(AppSupport::getAppOrg());
-    QApplication app(argc, argv);
+    if (QFile::exists(portableConfigPath) && isPortable) {
+        QSettings settings(portableConfigPath,
+                           QSettings::IniFormat);
+        *hdpiPassThrough = settings.value(key, true).toBool();
+        return;
+    }
+#else
+    Q_UNUSED(argv)
+#endif
 
-    *hdpiPassThrough = AppSupport::getSettings("settings",
-                                               "interfaceScalingPassThrough",
-                                               true).toBool();
-    *firstRun = AppSupport::getSettings("settings",
-                                        "firstRun",
-                                        true).toBool();
-
-    app.exit(0);
+    QSettings settings(AppSupport::getAppName(),
+                       AppSupport::getAppOrg());
+    *hdpiPassThrough = settings.value(key, true).toBool();
 }
 
 int main(int argc, char *argv[])
 {
+    const bool isRenderer = false; // todo
+
     // get early settings
-    const bool isRenderer = false;
-    bool hdpiPassThrough, firstRun;
-    earlySettings(argc,
-                  argv,
-                  &hdpiPassThrough,
-                  &firstRun);
-    qDebug() << "HiDPI Pass Through?" << hdpiPassThrough;
-    qDebug() << "First Run?" << firstRun;
+    bool hdpiPassThrough = true;
+    earlySettings(argv, &hdpiPassThrough);
+    qDebug() << "hdpiPassThrough" << hdpiPassThrough;
 
     // init env variables
     AppSupport::initEnv(isRenderer);
 
     // version info
     AppSupport::printVersion();
-
-    // first run
-    if (firstRun) { runQuickSetup(argc, argv); }
 
     // init app
     QApplication::setApplicationDisplayName(AppSupport::getAppDisplayName());
@@ -149,11 +138,26 @@ int main(int argc, char *argv[])
     QApplication::setOrganizationDomain(AppSupport::getAppDomain());
     QApplication::setApplicationVersion(AppSupport::getAppVersion());
 
+    // setup scaling
     setScaleFactor(hdpiPassThrough);
+
+    // setup OpenGL
     setDefaultFormat();
 
+    // setup app
     QApplication app(argc, argv);
     setlocale(LC_NUMERIC, "C");
+
+    // first run
+    const bool firstRun = AppSupport::getSettings("settings",
+                                                  "firstRun",
+                                                  true).toBool();
+    if (firstRun) {
+        ThemeSupport::setupTheme();
+        Friction::Ui::QuickSetup wizard;
+        wizard.exec();
+        AppSupport::setSettings("settings", "firstRun", false);
+    }
 
     // handle XDG args
 #ifdef Q_OS_LINUX

@@ -1035,10 +1035,12 @@ const QPair<QStringList, bool> AppSupport::hasWriteAccess()
 
 bool AppSupport::isAppPortable()
 {
-    if (isFlatpak()) { return false; }
-
+#ifdef Q_OS_WIN
     const QString path = getAppPath();
     return QFile::exists(QString("%1/portable.txt").arg(path)) && QFileInfo(path).isWritable();
+#else
+    return false;
+#endif
 }
 
 bool AppSupport::isAppImage()

@@ -28,6 +28,8 @@
 #include <QLabel>
 #include <QSpinBox>
 #include <QCheckBox>
+#include <QDebug>
+#include <QDir>
 
 #include "appsupport.h"
 
@@ -41,44 +43,39 @@ QuickSetupGeneralPage::QuickSetupGeneralPage(QWidget *parent)
 
     const auto layout = new QFormLayout(this);
 
-    { // custom browser path
-        const auto wid = new QWidget(this);
-        wid->setContentsMargins(0, 0, 0, 0);
+    if (!AppSupport::isFlatpak()) {
+        { // custom browser path
+            const auto wid = new QWidget(this);
+            wid->setContentsMargins(0, 0, 0, 0);
 
-        const auto lay = new QHBoxLayout(wid);
-        lay->setContentsMargins(0, 0, 0, 0);
+            const auto lay = new QHBoxLayout(wid);
+            lay->setContentsMargins(0, 0, 0, 0);
 
-        const auto browserPath = new QLineEdit(this);
-        browserPath->setReadOnly(true);
-        browserPath->setPlaceholderText(tr("System Default"));
-        browserPath->setFocusPolicy(Qt::NoFocus);
+            const auto browserPath = new QLineEdit(this);
+            browserPath->setReadOnly(true);
+            browserPath->setPlaceholderText(tr("System Default"));
+            browserPath->setFocusPolicy(Qt::NoFocus);
 
-        const auto browserPathBtn = new QToolButton(this);
-        browserPathBtn->setText("...");
+            const auto browserPathBtn = new QToolButton(this);
+            browserPathBtn->setText("...");
 
-        // disable for now
-        // quick setup should not read existing settings
-        /*const QString customBrowser = AppSupport::getSettings("settings",
-                                                              "CustomBrowserPath").toString();
-        if (!customBrowser.trimmed().isEmpty()) {
-            browserPath->setText(customBrowser);
-        }*/
+            lay->addWidget(browserPath);
+            lay->addWidget(browserPathBtn);
 
-        lay->addWidget(browserPath);
-        lay->addWidget(browserPathBtn);
+            layout->addRow(tr("Web Browser"), wid);
 
-        layout->addRow(tr("Web Browser"), wid);
+            registerField("CustomBrowserPath", browserPath);
 
-        registerField("CustomBrowserPath", browserPath);
-
-        connect(browserPathBtn, &QToolButton::clicked,
-                [browserPath, this]() {
-            QString file = AppSupport::getOpenFile(this,
-                                                   tr("Select Browser Executable"),
-                                                   QString(),
-                                                   tr("Executables (*);;All Files (*)"));
-            if (!file.isEmpty()) { browserPath->setText(file); }
-        });
+            connect(browserPathBtn, &QToolButton::clicked,
+                    [browserPath, this]() {
+                QString file = AppSupport::getOpenFile(this,
+                                                       tr("Select Browser Executable"),
+                                                       QDir::homePath(),
+                                                       tr("Executables (*);;All Files (*)"));
+                qWarning() << "get open file" << file;
+                if (!file.isEmpty()) { browserPath->setText(file); }
+            });
+        }
     }
 
     { // custom cache path
@@ -96,14 +93,6 @@ QuickSetupGeneralPage::QuickSetupGeneralPage(QWidget *parent)
         const auto cachePathBtn = new QToolButton(this);
         cachePathBtn->setText("...");
 
-        // disable for now
-        // quick setup should not read existing settings
-        /*const QString customCache = AppSupport::getSettings("settings",
-                                                            "CustomCachePath").toString();
-        if (!customCache.trimmed().isEmpty()) {
-            cachePath->setText(customCache);
-        }*/
-
         lay->addWidget(cachePath);
         lay->addWidget(cachePathBtn);
 
@@ -115,7 +104,8 @@ QuickSetupGeneralPage::QuickSetupGeneralPage(QWidget *parent)
                 [cachePath, this]() {
             QString dir = AppSupport::getExistingDirectory(this,
                                                            tr("Select Cache Folder"),
-                                                           cachePath->text());
+                                                           QDir::homePath());
+            qWarning() << "get existing directory" << dir;
             if (!dir.isEmpty()) { cachePath->setText(dir); }
         });
 
