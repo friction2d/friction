@@ -140,6 +140,10 @@ void DotLottieWriter::write(const QString& path,
     auto assets = animation.value(QStringLiteral("assets")).toArray();
     for (int i = 0; i < assets.size(); i++) {
         auto asset = assets.at(i).toObject();
+        // Precomposition assets also live in this array, but only image
+        // assets have a path and need to be copied into the archive.
+        if (!asset.contains(QStringLiteral("p")) ||
+            asset.value(QStringLiteral("p")).toString().isEmpty()) { continue; }
         if (asset.value(QStringLiteral("e")).toInt() != 0) { continue; }
 
         const QString fileName = asset.value(QStringLiteral("p")).toString();

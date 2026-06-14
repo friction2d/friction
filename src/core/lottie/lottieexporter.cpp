@@ -112,11 +112,12 @@ void LottieExporter::finish()
     if (!fonts.value(QStringLiteral("list")).toArray().isEmpty()) {
         root.insert(QStringLiteral("fonts"), fonts);
     }
+    // Group layers discover their precomposition assets while being built.
+    root.insert(QStringLiteral("layers"), builder.buildLayers(mBackground));
     const auto assets = builder.buildAssets();
     if (!assets.isEmpty()) {
         root.insert(QStringLiteral("assets"), assets);
     }
-    root.insert(QStringLiteral("layers"), builder.buildLayers(mBackground));
 
     if (dotLottie) {
         const QString animationName = mScene->prp_getName();

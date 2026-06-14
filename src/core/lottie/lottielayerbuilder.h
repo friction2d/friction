@@ -61,13 +61,6 @@ private:
                                QJsonArray& layers,
                                int& nextId,
                                const int parentId = 0) const;
-    void appendMaskedContainerLayers(BoundingBox* const matte,
-                                     const ContainerBox* const container,
-                                     QJsonArray& layers,
-                                     int& nextId,
-                                     const int parentId,
-                                     const int matteParentId,
-                                     const int matteType) const;
     QJsonObject buildMatteLayer(BoundingBox* const box,
                                 const int id) const;
     QJsonObject buildBoxLayer(BoundingBox* const box,
@@ -79,6 +72,7 @@ private:
     QJsonObject buildContainerLayer(const ContainerBox* const box,
                                     const int id,
                                     const int parentId) const;
+    QString appendPrecompAsset(const ContainerBox* const box) const;
     QJsonObject buildRectangleLayer(RectangleBox* const box,
                                     const int id) const;
     QJsonObject buildTextLayer(TextBox* const box,
@@ -142,6 +136,8 @@ private:
     const bool mEmbedImages;
     const bool mSvgRendererFix;
     const bool mNativeText;
+    mutable QJsonArray mPrecompAssets;
+    mutable int mNextPrecompId = 1;
 };
 
 #endif // LOTTIELAYERBUILDER_H

@@ -471,6 +471,8 @@ QJsonArray LottieLayerBuilder::buildLayers(const bool background) const
     QJsonArray layers;
     if (!mScene) { return layers; }
 
+    mPrecompAssets = QJsonArray();
+    mNextPrecompId = 1;
     int nextId = background ? 2 : 1;
     appendContainerLayers(mScene, layers, nextId);
     if (background) { layers.append(buildBackgroundLayer()); }
@@ -480,7 +482,7 @@ QJsonArray LottieLayerBuilder::buildLayers(const bool background) const
 
 QJsonArray LottieLayerBuilder::buildAssets() const
 {
-    QJsonArray assets;
+    QJsonArray assets = mPrecompAssets;
     QSet<QString> ids;
     if (mScene) { appendImageAssets(mScene, assets, ids); }
     return assets;
@@ -561,15 +563,17 @@ void LottieLayerBuilder::appendContainerLayers(const ContainerBox* const contain
             }
             if (const auto targetContainer = dynamic_cast<const ContainerBox*>(target)) {
                 if (canBuildMatteLayer(box)) {
-                    const int groupId = nextId++;
-                    layers.append(buildContainerLayer(targetContainer, groupId, parentId));
-                    appendMaskedContainerLayers(box,
-                                                targetContainer,
-                                                layers,
-                                                nextId,
-                                                groupId,
-                                                parentId,
-                                                alphaMatteType(box));
+                    auto matteLayer = buildMatteLayer(box, nextId);
+                    assignParent(matteLayer, parentId);
+                    layers.append(matteLayer);
+                    nextId++;
+
+                    auto targetLayer = buildContainerLayer(targetContainer,
+                                                           nextId,
+                                                           parentId);
+                    targetLayer.insert(QStringLiteral("tt"), alphaMatteType(box));
+                    layers.append(targetLayer);
+                    nextId++;
                     i++;
                     continue;
                 }
@@ -591,9 +595,10 @@ void LottieLayerBuilder::appendContainerLayers(const ContainerBox* const contain
 
         const auto childContainer = dynamic_cast<const ContainerBox*>(box);
         if (childContainer) {
-            const int groupId = nextId++;
-            layers.append(buildContainerLayer(childContainer, groupId, parentId));
-            appendContainerLayers(childContainer, layers, nextId, groupId);
+            // Lottie parent layers do not pass opacity to their children.
+            // A precomposition is required for Friction group compositing.
+            layers.append(buildContainerLayer(childContainer, nextId, parentId));
+            nextId++;
             continue;
         }
 
@@ -601,52 +606,6 @@ void LottieLayerBuilder::appendContainerLayers(const ContainerBox* const contain
             auto layer = buildBoxLayer(box, nextId);
             assignParent(layer, parentId);
             layers.append(layer);
-            nextId++;
-            continue;
-        }
-
-        auto layer = buildUnsupportedLayer(box, nextId);
-        assignParent(layer, parentId);
-        layers.append(layer);
-        nextId++;
-    }
-}
-
-void LottieLayerBuilder::appendMaskedContainerLayers(BoundingBox* const matte,
-                                                     const ContainerBox* const container,
-                                                     QJsonArray& layers,
-                                                     int& nextId,
-                                                     const int parentId,
-                                                     const int matteParentId,
-                                                     const int matteType) const
-{
-    const auto& boxes = container->getContainedBoxes();
-    for (const auto box : boxes) {
-        if (!box || !box->isVisible()) { continue; }
-
-        if (const auto childContainer = dynamic_cast<const ContainerBox*>(box)) {
-            const int groupId = nextId++;
-            layers.append(buildContainerLayer(childContainer, groupId, parentId));
-            appendMaskedContainerLayers(matte,
-                                        childContainer,
-                                        layers,
-                                        nextId,
-                                        groupId,
-                                        matteParentId,
-                                        matteType);
-            continue;
-        }
-
-        if (canBuildBoxLayer(box)) {
-            auto matteLayer = buildMatteLayer(matte, nextId);
-            assignParent(matteLayer, matteParentId);
-            layers.append(matteLayer);
-            nextId++;
-
-            auto targetLayer = buildBoxLayer(box, nextId);
-            targetLayer.insert(QStringLiteral("tt"), matteType);
-            assignParent(targetLayer, parentId);
-            layers.append(targetLayer);
             nextId++;
             continue;
         }
@@ -724,11 +683,31 @@ QJsonObject LottieLayerBuilder::buildContainerLayer(const ContainerBox* const bo
 {
     auto layer = baseLayer(box ? box->prp_getName() : QStringLiteral("Group"),
                            id,
-                           3,
+                           0,
                            box);
     layer.insert(QStringLiteral("ks"), transformObject(box));
+    layer.insert(QStringLiteral("refId"), appendPrecompAsset(box));
+    layer.insert(QStringLiteral("w"), mScene->getCanvasWidth());
+    layer.insert(QStringLiteral("h"), mScene->getCanvasHeight());
     assignParent(layer, parentId);
     return layer;
+}
+
+QString LottieLayerBuilder::appendPrecompAsset(const ContainerBox* const box) const
+{
+    const QString id = QStringLiteral("precomp_%1").arg(mNextPrecompId++);
+    QJsonArray layers;
+    int nextId = 1;
+    appendContainerLayers(box, layers, nextId);
+
+    mPrecompAssets.append(QJsonObject{
+        {QStringLiteral("id"), id},
+        {QStringLiteral("nm"), box ? box->prp_getName() : QStringLiteral("Group")},
+        {QStringLiteral("w"), mScene->getCanvasWidth()},
+        {QStringLiteral("h"), mScene->getCanvasHeight()},
+        {QStringLiteral("layers"), layers}
+    });
+    return id;
 }
 
 QJsonObject LottieLayerBuilder::buildRectangleLayer(RectangleBox* const box,
