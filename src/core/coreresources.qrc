@@ -26,6 +26,8 @@
         <file alias="lerp.fexpr">Expressions/presets/lerp.fexpr</file>
         <file alias="copyX.fexpr">Expressions/presets/copyX.fexpr</file>
         <file alias="copyY.fexpr">Expressions/presets/copyY.fexpr</file>
+        <file alias="frameRemapLoop.fexpr">Expressions/presets/frameRemapLoop.fexpr</file>
+        <file alias="frameRemapLoopBounce.fexpr">Expressions/presets/frameRemapLoopBounce.fexpr</file>
         <file alias="noise.fexpr">Expressions/presets/noise.fexpr</file>
         <file alias="orbitX.fexpr">Expressions/presets/orbitX.fexpr</file>
         <file alias="orbitY.fexpr">Expressions/presets/orbitY.fexpr</file>
