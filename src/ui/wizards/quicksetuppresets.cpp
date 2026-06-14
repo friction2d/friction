@@ -67,10 +67,12 @@ QuickSetupPresetsPage::QuickSetupPresetsPage(QWidget *parent)
             {"Time", "time.fexpr"},
             {"Track Object", "trackObject.fexpr"},
             {"Wave", "wave.fexpr"},
-            {"Wiggle", "wiggle.fexpr"}
+            {"Wiggle", "wiggle.fexpr"},
+            {"Frame Remap Loop", "frameRemapLoop.fexpr"},
+            {"Frame Remap Loop (bounce)", "frameRemapLoopBounce.fexpr"}
         };
 
-        const auto selector = new CheckBoxes(expressions, this);
+        const auto selector = new CheckBoxes(expressions, this, 3);
 
         layout->addRow(tr("Expressions"), selector);
 
