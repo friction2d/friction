@@ -867,20 +867,6 @@ void MainWindow::setupMenuBar()
         });
         mViewMenu->addAction(act);
     }
-
-#ifndef Q_OS_MAC
-    const auto frictionButton = new QPushButton(this);
-    frictionButton->setFlat(true);
-    frictionButton->setIcon(QIcon::fromTheme(ThemeSupport::getAppIconName(true)));
-    frictionButton->setObjectName("AboutButton");
-    frictionButton->setFocusPolicy(Qt::NoFocus);
-
-    connect(frictionButton, &QPushButton::released,
-            this, &MainWindow::openAboutWindow);
-
-    mMenuBar->setCornerWidget(frictionButton,
-                              Qt::TopRightCorner);
-#endif
 }
 
 void MainWindow::setupMenuScene()
