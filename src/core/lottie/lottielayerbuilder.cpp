@@ -39,6 +39,7 @@
 #include "lottie/lottieanimatedproperty.h"
 #include "lottie/lottieblendmode.h"
 #include "lottie/lottiepatheffects.h"
+#include "lottie/lottieparenting.h"
 #include "lottie/lottierealkeyframes.h"
 #include "paintsettings.h"
 #include "simplemath.h"
@@ -49,6 +50,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QHash>
 #include <QPointF>
 #include <QSet>
 #include <algorithm>
@@ -550,6 +552,15 @@ void LottieLayerBuilder::appendContainerLayers(const ContainerBox* const contain
                                                int& nextId,
                                                const int parentId) const
 {
+    QHash<const BoundingBox*, int> layerIds;
+    QHash<const BoundingBox*, int> layerIndices;
+    const auto appendLayer = [&layers, &layerIds, &layerIndices](
+            const BoundingBox* const box, const QJsonObject& layer) {
+        layerIds.insert(box, layer.value(QStringLiteral("ind")).toInt());
+        layerIndices.insert(box, layers.size());
+        layers.append(layer);
+    };
+
     const auto& boxes = container->getContainedBoxes();
     for (int i = 0; i < boxes.size(); i++) {
         const auto box = boxes.at(i);
@@ -565,14 +576,14 @@ void LottieLayerBuilder::appendContainerLayers(const ContainerBox* const contain
                 if (canBuildMatteLayer(box)) {
                     auto matteLayer = buildMatteLayer(box, nextId);
                     assignParent(matteLayer, parentId);
-                    layers.append(matteLayer);
+                    appendLayer(box, matteLayer);
                     nextId++;
 
                     auto targetLayer = buildContainerLayer(targetContainer,
                                                            nextId,
                                                            parentId);
                     targetLayer.insert(QStringLiteral("tt"), alphaMatteType(box));
-                    layers.append(targetLayer);
+                    appendLayer(target, targetLayer);
                     nextId++;
                     i++;
                     continue;
@@ -580,13 +591,13 @@ void LottieLayerBuilder::appendContainerLayers(const ContainerBox* const contain
             } else if (canBuildMatteLayer(box) && canBuildBoxLayer(target)) {
                 auto matteLayer = buildMatteLayer(box, nextId);
                 assignParent(matteLayer, parentId);
-                layers.append(matteLayer);
+                appendLayer(box, matteLayer);
                 nextId++;
 
                 auto targetLayer = buildBoxLayer(target, nextId);
                 targetLayer.insert(QStringLiteral("tt"), alphaMatteType(box));
                 assignParent(targetLayer, parentId);
-                layers.append(targetLayer);
+                appendLayer(target, targetLayer);
                 nextId++;
                 i++;
                 continue;
@@ -597,7 +608,7 @@ void LottieLayerBuilder::appendContainerLayers(const ContainerBox* const contain
         if (childContainer) {
             // Lottie parent layers do not pass opacity to their children.
             // A precomposition is required for Friction group compositing.
-            layers.append(buildContainerLayer(childContainer, nextId, parentId));
+            appendLayer(box, buildContainerLayer(childContainer, nextId, parentId));
             nextId++;
             continue;
         }
@@ -605,15 +616,24 @@ void LottieLayerBuilder::appendContainerLayers(const ContainerBox* const contain
         if (canBuildBoxLayer(box)) {
             auto layer = buildBoxLayer(box, nextId);
             assignParent(layer, parentId);
-            layers.append(layer);
+            appendLayer(box, layer);
             nextId++;
             continue;
         }
 
         auto layer = buildUnsupportedLayer(box, nextId);
         assignParent(layer, parentId);
-        layers.append(layer);
+        appendLayer(box, layer);
         nextId++;
+    }
+
+    for (auto it = layerIndices.constBegin(); it != layerIndices.constEnd(); ++it) {
+        const auto target = nativeParentTarget(it.key());
+        if (!target || !layerIds.contains(target)) { continue; }
+
+        auto layer = layers.at(it.value()).toObject();
+        layer.insert(QStringLiteral("parent"), layerIds.value(target));
+        layers.replace(it.value(), layer);
     }
 }
 
@@ -955,6 +975,14 @@ void LottieLayerBuilder::assignParent(QJsonObject& layer, const int parentId) co
 QJsonObject LottieLayerBuilder::transformObject(const BoundingBox* const box) const
 {
     if (box) {
+        if (LottieParenting::target(box)) {
+            // Lottie parenting only works inside one composition. Otherwise,
+            // export Friction's already-resolved transform in local group space.
+            return LottieParenting::transform(box,
+                                              nativeParentTarget(box),
+                                              mFrameRange);
+        }
+
         const auto transform = box->getBoxTransformAnimator();
         if (transform) {
             const auto pivot = transform->getPivotAnimator();
@@ -1036,6 +1064,28 @@ QJsonObject LottieLayerBuilder::transformObject(const BoundingBox* const box) co
     transform.insert(QStringLiteral("a"), staticProperty(QJsonArray{0, 0, 0}));
     transform.insert(QStringLiteral("s"), staticProperty(QJsonArray{100, 100, 100}));
     return transform;
+}
+
+const BoundingBox* LottieLayerBuilder::nativeParentTarget(
+        const BoundingBox* const box) const
+{
+    if (!box) { return nullptr; }
+    const auto target = LottieParenting::target(box);
+    if (!target ||
+        !target->isVisible() ||
+        (!canBuildBoxLayer(target) && !dynamic_cast<const ContainerBox*>(target)) ||
+        target->getParentGroup() != box->getParentGroup()) {
+        return nullptr;
+    }
+
+    QSet<const BoundingBox*> visited{box};
+    for (auto ancestor = target; ancestor; ancestor = LottieParenting::target(ancestor)) {
+        if (visited.contains(ancestor)) { return nullptr; }
+        visited.insert(ancestor);
+        if (ancestor->getParentGroup() != box->getParentGroup()) { break; }
+    }
+
+    return target;
 }
 
 QJsonObject LottieLayerBuilder::staticProperty(const QJsonValue& value) const

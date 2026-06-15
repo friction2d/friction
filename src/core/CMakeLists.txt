@@ -321,6 +321,7 @@ set(
     lottie/lottiejsonoptimizer.cpp
     lottie/lottierealkeyframes.cpp
     lottie/lottielayerbuilder.cpp
+    lottie/lottieparenting.cpp
     lottie/lottiepatheffects.cpp
     svgexporter.cpp
     svgexporthelpers.cpp
@@ -726,6 +727,7 @@ set(
     wrappedint.h
     windowsincludes.h
     lottie/dotlottiewriter.h
+    lottie/lottieparenting.h
     zipfileloader.h
     zipfilesaver.h
     outputsettings.h

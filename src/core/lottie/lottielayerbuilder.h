@@ -94,6 +94,7 @@ private:
                           const BoundingBox* const box = nullptr) const;
     void assignParent(QJsonObject& layer, const int parentId) const;
     QJsonObject transformObject(const BoundingBox* const box = nullptr) const;
+    const BoundingBox* nativeParentTarget(const BoundingBox* const box) const;
     QJsonObject staticProperty(const QJsonValue& value) const;
     QJsonObject animatedScalarProperty(const QList<qreal>& values) const;
     QJsonObject animatedPointProperty(const QList<QJsonArray>& values) const;
