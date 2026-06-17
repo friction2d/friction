@@ -44,6 +44,7 @@ set(
     SOURCES
     dialogs/adjustscenedialog.cpp
     dialogs/applyexpressiondialog.cpp
+    dialogs/askdialog.cpp
     dialogs/commandpalette.cpp
     dialogs/dialog.cpp
     dialogs/durationrectsettingsdialog.cpp
@@ -130,6 +131,7 @@ set(
     ui_global.h
     dialogs/adjustscenedialog.h
     dialogs/applyexpressiondialog.h
+    dialogs/askdialog.h
     dialogs/commandpalette.h
     dialogs/dialog.h
     dialogs/durationrectsettingsdialog.h
