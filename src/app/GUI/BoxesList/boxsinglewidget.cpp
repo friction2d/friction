@@ -654,8 +654,10 @@ void BoxSingleWidget::clearStaticPixmaps()
 
 void BoxSingleWidget::mousePressEvent(QMouseEvent *event) {
     if(!mTarget) return;
-    if(event->x() < mFillWidget->x() ||
-       event->x() > mFillWidget->x() + mFillWidget->width()) return;
+    const auto mouseX = AppSupport::getMouseX(event);
+    if (mouseX < mFillWidget->x() ||
+        mouseX > mFillWidget->x() + mFillWidget->width()) return;
+
     const auto target = mTarget->getTarget();
     if(event->button() == Qt::RightButton) {
         setSelected(true);
@@ -672,11 +674,7 @@ void BoxSingleWidget::mousePressEvent(QMouseEvent *event) {
             PropertyMenu pMenu(&menu, mParent->currentScene(), MainWindow::sGetInstance());
             pTarget->prp_setupTreeViewMenu(&pMenu);
         }
-#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-        menu.exec(event->globalPos());
-#else
-        menu.exec(event->globalPosition().toPoint());
-#endif
+        menu.exec(AppSupport::getMouseGlobalPos(event));
         setSelected(false);
     } else {
         mDragPressPos = event->pos().x() > mFillWidget->x();
@@ -695,7 +693,8 @@ void BoxSingleWidget::mouseMoveEvent(QMouseEvent *event) {
     {
         const auto prop = static_cast<Property*>(mTarget->getTarget());
         const QString name = prop->prp_getName();
-        const int nameWidth = QApplication::fontMetrics().horizontalAdvance(name);
+        QFontMetricsF fmf(QApplication::font());
+        const int nameWidth = static_cast<int>(fmf.horizontalAdvance(name));
         QPixmap pixmap(mFillWidget->x() + nameWidth + eSizesUI::widget, height());
         render(&pixmap);
         drag->setPixmap(pixmap);
@@ -722,8 +721,9 @@ void BoxSingleWidget::mouseReleaseEvent(QMouseEvent *event)
         return;
     }
 
-    if (event->x() < mFillWidget->x() ||
-        event->x() > mFillWidget->x() + mFillWidget->width()) { return; }
+    const auto mouseX = AppSupport::getMouseX(event);
+    if (mouseX < mFillWidget->x() ||
+        mouseX > mFillWidget->x() + mFillWidget->width()) { return; }
     setSelected(false);
 
     if (pointToLen(event->pos() - mDragStartPos) > eSizesUI::widget/2) { return; }

@@ -184,11 +184,7 @@ void BoxScroller::dropEvent(QDropEvent *event)
 {
     stopScrolling();
     mCurrentMimeData = event->mimeData();
-#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-    mLastDragMoveY = event->pos().y();
-#else
-    mLastDragMoveY = event->position().toPoint().y();
-#endif
+    mLastDragMoveY = AppSupport::getDropPos(event).y();
     updateDropTarget();
     if (mDropTarget.isValid()) {
         const auto targetAbs = mDropTarget.fTargetParent;
@@ -208,11 +204,7 @@ void BoxScroller::dropEvent(QDropEvent *event)
 void BoxScroller::dragEnterEvent(QDragEnterEvent *event)
 {
     const auto mimeData = event->mimeData();
-#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-    mLastDragMoveY = event->pos().y();
-#else
-    mLastDragMoveY = event->position().toPoint().y();
-#endif
+    mLastDragMoveY = AppSupport::getDropPos(event).y();
     mCurrentMimeData = mimeData;
     updateDropTarget();
     //mDragging = true;
@@ -231,11 +223,7 @@ void BoxScroller::dragLeaveEvent(QDragLeaveEvent *event) {
 void BoxScroller::dragMoveEvent(QDragMoveEvent *event)
 {
     event->acceptProposedAction();
-#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-    const int yPos = event->pos().y();
-#else
-    const int yPos = event->position().toPoint().y();
-#endif
+    const int yPos = AppSupport::getDropPos(event).y();
 
     if (yPos < 30) {
         if (!mScrollTimer->isActive()) {

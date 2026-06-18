@@ -831,15 +831,15 @@ void BoundingBox::setupCanvasMenu(PropertyMenu * const menu)
 
     menu->addPlainAction(QIcon::fromTheme("copy"), tr("Copy"), [pScene]() {
         pScene->copyAction();
-    })->setShortcut(Qt::CTRL + Qt::Key_C);
+    })->setShortcut(QStringLiteral("Ctrl+C"));
 
     menu->addPlainAction(QIcon::fromTheme("cut"), tr("Cut"), [pScene]() {
         pScene->cutAction();
-    })->setShortcut(Qt::CTRL + Qt::Key_X);
+    })->setShortcut(QStringLiteral("Ctrl+X"));
 
     menu->addPlainAction(QIcon::fromTheme("duplicate"), tr("Duplicate"), [pScene]() {
         pScene->duplicateAction();
-    })->setShortcut(Qt::CTRL + Qt::Key_D);
+    })->setShortcut(QStringLiteral("Ctrl+D"));
 
     menu->addPlainAction(QIcon::fromTheme("trash"), tr("Delete"), [pScene]() {
         pScene->removeSelectedBoxesAndClearList();
@@ -849,7 +849,7 @@ void BoundingBox::setupCanvasMenu(PropertyMenu * const menu)
 
     menu->addPlainAction(QIcon::fromTheme("group"), tr("Group"), [pScene]() {
         pScene->groupSelectedBoxes();
-    })->setShortcut(Qt::CTRL + Qt::Key_G);
+    })->setShortcut(QStringLiteral("Ctrl+G"));
 
     menu->addSeparator();
 

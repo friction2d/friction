@@ -49,7 +49,7 @@ void ColorLabel::mousePressEvent(QMouseEvent *e)
     }
     QMenu menu(this);
     menu.addAction(QIcon::fromTheme("color"), tr("Bookmark Color"));
-    const auto act = menu.exec(e->globalPos());
+    const auto act = menu.exec(AppSupport::getMouseGlobalPos(e));
     if (act) {
         if (act->text() == tr("Bookmark Color")) {
             const QColor col = QColor::fromHsvF(qreal(mHue),

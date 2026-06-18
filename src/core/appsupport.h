@@ -31,6 +31,10 @@
 #include <QPair>
 #include <QStringList>
 #include <QSettings>
+#include <QMouseEvent>
+#include <QDropEvent>
+#include <QDragEnterEvent>
+#include <QDragMoveEvent>
 
 #include "hardwareenums.h"
 
@@ -144,6 +148,17 @@ public:
     static void setFont(const QString &path);
     static QString getOfflineDocs();
     static QString getOnlineDocs();
+
+    static int getMouseX(QMouseEvent *event);
+    static int getMouseY(QMouseEvent *event);
+    static int getMouseGlobalX(QMouseEvent *event);
+    static int getMouseGlobalY(QMouseEvent *event);
+    static QPoint getMouseGlobalPos(QMouseEvent *event);
+    static QPoint getMouseGlobalPos(const QMouseEvent *event);
+    static QPoint getDropPos(QDropEvent *event);
+    static QPoint getDropPos(QDragEnterEvent *event);
+    static QPoint getDropPos(QDragMoveEvent *event);
+    static QPointF getDropPosF(QDropEvent *event);
 };
 
 #endif // APPSUPPORT_H

@@ -38,23 +38,39 @@
 #include "GUI/global.h"
 #include "XML/xmlexporthelpers.h"
 
+inline int gGetMouseX(const QMouseEvent *event) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return qRound(event->position().x());
+#else
+    return event->x();
+#endif
+}
+
+inline int gGetMouseY(const QMouseEvent *event) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return qRound(event->position().y());
+#else
+    return event->y();
+#endif
+}
+
 #define STACK_TMPL_DEFS \
     int (QWidget::*DimGetter)() const, void (*DimSetter)(QWidget*, int), \
     int (QWidget::*PosGetter)() const, void (*PosSetter)(int, QWidget*), \
     int (QWidget::*OtherDimGetter)() const, void (*OtherDimSetter)(QWidget*, int), \
-    int (QMouseEvent::*MousePosGetter)() const, class TResizer
+    int (*MousePosGetter)(const QMouseEvent*), class TResizer
 
 #define V_STACK_TMPL \
     &QWidget::height, &gResizeH, \
     &QWidget::y, &gMoveY, \
     &QWidget::width, &gResizeW, \
-    &QMouseEvent::y, VStackResizer
+    &gGetMouseY, VStackResizer
 
 #define H_STACK_TMPL \
     &QWidget::width, &gResizeW, \
     &QWidget::x, &gMoveX, \
     &QWidget::height, &gResizeH, \
-    &QMouseEvent::x, HStackResizer
+    &gGetMouseX, HStackResizer
 
 void gMoveX(const int x, QWidget * const widget);
 void gMoveY(const int y, QWidget * const widget);
@@ -103,12 +119,12 @@ protected:
     }
 
     void mouseMoveEventB(QMouseEvent * const event) {
-        displace((event->*MousePosGetter)() - mPressDim);
+        displace(MousePosGetter(event) - mPressDim);
     }
 
     void mousePressEventB(QMouseEvent * const event) {
         mPressed = true;
-        mPressDim = (event->*MousePosGetter)();
+        mPressDim = MousePosGetter(event);
         mThis->update();
     }
 

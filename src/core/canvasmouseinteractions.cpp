@@ -77,7 +77,7 @@ void Canvas::addActionsToMenu(QMenu *const menu)
     if (clipboard) {
         QAction * const pasteAct = menu->addAction(tr("Paste"), this,
                                                    &Canvas::pasteAction);
-        pasteAct->setShortcut(Qt::CTRL + Qt::Key_V);
+        pasteAct->setShortcut(QStringLiteral("Ctrl+V"));
     }
 
     const auto sceneIcon = QIcon::fromTheme("sequence");

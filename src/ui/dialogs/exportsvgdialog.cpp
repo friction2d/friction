@@ -371,26 +371,28 @@ ComplexTask* ExportSvgDialog::exportTo(const QString& file,
 
 void ExportSvgDialog::finishedDialog(const QString &fileName)
 {
-    const QString askOpenFile = tr("Open File");
-    const QString askOpenFolder = tr("Open Folder");
-    const QString askClose = tr("Close");
-    const int ask = QMessageBox::information(this,
-                                             tr("SVG export finished"),
-                                             tr("Project exported to <code>%1</code>.").arg(fileName),
-                                             askOpenFile,
-                                             askOpenFolder,
-                                             askClose,
-                                             2,
-                                             2);
+    QMessageBox msgBox(QMessageBox::Information,
+                       tr("SVG export finished"),
+                       tr("Project exported to <code>%1</code>.").arg(fileName),
+                       QMessageBox::NoButton,
+                       this);
+
+    const auto openFileButton = msgBox.addButton(tr("Open File"),
+                                                 QMessageBox::ActionRole);
+    const auto openFolderButton = msgBox.addButton(tr("Open Folder"),
+                                                   QMessageBox::ActionRole);
+    const auto closeButton = msgBox.addButton(tr("Close"),
+                                              QMessageBox::RejectRole);
+
+    msgBox.setDefaultButton(closeButton);
+    msgBox.exec();
+
     QUrl url;
-    switch (ask) {
-    case 0:
+    if (msgBox.clickedButton() == openFileButton) {
         url = QUrl::fromLocalFile(fileName);
-        break;
-    case 1:
+    } else if (msgBox.clickedButton() == openFolderButton) {
         url = QUrl::fromLocalFile(QFileInfo(fileName).absolutePath());
-        break;
-    default:;
     }
+
     if (!url.isEmpty()) { QDesktopServices::openUrl(url); }
 }

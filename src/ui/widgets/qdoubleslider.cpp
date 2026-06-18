@@ -385,14 +385,14 @@ void QDoubleSlider::mouseDoubleClickEvent(QMouseEvent *event) {
 void QDoubleSlider::mousePressEvent(QMouseEvent *event) {
     if(event->button() == Qt::RightButton) {
         if(cancelMove()) {}
-        else openContextMenu(event->globalPos());
+        else openContextMenu(AppSupport::getMouseGlobalPos(event));
     } else if(event->button() == Qt::LeftButton) {
         Actions::sInstance->startSmoothChange();
         mMouseMoved = false;
         mMovesCount = 0;
         mCanceled = false;
-        mGlobalPressPos = event->globalPos();
-        mLastX = event->globalX();
+        mGlobalPressPos = AppSupport::getMouseGlobalPos(event);
+        mLastX = AppSupport::getMouseGlobalX(event);
         mLastValue = startSlideValue();
     }
 }
@@ -439,7 +439,7 @@ void QDoubleSlider::mouseMoveEvent(QMouseEvent *event) {
         mMouseMoved = true;
     }
 
-    const qreal dValue = getDValueForMouseMove(event->globalX());
+    const qreal dValue = getDValueForMouseMove(AppSupport::getMouseGlobalX(event));
     mLastValue = clamped(mLastValue + dValue);
     setValue(mLastValue);
 

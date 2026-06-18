@@ -224,7 +224,14 @@ void FontsWidget::updateStyles()
     const QString currentStyle = fontStyle();
 
     mFontStyleCombo->clear();
-    QStringList styles = mFontDatabase.styles(fontFamily());
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    QStringList styles = QFontDatabase::styles(fontFamily());
+#else
+    QFontDatabase db;
+    QStringList styles = db.styles(fontFamily());
+#endif
+
     mFontStyleCombo->addItems(styles);
 
     if (styles.contains(currentStyle)) {
@@ -246,7 +253,13 @@ void FontsWidget::afterStyleChange()
 
 const QStringList FontsWidget::filterFonts()
 {
-    QStringList families = mFontDatabase.families();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    QStringList families = QFontDatabase::families();
+#else
+    QFontDatabase db;
+    QStringList families = db.families();
+#endif
+
     // "if the font family is available from two or more foundries the foundry name is included in the family name"
 
     // Yeah, that's not going to work. I get a lot of "family name [Bits]" and "family name [unknown]" from the font database.
@@ -451,13 +464,21 @@ void FontsWidget::emitFamilyAndStyleChanged()
     if (mBlockEmit) { return; }
     const auto family = fontFamily();
     const auto style = fontStyle();
-    const int qWeight = mFontDatabase.weight(family, style);
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    const int qWeight = QFontDatabase::weight(family, style);
+    const auto qFont = QFontDatabase::font(family, style, 10);
+#else
+    QFontDatabase db;
+    const int qWeight = db.weight(family, style);
+    const auto qFont = db.font(family, style, 10);
+#endif
+
     const int weight = QFontWeightToSkFontWeight(qWeight);
     const int width = SkFontStyle::kNormal_Width;
 //    const bool italic = mFontDatabase.italic(family, style);
 //    const auto slant = italic ? SkFontStyle::kItalic_Slant :
 //                                SkFontStyle::kUpright_Slant;
-    const auto qFont = mFontDatabase.font(family, style, 10);
     const auto slant = toSkSlant(qFont.style());
     const SkFontStyle skStyle(weight, width, slant);
     emit fontFamilyAndStyleChanged(family, skStyle);

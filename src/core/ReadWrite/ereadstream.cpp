@@ -186,8 +186,8 @@ eReadStream &eReadStream::operator>>(QString &val) {
     uint nChars; read(&nChars, sizeof(uint));
     if(nChars == 0) val = "";
     else {
-        ushort * const chars = new ushort[nChars];
-        read(chars, nChars*sizeof(ushort));
+        char16_t * const chars = new char16_t[nChars];
+        read(chars, nChars*sizeof(char16_t));
         val = QString::fromUtf16(chars, static_cast<int>(nChars));
         delete[] chars;
     }

@@ -307,7 +307,7 @@ bool Property::prp_sValidateName(const QString &name,
         return false;
     }
     const int nValid = name.count(QRegularExpression("[A-Za-z0-9_ ]"));
-    if(nValid != name.count()) {
+    if(nValid != name.size()) {
         *error = "Invalid characters used";
         return false;
     }

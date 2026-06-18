@@ -282,11 +282,7 @@ void RenderInstanceWidget::mousePressEvent(QMouseEvent *e)
         delAct->setData(1);
         delAct->setEnabled(deletable);
 
-#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-        const auto act = menu.exec(e->globalPos());
-#else
-        const auto act = menu.exec(e->globalPosition().toPoint());
-#endif
+        const auto act = menu.exec(AppSupport::getMouseGlobalPos(e));
         if (act) {
             switch (act->data().toInt()) {
             case 0:
@@ -345,7 +341,7 @@ void RenderInstanceWidget::updateOutputDestinationFromCurrentFormat() {
     QString currExt;
     if(dividedName.count() > 1) {
         QString namePart = dividedName.at(dividedName.count() - 2);
-        if(namePart.count() > 0) {
+        if(namePart.size() > 0) {
             currExt = dividedName.last();
         }
     }
@@ -354,11 +350,11 @@ void RenderInstanceWidget::updateOutputDestinationFromCurrentFormat() {
         if(!firstSupported.isEmpty()) {
             if(currExt.isEmpty()) {
                 if(outputDst.right(1) == ".") {
-                    outputDst = outputDst.left(outputDst.count() - 1);
+                    outputDst = outputDst.left(outputDst.size() - 1);
                 }
             } else {
                 int extId = outputDst.lastIndexOf("." + currExt);
-                outputDst.remove(extId, 1 + currExt.count());
+                outputDst.remove(extId, 1 + currExt.size());
             }
             outputDst += "." + firstSupported;
         }

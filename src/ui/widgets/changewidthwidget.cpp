@@ -26,6 +26,7 @@
 #include "changewidthwidget.h"
 #include "GUI/global.h"
 #include "simplemath.h"
+#include "appsupport.h"
 
 #include <QMouseEvent>
 #include <QPainter>
@@ -56,11 +57,7 @@ void ChangeWidthWidget::paintEvent(QPaintEvent *) {
 
 void ChangeWidthWidget::mouseMoveEvent(QMouseEvent *event)
 {
-#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-    const int newWidth = mCurrentWidth + event->x() - mPressX;
-#else
-    const int newWidth = mCurrentWidth + event->position().x() - mPressX;
-#endif
+    const int newWidth = mCurrentWidth + AppSupport::getMouseX(event) - mPressX;
     mCurrentWidth = clamp(newWidth, 10*eSizesUI::widget, 40*eSizesUI::widget);
     emit widthSet(mCurrentWidth);
     //mBoxesList->setFixedWidth(newWidth);
@@ -70,11 +67,7 @@ void ChangeWidthWidget::mouseMoveEvent(QMouseEvent *event)
 void ChangeWidthWidget::mousePressEvent(QMouseEvent *event)
 {
     mPressed = true;
-#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-    mPressX = event->x();
-#else
-    mPressX = event->position().x();
-#endif
+    mPressX = AppSupport::getMouseX(event);
     update();
 }
 

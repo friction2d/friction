@@ -28,6 +28,7 @@
 #include <QPainter>
 #include <QApplication>
 #include <QScreen>
+#include <QFontMetricsF>
 
 #include "skia/skiaincludes.h"
 #include "skia/skqtconversions.h"
@@ -48,7 +49,8 @@ void ValueInput::draw(SkCanvas *canvas, const int y) {
     QScreen *screen = QGuiApplication::primaryScreen();
     const qreal pixelRatio = screen ? screen->devicePixelRatio() : 1.0;
     const auto transStr = getText();
-    const int textWidth = QApplication::fontMetrics().horizontalAdvance(transStr)*pixelRatio;
+    QFontMetricsF fmf(QApplication::font());
+    const int textWidth = static_cast<int>(fmf.horizontalAdvance(transStr) * pixelRatio);
     const SkRect inputRect = SkRect::MakeXYWH(2*eSizesUI::widget*pixelRatio,
                                               y*pixelRatio,
                                               textWidth + eSizesUI::widget*pixelRatio,
@@ -70,7 +72,8 @@ void ValueInput::draw(SkCanvas *canvas, const int y) {
 void ValueInput::draw(QPainter *p, const int y) {
     p->setFont(QApplication::font());
     const auto transStr = getText();
-    const int textWidth = QApplication::fontMetrics().horizontalAdvance(transStr);
+    QFontMetricsF fmf(QApplication::font());
+    const int textWidth = static_cast<int>(fmf.horizontalAdvance(transStr));
     const QRect inputRect(2*eSizesUI::widget, y,
                           textWidth + eSizesUI::widget, eSizesUI::widget);
     p->fillRect(inputRect, QColor(255, 255, 255, 55));

@@ -62,6 +62,7 @@ TimelineWidget::TimelineWidget(Document &document,
 
     mMenuLayout = new QHBoxLayout();
     //mMenuLayout->setSpacing(0);
+    mMenuLayout->setContentsMargins(0, 0 ,0, 0);
 
     mBoxesListMenuBar = new FakeMenuBar(this);
     mBoxesListMenuBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);

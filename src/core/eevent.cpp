@@ -25,6 +25,8 @@
 
 #include "eevent.h"
 
+#include "appsupport.h"
+
 eEvent::eEvent(const QPointF& pos, const QPointF& lastPos,
                const QPointF& lastPressPos, const bool mouseGrabbing,
                const qreal scale, const QPoint& globalPos,
@@ -68,7 +70,7 @@ eMouseEvent::eMouseEvent(const QPointF& pos, const QPointF& lastPos,
                          QWidget* const widget) :
     eMouseEvent(e->source() != Qt::MouseEventNotSynthesized,
                 pos, lastPos, lastPressPos, mouseGrabbing,
-                scale, e->globalPos(), e->button(),
+                scale, AppSupport::getMouseGlobalPos(e), e->button(),
                 e->buttons(), e->modifiers(), e->timestamp(),
                 releaseMouse, grabMouse, widget) {}
 

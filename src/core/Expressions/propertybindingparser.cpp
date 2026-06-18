@@ -32,13 +32,13 @@
 #include "appsupport.h"
 
 void skipSpaces(const QString& exp, int& position) {
-    while(position < exp.count() && exp.at(position) == ' ') {
+    while(position < exp.size() && exp.at(position) == ' ') {
         position++;
     }
 }
 
 bool parseBindingAssignment(const QString& exp, int& pos) {
-    if(pos < exp.count()) {
+    if(pos < exp.size()) {
         const auto& character = exp.at(pos);
         if(character == '=') {
             pos++;
@@ -51,7 +51,7 @@ bool parseBindingAssignment(const QString& exp, int& pos) {
 bool parseBindingName(const QString& exp, int& pos, QString& name) {
     int newPos = pos;
     name.clear();
-    while(newPos < exp.count()) {
+    while(newPos < exp.size()) {
         const auto& character = exp.at(newPos);
         if(!character.isLetter() && !character.isDigit()
            && character != '_') break;
@@ -64,7 +64,7 @@ bool parseBindingName(const QString& exp, int& pos, QString& name) {
 }
 
 bool checkComment(const QString& exp, int& pos) {
-    if(pos + 1 < exp.count()) {
+    if(pos + 1 < exp.size()) {
         int newPos = pos;
         if(exp.at(newPos++) == '/' && exp.at(newPos++) == '/') {
             pos = newPos;
@@ -76,7 +76,7 @@ bool checkComment(const QString& exp, int& pos) {
 
 QString parse(const QString& exp, int& pos, const int n) {
     QString result;
-    for(int i = 0; i < n && pos < exp.count(); i++) {
+    for(int i = 0; i < n && pos < exp.size(); i++) {
         result.append(exp.at(pos++));
     }
     return result;
@@ -84,7 +84,7 @@ QString parse(const QString& exp, int& pos, const int n) {
 
 bool parse(const QString& exp, int& pos, const QString& test) {
     int newPos = pos;
-    const auto value = parse(exp, newPos, test.count());
+    const auto value = parse(exp, newPos, test.size());
     if(value == test) {
         pos = newPos;
         return true;
@@ -92,7 +92,7 @@ bool parse(const QString& exp, int& pos, const QString& test) {
 }
 
 int remaining(const QString& exp, int& pos) {
-    return exp.count() - pos;
+    return exp.size() - pos;
 }
 
 bool parseValue(const QString& exp, int& pos) {
@@ -124,7 +124,7 @@ bool parseSceneRangeMin(const QString& exp, int& pos) {
 }
 
 void parseBinding(const QString& exp, int& pos, QString& binding) {
-    while(pos < exp.count()) {
+    while(pos < exp.size()) {
         const auto& c = exp.at(pos++);
         if(!c.isLetterOrNumber() && c != ' ' && c != '.' && c != '_') break;
         binding.append(c);

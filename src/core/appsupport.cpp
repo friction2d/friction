@@ -130,7 +130,7 @@ void AppSupport::setSettings(QSettings *settings,
     QVariant result;
     if (append) {
         QVariant orig = getSettings(group, key);
-        QMetaType::Type type = static_cast<QMetaType::Type>(orig.type());
+        QMetaType::Type type = static_cast<QMetaType::Type>(orig.userType());
         if (!orig.isNull() && type == QMetaType::QStringList) {
             QStringList list = orig.toStringList();
             list.append(value.toString());
@@ -1152,4 +1152,94 @@ QString AppSupport::getOfflineDocs()
 QString AppSupport::getOnlineDocs()
 {
     return QString("%1/documentation").arg(getAppUrl());
+}
+
+int AppSupport::getMouseX(QMouseEvent *event)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return qRound(event->position().x());
+#else
+    return event->x();
+#endif
+}
+
+int AppSupport::getMouseY(QMouseEvent *event)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return qRound(event->position().y());
+#else
+    return event->y();
+#endif
+}
+
+int AppSupport::getMouseGlobalX(QMouseEvent *event)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return qRound(event->globalPosition().x());
+#else
+    return event->globalX();
+#endif
+}
+
+int AppSupport::getMouseGlobalY(QMouseEvent *event)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return qRound(event->globalPosition().y());
+#else
+    return event->globalY();
+#endif
+}
+
+QPoint AppSupport::getMouseGlobalPos(QMouseEvent *event)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return event->globalPosition().toPoint();
+#else
+    return event->globalPos();
+#endif
+}
+
+QPoint AppSupport::getMouseGlobalPos(const QMouseEvent *event)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return event->globalPosition().toPoint();
+#else
+    return event->globalPos();
+#endif
+}
+
+QPoint AppSupport::getDropPos(QDropEvent *event)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return event->position().toPoint();
+#else
+    return event->pos();
+#endif
+}
+
+QPoint AppSupport::getDropPos(QDragEnterEvent *event)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return event->position().toPoint();
+#else
+    return event->pos();
+#endif
+}
+
+QPoint AppSupport::getDropPos(QDragMoveEvent *event)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return event->position().toPoint();
+#else
+    return event->pos();
+#endif
+}
+
+QPointF AppSupport::getDropPosF(QDropEvent *event)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return event->position();
+#else
+    return event->posF();
+#endif
 }
