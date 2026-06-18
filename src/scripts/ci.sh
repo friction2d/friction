@@ -57,7 +57,10 @@ libpng-dev \
 libwebp-dev \
 zlib1g-dev \
 libicu-dev \
-libharfbuzz-dev
+libharfbuzz-dev \
+libgl1-mesa-dev \
+libegl1-mesa-dev \
+libgles2-mesa-dev
 
 if [ "${QT6}" = "ON" ]; then
 sudo apt install -y \
