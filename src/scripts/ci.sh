@@ -84,7 +84,7 @@ fi
 fi
 
 if [ "${CI}" = 1 ]; then
-    git submodule update -i --recursive
+    git submodule update --init --recursive
 fi
 
 if [ "${PC}" != "" ]; then
