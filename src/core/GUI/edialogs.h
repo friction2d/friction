@@ -45,7 +45,8 @@ namespace eDialogs {
     CORE_EXPORT
     QString saveFile(const QString& title,
                      const QString& path,
-                     const QString& filter);
+                     const QString& filter,
+                     const QString& defSuffix = QString());
 };
 
 #endif // EDIALOGS_H

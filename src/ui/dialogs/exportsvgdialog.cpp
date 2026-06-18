@@ -247,9 +247,10 @@ ExportSvgDialog::ExportSvgDialog(QWidget* const parent,
                                             AppSupport::getSettings("files",
                                                                     "recentExported",
                                                                     QDir::homePath()).toString(),
-                                            fileType.arg("(*.svg)"));
+                                            fileType.arg("(*.svg)"),
+                                            "svg");
         if (saveAs.isEmpty()) { return; }
-        if (!saveAs.endsWith(".svg")) { saveAs.append(".svg"); }
+
         QFileInfo saveInfo(saveAs);
         AppSupport::setSettings("files",
                                 "recentExported",

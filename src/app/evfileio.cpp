@@ -135,14 +135,17 @@ void MainWindow::saveToFile(const QString &path,
                             const bool addRecent)
 {
     QFile file(path);
-    if (file.exists()) { file.remove(); }
 
-    // check if folder exists first
-    QFileInfo info(path);
-    QDir dir = info.absoluteDir();
-    if (!dir.exists()) {
-        if (!dir.mkpath(dir.absolutePath())) {
-            RuntimeThrow(tr("Unable to create directory: %1").arg(dir.absolutePath()));
+    if (!AppSupport::isFlatpak()) {
+        if (file.exists()) { file.remove(); }
+
+        // check if folder exists first
+        QFileInfo info(path);
+        QDir dir = info.absoluteDir();
+        if (!dir.exists()) {
+            if (!dir.mkpath(dir.absolutePath())) {
+                RuntimeThrow(tr("Unable to create directory: %1").arg(dir.absolutePath()));
+            }
         }
     }
 

@@ -31,6 +31,8 @@
 #include <QFileIconProvider>
 #include <QFileSystemModel>
 #include <QSortFilterProxyModel>
+#include <QMessageBox>
+
 #include "themesupport.h"
 
 class evIconProvider : public QFileIconProvider {
@@ -96,18 +98,44 @@ QString eDialogs::openDir(const QString &title, const QString &path) {
 
 QString eDialogs::saveFile(const QString &title,
                            const QString &path,
-                           const QString &filter) {
-    QFileDialog dialog(nullptr, title, path);
-    dialog.setAcceptMode(QFileDialog::AcceptSave);
-    // dialog.setOption(QFileDialog::DontUseNativeDialog);
-    dialog.setFileMode(QFileDialog::AnyFile);
-    dialog.setNameFilter(filter);
-    auto iconProvider = new evIconProvider;
-    dialog.setIconProvider(iconProvider);
-    if(dialog.exec()) {
+                           const QString &filter,
+                           const QString &defSuffix)
+{
+    QString currentPath = path;
+
+    while (true) {
+        QFileDialog dialog(nullptr, title, currentPath);
+        dialog.setAcceptMode(QFileDialog::AcceptSave);
+        if (!AppSupport::isFlatpak() &&
+            !defSuffix.isEmpty()) { dialog.setDefaultSuffix(defSuffix); }
+        dialog.setFileMode(QFileDialog::AnyFile);
+        dialog.setNameFilter(filter);
+
+        evIconProvider iconProvider;
+        dialog.setIconProvider(&iconProvider);
+
+        if (!dialog.exec()) { return QString(); }
+
         const QStringList paths = dialog.selectedFiles();
-        const QString openPath(paths.isEmpty() ? "" : paths.first());
+        if (paths.isEmpty()) { return QString(); }
+
+        QString openPath = paths.first();
+        if (QUrl(openPath).isLocalFile()) {
+            openPath = QUrl(openPath).toLocalFile();
+        }
+
+        QFileInfo fileInfo(openPath);
+        if (AppSupport::isFlatpak() &&
+            !defSuffix.isEmpty() &&
+            fileInfo.suffix().isEmpty()) {
+            QMessageBox::warning(nullptr,
+                                 QObject::tr("Missing file extension"),
+                                 QObject::tr("Please add missing file extension (%1)").arg(defSuffix));
+            currentPath = openPath + "." + defSuffix;
+            continue;
+        }
         return openPath;
     }
-    return "";
+
+    return QString();
 }

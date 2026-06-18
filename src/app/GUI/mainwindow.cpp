@@ -1158,15 +1158,12 @@ void MainWindow::saveFileAs(const bool setPath)
 
     const QString title = tr("Save File", "SaveDialog_Title");
     const QString fileType = tr("Friction Files %1", "SaveDialog_FileType");
-    QString saveAs = eDialogs::saveFile(title, defPath, fileType.arg("(*.friction)"));
+    QString saveAs = eDialogs::saveFile(title,
+                                        defPath,
+                                        fileType.arg("(*.friction)"),
+                                        "friction");
     enableEventFilter();
-    if (!saveAs.isEmpty()) {
-        //const bool isXEV = saveAs.right(4) == ".xev";
-        //if (!isXEV && saveAs.right(3) != ".ev") { saveAs += ".ev"; }
-        QString suffix = QString::fromUtf8(".friction");
-        if (!saveAs.endsWith(suffix)) { saveAs.append(suffix); }
-        saveFile(saveAs, setPath);
-    }
+    if (!saveAs.isEmpty()) { saveFile(saveAs, setPath); }
 }
 
 void MainWindow::saveBackup()
@@ -1339,9 +1336,10 @@ void MainWindow::updateAutoSaveBackupState()
 {
     if (mShutdown) { return; }
 
-    mBackupOnSave = AppSupport::getSettings("files",
-                                            "BackupOnSave",
-                                            false).toBool();
+    mBackupOnSave = AppSupport::isFlatpak() ? false :
+                        AppSupport::getSettings("files",
+                                                "BackupOnSave",
+                                                false).toBool();
     mAutoSave = AppSupport::getSettings("files",
                                         "AutoSave",
                                         false).toBool();

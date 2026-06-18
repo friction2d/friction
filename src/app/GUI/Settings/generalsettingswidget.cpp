@@ -56,9 +56,16 @@ GeneralSettingsWidget::GeneralSettingsWidget(QWidget *parent)
     const auto mProjectLayout = new QVBoxLayout(mProjectWidget);
 
     mAutoBackup = new QCheckBox(tr("Enable Backup on Save"), this);
-    mAutoBackup->setCheckable(true);
-    mAutoBackup->setToolTip(tr("Creates a backup file after each successful save.\n\n"
-                               "Backup files are stored in a folder called PROJECT.friction_backup."));
+    if (AppSupport::isFlatpak()) {
+        mAutoBackup->setChecked(false);
+        mAutoBackup->setCheckable(false);
+        mAutoBackup->setToolTip(tr("Backup files are not supported in flatpak."));
+    } else {
+        mAutoBackup->setCheckable(true);
+        mAutoBackup->setToolTip(tr("Creates a backup file after each successful save.\n\n"
+                                   "Backup files are stored in a folder called PROJECT.friction_backup."));
+    }
+
     mProjectLayout->addWidget(mAutoBackup);
 
     mGeneralLayout->addWidget(mProjectWidget);
@@ -192,9 +199,12 @@ void GeneralSettingsWidget::applySettings()
 
 void GeneralSettingsWidget::updateSettings(bool restore)
 {
-    mAutoBackup->setChecked(restore ? false : AppSupport::getSettings("files",
-                                                                      "BackupOnSave",
-                                                                      false).toBool());
+    const bool canBackup = AppSupport::isFlatpak() ? false :
+                               AppSupport::getSettings("files",
+                                                       "BackupOnSave",
+                                                       false).toBool();
+
+    mAutoBackup->setChecked(restore ? false : canBackup);
     mAutoSave->setChecked(restore ? false : AppSupport::getSettings("files",
                                                                     "AutoSave",
                                                                     false).toBool());
