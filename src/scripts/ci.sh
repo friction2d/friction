@@ -62,7 +62,9 @@ libicu-dev \
 libharfbuzz-dev \
 libgl1-mesa-dev \
 libegl1-mesa-dev \
-libgles2-mesa-dev
+libgles2-mesa-dev \
+nasm \
+yasm
 
 if [ "${QT6}" = "ON" ]; then
 sudo apt install -y \

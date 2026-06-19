@@ -3,12 +3,6 @@ name: Ubuntu
 on: [push, pull_request]
 
 jobs:
-  qt5_15:
-    runs-on: ubuntu-24.04
-    steps:
-    - uses: actions/checkout@v4
-    - name: Build
-      run: APT=1 CI=1 MKJOBS=2 ./src/scripts/ci.sh
   qt5_15_arm:
     runs-on: ubuntu-24.04-arm
     steps:
