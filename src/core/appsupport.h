@@ -149,6 +149,8 @@ public:
     static QString getOfflineDocs();
     static QString getOnlineDocs();
 
+    // Qt compat
+    // should probably be it's own class, but for now this is ok
     static int getMouseX(QMouseEvent *event);
     static int getMouseY(QMouseEvent *event);
     static int getMouseGlobalX(QMouseEvent *event);
@@ -159,6 +161,7 @@ public:
     static QPoint getDropPos(QDragEnterEvent *event);
     static QPoint getDropPos(QDragMoveEvent *event);
     static QPointF getDropPosF(QDropEvent *event);
+    static bool isValidColor(const QString &name);
 };
 
 #endif // APPSUPPORT_H

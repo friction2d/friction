@@ -405,11 +405,12 @@ const QPair<QString, QString> AppSupport::getShaderID(const QString &path)
     if (!greFile.open(QIODevice::ReadOnly)) { return result; }
 
     QDomDocument document;
-    QString errMsg;
-    if (!document.setContent(&greFile, &errMsg)) {
+
+    if (!document.setContent(&greFile)) {
         greFile.close();
         return result;
     }
+
     greFile.close();
 
     QDomElement root = document.firstChildElement();
@@ -1245,5 +1246,14 @@ QPointF AppSupport::getDropPosF(QDropEvent *event)
     return event->position();
 #else
     return event->posF();
+#endif
+}
+
+bool AppSupport::isValidColor(const QString &name)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
+    return QColor::isValidColorName(name);
+#else
+    return QColor::isValidColor(name);
 #endif
 }

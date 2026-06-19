@@ -513,9 +513,19 @@ stdsptr<ShaderEffectCreator> ShaderEffectCreator::sLoadFromFile(
     if(!greFile.open(QIODevice::ReadOnly))
         RuntimeThrow("ShaderEffect source file could not be opened.");
     QDomDocument document;
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+    const auto parseResult = document.setContent(&greFile);
+    if (!parseResult) {
+        RuntimeThrow("Error while parsing ShaderEffect source:\n" + parseResult.errorMessage);
+    }
+#else
     QString errMsg;
-    if(!document.setContent(&greFile, &errMsg))
+    if (!document.setContent(&greFile, &errMsg)) {
         RuntimeThrow("Error while parsing ShaderEffect source:\n" + errMsg);
+    }
+#endif
+
     greFile.close();
 
     QDomElement root = document.firstChildElement();

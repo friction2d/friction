@@ -283,7 +283,7 @@ bool toColor(const QString &colorStr, QColor &color)
             if (hasAlpha) { color.setAlphaF(a); }
         } else { return false; }
     } else {
-        if (QColor::isValidColor(colorStr.simplified())) { color = QColor(colorStr.simplified()); }
+        if (AppSupport::isValidColor(colorStr.simplified())) { color = QColor(colorStr.simplified()); }
         else { return false; }
     }
     return true;
