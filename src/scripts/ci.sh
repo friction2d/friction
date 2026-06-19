@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# Friction Qt5/Qt6 CI (Ubuntu 24.04)
+# Friction Ubuntu CI
 
 set -e -x
 
@@ -25,6 +25,8 @@ CI=${CI:-0}
 APT=${APT:-0}
 PC=${PC:-""}
 QT6=${QT6:-"OFF"}
+CPU=${CPU:-"x86_64"} # or aarch64
+FFMPEG=${FFMPEG:-0}
 
 if [ "${QT6}" = "ON" ]; then
     QTV=6
@@ -60,7 +62,9 @@ libicu-dev \
 libharfbuzz-dev \
 libgl1-mesa-dev \
 libegl1-mesa-dev \
-libgles2-mesa-dev
+libgles2-mesa-dev \
+nasm \
+yasm
 
 if [ "${QT6}" = "ON" ]; then
 sudo apt install -y \
@@ -97,17 +101,41 @@ fi
 CWD=`pwd`
 MKJOBS=${MKJOBS:-4}
 
+FFMPEG_URL=https://github.com/friction2d/ffmpeg
+FFMPEG_COMMIT=44b01dbdbe3a742b5d006a7187b63a8a30293a45
+FFMPEG_INSTALL=${CWD}/build-ci/ffmpeg-install
+
 cd ${CWD}
 rm -rf build-ci || true
 mkdir build-ci
 cd build-ci
+
+if [ "${FFMPEG}" = 1 ]; then
+    git clone ${FFMPEG_URL} ffmpeg-src
+    cd ffmpeg-src
+    ./configure \
+    --enable-shared \
+    --disable-static \
+    --prefix=${FFMPEG_INSTALL} \
+    --enable-gpl \
+    --enable-version3 \
+    --disable-programs \
+    --disable-debug \
+    --disable-doc
+    make -j${MKJOBS}
+    make install
+    export PKG_CONFIG_PATH=${FFMPEG_INSTALL}/lib/pkgconfig:${PKG_CONFIG_PATH}
+    export LD_LIBRARY_PATH=${FFMPEG_INSTALL}/lib:${LD_LIBRARY_PATH}
+fi
+
+cd ${CWD}/build-ci
 
 cmake -G Ninja \
 -DCMAKE_BUILD_TYPE=Release \
 -DCMAKE_INSTALL_PREFIX=/usr \
 -DCMAKE_CXX_COMPILER=clang++ \
 -DCMAKE_C_COMPILER=clang \
--DQSCINTILLA_INCLUDE_DIRS=/usr/include/x86_64-linux-gnu/qt${QTV} \
+-DQSCINTILLA_INCLUDE_DIRS=/usr/include/${CPU}-linux-gnu/qt${QTV} \
 -DQSCINTILLA_LIBRARIES=qscintilla2_qt${QTV} \
 -DUSE_QT6=${QT6} \
 ..
