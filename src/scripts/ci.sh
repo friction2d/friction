@@ -120,7 +120,8 @@ if [ "${FFMPEG}" = 1 ]; then
     --enable-gpl \
     --enable-version3 \
     --disable-programs \
-    --disable-debug
+    --disable-debug \
+    --disable-doc
     make -j${MKJOBS}
     make install
     export PKG_CONFIG_PATH=${FFMPEG_INSTALL}/lib/pkgconfig:${PKG_CONFIG_PATH}
