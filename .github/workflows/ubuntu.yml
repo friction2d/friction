@@ -1,17 +1,29 @@
 name: Ubuntu
 
-on: workflow_dispatch
+on: [push, pull_request]
 
 jobs:
-  jammy:
-    runs-on: ubuntu-22.04
-    steps:
-    - uses: actions/checkout@v3
-    - name: Build
-      run: APT=1 CI=1 MKJOBS=2 ./src/scripts/ci.sh
-  noble:
+  qt5_15:
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Build
       run: APT=1 CI=1 MKJOBS=2 ./src/scripts/ci.sh
+  qt5_15_arm:
+    runs-on: ubuntu-24.04-arm
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build
+      run: APT=1 CI=1 CPU=aarch64 MKJOBS=2 ./src/scripts/ci.sh
+  qt6_4:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build
+      run: APT=1 QT6="ON" FFMPEG=1 CI=1 MKJOBS=2 ./src/scripts/ci.sh
+  qt6_10:
+    runs-on: ubuntu-26.04
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build
+      run: APT=1 QT6="ON" FFMPEG=1 CI=1 MKJOBS=2 ./src/scripts/ci.sh
