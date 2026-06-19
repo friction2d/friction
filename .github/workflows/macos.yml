@@ -1,8 +1,19 @@
 name: macOS
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+      - v1.0
+      - v1.1
+  pull_request:
+    branches:
+      - main
+      - v1.0
+      - v1.1
+
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
