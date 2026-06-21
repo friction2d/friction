@@ -72,7 +72,7 @@ endif()
 
 find_package(PkgConfig QUIET)
 
-option(USE_QT6 "Use Qt6 (experimental)" OFF)
+option(USE_QT6 "Use Qt6" OFF)
 if(USE_QT6)
     set(QT_VERSION_MAJOR 6)
     find_package(Qt6 6.4.2 REQUIRED COMPONENTS

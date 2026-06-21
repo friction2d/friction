@@ -11,6 +11,7 @@ on:
       - main
       - v1.0
       - v1.1
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
