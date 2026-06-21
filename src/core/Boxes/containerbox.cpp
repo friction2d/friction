@@ -189,6 +189,7 @@ public:
         , mExp(exp)
         , mEle(ele)
         , mVisRange(visRange)
+        , mFrameMapping(exp.currentFrameMapping())
     {
         // check for masks (DstIn or DstOut)
         if (mSrc->isLayer()) {
@@ -206,6 +207,7 @@ public:
     }
 
     void nextStep() override {
+        const SvgExporter::FrameMappingScope mappingScope(mExp, mFrameMapping);
         if (!mSrc) { return cancel(); }
         if (setValue(mI)) { return; }
         if (done()) { return; }
@@ -228,6 +230,7 @@ private:
     QDomElement& mEle;
     const FrameRange mVisRange;
     QString mItemMaskId;
+    const SvgExporter::FrameMapping mFrameMapping;
 
     int mI = 0;
 };

@@ -274,7 +274,7 @@ void ColorAnimator::saveColorSVG(SvgExporter &exp,
 {
     qDebug() << "save color for SVG" << name;
     Animator::saveSVG(exp, parent, visRange, name,
-                      [this, &rgba, &a, &exp, &name, &parent](const int relFrame) {
+                      [this, &rgba, &a, &exp, &name, &parent](const qreal relFrame) {
         const auto color = getColor(relFrame);
         if (exp.fColors11) {
             if (color.alphaF() != 1. && (name == "fill" || name == "stroke" || name == "stop-color")) {
