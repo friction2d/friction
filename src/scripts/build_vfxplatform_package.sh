@@ -6,8 +6,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# the Free Software Foundation, version 3.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -27,8 +26,8 @@ VERSION=${VERSION:-""}
 APPID="graphics.friction.Friction"
 FRICTION_PKG=friction-${VERSION}
 
-APPIMAGETOOL=bfe6e0c
-APPIMAGERUNTIME=1bb1157
+APPIMAGETOOL_V=${APPIMAGETOOL_V:-"bfe6e0c"}
+APPIMAGERUNTIME_V=${APPIMAGERUNTIME_V:-"1bb1157"}
 
 if [ "${VERSION}" = "" ]; then
     echo "Missing version"
@@ -202,8 +201,8 @@ ln -sf usr/share/applications/${APPID}.desktop .
 ln -sf usr/share/icons/hicolor/256x256/apps/${APPID}.png .
 ln -sf usr/share/icons/hicolor/256x256/apps/${APPID}.png .DirIcon
 )
-tar xf ${DISTFILES}/linux/appimagetool-${APPIMAGETOOL}.tar.bz2
-ARCH=x86_64 ./appimagetool/AppRun --verbose --runtime-file=${DISTFILES}/linux/runtime-x86_64-${APPIMAGERUNTIME}.bin ${FRICTION_PORTABLE}
+tar xf ${DISTFILES}/linux/appimagetool-${APPIMAGETOOL_V}.tar.bz2
+ARCH=x86_64 ./appimagetool/AppRun --verbose --runtime-file=${DISTFILES}/linux/runtime-x86_64-${APPIMAGERUNTIME_V}.bin ${FRICTION_PORTABLE}
 
 cp -a *.AppImage ${DISTFILES}/builds/${VERSION}/
 

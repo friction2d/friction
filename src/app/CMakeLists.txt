@@ -411,6 +411,7 @@ endif()
 
 if(UNIX AND NOT APPLE)
     option(INSTALL_DOCS "Install documentation on Linux/BSD" ON)
+    #option(INSTALL_OFFLINE_DOCS "Install offline documentation on Linux/BSD" OFF)
     target_link_libraries(
         ${PROJECT_NAME}
         PRIVATE
@@ -487,11 +488,13 @@ if(UNIX AND NOT APPLE)
             DESTINATION
             ${CMAKE_INSTALL_DOCDIR}
         )
-        install(
-            DIRECTORY
-            ${CMAKE_CURRENT_SOURCE_DIR}/../../docs/offline/
-            DESTINATION
-            ${CMAKE_INSTALL_DOCDIR}/html
-        )
+        #if(${INSTALL_OFFLINE_DOCS})
+        #    install(
+        #        DIRECTORY
+        #        ${CMAKE_CURRENT_SOURCE_DIR}/../../docs/offline/
+        #        DESTINATION
+        #        ${CMAKE_INSTALL_DOCDIR}/html
+        #    )
+        #endif()
     endif()
 endif()
