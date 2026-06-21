@@ -84,9 +84,20 @@ void GLWindow::initializeGL() {
             RuntimeThrow("Application-wide shared OpenGL context not found");
         if(context()->shareContext() != globalCtx)
             context()->setShareContext(globalCtx);
-        if(!initializeOpenGLFunctions())
+
+#ifdef USE_GLES
+        if (!context() || !context()->isValid()) {
+            RuntimeThrow("Initializing OpenGL ES failed. Context is invalid. "
+                         "Make sure your GPU supports OpenGL ES 3.0.");
+        }
+        initializeOpenGLFunctions();
+#else
+        if (!initializeOpenGLFunctions()) {
             RuntimeThrow("Initializing OpenGL 3.3 functions failed. "
                          "Make sure your GPU supports OpenGL 3.3.");
+        }
+#endif
+
         initialize();
     } catch(const std::exception& e) {
         gPrintExceptionFatal(e);

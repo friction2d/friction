@@ -154,8 +154,23 @@ void gIniProgram(QGL33 * const gl, GLuint& program,
     } catch(...) {
         RuntimeThrow("Could not load shader data from file.");
     }
-    const char* const vShaderCode = vertexCode.c_str();
-    const char* const fShaderCode = fragmentCode.c_str();
+
+#ifdef USE_GLES
+    auto patchShaderGLES = [](std::string& code) {
+        size_t pos = code.find("#version");
+        if (pos != std::string::npos) {
+            size_t endLine = code.find("\n", pos);
+            if (endLine != std::string::npos) {
+                code.replace(pos, endLine - pos, "#version 300 es\nprecision highp float;");
+            }
+        }
+    };
+    patchShaderGLES(vertexCode);
+    patchShaderGLES(fragmentCode);
+#endif
+
+    const char* vShaderCode = vertexCode.c_str();
+    const char* fShaderCode = fragmentCode.c_str();
 
     const GLuint vertexShader = gl->glCreateShader(GL_VERTEX_SHADER);
     gl->glShaderSource(vertexShader, 1, &vShaderCode, nullptr);

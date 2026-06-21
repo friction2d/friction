@@ -38,9 +38,13 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget(parent)
 
 void GLWidget::initializeGL()
 {
+#ifdef USE_GLES
+    initializeOpenGLFunctions();
+#else
     if (!initializeOpenGLFunctions()) {
         RuntimeThrow(tr("Initializing OpenGL 3.3 failed."));
     }
+#endif
 
     glClearColor(0, 0, 0, 1);
 

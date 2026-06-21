@@ -26,13 +26,19 @@
 #ifndef GLHELPERS_H
 #define GLHELPERS_H
 
-#include <QOpenGLFunctions_3_3_Core>
 #include <QPoint>
 #include "skia/skiaincludes.h"
 
 #include "exceptions.h"
 
+#if USE_GLES
+#include <QOpenGLExtraFunctions>
+typedef QOpenGLExtraFunctions QGL33;
+#else
+#include <QOpenGLFunctions_3_3_Core>
 typedef QOpenGLFunctions_3_3_Core QGL33;
+#endif
+
 #define BUFFER_OFFSET(i) ((void*)(i))
 
 CORE_EXPORT

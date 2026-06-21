@@ -51,10 +51,23 @@
 void setDefaultFormat()
 {
     QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+
+#ifdef USE_GLES
+    QApplication::setAttribute(Qt::AA_UseOpenGLES);
+#else
     QApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
+#endif
+
     QSurfaceFormat format;
+
+#ifdef USE_GLES
+    format.setVersion(3, 0);
+    format.setProfile(QSurfaceFormat::NoProfile);
+#else
     format.setVersion(3, 3);
     format.setProfile(QSurfaceFormat::CoreProfile);
+#endif
+
     format.setDepthBufferSize(24);
     format.setStencilBufferSize(8);
     format.setSamples(0);
@@ -316,6 +329,7 @@ int main(int argc, char *argv[])
     }
 
     // init shaders
+#ifndef USE_GLES
     try {
         effectsLoader.iniShaderEffects();
     } catch(const std::exception& e) {
@@ -329,6 +343,7 @@ int main(int argc, char *argv[])
         }
         document.actionFinished();
     });
+#endif
 
     // disabled for now
     //effectsLoader.iniCustomBoxes();

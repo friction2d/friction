@@ -30,6 +30,7 @@ option(MAC_DEPLOY "Mac Deploy" OFF)
 option(WIN_DEPLOY "Windows Deploy" OFF)
 option(BUILD_SKIA "Build skia" ON)
 option(SKIA_STATIC "Static skia" OFF)
+option(USE_GLES "Use OpenGL ES 3.0 (experimental)" OFF)
 
 set(SKIA_LIB_PATH "/mnt/skia" CACHE STRING "Path to prebuilt skia library")
 
@@ -41,6 +42,9 @@ if(${WIN_DEPLOY})
 endif()
 if(${MAC_DEPLOY})
     add_definitions(-DMAC_DEPLOY)
+endif()
+if(USE_GLES)
+    add_compile_definitions(USE_GLES)
 endif()
 
 if(NOT APPLE)

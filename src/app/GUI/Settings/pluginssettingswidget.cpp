@@ -41,6 +41,10 @@ PluginsSettingsWidget::PluginsSettingsWidget(QWidget *parent)
     , mShaderPath(nullptr)
     , mShaderTree(nullptr)
 {
+#ifdef USE_GLES
+    const auto label = new QLabel(tr("Shaders not supported when using OpenGL ES 3.0."), this);
+    addWidget(label);
+#else
     mShadersList = EffectsLoader::sInstance->getLoadedShaderEffects();
 
     mShadersDisabled = AppSupport::getSettings("settings",
@@ -93,10 +97,12 @@ PluginsSettingsWidget::PluginsSettingsWidget(QWidget *parent)
                        .arg(tr("Any changes in this section require a restart of Friction"),
                             tr("Also note that shader effects are still considered experimental")));
     addWidget(infoLabel);
+#endif
 }
 
 void PluginsSettingsWidget::applySettings()
 {
+#ifndef USE_GLES
     AppSupport::setSettings("settings",
                             "CustomShaderPath",
                             mShaderPath->text());
@@ -109,10 +115,12 @@ void PluginsSettingsWidget::applySettings()
     AppSupport::setSettings("settings",
                             "DisabledShaders",
                             disabledShaders);
+#endif
 }
 
 void PluginsSettingsWidget::updateSettings(bool restore)
 {
+#ifndef USE_GLES
     mShaderPath->setText(AppSupport::getAppShaderEffectsPath(restore));
     mShadersDisabled = AppSupport::getSettings("settings",
                                                "DisabledShaders").toStringList();
@@ -120,10 +128,14 @@ void PluginsSettingsWidget::updateSettings(bool restore)
         mShadersDisabled.clear();
         populateShaderTree();
     }
+#else
+    Q_UNUSED(restore)
+#endif
 }
 
 void PluginsSettingsWidget::populateShaderTree()
 {
+#ifndef USE_GLES
     mShaderTree->setSortingEnabled(false);
     mShaderTree->clear();
     for (auto &shader: mShadersList) {
@@ -138,4 +150,5 @@ void PluginsSettingsWidget::populateShaderTree()
     }
     mShaderTree->setSortingEnabled(true);
     mShaderTree->sortByColumn(0, Qt::AscendingOrder);
+#endif
 }
