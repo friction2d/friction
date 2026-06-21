@@ -26,6 +26,10 @@
 #include "duplicatepatheffect.h"
 #include "Animators/qpointfanimator.h"
 #include "Animators/intanimator.h"
+#include "Animators/qrealanimator.h"
+#include "Animators/transformanimator.h"
+#include "Boxes/boundingbox.h"
+#include "Properties/boolproperty.h"
 
 DuplicatePathEffect::DuplicatePathEffect() :
     PathEffect("duplicate effect", PathEffectType::Duplicate) {
@@ -33,26 +37,75 @@ DuplicatePathEffect::DuplicatePathEffect() :
     mTranslation->setBaseValue(QPointF(10, 10));
     ca_addChild(mTranslation);
 
+    mRotation = enve::make_shared<QrealAnimator>(0, -360, 360, 1, "rotation");
+    ca_addChild(mRotation);
+
     mCount = enve::make_shared<IntAnimator>(1, 0, 25, 1, "count");
     ca_addChild(mCount);
+
+    mUseCustomPivot = enve::make_shared<BoolProperty>("use custom pivot");
+    ca_addChild(mUseCustomPivot);
+
+    mCustomPivot = enve::make_shared<QPointFAnimator>("custom pivot");
+    mCustomPivot->setBaseValue(QPointF(0, 0));
+    ca_addChild(mCustomPivot);
 }
 
 class DuplicateEffectCaller : public PathEffectCaller {
 public:
-    DuplicateEffectCaller(const int count, const qreal dX, const qreal dY) :
-        mCount(count), mDX(toSkScalar(dX)), mDY(toSkScalar(dY)) {}
+    DuplicateEffectCaller(const int count,
+                          const qreal dX,
+                          const qreal dY,
+                          const qreal rot,
+                          const bool useCustomPivot,
+                          const SkPoint customPivot,
+                          const SkPoint fallbackPivot,
+                          BoxTransformAnimator * const transform,
+                          const qreal relFrame) :
+        mCount(count),
+        mDX(toSkScalar(dX)),
+        mDY(toSkScalar(dY)),
+        mRot(toSkScalar(rot)),
+        mUseCustomPivot(useCustomPivot),
+        mCustomPivot(customPivot),
+        mFallbackPivot(fallbackPivot),
+        mTransform(transform),
+        mRelFrame(relFrame),
+        mPivotAnimator(transform ? transform->getPivotAnimator() : nullptr) {}
 
     void apply(SkPath& path);
 private:
     const int mCount;
     const float mDX;
     const float mDY;
+    const float mRot;
+    const bool mUseCustomPivot;
+    const SkPoint mCustomPivot;
+    const SkPoint mFallbackPivot;
+    BoxTransformAnimator * const mTransform;
+    const qreal mRelFrame;
+    QPointFAnimator * const mPivotAnimator;
 };
 
 void DuplicateEffectCaller::apply(SkPath &path) {
+    SkPoint pivot;
+    if(mUseCustomPivot) {
+        pivot = mCustomPivot;
+    } else if(mTransform) {
+        pivot = toSkPoint(mTransform->getPivot(mRelFrame));
+    } else if(mPivotAnimator) {
+        pivot = toSkPoint(mPivotAnimator->getEffectiveValue(mRelFrame));
+    } else {
+        pivot = mFallbackPivot;
+    }
+
     const SkPath src = path;
-    for(int i = 1; i <= mCount; i++)
-        path.addPath(src, i*mDX, i*mDY);
+    for(int i = 1; i <= mCount; i++) {
+        SkMatrix m;
+        m.setTranslate(i*mDX, i*mDY);
+        m.preRotate(i*mRot, pivot.x(), pivot.y());
+        path.addPath(src, m);
+    }
 }
 
 
@@ -61,7 +114,24 @@ stdsptr<PathEffectCaller> DuplicatePathEffect::getEffectCaller(
     const int count = mCount->getEffectiveIntValue(relFrame);
     const qreal dX = mTranslation->getEffectiveXValue(relFrame)*influence;
     const qreal dY = mTranslation->getEffectiveYValue(relFrame)*influence;
-    return enve::make_shared<DuplicateEffectCaller>(count, dX, dY);
+    const qreal rot = mRotation->getEffectiveValue(relFrame)*influence;
+    const bool useCustomPivot = mUseCustomPivot->getValue();
+    const SkPoint customPivot = toSkPoint(mCustomPivot->getEffectiveValue(relFrame));
+    SkPoint fallbackPivot = SkPoint::Make(0.f, 0.f);
+    BoxTransformAnimator *transform = nullptr;
+    if(const auto owner = getFirstAncestor<BoundingBox>()) {
+        fallbackPivot = toSkPoint(owner->getRelBoundingRect().center());
+        transform = owner->getBoxTransformAnimator();
+    }
+    return enve::make_shared<DuplicateEffectCaller>(count,
+                                                    dX,
+                                                    dY,
+                                                    rot,
+                                                    useCustomPivot,
+                                                    customPivot,
+                                                    fallbackPivot,
+                                                    transform,
+                                                    relFrame);
 }
 
 bool DuplicatePathEffect::skipZeroInfluence(const qreal relFrame) const {
