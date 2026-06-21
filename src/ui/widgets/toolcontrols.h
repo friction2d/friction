@@ -62,6 +62,8 @@ namespace Friction
             QrealAnimatorValueSlider *mTransformSY;
             QrealAnimatorValueSlider *mTransformRX;
             QrealAnimatorValueSlider *mTransformRY;
+            QrealAnimatorValueSlider *mTransformTX;
+            QrealAnimatorValueSlider *mTransformTY;
             QrealAnimatorValueSlider *mTransformBX;
             QrealAnimatorValueSlider *mTransformBY;
             QrealAnimatorValueSlider *mTransformPX;
@@ -72,6 +74,8 @@ namespace Friction
             QActionGroup *mTransformRotate;
             QActionGroup *mTransformScale;
             QActionGroup *mTransformRadius;
+            QActionGroup *mTransformRectangle;
+            QActionGroup *mTransformTopLeft;
             QActionGroup *mTransformBottomRight;
             QActionGroup *mTransformPivot;
             QActionGroup *mTransformOpacity;
