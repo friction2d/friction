@@ -76,6 +76,11 @@ public:
         return parentSatisfies && !parentMainTarget;
     }
 
+    virtual bool SWT_shouldPassThrough(const SWT_RulesCollection &rules) const {
+        Q_UNUSED(rules)
+        return false;
+    }
+
     virtual QMimeData *SWT_createMimeData() {
         return nullptr;
     }
