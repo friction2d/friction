@@ -30,6 +30,8 @@
 
 class DurationRectangle;
 class AnimationBox;
+class QrealAnimator;
+class QStringAnimator;
 
 using ShaderOptions = QList<stdsptr<ShaderEffectCreator>>;
 
@@ -44,6 +46,8 @@ public:
             const QString& name, const ShaderOptions& options) const = 0;
     virtual void showExpressionDialog(
             QrealAnimator* const target) const = 0;
+    virtual void showExpressionDialog(
+            QStringAnimator* const target) const = 0;
     virtual void showApplyExpressionDialog(
             QrealAnimator* const target) const = 0;
     virtual void showDurationSettingsDialog(
