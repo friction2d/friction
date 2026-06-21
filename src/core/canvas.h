@@ -936,6 +936,7 @@ protected:
     bool mStartTransform = false;
     bool mSelecting = false;
 //    bool mMoving = false;
+    QPointF mLastPointMoveBy;
 
     QRectF mSelectionRect;
     CanvasMode mCurrentMode = CanvasMode::boxTransform;
