@@ -6,8 +6,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# the Free Software Foundation, version 3.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -26,22 +25,16 @@ clang -v
 SDK=${SDK:-"/opt/friction"}
 SRC=${SDK}/src
 DIST=${DIST:-"/mnt"}
-MKJOBS=${MKJOBS:-32}
+MKJOBS=${MKJOBS:-4}
 
 NINJA_V=1.11.1
-#GN_V=82d673ac
+CMAKE_V=3.26.3
 UNWIND_V=1.4.0
-#GPERF_V=4df0b85
-#SKIA_V=4c434dbee3
+SKIA_V=386256b297e93bbe06ee82abdcc701357d9ccd99
+SKIA_URL=https://github.com/friction2d/skia
 
 NINJA_BIN=${SDK}/bin/ninja
-#GN_BIN=${SDK}/bin/gn
-
-#GPERF_DIR=${SDK}/gperftools
-#GPERF_LIB=${GPERF_DIR}/.libs/libtcmalloc.a
-
-#SKIA_DIR=${SDK}/skia
-#SKIA_LIB=${SKIA_DIR}/out/build/libskia.a
+CMAKE_BIN=${SDK}/bin/cmake
 
 STATIC_CFLAGS="-fPIC"
 DEFAULT_CFLAGS="-I${SDK}/include"
@@ -76,30 +69,41 @@ if [ ! -f "${NINJA_BIN}" ]; then
     cp -a ninja ${NINJA_BIN}
 fi # ninja
 
-# gn
-# if [ ! -f "${GN_BIN}" ]; then
-#     cd ${SRC}
-#     GN_SRC=gn-${GN_V}
-#     rm -rf ${GN_SRC} || true
-#     tar xf ${DIST}/${GN_SRC}.tar.xz
-#     cd ${GN_SRC}
-#     python build/gen.py
-#     ${NINJA_BIN} -C out
-#     cp -a out/gn ${GN_BIN}
-# fi # gn
+# cmake
+if [ ! -f "${CMAKE_BIN}" ]; then
+    cd ${SRC}
+    CMAKE_SRC=cmake-${CMAKE_V}
+    rm -rf ${CMAKE_SRC} || true
+    tar xf ${DIST}/ffmpeg/${CMAKE_SRC}.tar.gz
+    cd ${CMAKE_SRC}
+    ./configure ${COMMON_CONFIGURE} --parallel=${MKJOBS} -- -DCMAKE_USE_OPENSSL=OFF
+    make -j${MKJOBS}
+    make install
+fi # cmake
 
 # skia
-# if [ ! -f "${SKIA_LIB}" ]; then
-#     cd ${SRC}
-#     SKIA_SRC=skia-${SKIA_V}
-#     rm -rf ${SKIA_SRC} || true
-#     rm -rf ${SKIA_DIR} || true
-#     tar xf ${DIST}/${SKIA_SRC}.tar.xz
-#     mv ${SKIA_SRC} ${SKIA_DIR}
-#     cd ${SKIA_DIR}
-#     ${GN_BIN} gen out/build --args='is_official_build=true is_debug=false cc="clang" cxx="clang++" extra_cflags=["-Wno-error"] target_os="linux" target_cpu="x64" skia_use_system_expat=false skia_use_system_freetype2=false skia_use_system_libjpeg_turbo=false skia_use_system_libpng=false skia_use_system_libwebp=false skia_use_system_zlib=false skia_use_system_icu=false skia_use_system_harfbuzz=false skia_use_dng_sdk=false'
-#     ${NINJA_BIN} -C out/build -j${MKJOBS} skia
-# fi # skia
+if [ ! -f "${SDK}/lib/libskia.a" ]; then
+    cd ${SRC}
+    rm -rf skia-${SKIA_V} || true
+    git clone ${SKIA_URL} skia-${SKIA_V}
+    cd skia-${SKIA_V}
+    git checkout ${SKIA_V}
+    git submodule update -i --recursive
+    mkdir build
+    cd build
+    cmake -G Ninja \
+    -DCMAKE_INSTALL_PREFIX=${SDK} \
+    -DCMAKE_CXX_COMPILER=clang++ \
+    -DCMAKE_C_COMPILER=clang \
+    -DSKIA_USE_SYSTEM_LIBS=OFF \
+    -DSKIA_SYNC_EXTERNAL=ON \
+    -DSKIA_STATIC=ON \
+    -DSKIA_USE_EGL=ON \
+    -DLINUX_DEPLOY=ON \
+    ..
+    cmake --build .
+    cp -a libskia.a ${SDK}/lib/
+fi # skia
 
 # libunwind
 if [ ! -f "${SDK}/lib/pkgconfig/libunwind.pc" ]; then
@@ -112,23 +116,5 @@ if [ ! -f "${SDK}/lib/pkgconfig/libunwind.pc" ]; then
     make -j${MKJOBS}
     make install
 fi # libunwind
-
-# gperftools
-# if [ ! -f "${GPERF_LIB}" ]; then
-#     cd ${SRC}
-#     GPERF_SRC=gperftools-${GPERF_V}
-#     rm -rf ${GPERF_SRC} || true
-#     rm -rf ${GPERF_DIR} || true
-#     tar xf ${DIST}/${GPERF_SRC}.tar.xz
-#     mv ${GPERF_SRC} ${GPERF_DIR}
-#     cd ${GPERF_DIR}
-#     ./autogen.sh
-#     CC=clang CXX=clang++ \
-#     CFLAGS="${DEFAULT_CFLAGS}" \
-#     CXXFLAGS="${DEFAULT_CFLAGS}" \
-#     LDFLAGS="${DEFAULT_LDFLAGS} -lunwind" \
-#     ./configure ${STATIC_CONFIGURE} --enable-libunwind
-#     make -j${MKJOBS}
-# fi # gperftools
 
 echo "SDK PART 1 DONE"

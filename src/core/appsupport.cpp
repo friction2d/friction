@@ -1138,7 +1138,7 @@ void AppSupport::setFont(const QString &path)
 
 QString AppSupport::getOfflineDocs()
 {
-#ifdef Q_OS_LINUX
+/*#ifdef Q_OS_LINUX
     if (isFlatpak()) {
         // we can't have offline docs in a flatpak
         return QString();
@@ -1150,7 +1150,8 @@ QString AppSupport::getOfflineDocs()
     for (const auto &path : paths) {
         qDebug() << "Checking for docs ..." << path;
         if (QFile::exists(path)) { return path; }
-    }
+    }*/
+    // offline docs are currently disabled
     return QString();
 }
 
