@@ -53,7 +53,7 @@ run:
 
 # Run the debug-arm64 build (output stays in current terminal)
 run-debug:
-    build-debug-arm64/dmg/Friction.app/Contents/MacOS/friction
+    build-debug-arm64/dmg/Friction.app/Contents/MacOS/friction > log.txt 2>&1
 
 # Run with logging config from .claude/logs.local.json, output to log.txt
 # Usage: just run-debug-with-logs camera-box
@@ -61,31 +61,31 @@ run-debug-with-logs config:
     #!/usr/bin/env bash
     set -euo pipefail
     eval "$(jq -r --arg config "{{config}}" '.[$config] | to_entries[] | "export \(.key)=\(.value | @sh)"' .claude/logs.local.json)"
-    just run-debug > log.txt 2>&1
+    just run-debug
 
 run-debug-render:
-    QT_LOGGING_RULES="friction.renderoutput=true;friction.canvas=true;friction.videoencoder=true;friction.core=true" just run-debug > log.txt 2>&1;
+    QT_LOGGING_RULES="friction.renderoutput=true;friction.canvas=true;friction.videoencoder=true;friction.core=true" just run-debug
 
 run-debug-preview:
-    QT_LOGGING_RULES="friction.renderhandler=true;friction.cachehandler=true;friction.canvas=true;friction.renderoutput=true;friction.audio=true" just run-debug > log.txt 2>&1;
+    QT_LOGGING_RULES="friction.renderhandler=true;friction.cachehandler=true;friction.canvas=true;friction.renderoutput=true;friction.audio=true" just run-debug
 
 run-debug-timeline:
-    QT_LOGGING_RULES="SvgElementTrack=true;friction.svgflipbooktrack=true" just run-debug > log.txt 2>&1;
+    QT_LOGGING_RULES="SvgElementTrack=true;friction.svgflipbooktrack=true" just run-debug
 
 run-debug-camera:
-    QT_LOGGING_RULES="friction.camera=true;friction.renderoutput=true;friction.renderhandler=true" just run-debug > log.txt 2>&1;
+    QT_LOGGING_RULES="friction.camera=true;friction.renderoutput=true;friction.renderhandler=true" just run-debug
 
 # Debug C-toggle clip behavior with and without cameras
 run-debug-toggle:
-    QT_LOGGING_RULES="friction.camera=true;friction.canvas=true" just run-debug > log.txt 2>&1;
+    QT_LOGGING_RULES="friction.camera=true;friction.canvas=true" just run-debug
 
 # Debug pivot track attachment decisions (read-path filtering + collectPivotDescs + applyPivotToTrack)
 debug-pivot-track-attachment:
-    QT_LOGGING_RULES="SvgElementTrack=true;friction.svgpivot=true" just run-debug > log.txt 2>&1;
+    QT_LOGGING_RULES="SvgElementTrack=true;friction.svgpivot=true" just run-debug
 
 # Full pivot debug: SVG import detection + collectPivotDescs traversal + bbox pivot resets
 run-debug-pivot:
-    QT_LOGGING_RULES="friction.svg.import=true;friction.svgpivot=true;friction.box.pivot=true" just run-debug > log.txt 2>&1;
+    QT_LOGGING_RULES="friction.svg.import=true;friction.svgpivot=true;friction.box.pivot=true" just run-debug
 
 # Debug animation-follower binding resolution and per-frame transform propagation
 run-debug-followers:
@@ -93,11 +93,11 @@ run-debug-followers:
 
 # Debug locked-item modification attempts: signal emission + flash slot receipt + timer lifecycle
 debug-locked-items:
-    QT_LOGGING_RULES="friction.locked=true" just run-debug > log.txt 2>&1;
+    QT_LOGGING_RULES="friction.locked=true" just run-debug
 
 # Debug locked slider: trace mousePressEvent, mouseReleaseEvent, startTransform, setValue for locked children
 run-debug-locked-slider:
-    QT_LOGGING_RULES="friction.locked=true" just run-debug > log.txt 2>&1;
+    QT_LOGGING_RULES="friction.locked=true" just run-debug
 
 # Produce the universal DMG from the two arch builds
 package: build

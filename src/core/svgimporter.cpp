@@ -1503,14 +1503,10 @@ void BoxSvgAttributes::loadBoundingBoxAttributes(const QDomElement &element) {
 
     const QString strokeWidth = element.attribute("stroke-width").simplified();
     if (mStrokeAttributes.getPaintType() != NOPAINT) {
-        if (strokeWidth.isEmpty() || strokeWidth.contains("%")) {
-            if (mStrokeAttributes.getLineWidth() < 1.0) {
-                mStrokeAttributes.setLineWidth(1.0); // spec says 1 as default
-            }
-            // TODO: A percentage value is always computed as a percentage of the normalized viewBox diagonal length.
-        } else {
+        if (!strokeWidth.isEmpty() && !strokeWidth.contains("%")) {
             mStrokeAttributes.setLineWidth(stripPx(strokeWidth).simplified().toDouble());
         }
+        // TODO: A percentage value is always computed as a percentage of the normalized viewBox diagonal length.
     }
 
     const QString matrixStr = element.attribute("transform");
@@ -1649,7 +1645,13 @@ void BoxSvgAttributes::apply(BoundingBox *box) const
 
         const qreal sxAbs = qSqrt(m11*m11 + m21*m21);
         const qreal syAbs = qSqrt(m12*m12 + m22*m22);
-        mStrokeAttributes.apply(path, (sxAbs + syAbs)*0.5);
+        qCDebug(lcSvgImport) << "stroke-width scale:"
+                             << "id=" << (mId.isEmpty() ? mLabel : mId)
+                             << "rawWidth=" << mStrokeAttributes.getLineWidth()
+                             << "sx=" << sxAbs << "sy=" << syAbs
+                             << "strokeScale=1 (fixed)"
+                             << "scaledWidth=" << mStrokeAttributes.getLineWidth();
+        mStrokeAttributes.apply(path, 1.0);
         mFillAttributes.apply(path);
         if (const auto text = enve_cast<TextBox*>(box)) {
             text->setFont(mTextAttributes.getFont());
