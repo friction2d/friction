@@ -139,7 +139,7 @@ build-debug: sdk
         macdeployqt src/app/Friction.app
         rm -f src/app/Friction.app/Contents/Frameworks/{libQt5MultimediaWidgets.5.dylib,libQt5Svg.5.dylib}
         rm -rf src/app/Friction.app/Contents/PlugIns/{bearer,iconengines,imageformats,mediaservice,printsupport,styles}
-        mkdir dmg
+        mkdir -p dmg
         mv src/app/Friction.app dmg/
     else
         cp src/app/friction.app/Contents/MacOS/friction dmg/Friction.app/Contents/MacOS/friction
