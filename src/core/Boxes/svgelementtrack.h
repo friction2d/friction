@@ -68,6 +68,7 @@ public:
 signals:
     void orphanedChanged();
     void deleteRequested();
+    void captured(BoundingBox* target);
 
 protected:
     QDomElement prp_writePropertyXEV_impl(const XevExporter& exp) const override;

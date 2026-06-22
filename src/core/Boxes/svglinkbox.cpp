@@ -35,11 +35,15 @@
 #include "typemenu.h"
 #include "XML/xevexporter.h"
 
+#include "Animators/qrealanimator.h"
+#include "Animators/complexanimator.h"
+
 #include <QInputDialog>
 #include <QLoggingCategory>
 #include <yaml-cpp/yaml.h>
 
 Q_LOGGING_CATEGORY(lcSvgPivot, "friction.svgpivot", QtWarningMsg)
+Q_LOGGING_CATEGORY(lcSvgFollower, "friction.svgfollower", QtWarningMsg)
 
 SvgFileCacheHandler* svgFileHandlerGetter(const QString& path) {
     return FilesHandler::sInstance->getFileHandler<SvgFileCacheHandler>(path);
@@ -134,6 +138,94 @@ void SvgLinkBox::resolveElementTracks() {
     for (const auto& track : mFlipbookTracks) {
         track->resolveTargets(svgRoot);
         track->syncToTargets();
+    }
+    mFollowers.clear();
+    if (svgRoot) collectFollowerDescs(svgRoot, svgRoot);
+}
+
+static BoundingBox* findBoxByName(ContainerBox* container, const QString& name) {
+    for (auto* box : container->getContainedBoxes()) {
+        if (box->prp_getName() == name) return box;
+        if (box->property("svgElementId").toString() == name) return box;
+        if (const auto sub = enve_cast<ContainerBox*>(box)) {
+            if (auto* found = findBoxByName(sub, name)) return found;
+        }
+    }
+    return nullptr;
+}
+
+static void syncFollowerLeaf(QrealAnimator* src, QrealAnimator* dst) {
+    dst->setCurrentBaseValue(src->getEffectiveValue());
+}
+
+static void syncFollowerTransform(ComplexAnimator* src, ComplexAnimator* dst) {
+    QMap<QString, Property*> dstByName;
+    for (int i = 0; i < dst->ca_getNumberOfChildren(); i++) {
+        auto* p = dst->ca_getChildAt(i);
+        dstByName[p->prp_getName()] = p;
+    }
+    for (int i = 0; i < src->ca_getNumberOfChildren(); i++) {
+        auto* sp = src->ca_getChildAt(i);
+        auto it = dstByName.find(sp->prp_getName());
+        if (it == dstByName.end()) continue;
+        auto* tp = it.value();
+        if (const auto srcReal = enve_cast<QrealAnimator*>(sp)) {
+            if (const auto dstReal = enve_cast<QrealAnimator*>(tp)) {
+                syncFollowerLeaf(srcReal, dstReal);
+            }
+        } else if (const auto srcNested = enve_cast<ComplexAnimator*>(sp)) {
+            if (const auto dstNested = enve_cast<ComplexAnimator*>(tp)) {
+                syncFollowerTransform(srcNested, dstNested);
+            }
+        }
+    }
+}
+
+static void applyFollowerTransform(BoundingBox* controller, BoundingBox* follower) {
+    qCDebug(lcSvgFollower) << "applyFollowerTransform controller:" << controller->prp_getName()
+                           << "-> follower:" << follower->prp_getName();
+    Property* srcTransform = nullptr;
+    Property* dstTransform = nullptr;
+    for (int i = 0; i < controller->ca_getNumberOfChildren(); i++) {
+        auto* p = controller->ca_getChildAt(i);
+        if (p->prp_getName() == "transform") { srcTransform = p; break; }
+    }
+    for (int i = 0; i < follower->ca_getNumberOfChildren(); i++) {
+        auto* p = follower->ca_getChildAt(i);
+        if (p->prp_getName() == "transform") { dstTransform = p; break; }
+    }
+    if (!srcTransform || !dstTransform) return;
+    const auto srcCA = enve_cast<ComplexAnimator*>(srcTransform);
+    const auto dstCA = enve_cast<ComplexAnimator*>(dstTransform);
+    if (!srcCA || !dstCA) return;
+    syncFollowerTransform(srcCA, dstCA);
+}
+
+void SvgLinkBox::collectFollowerDescs(ContainerBox* svgRoot,
+                                       ContainerBox* container) {
+    for (auto* box : container->getContainedBoxes()) {
+        for (const auto& doc : box->getDescYaml()) {
+            if (!doc.isYaml) continue;
+            try {
+                const auto node = YAML::Load(doc.content.toStdString());
+                if (!node["kind"] || node["kind"].as<std::string>() != "animation-follower") continue;
+                if (!node["controller"]) break;
+                const QString controllerName =
+                    QString::fromStdString(node["controller"].as<std::string>());
+                BoundingBox* controller = findBoxByName(svgRoot, controllerName);
+                if (controller) {
+                    qCDebug(lcSvgFollower) << "follower" << box->prp_getName()
+                                          << "-> controller" << controllerName;
+                    mFollowers.append(FollowerBinding{box, controller});
+                } else {
+                    qCWarning(lcSvgFollower) << "follower" << box->prp_getName()
+                                            << "controller not found:" << controllerName;
+                }
+                break;
+            } catch (...) {}
+        }
+        if (const auto sub = enve_cast<ContainerBox*>(box))
+            collectFollowerDescs(svgRoot, sub);
     }
 }
 
@@ -245,6 +337,14 @@ void SvgLinkBox::wireTrack(const qsptr<SvgElementTrack>& track) {
             this, [this](const QString&) { resolveElementTracks(); });
     connect(track.get(), &SvgElementTrack::deleteRequested,
             this, [this, t = track.get()]() { removeElementTrack(t); });
+    connect(track.get(), &SvgElementTrack::captured,
+            this, [this](BoundingBox* controller) {
+                for (const auto& binding : mFollowers) {
+                    if (binding.controller == controller) {
+                        applyFollowerTransform(binding.controller, binding.follower);
+                    }
+                }
+            });
     const int swtId = ca_getNumberOfChildren() + mElementTracks.count() - 1;
     SWT_addChildAt(track.get(), swtId);
 }
@@ -286,6 +386,12 @@ void SvgLinkBox::anim_setAbsFrame(const int frame) {
     for (const auto& track : mFlipbookTracks) {
         track->anim_setAbsFrame(frame);
         track->syncToTargets();
+    }
+    for (const auto& binding : mFollowers) {
+        qCDebug(lcSvgFollower) << "anim_setAbsFrame" << frame
+                               << "follower:" << binding.follower->prp_getName()
+                               << "controller:" << binding.controller->prp_getName();
+        applyFollowerTransform(binding.controller, binding.follower);
     }
 }
 

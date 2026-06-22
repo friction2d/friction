@@ -317,6 +317,7 @@ void SvgElementTrack::captureFromTarget(BoundingBox* target) {
             }
         }
     }
+    emit captured(target);
 }
 
 static void writeTrackProperty(eWriteStream& dst, Property* prop) {

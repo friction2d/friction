@@ -72,9 +72,16 @@ private:
     void fileHandlerConnector(ConnContext &conn, SvgFileCacheHandler *obj);
     void fileHandlerAfterAssigned(SvgFileCacheHandler *obj);
 
+    struct FollowerBinding {
+        BoundingBox* follower;
+        BoundingBox* controller;
+    };
+
     QList<qsptr<Gradient>> mGradients;
     QList<qsptr<SvgElementTrack>> mElementTracks;
     QList<qsptr<SvgFlipbookTrack>> mFlipbookTracks;
+    QList<FollowerBinding> mFollowers;
+    void collectFollowerDescs(ContainerBox* svgRoot, ContainerBox* container);
 };
 
 #endif // SVGLINKBOX_H
