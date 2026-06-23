@@ -684,11 +684,23 @@ Node * NodeList::nextNormal(const int nodeId) const {
 
 NodeList NodeList::sInterpolate(const NodeList &list1,
                                 const NodeList &list2,
-                                const qreal weight2) {
-    if(list1.count() != list2.count())
-        RuntimeThrow("Cannot interpolate paths with different node count");
-    if(list1.isClosed() != list2.isClosed())
-        RuntimeThrow("Cannot interpolate a closed path with an open path.");
+                                const qreal weight2)
+{
+    // "hold keyframe" fallback
+    auto fallbackHold = [&]() {
+        return (weight2 < 0.5) ? list1 : list2;
+    };
+
+    if (list1.count() != list2.count()) {
+        qWarning() << "Interpolate: Cannot interpolate paths with different node count.";
+        return fallbackHold();
+    }
+
+    if (list1.isClosed() != list2.isClosed()) {
+        qWarning() << "Interpolate: Cannot interpolate a closed path with an open path.";
+        return fallbackHold();
+    }
+
     NodeList list1Cpy = list1;
     NodeList list2Cpy = list2;
     const bool closed = list1Cpy.isClosed();
@@ -696,28 +708,37 @@ NodeList NodeList::sInterpolate(const NodeList &list1,
     result.setClosed(closed);
     ListOfNodes& resultList = result.getList();
     const int listCount = list1Cpy.count();
-    for(int i = 0; i < listCount; i++) {
+
+    for (int i = 0; i < listCount; i++) {
         const Node * const node1 = list1Cpy.at(i);
         const Node * const node2 = list2Cpy.at(i);
-        if(node1->getType() == node2->getType()) continue;
-        if(node1->isDissolved()) {
+
+        if (node1->getType() == node2->getType()) { continue; }
+
+        if (node1->isDissolved()) {
             list1Cpy.promoteDissolvedNodeToNormal(i);
-        } else if(node2->isDissolved()) {
+        } else if (node2->isDissolved()) {
             list2Cpy.promoteDissolvedNodeToNormal(i);
-        } else RuntimeThrow("Nodes with different type should not happen");
+        } else {
+            qWarning() << "Interpolate: Nodes with different type should not happen.";
+            return fallbackHold();
+        }
     }
-    for(int i = 0; i < listCount; i++) {
+
+    for (int i = 0; i < listCount; i++) {
         const Node * const node1 = list1Cpy.at(i);
         const Node * const node2 = list2Cpy.at(i);
-        if(node1->isNormal() && node2->isNormal()) {
-            const auto normalInter = Node::sInterpolateNormal(
-                        *node1, *node2, weight2);
+
+        if (node1->isNormal() && node2->isNormal()) {
+            const auto normalInter = Node::sInterpolateNormal(*node1, *node2, weight2);
             resultList.append(normalInter);
-        } else if(node1->isDissolved() && node2->isDissolved()) {
-            const auto dissInter = Node::sInterpolateDissolved(
-                        *node1, *node2, weight2);
+        } else if (node1->isDissolved() && node2->isDissolved()) {
+            const auto dissInter = Node::sInterpolateDissolved(*node1, *node2, weight2);
             resultList.append(dissInter);
-        } else RuntimeThrow("Nodes with different type should not happen");
+        } else {
+            qWarning() << "Interpolate: Nodes with different type should not happen.";
+            return fallbackHold();
+        }
     }
 
     return result;
