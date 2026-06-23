@@ -84,6 +84,22 @@ Here are the `kind`s introduced so far:
   kind: pivot
   ```
 
+- `animation-follower` Makes the enclosing element automatically mirror
+  the transform of a named controller element at every frame — both
+  during timeline playback and when the user drags the controller
+  directly on the canvas.
+
+  Additional attributes:
+
+    - `controller` the `id` or `inkscape:label` of the element whose
+      transform this element should follow.
+
+  Example Syntax:
+  ```yaml
+  kind: animation-follower
+  controller: "my-controller-element"
+  ```
+
 #### History
 
 - [#4](https://github.com/earlye/friction/pull/4): per-element
@@ -97,6 +113,8 @@ Here are the `kind`s introduced so far:
   support for SvgLinkBox
 - [#23](https://github.com/earlye/friction/pull/23): `kind:pivot` SVG
   desc tag
+- [#65](https://github.com/earlye/friction/pull/65): `kind:animation-follower`
+  mirrors named controller element transforms
 
 ### Camera as a first class entity
 
@@ -281,6 +299,12 @@ before the fork.
 | [#36](https://github.com/earlye/friction/pull/36), [#37](https://github.com/earlye/friction/pull/37) | Fix locked entity children allowing slider drag and manual typing | fork-introduced — enhanced locking UX is a fork feature |
 | [#47](https://github.com/earlye/friction/pull/47) | Fix keyframe deletion and movement ignoring object lock state | fork-introduced — same |
 
+### SVG Import
+
+| # | Fix | Origin |
+|---|-----|--------|
+| [#66](https://github.com/earlye/friction/pull/66) | Fix SVG stroke-width import: style-parsed widths were reset when the direct attribute was absent; element transform scale was double-applied (once at import, once at render) | pre-existing — bugs were in upstream `BoxSvgAttributes::loadBoundingBoxAttributes` |
+
 ### Compiler Warnings
 
 | # | Fix | Origin |
@@ -295,3 +319,4 @@ before the fork.
 | [#45](https://github.com/earlye/friction/pull/45) | Fix `just index` to use Homebrew `universal-ctags` on macOS | fork-introduced — `just index` recipe is a fork addition |
 | [#51](https://github.com/earlye/friction/pull/51) | Set tmux window name in `start-worktree` recipe | fork-introduced — recipe is a fork addition |
 | [#54](https://github.com/earlye/friction/pull/54) | Fix `just index` recipe handling stale CodeGraph state | fork-introduced — same |
+| [c18c4e6](https://github.com/earlye/friction/commit/c18c4e640) | Fix Justfile | fork-introduced — Justfile is a fork addition |
