@@ -68,9 +68,13 @@ void Node::setNormalData(const NormalNodeData &data) {
 }
 
 Node Node::sInterpolateNormal(const Node &node1, const Node &node2,
-                              const qreal weight2) {
-    if(!node1.isNormal() || !node2.isNormal())
-        RuntimeThrow("Unsupported node type");
+                              const qreal weight2)
+{
+    if (!node1.isNormal() || !node2.isNormal()) {
+        qWarning() << "InterpolateNormal: Unsupported node type.";
+        return (weight2 < 0.5) ? node1 : node2;
+    }
+
     //if(isZero6Dec(weight2)) return node1;
     //if(isOne6Dec(weight2)) return node2;
     const qreal w1 = 1 - weight2;
@@ -96,9 +100,13 @@ Node Node::sInterpolateNormal(const Node &node1, const Node &node2,
 }
 
 Node Node::sInterpolateDissolved(const Node &node1, const Node &node2,
-                        const qreal weight2) {
-    if(!node1.isDissolved() || !node2.isDissolved())
-        RuntimeThrow("Unsupported node type");
+                        const qreal weight2)
+{
+    if (!node1.isDissolved() || !node2.isDissolved()) {
+        qWarning() << "InterpolateDissolved: Unsupported node type.";
+        return (weight2 < 0.5) ? node1 : node2;
+    }
+
     const qreal w1 = 1 - weight2;
     return Node(w1*node1.t() + weight2*node2.t());
 }
