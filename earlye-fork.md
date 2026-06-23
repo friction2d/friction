@@ -291,6 +291,7 @@ before the fork.
 | [#32](https://github.com/earlye/friction/pull/32) | Fix SvgElementTrack including transform effects in animation track tree | fork-introduced — same |
 | [#48](https://github.com/earlye/friction/pull/48) | Fix flipbook index field not triggering canvas redraw on edit | fork-introduced — same |
 | [#55](https://github.com/earlye/friction/pull/55) | Fix flipbook page lookup ignoring `inkscape:label` when `id` is absent | fork-introduced — same |
+| [#67](https://github.com/earlye/friction/pull/67) | Fix flipbook track names preferring `id` over `inkscape:label` | fork-introduced — same |
 
 ### Lock System
 

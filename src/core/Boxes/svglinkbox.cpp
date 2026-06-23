@@ -242,8 +242,7 @@ void SvgLinkBox::collectFlipbookDescs(ContainerBox* container) {
                     pageMap[entry.first.as<int>()] =
                         QString::fromStdString(entry.second.as<std::string>());
                 if (pageMap.isEmpty()) break;
-                QString ownerId = box->property("svgElementId").toString();
-                if (ownerId.isEmpty()) ownerId = box->prp_getName();
+                const QString ownerId = box->prp_getName();
                 SvgFlipbookTrack* existing = nullptr;
                 for (const auto& track : mFlipbookTracks) {
                     if (track->prp_getName() == ownerId) { existing = track.get(); break; }
