@@ -56,10 +56,20 @@ void NodeList::updateDissolvedNodePosition(const int nodeId) {
 }
 
 void NodeList::updateDissolvedNodePosition(const int nodeId,
-                                           Node * const node) {
-    if(node->isNormal()) RuntimeThrow("Unsupported node type");
+                                           Node * const node)
+{
+    if (node->isNormal()) {
+        qWarning() << "Warning: updateDissolvedNodePosition called on normal node.";
+        return;
+    }
+
     const Node * const prevNode = prevNormal(nodeId);
     const Node * const nextNode = nextNormal(nodeId);
+
+    if (!prevNode || !nextNode) {
+        return;
+    }
+
     const auto normalSeg = gSegmentFromNodes(*prevNode, *nextNode);
     node->mP1 = normalSeg.posAtT(node->mT);
 }
@@ -142,11 +152,17 @@ void NodeList::removeNodeFromList(const int nodeId) {
     mNodes.removeAt(nodeId);
 }
 
-Node *NodeList::insertNodeToList(const int nodeId, const Node &node) {
-    if(nodeId < 0 || nodeId > mNodes.count())
-        RuntimeThrow("Wrong insert id");
-    mNodes.insert(nodeId, node);
-    Node * const insertedNode = mNodes[nodeId];
+Node *NodeList::insertNodeToList(const int nodeId, const Node &node)
+{
+    int safeId = nodeId;
+    if (safeId < 0 || safeId > mNodes.count()) {
+        qWarning() << "InsertNodeToList: Wrong insert id" << safeId << "Clamping to valid range.";
+        if (safeId < 0) { safeId = 0; }
+        if (safeId > mNodes.count()) { safeId = mNodes.count(); }
+    }
+
+    mNodes.insert(safeId, node);
+    Node * const insertedNode = mNodes[safeId];
     return insertedNode;
 }
 
@@ -386,9 +402,12 @@ void NodeList::splitNodeAndDisconnect(const int nodeId) {
     splitNode(nodeId);
 }
 
-void NodeList::mergeNodes(const int node1Id, const int node2Id) {
-    if(!nodesConnected(node1Id, node2Id))
-        RuntimeThrow("Only neighbouring connected nodes can be merged");
+void NodeList::mergeNodes(const int node1Id, const int node2Id)
+{
+    if (!nodesConnected(node1Id, node2Id)) {
+        qWarning() << "Only neighbouring connected nodes can be merged" << node1Id << node2Id;
+        return;
+    }
     const int resId = qMin(node1Id, node2Id);
     const int otherId = qMax(node1Id, node2Id);
     Node * const resultingNode = at(resId);
@@ -428,12 +447,14 @@ void gCubicTo(const Node& prevNode, const Node& nextNode,
     dissolvedTs.clear();
 }
 
-SkPath NodeList::toSkPath() const {
+SkPath NodeList::toSkPath() const
+{
     SkPath result;
 
-    if(mNodes.isEmpty()) return result;
+    if (mNodes.isEmpty()) { return result; }
+    if (!at(0)) { return result; }
 
-    if(at(0)->isDissolved()) {
+    if (at(0)->isDissolved()) {
         auto copy = *this;
         copy.promoteDissolvedNodeToNormal(0);
         return copy.toSkPath();
@@ -446,10 +467,11 @@ SkPath NodeList::toSkPath() const {
 
     bool move = true;
     for(const auto& node : mNodes) {
-        if(node->isDissolved()) {
+        if (!node) { continue; }
+        if (node->isDissolved()) {
             dissolvedTs << node->t();
-        } else if(node->isNormal()) {
-            if(move) {
+        } else if (node->isNormal()) {
+            if (move) {
                 firstNode = node.get();
                 result.moveTo(toSkPoint(node->p1()));
                 move = false;
@@ -459,13 +481,16 @@ SkPath NodeList::toSkPath() const {
             }
             prevNormalNode = node.get();
         } else {
-            RuntimeThrow("Unrecognized node type");
+                qWarning() << "Unrecognized node type in toSkPath. Skipping node.";
+            continue;
         }
     }
-    if(isClosed()) {
+
+    if (isClosed() && firstNode && prevNormalNode) {
         gCubicTo(*prevNormalNode, *firstNode, dissolvedTs, result);
         result.close();
     }
+
     return result;
 }
 
