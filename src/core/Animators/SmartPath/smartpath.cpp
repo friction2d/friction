@@ -152,9 +152,12 @@ void SmartPath::actionDemoteToDissolved(const int nodeId, const bool approx) {
 
 void SmartPath::actionMoveNodeBetween(const int movedNodeId,
                                       const int prevNodeId,
-                                      const int nextNodeId) {
-    if(!mNodesList.nodesConnected(prevNodeId, nextNodeId))
-        RuntimeThrow("Trying to move between not connected nodes");
+                                      const int nextNodeId)
+{
+    if (!mNodesList.nodesConnected(prevNodeId, nextNodeId)) {
+        qWarning() << "MoveNodeBetween: Trying to move between not connected nodes";
+        return;
+    }
     const int targetId = (movedNodeId < prevNodeId ? prevNodeId : nextNodeId);
     mNodesList.moveNode(movedNodeId, targetId);
 }
@@ -169,11 +172,14 @@ void SmartPath::actionDisconnectNodes(const int node1Id, const int node2Id) {
         prevId = node2Id;
         nextId = node1Id;
     } else {
-        RuntimeThrow("Trying to disconnect not connected nodes");
+        qWarning() << "DisconnectNodes: Trying to disconnect not connected nodes";
+        return;
     }
 
     Node * const prevNode = mNodesList.at(prevId);
     Node * const nextNode = mNodesList.at(nextId);
+
+    if (!prevNode || !nextNode) { return; }
 
     if(prevNode->isDissolved())
         actionPromoteDissolvedNodeToNormal(prevId);
