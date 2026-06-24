@@ -40,9 +40,9 @@ void FileCacheHandler::reloadAction() {
 bool FileCacheHandler::deleteAction() {
     if(mReferenceCount) {
         const int buttonId = QMessageBox::question(
-                    nullptr, "Delete", QString("Are you sure you want to delete "
+                    nullptr, tr("Delete"), tr("Are you sure you want to delete "
                     "%1 object(s) referencing \"%2\"?").arg(mReferenceCount).arg(mPath),
-                    "Cancel", "Delete");
+                    QMessageBox::Cancel | QMessageBox::Yes);
         if(buttonId == 0) return false;
     }
     const auto selfRef = ref<FileCacheHandler>();
@@ -63,5 +63,5 @@ void FileCacheHandler::setMissing(const bool missing) {
 }
 
 void FileCacheHandler::updateFileMissing() {
-    mFileMissing = !QFileInfo(mPath).exists();
+    mFileMissing = !QFileInfo::exists(mPath);
 }

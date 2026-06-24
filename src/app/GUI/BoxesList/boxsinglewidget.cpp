@@ -654,8 +654,10 @@ void BoxSingleWidget::clearStaticPixmaps()
 
 void BoxSingleWidget::mousePressEvent(QMouseEvent *event) {
     if(!mTarget) return;
-    if(event->x() < mFillWidget->x() ||
-       event->x() > mFillWidget->x() + mFillWidget->width()) return;
+    const auto mouseX = AppSupport::getMouseX(event);
+    if (mouseX < mFillWidget->x() ||
+        mouseX > mFillWidget->x() + mFillWidget->width()) return;
+
     const auto target = mTarget->getTarget();
     if(event->button() == Qt::RightButton) {
         setSelected(true);
@@ -672,7 +674,7 @@ void BoxSingleWidget::mousePressEvent(QMouseEvent *event) {
             PropertyMenu pMenu(&menu, mParent->currentScene(), MainWindow::sGetInstance());
             pTarget->prp_setupTreeViewMenu(&pMenu);
         }
-        menu.exec(event->globalPos());
+        menu.exec(AppSupport::getMouseGlobalPos(event));
         setSelected(false);
     } else {
         mDragPressPos = event->pos().x() > mFillWidget->x();
@@ -691,7 +693,8 @@ void BoxSingleWidget::mouseMoveEvent(QMouseEvent *event) {
     {
         const auto prop = static_cast<Property*>(mTarget->getTarget());
         const QString name = prop->prp_getName();
-        const int nameWidth = QApplication::fontMetrics().horizontalAdvance(name);
+        QFontMetricsF fmf(QApplication::font());
+        const int nameWidth = static_cast<int>(fmf.horizontalAdvance(name));
         QPixmap pixmap(mFillWidget->x() + nameWidth + eSizesUI::widget, height());
         render(&pixmap);
         drag->setPixmap(pixmap);
@@ -713,13 +716,14 @@ void BoxSingleWidget::mouseReleaseEvent(QMouseEvent *event)
     const auto target = mTarget->getTarget();
 
     const auto bbox = enve_cast<BoundingBox*>(target);
-    if (event->button() == Qt::MidButton && bbox) {
+    if (event->button() == Qt::MiddleButton && bbox) {
         PropertyNameDialog::sRenameBox(bbox, this);
         return;
     }
 
-    if (event->x() < mFillWidget->x() ||
-        event->x() > mFillWidget->x() + mFillWidget->width()) { return; }
+    const auto mouseX = AppSupport::getMouseX(event);
+    if (mouseX < mFillWidget->x() ||
+        mouseX > mFillWidget->x() + mFillWidget->width()) { return; }
     setSelected(false);
 
     if (pointToLen(event->pos() - mDragStartPos) > eSizesUI::widget/2) { return; }
@@ -734,7 +738,7 @@ void BoxSingleWidget::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
-void BoxSingleWidget::enterEvent(QEvent *)
+void BoxSingleWidget::enterEvent(QtEnterEvent *)
 {
 #ifdef Q_OS_MAC
     setFocus();

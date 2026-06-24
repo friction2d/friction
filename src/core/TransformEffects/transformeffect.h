@@ -47,7 +47,7 @@ public:
                              qreal& rot,
                              qreal& scaleX, qreal& scaleY,
                              qreal& shearX, qreal& shearY,
-                             QMatrix& postTransform,
+                             QTransform& postTransform,
                              BoundingBox* const parent) = 0;
 
     void prp_setupTreeViewMenu(PropertyMenu * const menu);

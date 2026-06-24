@@ -211,7 +211,7 @@ qreal QPointFAnimator::getSavedYValue() {
     return mYAnimator->getSavedBaseValue();
 }
 
-void QPointFAnimator::applyTransform(const QMatrix &transform) {
+void QPointFAnimator::applyTransform(const QTransform &transform) {
     mXAnimator->anim_coordinateKeysWith(mYAnimator.get());
     const auto& xKeys = mXAnimator->anim_getKeys();
     const auto& yKeys = mYAnimator->anim_getKeys();

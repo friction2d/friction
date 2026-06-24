@@ -29,10 +29,12 @@
 #include "../core_global.h"
 
 #define e_PROHIBIT_HEAP \
-private: \
+public: \
+    static void* operator new(size_t, void* ptr) noexcept { return ptr; } \
+    private: \
     static void *operator new (size_t sz) { \
         return std::malloc(sz); \
-    }
+}
 
 #define e_OBJECT \
     friend class SelfRef; \

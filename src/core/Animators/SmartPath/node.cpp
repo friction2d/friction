@@ -117,7 +117,7 @@ NormalNodeData Node::normalData() const {
             mCtrlsMode, mC0, mP1, mC2};
 }
 
-void Node::applyTransform(const QMatrix &transform) {
+void Node::applyTransform(const QTransform &transform) {
     mC0 = transform.map(mC0);
     mP1 = transform.map(mP1);
     mC2 = transform.map(mC2);

@@ -25,9 +25,9 @@
 #define FRICTION_TOOLBUTTON_H
 
 #include "ui_global.h"
+#include "enterevent.h"
 
 #include <QToolButton>
-#include <QEvent>
 #include <QDropEvent>
 #include <QDragEnterEvent>
 #include <QDragMoveEvent>
@@ -64,7 +64,7 @@ namespace Friction
             bool mAutoPopup;
 
         protected:
-            void enterEvent(QEvent *event) override
+            void enterEvent(QtEnterEvent *event) override
             {
                 if (mAutoPopup) { showMenu(); }
                 QToolButton::enterEvent(event);

@@ -28,8 +28,9 @@
 #include "Properties/property.h"
 
 QString NameFixer::stringScrapEndDigits(const QString &string) {
-    const QRegExp endNumbers(QStringLiteral("[0-9]+$"));
-    const int endNumbersIndex = endNumbers.indexIn(string);
+    const QRegularExpression endNumbers(QStringLiteral("[0-9]+$"));
+    QRegularExpressionMatch match = endNumbers.match(string);
+    const int endNumbersIndex = match.capturedStart();
     QString trimmedName;
     if(endNumbersIndex >= 0) {
         return string.mid(0, endNumbersIndex);

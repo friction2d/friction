@@ -114,7 +114,7 @@ void ListOfNodes::prependNodes(ListOfNodes &&src) {
     updateNodeIds();
 }
 
-void ListOfNodes::applyTransform(const QMatrix &transform) {
+void ListOfNodes::applyTransform(const QTransform &transform) {
     for(const auto& node : mList)
         node->applyTransform(transform);
 }

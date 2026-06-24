@@ -180,17 +180,18 @@ void BoxScroller::stopScrolling() {
     }
 }
 
-void BoxScroller::dropEvent(QDropEvent *event) {
+void BoxScroller::dropEvent(QDropEvent *event)
+{
     stopScrolling();
     mCurrentMimeData = event->mimeData();
-    mLastDragMoveY = event->pos().y();
+    mLastDragMoveY = AppSupport::getDropPos(event).y();
     updateDropTarget();
-    if(mDropTarget.isValid()) {
+    if (mDropTarget.isValid()) {
         const auto targetAbs = mDropTarget.fTargetParent;
         const auto target = targetAbs->getTarget();
-        if(mDropTarget.fDropType == DropType::on) {
+        if (mDropTarget.fDropType == DropType::on) {
             target->SWT_drop(mCurrentMimeData);
-        } else if(mDropTarget.fDropType == DropType::into) {
+        } else if (mDropTarget.fDropType == DropType::into) {
             target->SWT_dropInto(mDropTarget.fTargetId, mCurrentMimeData);
         }
         planScheduleUpdateVisibleWidgetsContent();
@@ -200,13 +201,14 @@ void BoxScroller::dropEvent(QDropEvent *event) {
     mDropTarget.reset();
 }
 
-void BoxScroller::dragEnterEvent(QDragEnterEvent *event) {
+void BoxScroller::dragEnterEvent(QDragEnterEvent *event)
+{
     const auto mimeData = event->mimeData();
-    mLastDragMoveY = event->pos().y();
+    mLastDragMoveY = AppSupport::getDropPos(event).y();
     mCurrentMimeData = mimeData;
     updateDropTarget();
     //mDragging = true;
-    if(mCurrentMimeData) event->acceptProposedAction();
+    if (mCurrentMimeData) { event->acceptProposedAction(); }
     update();
 }
 
@@ -218,18 +220,19 @@ void BoxScroller::dragLeaveEvent(QDragLeaveEvent *event) {
     update();
 }
 
-void BoxScroller::dragMoveEvent(QDragMoveEvent *event) {
+void BoxScroller::dragMoveEvent(QDragMoveEvent *event)
+{
     event->acceptProposedAction();
-    const int yPos = event->pos().y();
+    const int yPos = AppSupport::getDropPos(event).y();
 
-    if(yPos < 30) {
-        if(!mScrollTimer->isActive()) {
+    if (yPos < 30) {
+        if (!mScrollTimer->isActive()) {
             connect(mScrollTimer, &QTimer::timeout,
                     this, &BoxScroller::scrollUp);
             mScrollTimer->start(300);
         }
-    } else if(yPos > height() - 30) {
-        if(!mScrollTimer->isActive()) {
+    } else if (yPos > height() - 30) {
+        if (!mScrollTimer->isActive()) {
             connect(mScrollTimer, &QTimer::timeout,
                     this, &BoxScroller::scrollDown);
             mScrollTimer->start(300);

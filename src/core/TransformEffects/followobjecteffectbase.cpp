@@ -55,7 +55,7 @@ void FollowObjectEffectBase::applyEffectWithTransform(
         qreal& scaleX, qreal& scaleY,
         qreal& shearX, qreal& shearY,
         BoundingBox* const parent,
-        const QMatrix& transform) {
+        const QTransform& transform) {
     Q_UNUSED(pivotX);
     Q_UNUSED(pivotY);
     Q_UNUSED(shearX);

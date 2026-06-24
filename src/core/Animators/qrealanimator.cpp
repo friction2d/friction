@@ -935,9 +935,9 @@ void QrealAnimator::prp_readPropertyXEV_impl(
     if(!values.isEmpty()) {
         const auto allFrames = ele.attribute("frames");
         const auto ctrlModes = ele.attribute("ctrlModes");
-        const auto keysValues = values.splitRef(';');
-        const auto keysFrames = allFrames.splitRef(';');
-        const auto keysCtrlModes = ctrlModes.splitRef(';');
+        const auto keysValues = values.split(';');
+        const auto keysFrames = allFrames.split(';');
+        const auto keysCtrlModes = ctrlModes.split(';');
         if(keysValues.count() != keysFrames.count())
             RuntimeThrow("The values count does not match the frames count");
         if(keysCtrlModes.count() != keysFrames.count())
@@ -946,11 +946,11 @@ void QrealAnimator::prp_readPropertyXEV_impl(
         for(int i = 0; i < iMax; i++) {
             const auto values = keysValues[i].split(' ');
             if(values.count() != 3) {
-                RuntimeThrow("Invalid values count " + values[i].toString());
+                RuntimeThrow("Invalid values count " + values[i]);
             }
             const auto frames = keysFrames[i].split(' ');
             if(frames.count() != 3) {
-                RuntimeThrow("Invalid frames count " + frames[i].toString());
+                RuntimeThrow("Invalid frames count " + frames[i]);
             }
             const auto ctrlModeStr = keysCtrlModes[i];
             const auto ctrlMode = XmlExportHelpers::stringToEnum<CtrlsMode>(

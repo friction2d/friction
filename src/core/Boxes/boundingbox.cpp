@@ -345,7 +345,7 @@ void BoundingBox::applyTransformEffects(
         qreal& rot,
         qreal& scaleX, qreal& scaleY,
         qreal& shearX, qreal& shearY,
-        QMatrix& postTransform) {
+        QTransform& postTransform) {
     mTransformEffectCollection->applyEffects(relFrame,
                                              pivotX, pivotY,
                                              posX, posY,
@@ -585,7 +585,7 @@ stdsptr<BoxRenderData> BoundingBox::queExternalRender(
 }
 
 stdsptr<BoxRenderData> BoundingBox::queRender(
-        const qreal relFrame, const QMatrix& parentM) {
+        const qreal relFrame, const QTransform& parentM) {
     const auto renderData = updateCurrentRenderData(relFrame);
     if(!renderData) return nullptr;
     setupRenderData(relFrame, parentM, renderData, getParentScene());
@@ -739,11 +739,11 @@ void BoundingBox::drawBoundingRect(SkCanvas * const canvas,
                                     true, eSizesUI::widget*0.25f);
 }
 
-QMatrix BoundingBox::getTotalTransform() const {
+QTransform BoundingBox::getTotalTransform() const {
     return mTransformAnimator->getTotalTransform();
 }
 
-QMatrix BoundingBox::getRelativeTransformAtCurrentFrame() const {
+QTransform BoundingBox::getRelativeTransformAtCurrentFrame() const {
     return getRelativeTransformAtFrame(anim_getCurrentRelFrame());
 }
 
@@ -836,15 +836,15 @@ void BoundingBox::setupCanvasMenu(PropertyMenu * const menu)
 
     menu->addPlainAction(QIcon::fromTheme("copy"), tr("Copy"), [pScene]() {
         pScene->copyAction();
-    })->setShortcut(Qt::CTRL + Qt::Key_C);
+    })->setShortcut(QStringLiteral("Ctrl+C"));
 
     menu->addPlainAction(QIcon::fromTheme("cut"), tr("Cut"), [pScene]() {
         pScene->cutAction();
-    })->setShortcut(Qt::CTRL + Qt::Key_X);
+    })->setShortcut(QStringLiteral("Ctrl+X"));
 
     menu->addPlainAction(QIcon::fromTheme("duplicate"), tr("Duplicate"), [pScene]() {
         pScene->duplicateAction();
-    })->setShortcut(Qt::CTRL + Qt::Key_D);
+    })->setShortcut(QStringLiteral("Ctrl+D"));
 
     menu->addPlainAction(QIcon::fromTheme("trash"), tr("Delete"), [pScene]() {
         pScene->removeSelectedBoxesAndClearList();
@@ -854,7 +854,7 @@ void BoundingBox::setupCanvasMenu(PropertyMenu * const menu)
 
     menu->addPlainAction(QIcon::fromTheme("group"), tr("Group"), [pScene]() {
         pScene->groupSelectedBoxes();
-    })->setShortcut(Qt::CTRL + Qt::Key_G);
+    })->setShortcut(QStringLiteral("Ctrl+G"));
 
     menu->addSeparator();
 
@@ -1078,7 +1078,7 @@ void BoundingBox::finishTransform() {
 }
 
 void BoundingBox::setupRenderData(const qreal relFrame,
-                                  const QMatrix& parentM,
+                                  const QTransform& parentM,
                                   BoxRenderData * const data,
                                   Canvas* const scene) {
     setupWithoutRasterEffects(relFrame, parentM, data, scene);
@@ -1086,7 +1086,7 @@ void BoundingBox::setupRenderData(const qreal relFrame,
 }
 
 void BoundingBox::setupWithoutRasterEffects(const qreal relFrame,
-                                            const QMatrix& parentM,
+                                            const QTransform& parentM,
                                             BoxRenderData * const data,
                                             Canvas* const scene) {
     //Q_ASSERT(scene);
@@ -1230,19 +1230,19 @@ void BoundingBox::addTransformEffect(const qsptr<TransformEffect> &transformEffe
 //    }
 //}
 
-QMatrix BoundingBox::getRelativeTransformAtFrame(const qreal relFrame) const {
+QTransform BoundingBox::getRelativeTransformAtFrame(const qreal relFrame) const {
     if(isZero6Dec(relFrame - anim_getCurrentRelFrame()))
         return mTransformAnimator->getRelativeTransform();
     return mTransformAnimator->getRelativeTransformAtFrame(relFrame);
 }
 
-QMatrix BoundingBox::getInheritedTransformAtFrame(const qreal relFrame) const {
+QTransform BoundingBox::getInheritedTransformAtFrame(const qreal relFrame) const {
     if(isZero6Dec(relFrame - anim_getCurrentRelFrame()))
         return mTransformAnimator->getInheritedTransform();
     return mTransformAnimator->getInheritedTransformAtFrame(relFrame);
 }
 
-QMatrix BoundingBox::getTotalTransformAtFrame(const qreal relFrame) const {
+QTransform BoundingBox::getTotalTransformAtFrame(const qreal relFrame) const {
     if(isZero6Dec(relFrame - anim_getCurrentRelFrame()))
         return mTransformAnimator->getTotalTransform();
     return mTransformAnimator->getTotalTransformAtFrame(relFrame);

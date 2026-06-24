@@ -39,8 +39,8 @@ void RenderContainer::drawSk(SkCanvas * const canvas,
 }
 
 void RenderContainer::updatePaintTransformGivenNewTotalTransform(
-                                    const QMatrix &totalTransform) {
-    QMatrix paintTransform = mTransform.inverted()*totalTransform;
+                                    const QTransform &totalTransform) {
+    QTransform paintTransform = mTransform.inverted()*totalTransform;
     const qreal invRes = 1/mResolutionFraction;
     paintTransform.scale(invRes, invRes);
     mPaintTransform = toSkMatrix(paintTransform);
@@ -57,7 +57,7 @@ void RenderContainer::setSrcRenderData(BoxRenderData * const data) {
     mImageSk = data->fRenderedImage;
     mGlobalRect = data->fGlobalRect;
     mAntiAlias = data->fAntiAlias;
-    QMatrix paintTransform;
+    QTransform paintTransform;
     paintTransform.scale(1/mResolutionFraction, 1/mResolutionFraction);
     mPaintTransform = toSkMatrix(paintTransform);
     mSrcRenderData = data->ref<BoxRenderData>();

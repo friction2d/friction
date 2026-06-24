@@ -42,7 +42,7 @@ WidgetWrapperNode::WidgetWrapperNode(const WrapperNode::WidgetCreator &creator) 
     mLayout->addLayout(mMenuLayout);
     setLayout(mLayout);
     mLayout->setSpacing(0);
-    mLayout->setMargin(0);
+    mLayout->setContentsMargins(0, 0, 0, 0);
 }
 
 void WidgetWrapperNode::setMenuBar(StackWrapperMenu * const menu) {

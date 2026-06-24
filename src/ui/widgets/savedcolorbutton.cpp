@@ -29,6 +29,7 @@
 #include <QAction>
 #include "GUI/global.h"
 #include "Private/document.h"
+#include "appsupport.h"
 
 SavedColorButton::SavedColorButton(const QColor &colorT,
                                    QWidget *parent)
@@ -53,7 +54,7 @@ void SavedColorButton::mousePressEvent(QMouseEvent *e)
         QMenu menu(this);
         menu.addAction(QIcon::fromTheme("minus"),
                        tr("Unbookmark Color"));
-        const auto act = menu.exec(e->globalPos());
+        const auto act = menu.exec(AppSupport::getMouseGlobalPos(e));
         if (act) {
             if (act->text() == tr("Unbookmark Color")) {
                 Document::sInstance->removeBookmarkColor(getColor());

@@ -127,7 +127,7 @@ void SmartPathAnimator::prp_readPropertyXEV_impl(
     const int modeInt = XmlExportHelpers::stringToInt(modeStr);
     mMode = static_cast<Mode>(modeInt);
 
-    readValuesXEV(ele, [closed](SmartPath& path, const QStringRef& str) {
+    readValuesXEV(ele, [closed](SmartPath& path, const QStringView& str) {
         path.loadXEV(str);
         path.setClosed(closed);
     });
@@ -226,7 +226,7 @@ qsptr<SmartPathAnimator> SmartPathAnimator::createFromDetached() {
     return newAnim;
 }
 
-void SmartPathAnimator::applyTransform(const QMatrix &transform) {
+void SmartPathAnimator::applyTransform(const QTransform &transform) {
     const auto& keys = anim_getKeys();
     for(const auto &key : keys) {
         const auto spKey = static_cast<SmartPathKey*>(key);

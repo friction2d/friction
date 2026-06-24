@@ -42,7 +42,7 @@ void BoxesListActionButton::mousePressEvent(QMouseEvent *)
     emit pressed();
 }
 
-void BoxesListActionButton::enterEvent(QEvent *)
+void BoxesListActionButton::enterEvent(QtEnterEvent *)
 {
     mHover = true;
     update();

@@ -55,7 +55,7 @@ public:
                     TextBox * const parent,
                     Canvas * const scene);
 
-    void applyTransform(const QMatrix& transform);
+    void applyTransform(const QTransform& transform);
 
     QRectF fBoundingRect;
     QPointF fLetterPos;
@@ -79,7 +79,7 @@ public:
                     TextBox * const parent,
                     Canvas * const scene);
 
-    void applyTransform(const QMatrix &transform);
+    void applyTransform(const QTransform &transform);
     void queAllLetters();
 
     QRectF fBoundingRect;
@@ -101,7 +101,7 @@ public:
                     TextBox * const parent,
                     Canvas * const scene);
 
-    void applyTransform(const QMatrix &transform);
+    void applyTransform(const QTransform &transform);
     void queAllWords();
 
     QPointF fLinePos;

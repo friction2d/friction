@@ -28,6 +28,7 @@
 
 #include "../core_global.h"
 #include "GUI/global.h"
+#include "../ui/enterevent.h"
 
 #include <functional>
 
@@ -41,7 +42,7 @@ public:
     BoxesListActionButton(QWidget * const parent = nullptr);
 protected:
     void mousePressEvent(QMouseEvent *);
-    void enterEvent(QEvent *);
+    void enterEvent(QtEnterEvent *);
     void leaveEvent(QEvent *);
 
     bool mHover = false;

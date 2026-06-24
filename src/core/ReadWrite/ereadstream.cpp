@@ -131,13 +131,54 @@ eReadStream &eReadStream::operator>>(QRectF &val) {
     return *this;
 }
 
-eReadStream &eReadStream::operator>>(QMatrix &val) {
-    read(&val, sizeof(QMatrix));
+eReadStream &eReadStream::operator>>(QTransform &val)
+{
+    // Get QMatrix (48 bytes)
+    qreal m[6];
+    read(m, sizeof(m));
+
+    // QMatrix => QTransform (m31=dx, m32=dy, m33=1.0)
+    val.setMatrix(m[0], m[1], 0.0,
+                  m[2], m[3], 0.0,
+                  m[4], m[5], 1.0);
+
     return *this;
 }
 
-eReadStream &eReadStream::operator>>(QColor &val) {
+eReadStream &eReadStream::operator>>(QColor &val)
+{
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
     read(&val, sizeof(QColor));
+#else
+    struct Qt5QColorLayout {
+        int32_t spec;
+        uint16_t alpha;
+        uint16_t red;
+        uint16_t green;
+        uint16_t blue;
+        uint16_t pad;
+        uint16_t pad2;
+    };
+
+    Qt5QColorLayout oldColor;
+    read(&oldColor, sizeof(Qt5QColorLayout)); // 16 bytes
+
+    int a = oldColor.alpha >> 8;
+    int r = oldColor.red >> 8;
+    int g = oldColor.green >> 8;
+    int b = oldColor.blue >> 8;
+
+    if (oldColor.spec == 2) { // HSV
+        val = QColor::fromHsv(r, g, b, a);
+    } else if (oldColor.spec == 4) { // HSL
+        val = QColor::fromHsl(r, g, b, a);
+    } else if (oldColor.spec == 1) { // RGB
+        val = QColor::fromRgb(r, g, b, a);
+    } else {
+        val = QColor();
+    }
+#endif
+
     return *this;
 }
 
@@ -145,8 +186,8 @@ eReadStream &eReadStream::operator>>(QString &val) {
     uint nChars; read(&nChars, sizeof(uint));
     if(nChars == 0) val = "";
     else {
-        ushort * const chars = new ushort[nChars];
-        read(chars, nChars*sizeof(ushort));
+        char16_t * const chars = new char16_t[nChars];
+        read(chars, nChars*sizeof(char16_t));
         val = QString::fromUtf16(chars, static_cast<int>(nChars));
         delete[] chars;
     }

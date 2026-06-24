@@ -159,10 +159,11 @@ void CurrentGradientWidget::colorLeftPress(const int x) {
 }
 
 void CurrentGradientWidget::mousePressEvent(QMouseEvent *event) {
-    if(event->button() == Qt::RightButton) {
-        colorRightPress(event->x(), event->globalPos());
-    } else if(event->button() == Qt::LeftButton) {
-        colorLeftPress(event->x());
+    if (event->button() == Qt::RightButton) {
+        colorRightPress(AppSupport::getMouseX(event),
+                        AppSupport::getMouseGlobalPos(event));
+    } else if (event->button() == Qt::LeftButton) {
+        colorLeftPress(AppSupport::getMouseX(event));
     }
 }
 
@@ -213,14 +214,14 @@ void CurrentGradientWidget::mouseMoveEvent(QMouseEvent *event) {
             mGradient->saveOrder();
         }
         const int nCols = mGradient->ca_getNumberOfChildren();
-        const int colorId = clampInt(event->x()*nCols/width(), 0, nCols - 1);
+        const int colorId = clampInt(AppSupport::getMouseX(event) * nCols/width(), 0, nCols - 1);
         if(colorId != mColorId) {
             mGradient->swapChildrenTemporary(mColorId, colorId);
             setCurrentColorId(colorId);
             Document::sInstance->updateScenes();
         }
     }
-    mHoveredX = event->x();
+    mHoveredX = AppSupport::getMouseX(event);
     update();
 }
 

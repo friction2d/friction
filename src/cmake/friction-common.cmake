@@ -71,20 +71,33 @@ if(MSVC)
 endif()
 
 find_package(PkgConfig QUIET)
-find_package(QT NAMES Qt5 COMPONENTS Core REQUIRED)
-find_package(
-    Qt${QT_VERSION_MAJOR}
-    5.15.13
-    COMPONENTS
-    Gui
-    Widgets
-    OpenGL
-    Multimedia
-    Qml
-    Xml
-    #Svg
-    REQUIRED
-)
+
+option(USE_QT6 "Use Qt6" OFF)
+if(USE_QT6)
+    set(QT_VERSION_MAJOR 6)
+    find_package(Qt6 6.4.2 REQUIRED COMPONENTS
+        Core
+        Gui
+        Widgets
+        OpenGLWidgets
+        OpenGL
+        Multimedia
+        Qml
+        Xml
+    )
+else()
+    set(QT_VERSION_MAJOR 5)
+    find_package(Qt5 5.15.13 REQUIRED COMPONENTS
+        Core
+        Gui
+        Widgets
+        OpenGL
+        Multimedia
+        Qml
+        Xml
+    )
+endif()
+
 set(QT_LIBRARIES
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Gui
@@ -95,6 +108,9 @@ set(QT_LIBRARIES
     Qt${QT_VERSION_MAJOR}::Xml
     #Qt${QT_VERSION_MAJOR}::Svg
 )
+if(USE_QT6)
+    list(APPEND QT_LIBRARIES Qt${QT_VERSION_MAJOR}::OpenGLWidgets)
+endif()
 
 if(WIN32)
     set(SKIA_LIBRARIES

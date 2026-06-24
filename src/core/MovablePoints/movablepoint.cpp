@@ -165,7 +165,7 @@ bool MovablePoint::isContainedInRect(const QRectF &absRect) {
 }
 
 void MovablePoint::rotateRelativeToSavedPivot(const qreal rot) {
-    QMatrix mat;
+    QTransform mat;
     mat.translate(mPivot.x(), mPivot.y());
     mat.rotate(rot);
     mat.translate(-mPivot.x(), -mPivot.y());
@@ -175,7 +175,7 @@ void MovablePoint::rotateRelativeToSavedPivot(const qreal rot) {
 void MovablePoint::scaleRelativeToSavedPivot(const qreal sx,
                                              const qreal sy)
 {
-    QMatrix mat;
+    QTransform mat;
     mat.translate(mPivot.x(), mPivot.y());
     mat.scale(sx, sy);
     mat.translate(-mPivot.x(), -mPivot.y());
@@ -185,7 +185,7 @@ void MovablePoint::scaleRelativeToSavedPivot(const qreal sx,
 void MovablePoint::shearRelativeToSavedPivot(const qreal shearX,
                                              const qreal shearY)
 {
-    QMatrix mat;
+    QTransform mat;
     mat.translate(mPivot.x(), mPivot.y());
     mat.shear(shearX, shearY);
     mat.translate(-mPivot.x(), -mPivot.y());
@@ -198,7 +198,7 @@ void MovablePoint::saveTransformPivotAbsPos(const QPointF &absPivot) {
 }
 
 void MovablePoint::rotateBy(const qreal rot) {
-    QMatrix rotMatrix;
+    QTransform rotMatrix;
     rotMatrix.translate(-mPivot.x(), -mPivot.y());
     rotMatrix.rotate(rot);
     rotMatrix.translate(mPivot.x(), mPivot.y());
@@ -207,7 +207,7 @@ void MovablePoint::rotateBy(const qreal rot) {
 
 void MovablePoint::scale(const qreal scaleXBy,
                          const qreal scaleYBy) {
-    QMatrix scaleMatrix;
+    QTransform scaleMatrix;
     scaleMatrix.translate(-mPivot.x(), -mPivot.y());
     scaleMatrix.scale(scaleXBy, scaleYBy);
     scaleMatrix.translate(mPivot.x(), mPivot.y());

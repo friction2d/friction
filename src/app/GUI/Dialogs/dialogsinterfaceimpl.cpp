@@ -60,8 +60,8 @@ public:
         const auto textTriggerGetter = [this, &options, &homePath](const int id) {
             const auto& shader = options.at(id);
             QString ttPath = shader->fGrePath;
-            if(ttPath.left(homePath.count()) == homePath) {
-                ttPath = "~" + ttPath.mid(homePath.count());
+            if(ttPath.left(homePath.size()) == homePath) {
+                ttPath = "~" + ttPath.mid(homePath.size());
             }
             return ButtonsList::TextTrigger{
                 ttPath, [this, ttPath, id, &options]() {

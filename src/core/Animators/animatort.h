@@ -39,7 +39,7 @@ protected:
     AnimatorT(const QString& name) :
         BasedAnimatorT<Animator, KeyT<T>, T>(name) {}
 
-    using StringToValue = std::function<void(T&, const QStringRef&)>;
+    using StringToValue = std::function<void(T&, const QStringView&)>;
     void readValuesXEV(const QDomElement& ele, const StringToValue& strToVal);
     using ValueToString = std::function<QString(const T&)>;
     void writeValuesXEV(QDomElement& ele, const ValueToString& valToStr) const;
@@ -55,8 +55,8 @@ void AnimatorT<T>::readValuesXEV(
         const QString valueStrs = ele.attribute("values");
         const QString frameStrs = ele.attribute("frames");
 
-        const auto values = valueStrs.splitRef(';');
-        const auto framess = frameStrs.splitRef(';');
+        const auto values = valueStrs.split(';');
+        const auto framess = frameStrs.split(';');
         if(values.count() != framess.count())
             RuntimeThrow("The values count does not match the frames count");
         const int iMax = values.count();
@@ -64,7 +64,7 @@ void AnimatorT<T>::readValuesXEV(
             const auto& value = values[i];
             const auto frames = framess[i].split(' ');
             if(frames.count() != 3) {
-                RuntimeThrow("Invalid frames count " + framess[i].toString());
+                RuntimeThrow("Invalid frames count " + framess[i]);
             }
 
             const int frame = XmlExportHelpers::stringToInt(frames[1]);
@@ -75,7 +75,7 @@ void AnimatorT<T>::readValuesXEV(
         }
     } else if(ele.hasAttribute("value")) {
         const QString value = ele.attribute("value");
-        strToVal(this->mCurrentValue, &value);
+        strToVal(this->mCurrentValue, value);
     } else RuntimeThrow("No values/frames and no value provided");
 }
 

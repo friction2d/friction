@@ -27,7 +27,8 @@
 
 #include <QPainter>
 #include <QApplication>
-#include <QDesktopWidget>
+#include <QScreen>
+#include <QFontMetricsF>
 
 #include "skia/skiaincludes.h"
 #include "skia/skqtconversions.h"
@@ -35,17 +36,21 @@
 #include <QGuiApplication>
 
 ValueInput::ValueInput() {
-    const int dpi = QApplication::desktop()->logicalDpiX();
+    QScreen *screen = QGuiApplication::primaryScreen();
+    qreal dpi = screen ? screen->logicalDotsPerInchX() : 96.0;
+    qreal dpr = screen ? screen->devicePixelRatio() : 1.0;
     mFont = toSkFont(QApplication::font(),
-                     dpi * qApp->desktop()->devicePixelRatioF(),
+                     dpi * dpr,
                      72);
 }
 
 void ValueInput::draw(SkCanvas *canvas, const int y) {
     SkPaint paint;
-    const qreal pixelRatio = qApp->desktop()->devicePixelRatioF();
+    QScreen *screen = QGuiApplication::primaryScreen();
+    const qreal pixelRatio = screen ? screen->devicePixelRatio() : 1.0;
     const auto transStr = getText();
-    const int textWidth = QApplication::fontMetrics().horizontalAdvance(transStr)*pixelRatio;
+    QFontMetricsF fmf(QApplication::font());
+    const int textWidth = static_cast<int>(fmf.horizontalAdvance(transStr) * pixelRatio);
     const SkRect inputRect = SkRect::MakeXYWH(2*eSizesUI::widget*pixelRatio,
                                               y*pixelRatio,
                                               textWidth + eSizesUI::widget*pixelRatio,
@@ -67,7 +72,8 @@ void ValueInput::draw(SkCanvas *canvas, const int y) {
 void ValueInput::draw(QPainter *p, const int y) {
     p->setFont(QApplication::font());
     const auto transStr = getText();
-    const int textWidth = QApplication::fontMetrics().horizontalAdvance(transStr);
+    QFontMetricsF fmf(QApplication::font());
+    const int textWidth = static_cast<int>(fmf.horizontalAdvance(transStr));
     const QRect inputRect(2*eSizesUI::widget, y,
                           textWidth + eSizesUI::widget, eSizesUI::widget);
     p->fillRect(inputRect, QColor(255, 255, 255, 55));

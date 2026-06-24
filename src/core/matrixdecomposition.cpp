@@ -26,7 +26,7 @@
 #include "matrixdecomposition.h"
 #include "simplemath.h"
 
-TransformValues MatrixDecomposition::decompose(const QMatrix &transform) {
+TransformValues MatrixDecomposition::decompose(const QTransform &transform) {
     TransformValues result;
     result.fPivotX = 0;
     result.fPivotY = 0;
@@ -69,7 +69,7 @@ TransformValues MatrixDecomposition::decompose(const QMatrix &transform) {
 }
 
 TransformValues MatrixDecomposition::decomposePivoted(
-        const QMatrix &transform, const QPointF &pivot) {
+        const QTransform &transform, const QPointF &pivot) {
     const TransformValues notPivoted = decompose(transform);
     TransformValues result = setPivotKeepTransform(notPivoted, pivot);
     return result;
@@ -77,7 +77,7 @@ TransformValues MatrixDecomposition::decomposePivoted(
 
 TransformValues MatrixDecomposition::setPivotKeepTransform(
         const TransformValues &transform, const QPointF &newPivot) {
-    QMatrix newTransform;
+    QTransform newTransform;
     newTransform.translate(newPivot.x() + transform.fMoveX,
                            newPivot.y() + transform.fMoveY);
 

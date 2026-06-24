@@ -58,8 +58,6 @@ ButtonsList::ButtonsList(const TextTriggerGetter& getter,
 
     setLayout(recentLay);
 
-    const QFontMetrics fm = QApplication::fontMetrics();
-
     for (int i = 0; i < count; i++) {
         const auto textTrigger = getter(i);
         const auto pathButton = new ElidedButton(textTrigger.first, this);

@@ -37,21 +37,52 @@ AudioHandler::AudioHandler()
     sInstance = this;
 }
 
+void AudioHandler::provideData(const DataRequest &request)
+{
+    if (!request || !mAudioIOOutput) { return; }
+    mAudioIOOutput->write(request.fData, request.fSize);
+}
+
+AudioHandler::DataRequest AudioHandler::dataRequest()
+{
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    if (mAudioOutput && mAudioOutput->state() != QAudio::StoppedState) {
+        int chunkSize = mAudioFormat.bytesPerFrame() * 1024;
+
+        if (chunkSize <= 0 || chunkSize > mAudioBuffer.size()) {
+            chunkSize = 4096; // fallback (4 KB)
+        }
+
+        if (mAudioOutput->bytesFree() >= chunkSize) {
+            return {mAudioBuffer.data(), chunkSize};
+        }
+    }
+#else
+    if (mAudioOutput && mAudioOutput->state() != QAudio::StoppedState) {
+        if (mAudioOutput->bytesFree() >= mAudioOutput->periodSize()) {
+            return {mAudioBuffer.data(), mAudioOutput->periodSize()};
+        }
+    }
+#endif
+
+    return {nullptr, 0};
+}
+
 const int BufferSize = 32768;
 
-QAudioFormat::SampleType toQtAudioFormat(const AVSampleFormat avFormat)
+QtAudioSampleFormat toQtAudioFormat(const AVSampleFormat avFormat)
 {
     if (avFormat == AV_SAMPLE_FMT_S32) {
-        return QAudioFormat::SignedInt;
+        return AUDIO_SAMPLE_FORMAT;
     } else if (avFormat == AV_SAMPLE_FMT_FLT) {
         return QAudioFormat::Float;
     } else { RuntimeThrow("Unsupported sample format " +
                           av_get_sample_fmt_name(avFormat)); }
 }
 
-AVSampleFormat toAVAudioFormat(const QAudioFormat::SampleType qFormat)
+AVSampleFormat toAVAudioFormat(const QtAudioSampleFormat qFormat)
 {
-    if (qFormat == QAudioFormat::SignedInt) {
+    if (qFormat == AUDIO_SAMPLE_FORMAT) {
         return AV_SAMPLE_FMT_S32;
     } else if (qFormat == QAudioFormat::Float) {
         return AV_SAMPLE_FMT_FLT;
@@ -67,10 +98,17 @@ void AudioHandler::initializeAudio(eSoundSettingsData& soundSettings,
     mAudioBuffer = QByteArray(BufferSize, 0);
 
     mAudioDevice = findDevice(deviceName);
+
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    qDebug() << "Using audio device" << mAudioDevice.description();
+#else
     qDebug() << "Using audio device" << mAudioDevice.deviceName();
+#endif
 
     mAudioFormat.setSampleRate(soundSettings.fSampleRate);
     mAudioFormat.setChannelCount(soundSettings.channelCount());
+
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
     mAudioFormat.setSampleSize(8*soundSettings.bytesPerSample());
     mAudioFormat.setCodec("audio/pcm");
     mAudioFormat.setByteOrder(QAudioFormat::LittleEndian);
@@ -93,6 +131,20 @@ void AudioHandler::initializeAudio(eSoundSettingsData& soundSettings,
 
     mAudioOutput = new QAudioOutput(mAudioDevice, mAudioFormat, this);
     mAudioOutput->setNotifyInterval(128);
+#else
+    mAudioFormat.setSampleFormat(toQtAudioFormat(soundSettings.fSampleFormat));
+
+    if (!mAudioDevice.isFormatSupported(mAudioFormat)) {
+        mAudioFormat = mAudioDevice.preferredFormat();
+        soundSettings.fSampleRate = mAudioFormat.sampleRate();
+        soundSettings.fSampleFormat = toAVAudioFormat(mAudioFormat.sampleFormat());
+    }
+
+    qDebug() << mAudioFormat;
+
+    mAudioOutput = new QAudioSink(mAudioDevice, mAudioFormat, this);
+#endif
+
     emit deviceChanged();
 }
 
@@ -104,41 +156,58 @@ void AudioHandler::initializeAudio(const QString &deviceName,
     mAudioBuffer = QByteArray(BufferSize, 0);
 
     mAudioDevice = findDevice(deviceName);
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    qDebug() << "Using audio device" << mAudioDevice.description();
+#else
     qDebug() << "Using audio device" << mAudioDevice.deviceName();
+#endif
     if (save) {
         AppSupport::setSettings(QString::fromUtf8("audio"),
                                 QString::fromUtf8("output"),
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+                                mAudioDevice.id());
+#else
                                 mAudioDevice.deviceName());
+#endif
     }
 
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
     QAudioDeviceInfo info(mAudioDevice);
     if (!info.isFormatSupported(mAudioFormat)) {
         mAudioFormat = info.nearestFormat(mAudioFormat);
     }
+#else
+    if (!mAudioDevice.isFormatSupported(mAudioFormat)) {
+        mAudioFormat = mAudioDevice.preferredFormat();
+    }
+#endif
 
-    mAudioOutput = new QAudioOutput(mAudioDevice, mAudioFormat, this);
+    mAudioOutput = new QtAudioOutput(mAudioDevice, mAudioFormat, this);
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
     mAudioOutput->setNotifyInterval(128);
+#endif
+
     emit deviceChanged();
 }
 
 void AudioHandler::startAudio() {
-    //if (!QAudioDeviceInfo::availableDevices(QAudio::AudioOutput)
-        //.contains(mAudioDevice)) { initializeAudio(); }
+    if (!mAudioOutput) { return; }
     mAudioIOOutput = mAudioOutput->start();
 }
 
 void AudioHandler::pauseAudio()
 {
-    mAudioOutput->suspend();
+    if (mAudioOutput) { mAudioOutput->suspend(); }
 }
 
 void AudioHandler::resumeAudio()
 {
-    mAudioOutput->resume();
+    if (mAudioOutput) { mAudioOutput->resume(); }
 }
 
 void AudioHandler::stopAudio()
 {
+    if (!mAudioOutput) { return; }
     mAudioIOOutput = nullptr;
     mAudioOutput->stop();
     mAudioOutput->reset();
@@ -158,25 +227,46 @@ qreal AudioHandler::getVolume()
 
 const QString AudioHandler::getDeviceName()
 {
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
     return mAudioDevice.deviceName();
+#else
+    return mAudioDevice.description();
+#endif
 }
 
-QAudioDeviceInfo AudioHandler::findDevice(const QString &deviceName)
+QtAudioDevice AudioHandler::findDevice(const QString &deviceName)
 {
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
     if (deviceName.isEmpty()) { return QAudioDeviceInfo::defaultOutputDevice(); }
     const auto deviceInfos = QAudioDeviceInfo::availableDevices(QAudio::AudioOutput);
     for (const QAudioDeviceInfo &deviceInfo : deviceInfos) {
         if (deviceInfo.deviceName() == deviceName) { return deviceInfo; }
     }
     return QAudioDeviceInfo::defaultOutputDevice();
+#else
+    if (deviceName.isEmpty()) { return QMediaDevices::defaultAudioOutput(); }
+    const auto deviceInfos = QMediaDevices::audioOutputs();
+    for (const QAudioDevice &deviceInfo : deviceInfos) {
+        if (deviceInfo.id() == deviceName ||
+            deviceInfo.description() == deviceName) { return deviceInfo; }
+    }
+    return QMediaDevices::defaultAudioOutput();
+#endif
 }
 
 const QStringList AudioHandler::listDevices()
 {
     QStringList devices;
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
     const auto deviceInfos = QAudioDeviceInfo::availableDevices(QAudio::AudioOutput);
     for (const QAudioDeviceInfo &deviceInfo : deviceInfos) {
         devices << deviceInfo.deviceName();
     }
+#else
+    const auto deviceInfos = QMediaDevices::audioOutputs();
+    for (const QAudioDevice &deviceInfo : deviceInfos) {
+        devices << deviceInfo.description();
+    }
+#endif
     return devices;
 }

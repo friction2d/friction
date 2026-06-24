@@ -68,7 +68,7 @@ Actions::Actions(Document &document) : mDocument(document) {
                                                        tr("Delete %1").arg(sceneName),
                                                        tr("Are you sure you want to delete "
                                                           "%1? This action cannot be undone.").arg(sceneName),
-                                                       tr("Cancel"), tr("Delete"));
+                                                       QMessageBox::Cancel | QMessageBox::Yes);
             if (buttonId == 0) { return false; }
             return mDocument.removeScene(mActiveScene->ref<Canvas>());
         };

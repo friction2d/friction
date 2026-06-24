@@ -95,7 +95,7 @@ struct SvgGradient {
     qreal fY1;
     qreal fX2;
     qreal fY2;
-    QMatrix fTrans;
+    QTransform fTrans;
     GradientType fType;
     QString fUnits;
 };
@@ -127,7 +127,7 @@ protected:
     GradientType mGradientType = GradientType::LINEAR;
     QPointF mGradientP1;
     QPointF mGradientP2;
-    QMatrix mGradientTransform;
+    QTransform mGradientTransform;
 };
 
 class StrokeSvgAttributes : public FillSvgAttributes {
@@ -162,7 +162,7 @@ public:
     void setParent(const BoxSvgAttributes &parent);
 
     SkPathFillType getFillRule() const;
-    const QMatrix &getRelTransform() const;
+    const QTransform &getRelTransform() const;
     const FillSvgAttributes &getFillAttributes() const;
     const StrokeSvgAttributes &getStrokeAttributes() const;
     const TextSvgAttributes &getTextAttributes() const;
@@ -181,7 +181,7 @@ protected:
 
     qreal mOpacity = 100;
 
-    QMatrix mRelTransform;
+    QTransform mRelTransform;
 
     QString mId;
     QString mLabel;
@@ -283,7 +283,7 @@ bool toColor(const QString &colorStr, QColor &color)
             if (hasAlpha) { color.setAlphaF(a); }
         } else { return false; }
     } else {
-        if (QColor::isValidColor(colorStr.simplified())) { color = QColor(colorStr.simplified()); }
+        if (AppSupport::isValidColor(colorStr.simplified())) { color = QColor(colorStr.simplified()); }
         else { return false; }
     }
     return true;
@@ -414,7 +414,7 @@ bool parsePolylineData(const QString &dataStr,
     while (str != end) {
         while(str->isSpace()) ++str;
         QChar endc = *end;
-        *const_cast<QChar *>(end) = 0; // parseNumbersArray requires 0-termination that QStringRef cannot guarantee
+        *const_cast<QChar *>(end) = QChar(); // parseNumbersArray requires 0-termination that QStringRef cannot guarantee
         QVarLengthArray<float, 8> arg;
         parseNumbersArray(str, arg);
         *const_cast<QChar *>(end) = endc;
@@ -588,21 +588,23 @@ void loadLine(const QDomElement &pathElement,
     parentGroup->addContained(vectorPath);
 }
 
-bool extractTranslation(const QString& str, QMatrix& target) {
-    const QRegExp rx1(RGXS "translate\\(" REGEX_SINGLE_FLOAT "\\)" RGXS,
-                      Qt::CaseInsensitive);
-    if(rx1.exactMatch(str)) {
-        rx1.indexIn(str);
-        const QStringList capturedTxt = rx1.capturedTexts();
+bool extractTranslation(const QString& str, QTransform& target) {
+    const QRegularExpression rx1("^" RGXS "translate\\(" REGEX_SINGLE_FLOAT "\\)" RGXS "$",
+                                 QRegularExpression::CaseInsensitiveOption);
+    QRegularExpressionMatch match1 = rx1.match(str);
+
+    if (match1.hasMatch()) {
+        const QStringList capturedTxt = match1.capturedTexts();
         target.translate(capturedTxt.at(1).toDouble(), 0);
         return true;
     }
 
-    const QRegExp rx2(RGXS "translate\\(" REGEX_TWO_FLOATS "\\)" RGXS,
-                      Qt::CaseInsensitive);
-    if(rx2.exactMatch(str)) {
-        rx2.indexIn(str);
-        const QStringList capturedTxt = rx2.capturedTexts();
+    const QRegularExpression rx2("^" RGXS "translate\\(" REGEX_TWO_FLOATS "\\)" RGXS "$",
+                                 QRegularExpression::CaseInsensitiveOption);
+    QRegularExpressionMatch match2 = rx2.match(str);
+
+    if (match2.hasMatch()) {
+        const QStringList capturedTxt = match2.capturedTexts();
         target.translate(capturedTxt.at(1).toDouble(),
                          capturedTxt.at(2).toDouble());
         return true;
@@ -612,22 +614,24 @@ bool extractTranslation(const QString& str, QMatrix& target) {
 }
 
 
-bool extractScale(const QString& str, QMatrix& target) {
-    const QRegExp rx1(RGXS "scale\\(" REGEX_SINGLE_FLOAT "\\)" RGXS,
-                      Qt::CaseInsensitive);
-    if(rx1.exactMatch(str)) {
-        rx1.indexIn(str);
-        const QStringList capturedTxt = rx1.capturedTexts();
+bool extractScale(const QString& str, QTransform& target) {
+    const QRegularExpression rx1("^" RGXS "scale\\(" REGEX_SINGLE_FLOAT "\\)" RGXS "$",
+                                 QRegularExpression::CaseInsensitiveOption);
+    QRegularExpressionMatch match1 = rx1.match(str);
+
+    if (match1.hasMatch()) {
+        const QStringList capturedTxt = match1.capturedTexts();
         const qreal scale = capturedTxt.at(1).toDouble();
         target.scale(scale, scale);
         return true;
     }
 
-    const QRegExp rx2(RGXS "scale\\(" REGEX_TWO_FLOATS "\\)" RGXS,
-                      Qt::CaseInsensitive);
-    if(rx2.exactMatch(str)) {
-        rx2.indexIn(str);
-        const QStringList capturedTxt = rx2.capturedTexts();
+    const QRegularExpression rx2("^" RGXS "scale\\(" REGEX_TWO_FLOATS "\\)" RGXS "$",
+                                 QRegularExpression::CaseInsensitiveOption);
+    QRegularExpressionMatch match2 = rx2.match(str);
+
+    if (match2.hasMatch()) {
+        const QStringList capturedTxt = match2.capturedTexts();
         target.scale(capturedTxt.at(1).toDouble(),
                      capturedTxt.at(2).toDouble());
         return true;
@@ -637,14 +641,14 @@ bool extractScale(const QString& str, QMatrix& target) {
 }
 
 bool extractRotate(const QString& str,
-                   QMatrix& target)
+                   QTransform& target)
 {
-    const QRegExp rxRotate("rotate\\s*\\(\\s*([^\\s,)]+)(?:[\\s,]+([^\\s,)]+)[\\s,]+([^\\s,)]+))?\\s*\\)",
-                           Qt::CaseInsensitive);
+    const QRegularExpression rxRotate("rotate\\s*\\(\\s*([^\\s,)]+)(?:[\\s,]+([^\\s,)]+)[\\s,]+([^\\s,)]+))?\\s*\\)",
+                                      QRegularExpression::CaseInsensitiveOption);
 
-    int pos = rxRotate.indexIn(str);
-    if (pos != -1) {
-        const QStringList captured = rxRotate.capturedTexts();
+    QRegularExpressionMatch match = rxRotate.match(str);
+    if (match.hasMatch()) {
+        const QStringList captured = match.capturedTexts();
         bool ok;
         double angle = captured.at(1).toDouble(&ok);
 
@@ -662,34 +666,39 @@ bool extractRotate(const QString& str,
             return true;
         }
     }
+
     return false;
 }
 
-bool extractWholeMatrix(const QString& str, QMatrix& target) {
-    const QRegExp rx(RGXS "matrix\\("
-                         REGEX_FIRST_FLOAT
-                         REGEX_INNER_FLOAT
-                         REGEX_INNER_FLOAT
-                         REGEX_INNER_FLOAT
-                         REGEX_INNER_FLOAT
-                         REGEX_LAST_FLOAT
-                     "\\)" RGXS, Qt::CaseInsensitive);
-    if(rx.exactMatch(str)) {
-        rx.indexIn(str);
-        const QStringList capturedTxt = rx.capturedTexts();
-        target.setMatrix(capturedTxt.at(1).toDouble(),
-                         capturedTxt.at(2).toDouble(),
-                         capturedTxt.at(3).toDouble(),
-                         capturedTxt.at(4).toDouble(),
-                         capturedTxt.at(5).toDouble(),
-                         capturedTxt.at(6).toDouble());
+bool extractWholeMatrix(const QString& str, QTransform& target) {
+    const QRegularExpression rx("^" RGXS "matrix\\("
+                                REGEX_FIRST_FLOAT
+                                REGEX_INNER_FLOAT
+                                REGEX_INNER_FLOAT
+                                REGEX_INNER_FLOAT
+                                REGEX_INNER_FLOAT
+                                REGEX_LAST_FLOAT
+                                "\\)" RGXS "$",
+                                QRegularExpression::CaseInsensitiveOption);
+
+    QRegularExpressionMatch match = rx.match(str);
+
+    if (match.hasMatch()) {
+        const QStringList capturedTxt = match.capturedTexts();
+        target = QTransform(capturedTxt.at(1).toDouble(), // m11 (a)
+                            capturedTxt.at(2).toDouble(), // m12 (b)
+                            capturedTxt.at(3).toDouble(), // m21 (c)
+                            capturedTxt.at(4).toDouble(), // m22 (d)
+                            capturedTxt.at(5).toDouble(), // dx  (e)
+                            capturedTxt.at(6).toDouble());// dy  (f)
         return true;
     }
+
     return false;
 }
 
-QMatrix getMatrixFromString(const QString &str) {
-    QMatrix matrix;
+QTransform getMatrixFromString(const QString &str) {
+    QTransform matrix;
     if(str.isEmpty()) return matrix;
     const bool found = str.isEmpty() ||
                        extractWholeMatrix(str, matrix) ||
@@ -733,7 +742,7 @@ void applyGradientToAttributes(const QDomElement &element,
         const SvgGradient &templateGrad = gGradients[gradId];
 
         QPointF p1, p2;
-        QMatrix finalTransform;
+        QTransform finalTransform;
 
         if (templateGrad.fUnits == "objectBoundingBox") {
             qreal w = element.attribute("width").toDouble();
@@ -750,10 +759,10 @@ void applyGradientToAttributes(const QDomElement &element,
             p2 = QPointF((templateGrad.fX2 / divX) * w,
                          (templateGrad.fY2 / divY) * h);
 
-            QMatrix m = templateGrad.fTrans;
-            finalTransform.setMatrix(m.m11(), m.m12(),
-                                     m.m21(), m.m22(),
-                                     m.dx() * w, m.dy() * h);
+            QTransform m = templateGrad.fTrans;
+            finalTransform.setMatrix(m.m11(), m.m12(), 0.0,
+                                     m.m21(), m.m22(), 0.0,
+                                     m.dx() * w, m.dy() * h, 1.0);
         }
         else { // userSpaceOnUse
             QPointF p1_world = templateGrad.fTrans.map(QPointF(templateGrad.fX1,
@@ -765,7 +774,7 @@ void applyGradientToAttributes(const QDomElement &element,
             p2 = p2_world - offset;
 
             if (templateGrad.fType == GradientType::RADIAL) {
-                QMatrix trans = templateGrad.fTrans;
+                QTransform trans = templateGrad.fTrans;
                 qreal scaleX = qSqrt(trans.m11()*trans.m11() + trans.m12()*trans.m12());
                 qreal scaleY = qSqrt(trans.m21()*trans.m21() + trans.m22()*trans.m22());
 
@@ -980,7 +989,7 @@ void loadElement(const QDomElement &element,
                 gradient->addColor(stopColor);
             }
         } else {
-            if(linkId.at(0) == "#") linkId.remove(0, 1);
+            if (linkId.startsWith('#')) { linkId.remove(0, 1); }
             const auto it = gGradients.find(linkId);
             if(it == gGradients.end()) {
                 gUnresolvedGradientLinks[linkId].append(id);
@@ -1025,7 +1034,7 @@ void loadElement(const QDomElement &element,
             QPointF p1, p2;
             const QString units = element.attribute("gradientUnits");
             const QString gradTrans = element.attribute("gradientTransform");
-            QMatrix trans = getMatrixFromString(gradTrans);
+            QTransform trans = getMatrixFromString(gradTrans);
 
             if (units == "userSpaceOnUse") {
                 if (type == GradientType::LINEAR) {
@@ -1099,10 +1108,13 @@ void loadElement(const QDomElement &element,
 }
 
 bool getUrlId(const QString &urlStr, QString *id) {
-    const QRegExp rx = QRegExp(RGXS "url\\(\\s*#(.*)\\)" RGXS, Qt::CaseInsensitive);
-    if(rx.exactMatch(urlStr)) {
-        rx.indexIn(urlStr);
-        const QStringList capturedTxt = rx.capturedTexts();
+    const QRegularExpression rx("^" RGXS "url\\(\\s*#(.*)\\)" RGXS "$",
+                                QRegularExpression::CaseInsensitiveOption);
+
+    QRegularExpressionMatch match = rx.match(urlStr);
+
+    if (match.hasMatch()) {
+        const QStringList capturedTxt = match.capturedTexts();
         *id = capturedTxt.at(1);
         return true;
     }
@@ -1112,17 +1124,22 @@ bool getUrlId(const QString &urlStr, QString *id) {
 
 bool getGradientFromString(const QString &colorStr,
                            FillSvgAttributes * const target) {
-    const QRegExp rx = QRegExp(RGXS "url\\(\\s*(.*)\\s*\\)" RGXS, Qt::CaseInsensitive);
-    if(rx.exactMatch(colorStr)) {
-        const QStringList capturedTxt = rx.capturedTexts();
+    const QRegularExpression rx("^" RGXS "url\\(\\s*(.*)\\s*\\)" RGXS "$",
+                                QRegularExpression::CaseInsensitiveOption);
+
+    QRegularExpressionMatch match = rx.match(colorStr);
+
+    if (match.hasMatch()) {
+        const QStringList capturedTxt = match.capturedTexts();
         QString id = capturedTxt.at(1);
-        if(id.at(0) == '#') id.remove(0, 1);
+        if (id.startsWith('#')) id.remove(0, 1);
         const auto it = gGradients.find(id);
-        if(it != gGradients.end()) {
+        if (it != gGradients.end()) {
             target->setGradient(it.value());
             return true;
         }
     }
+
     return false;
 }
 
@@ -1218,7 +1235,7 @@ SkPathFillType BoxSvgAttributes::getFillRule() const {
     return mFillRule;
 }
 
-const QMatrix &BoxSvgAttributes::getRelTransform() const {
+const QTransform &BoxSvgAttributes::getRelTransform() const {
     return mRelTransform;
 }
 

@@ -30,9 +30,9 @@
 
 namespace MatrixDecomposition {
     CORE_EXPORT
-    TransformValues decompose(const QMatrix& transform);
+    TransformValues decompose(const QTransform& transform);
     CORE_EXPORT
-    TransformValues decomposePivoted(const QMatrix& transform,
+    TransformValues decomposePivoted(const QTransform& transform,
                                      const QPointF& pivot);
     CORE_EXPORT
     TransformValues setPivotKeepTransform(const TransformValues& transform,

@@ -46,8 +46,10 @@ QDomElement WrapperNode::writeXEV(QDomDocument& doc,
 
 WrapperNode* WrapperNode::sRead(eReadStream &src,
                                 const WidgetCreator &creator) {
-    WrapperNodeType type;
-    src.read(&type, sizeof(WrapperNodeType));
+    int typeVal;
+    src >> typeVal; // 4 bytes for evformat
+
+    WrapperNodeType type = static_cast<WrapperNodeType>(typeVal);
     const auto wid = createForType(type, creator);
     wid->readData(src);
     return wid;

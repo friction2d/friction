@@ -6,8 +6,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# the Free Software Foundation, version 3.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -21,27 +20,17 @@
 #
 */
 
-// Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
+#ifndef UI_ENTEREVENT_H
+#define UI_ENTEREVENT_H
 
-#ifndef TRANSFORMVALUES_H
-#define TRANSFORMVALUES_H
+#include <QtCore/qglobal.h>
 
-#include <QTransform>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <QEnterEvent>
+using QtEnterEvent = QEnterEvent;
+#else
+#include <QEvent>
+using QtEnterEvent = QEvent;
+#endif
 
-#include "core_global.h"
-
-struct CORE_EXPORT TransformValues {
-    qreal fPivotX = 0;
-    qreal fPivotY = 0;
-    qreal fMoveX = 0;
-    qreal fMoveY = 0;
-    qreal fRotation = 0;
-    qreal fScaleX = 1;
-    qreal fScaleY = 1;
-    qreal fShearX = 0;
-    qreal fShearY = 0;
-
-    QTransform calculate() const;
-};
-
-#endif // TRANSFORMVALUES_H
+#endif // UI_ENTEREVENT_H

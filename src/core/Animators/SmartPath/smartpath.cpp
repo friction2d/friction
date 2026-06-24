@@ -398,7 +398,7 @@ QString SmartPath::toXEV() const {
     return result;
 }
 
-void SmartPath::loadXEV(const QStringRef& xev) {
+void SmartPath::loadXEV(const QStringView& xev) {
     ListOfNodes listOfNodes;
 
     const auto nodes = xev.split(',', Qt::SkipEmptyParts);

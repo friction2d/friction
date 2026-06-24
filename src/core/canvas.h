@@ -313,14 +313,14 @@ public:
 
     void updateTotalTransform() {}
 
-    QMatrix getTotalTransform() const
+    QTransform getTotalTransform() const
     {
-        return QMatrix();
+        return QTransform();
     }
 
-    QMatrix getRelativeTransformAtCurrentFrame() const
+    QTransform getRelativeTransformAtCurrentFrame() const
     {
-        return QMatrix();
+        return QTransform();
     }
 
     QPointF mapAbsPosToRel(const QPointF &absPos)
@@ -335,7 +335,7 @@ public:
 
     void renderSk(SkCanvas* const canvas,
                   const QRect &drawRect,
-                  const QMatrix &viewTrans,
+                  const QTransform &viewTrans,
                   const bool mouseGrabbing);
     void renderGizmos(SkCanvas* const canvas,
                       const qreal qInvZoom,
@@ -416,7 +416,7 @@ public:
     stdsptr<BoxRenderData> createRenderData();
 
     void setupRenderData(const qreal relFrame,
-                         const QMatrix &parentM,
+                         const QTransform &parentM,
                          BoxRenderData* const data,
                          Canvas* const scene)
     {

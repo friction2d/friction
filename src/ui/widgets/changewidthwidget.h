@@ -27,6 +27,7 @@
 #define CHANGEWIDTHWIDGET_H
 
 #include "ui_global.h"
+#include "enterevent.h"
 
 #include <QWidget>
 
@@ -45,7 +46,7 @@ public:
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *);
 
-    void enterEvent(QEvent *);
+    void enterEvent(QtEnterEvent *);
 
     void leaveEvent(QEvent *);
     int getCurrentWidth() {

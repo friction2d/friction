@@ -30,12 +30,21 @@ using namespace Friction::Core;
 QString SVGO::optimize(const QString &svg)
 {
     QDomDocument doc;
-    QString errorMsg;
 
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+    const auto parseResult = doc.setContent(svg);
+    if (!parseResult) {
+        qWarning() << "Failed to read SVG:" << parseResult.errorMessage;
+        return svg;
+    }
+#else
+    QString errorMsg;
     if (!doc.setContent(svg, &errorMsg)) {
         qWarning() << "Failed to read SVG:" << errorMsg;
         return svg;
     }
+#endif
 
     removeProcessingInstructions(doc);
     removeUselessDefs(doc);

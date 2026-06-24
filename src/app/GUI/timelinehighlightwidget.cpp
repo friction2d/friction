@@ -46,7 +46,7 @@ void TimelineHighlightWidget::setOther(TimelineHighlightWidget * const other)
 { mOther = other; }
 
 void TimelineHighlightWidget::mouseMoveEvent(QMouseEvent *event) {
-    setHoverRow(event->y()/eSizesUI::widget);
+    setHoverRow(AppSupport::getMouseY(event) / eSizesUI::widget);
     event->ignore();
 }
 

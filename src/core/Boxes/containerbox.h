@@ -68,11 +68,11 @@ public:
     qsptr<BoundingBox> createLink(const bool inner);
     stdsptr<BoxRenderData> createRenderData();
     void setupRenderData(const qreal relFrame,
-                         const QMatrix& parentM,
+                         const QTransform& parentM,
                          BoxRenderData * const data,
                          Canvas * const scene);
     void processChildrenData(const qreal relFrame,
-                             const QMatrix& thisM,
+                             const QTransform& thisM,
                              BoxRenderData* const data,
                              Canvas* const scene);
 

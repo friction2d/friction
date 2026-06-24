@@ -71,7 +71,7 @@ void ColorValueRect::paintGL() {
 }
 
 void ColorValueRect::mouseMoveEvent(QMouseEvent *e) {
-    mouseInteraction(e->x());
+    mouseInteraction(AppSupport::getMouseX(e));
     Document::sInstance->updateScenes();
 }
 
@@ -79,7 +79,7 @@ void ColorValueRect::mousePressEvent(QMouseEvent *e) {
     if(e->button() == Qt::RightButton) return;
     Actions::sInstance->startSmoothChange();
     emit editingStarted(value());
-    mouseInteraction(e->x());
+    mouseInteraction(AppSupport::getMouseX(e));
     Document::sInstance->updateScenes();
 }
 

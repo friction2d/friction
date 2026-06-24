@@ -146,7 +146,7 @@ public:
 
     NodeList getAndClearLastDetached();
 
-    void applyTransform(const QMatrix &transform)
+    void applyTransform(const QTransform &transform)
     { mNodesList.applyTransform(transform); }
 
     bool read(eReadStream& src)
@@ -155,7 +155,7 @@ public:
     { return mNodesList.write(dst); }
 
     QString toXEV() const;
-    void loadXEV(const QStringRef& xev);
+    void loadXEV(const QStringView& xev);
 
     const NodeList& getNodesRef() const
     { return mNodesList; }

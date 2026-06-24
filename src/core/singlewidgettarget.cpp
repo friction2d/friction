@@ -170,7 +170,7 @@ void SingleWidgetTarget::SWT_readAbstractionXEV(
         const QDomElement& ele, const XevImporter& imp) const {
     const QString absOpenStr = ele.attribute("open");
     if(absOpenStr.isEmpty()) return;
-    const auto absOpenStrs = absOpenStr.splitRef(' ');
+    const auto absOpenStrs = absOpenStr.split(' ');
     QList<int> open;
     for(const auto& val : absOpenStrs) {
         open << XmlExportHelpers::stringToInt(val);

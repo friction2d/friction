@@ -178,16 +178,16 @@ BasicTransformAnimator *Property::getTransformAnimator() const {
     return nullptr;
 }
 
-QMatrix Property::getTransform() const {
+QTransform Property::getTransform() const {
     const auto trans = getTransformAnimator();
     if(trans) return trans->getTotalTransform();
-    return QMatrix();
+    return QTransform();
 
 }
-QMatrix Property::getTransform(const qreal relFrame) const {
+QTransform Property::getTransform(const qreal relFrame) const {
     const auto trans = getTransformAnimator();
     if(trans) return trans->getTotalTransformAtFrame(relFrame);
-    return QMatrix();
+    return QTransform();
 }
 
 void Property::prp_setSelected(const bool selected) {
@@ -282,7 +282,7 @@ void Property::prp_getFullPath(QStringList& names) const {
 QString Property::prp_sFixName(const QString &name) {
     QString result = name.trimmed();
 
-    result.remove(QRegExp("[^A-Za-z0-9 _]"));
+    result.remove(QRegularExpression("[^A-Za-z0-9 _]"));
     while(!result.isEmpty() &&
           (result.front() == ' ' ||
            result.front().isDigit())) {
@@ -306,8 +306,8 @@ bool Property::prp_sValidateName(const QString &name,
         *error = "Name cannot end with a space";
         return false;
     }
-    const int nValid = name.count(QRegExp("[A-Za-z0-9_ ]"));
-    if(nValid != name.count()) {
+    const int nValid = name.count(QRegularExpression("[A-Za-z0-9_ ]"));
+    if(nValid != name.size()) {
         *error = "Invalid characters used";
         return false;
     }

@@ -758,7 +758,7 @@ SmartVectorPath *Canvas::getPathResultingFromOperation(const SkPathOp& pathOp)
     for (const auto &box : boxes) {
         if (const auto pBox = enve_cast<PathBox*>(box)) {
             SkPath boxPath = pBox->getRelativePath();
-            const QMatrix boxTrans = box->getRelativeTransformAtCurrentFrame();
+            const QTransform boxTrans = box->getRelativeTransformAtCurrentFrame();
             boxPath.transform(toSkMatrix(boxTrans));
             if (first) {
                 builder.add(boxPath, SkPathOp::kUnion_SkPathOp);
@@ -796,11 +796,11 @@ SmartVectorPath *Canvas::getPathResultingFromCombine() {
     }
 
     const auto targetVP = newPath->getPathAnimator();
-    const QMatrix firstTranf = newPath->getTotalTransform();
+    const QTransform firstTranf = newPath->getTotalTransform();
     for(const auto &box : mSelectedBoxes) {
         if(box == newPath) continue;
         if(const auto boxPath = enve_cast<SmartVectorPath*>(box)) {
-            const QMatrix relTransf = boxPath->getTotalTransform()*
+            const QTransform relTransf = boxPath->getTotalTransform()*
                     firstTranf.inverted();
             const auto srcVP = boxPath->getPathAnimator();
             srcVP->applyTransform(relTransf);

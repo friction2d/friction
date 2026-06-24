@@ -61,14 +61,14 @@ void SmartCtrlPoint::setRelativePos(const QPointF &relPos) {
 
 void SmartCtrlPoint::rotateRelativeToSavedPivot(const qreal rotate) {
     const QPointF savedValue = getSavedRelPos() - mParentPoint_k->getSavedRelPos();
-    QMatrix mat;
+    QTransform mat;
     mat.rotate(rotate);
     setRelativePos(mat.map(savedValue) + mParentPoint_k->getRelativePos());
 }
 
 void SmartCtrlPoint::scale(const qreal sx, const qreal sy) {
     const QPointF savedValue = getSavedRelPos() - mParentPoint_k->getSavedRelPos();
-    QMatrix mat;
+    QTransform mat;
     mat.scale(sx, sy);
     setRelativePos(mat.map(savedValue) + mParentPoint_k->getRelativePos());
 }

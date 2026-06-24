@@ -67,7 +67,7 @@ TimelineHighlightWidget *KeysView::requestHighlighter() {
 }
 
 void KeysView::dropEvent(QDropEvent *event) {
-    const int frame = qRound(xToFrame(event->posF().x()));
+    const int frame = qRound(xToFrame(AppSupport::getDropPosF(event).x()));
     Actions::sInstance->handleDropEvent(event, QPointF(0, 0), frame);
 }
 
@@ -242,7 +242,7 @@ void KeysView::wheelEvent(QWheelEvent *e)
     }
 #endif
 
-    const QPoint pos = e->pos();
+    const QPoint pos = e->position().toPoint();
     const QPoint posU = pos + QPoint(-eSizesUI::widget/2, 0);
     const qreal currentHoverFrame = static_cast<qreal>(posU.x()) / mPixelsPerFrame + mMinViewedFrame;
     // qDebug() << "currentHoverFrame" << currentHoverFrame;
@@ -373,7 +373,7 @@ void KeysView::mousePressEvent(QMouseEvent *e) {
                 const QString splitStr = tr("Split Clip");
                 menu.addAction(QIcon::fromTheme("sequence"), editStr);
                 menu.addAction(QIcon::fromTheme("cut"), splitStr);
-                const auto selectedAction = menu.exec(e->globalPos());
+                const auto selectedAction = menu.exec(AppSupport::getMouseGlobalPos(e));
                 if (selectedAction) {
                     if (selectedAction->text() == editStr) {
                         const auto durRect = static_cast<DurationRectangle*>(movable);

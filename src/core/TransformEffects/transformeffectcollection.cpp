@@ -127,7 +127,7 @@ void TransformEffectCollection::applyEffects(
         qreal& rot,
         qreal& scaleX, qreal& scaleY,
         qreal& shearX, qreal& shearY,
-        QMatrix& postTransform,
+        QTransform& postTransform,
         BoundingBox* const parent) const {
     const int iMax = ca_getNumberOfChildren();
     for(int i = 0; i < iMax; i++) {

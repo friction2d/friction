@@ -286,11 +286,11 @@ void DisplayedGradientsWidget::gradientContextMenuReq(
 }
 
 void DisplayedGradientsWidget::mousePressEvent(QMouseEvent *event) {
-    const int gradientId = event->y()/eSizesUI::widget;
+    const int gradientId = AppSupport::getMouseY(event) / eSizesUI::widget;
     if(event->button() == Qt::LeftButton) {
         gradientLeftPressed(gradientId);
     } else if(event->button() == Qt::RightButton) {
-        gradientContextMenuReq(gradientId, event->globalPos());
+        gradientContextMenuReq(gradientId, AppSupport::getMouseGlobalPos(event));
         const QPoint relCursorPos = mapFromGlobal(QCursor::pos());
         if(relCursorPos.x() < 0 || relCursorPos.y() < 0 ||
            relCursorPos.x() > width() || relCursorPos.y() > height()) {
@@ -303,7 +303,7 @@ void DisplayedGradientsWidget::mousePressEvent(QMouseEvent *event) {
 }
 
 void DisplayedGradientsWidget::mouseMoveEvent(QMouseEvent *event) {
-    mHoveredGradientId = event->y()/eSizesUI::widget;
+    mHoveredGradientId = AppSupport::getMouseY(event) / eSizesUI::widget;
     update();
 }
 

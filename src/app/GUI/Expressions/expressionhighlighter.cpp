@@ -142,10 +142,10 @@ void ExpressionHighlighter::highlightBlock(const QString &text) {
             int min = match.capturedStart(2);
             for(int j = 0; j < subPath.count() - 1; j++) {
                 const auto& jObj = subPath.at(j);
-                min += jObj.count() + 1;
+                min += jObj.size() + 1;
             }
             const auto& lastObjPath = subPath.last();
-            const int max = min + lastObjPath.count();
+            const int max = min + lastObjPath.size();
             const bool autocomplete = mCursorPos >= min && mCursorPos <= max;
             const auto obj = mSearchCtxt->ca_findPropertyWithPathRec(
                         0, subPath, autocomplete ? &completions : nullptr);
