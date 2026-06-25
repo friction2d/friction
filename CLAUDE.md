@@ -7,6 +7,8 @@
 
 Use `just build-debug` when iterating on code changes. Use `just build-mac-arm` for release/packaging.
 
+Please keep earlye-fork.md updated as new features are built and introduced.
+
 ## Pull Requests
 
 - Always create PRs against the fork (`earlye/friction`), never against the upstream (`friction2d/friction`).
