@@ -27,6 +27,7 @@
 
 #include <QtXml/QDomDocument>
 #include <QRegularExpression>
+#include <QTransform>
 
 #include "Boxes/containerbox.h"
 #include "colorhelpers.h"
@@ -44,6 +45,8 @@
 #include "matrixdecomposition.h"
 #include "transformvalues.h"
 #include "regexhelpers.h"
+#include "skia/skqtconversions.h"
+#include "skia/skiahelpers.h"
 
 #define RGXS REGEX_SPACES
 
@@ -452,6 +455,14 @@ void loadElement(const QDomElement &element, ContainerBox *parentGroup,
                  const BoxSvgAttributes &parentGroupAttributes,
                  const GradientCreator& gradientCreator);
 
+QMatrix getMatrixFromString(const QString &str);
+
+void applyGradientToAttributes(const QDomElement &element,
+                               BoxSvgAttributes &attributes,
+                               const GradientCreator& gradientCreator,
+                               const QPointF &offset,
+                               bool isFill);
+
 qsptr<ContainerBox> loadBoxesGroup(const QDomElement &groupElement,
                                    ContainerBox *parentGroup,
                                    const BoxSvgAttributes &attributes,
@@ -586,6 +597,232 @@ void loadLine(const QDomElement &pathElement,
     vectorPath->planCenterPivotPosition();
     attributes.apply(vectorPath.get());
     parentGroup->addContained(vectorPath);
+}
+
+bool parseSvgShapeElementPath(const QDomElement &element, SkPath &outPath) {
+    const QString tagName = element.tagName();
+
+    if(tagName == "path") {
+        const QString pathStr = element.attribute("d");
+        return SkParsePath::FromSVGString(pathStr.toStdString().data(), &outPath);
+    } else if(tagName == "polyline" || tagName == "polygon") {
+        VectorPathSvgAttributes attributes;
+        parsePolylineData(element.attribute("points"), attributes, tagName == "polygon");
+        outPath = attributes.path();
+        return !outPath.isEmpty();
+    } else if(tagName == "line") {
+        outPath.moveTo({toSkScalar(element.attribute("x1").toDouble()),
+                        toSkScalar(element.attribute("y1").toDouble())});
+        outPath.lineTo({toSkScalar(element.attribute("x2").toDouble()),
+                        toSkScalar(element.attribute("y2").toDouble())});
+        return !outPath.isEmpty();
+    } else if(tagName == "circle" || tagName == "ellipse") {
+        const QString cXstr = element.attribute("cx");
+        const QString cYstr = element.attribute("cy");
+        const QString rStr = element.attribute("r");
+        const QString rXstr = element.attribute("rx");
+        const QString rYstr = element.attribute("ry");
+
+        double rX = 0;
+        double rY = 0;
+        if(!rStr.isEmpty()) {
+            rX = rStr.toDouble();
+            rY = rX;
+        } else if(!rXstr.isEmpty() && !rYstr.isEmpty()) {
+            rX = rXstr.toDouble();
+            rY = rYstr.toDouble();
+        } else if(!rXstr.isEmpty() || !rYstr.isEmpty()) {
+            const qreal rXY = rXstr.isEmpty() ? rYstr.toDouble() : rXstr.toDouble();
+            rX = rXY;
+            rY = rXY;
+        }
+        if(isZero4Dec(rX) || isZero4Dec(rY)) return false;
+
+        outPath.addOval(SkRect::MakeXYWH(toSkScalar(cXstr.toDouble() - rX),
+                                         toSkScalar(cYstr.toDouble() - rY),
+                                         toSkScalar(2*rX),
+                                         toSkScalar(2*rY)));
+        return !outPath.isEmpty();
+    } else if(tagName == "rect") {
+        const double x = element.attribute("x").toDouble();
+        const double y = element.attribute("y").toDouble();
+        const double w = element.attribute("width").toDouble();
+        const double h = element.attribute("height").toDouble();
+        const double rx = element.attribute("rx").toDouble();
+        const double ry = element.attribute("ry").toDouble();
+        if(isZero4Dec(w) || isZero4Dec(h)) return false;
+
+        if(isZero4Dec(rx) && isZero4Dec(ry)) {
+            outPath.addRect(SkRect::MakeXYWH(toSkScalar(x), toSkScalar(y),
+                                             toSkScalar(w), toSkScalar(h)));
+        } else {
+            const double finalRx = isZero4Dec(rx) ? ry : rx;
+            const double finalRy = isZero4Dec(ry) ? rx : ry;
+            outPath.addRoundRect(SkRect::MakeXYWH(toSkScalar(x), toSkScalar(y),
+                                                  toSkScalar(w), toSkScalar(h)),
+                                 toSkScalar(finalRx), toSkScalar(finalRy));
+        }
+        return !outPath.isEmpty();
+    }
+
+    return false;
+}
+
+QDomElement findElementById(const QDomDocument &doc,
+                            const QString &id,
+                            const QStringList &tagNames) {
+    for(const auto &tagName : tagNames) {
+        const auto elements = doc.elementsByTagName(tagName);
+        for(int i = 0; i < elements.count(); i++) {
+            const auto element = elements.at(i).toElement();
+            if(element.attribute("id") == id) {
+                return element;
+            }
+        }
+    }
+    return QDomElement();
+}
+
+bool loadReferencedTextPath(const QDomElement &textPathElement,
+                            QPainterPath &targetPath) {
+    QString href = textPathElement.attribute("href");
+    if(href.isEmpty()) href = textPathElement.attribute("xlink:href");
+    if(href.startsWith("#")) href.remove(0, 1);
+    if(href.isEmpty()) return false;
+
+    const auto doc = textPathElement.ownerDocument();
+    const auto refElement = findElementById(doc, href,
+                                            {"path", "polyline", "polygon",
+                                             "line", "circle", "ellipse", "rect"});
+    if(refElement.isNull()) return false;
+
+    SkPath skPath;
+    if(!parseSvgShapeElementPath(refElement, skPath) || skPath.isEmpty()) {
+        return false;
+    }
+
+    const QMatrix transform = getMatrixFromString(refElement.attribute("transform"));
+    if(!transform.isIdentity()) {
+        skPath.transform(toSkMatrix(transform), &skPath);
+    }
+
+    targetPath = toQPainterPath(skPath);
+    return !targetPath.isEmpty();
+}
+
+QString extractTextPathContent(const QDomElement &textPathElement) {
+    QString combinedText;
+    for(QDomNode n = textPathElement.firstChild(); !n.isNull(); n = n.nextSibling()) {
+        if(n.isText()) {
+            combinedText += n.toText().data();
+        } else if(n.isElement() && n.toElement().tagName() == "tspan") {
+            const auto tspan = n.toElement();
+            if(tspan.hasAttribute("dy") && !combinedText.isEmpty()) {
+                combinedText += "\n";
+            }
+            combinedText += tspan.text();
+        }
+    }
+    combinedText.remove(QChar(0x200B));
+    return combinedText;
+}
+
+qreal textPathTangentDegrees(const QPainterPath &path, const qreal per) {
+    qreal t2 = per + 0.0001;
+    const bool reverse = t2 > 1;
+    if(reverse) t2 = 0.9999;
+
+    const auto p1 = path.pointAtPercent(per);
+    const auto p2 = path.pointAtPercent(t2);
+    const QLineF tangent = reverse ? QLineF(p2, p1) : QLineF(p1, p2);
+    return -tangent.angle();
+}
+
+qreal textPathHorizontalAdvance(const SkFont& font, const QString& str) {
+    const SkScalar result = font.measureText(str.utf16(),
+                                             str.size()*sizeof(short),
+                                             SkTextEncoding::kUTF16);
+    return static_cast<qreal>(result);
+}
+
+bool loadTextPathAsVector(const QDomElement &textElement,
+                          const QDomElement &textPathElement,
+                          ContainerBox *parentGroup,
+                          const BoxSvgAttributes &attributes,
+                          const GradientCreator& gradientCreator)
+{
+    const QString text = extractTextPathContent(textPathElement);
+    if(text.trimmed().isEmpty()) return false;
+
+    QPainterPath targetPath;
+    if(!loadReferencedTextPath(textPathElement, targetPath)) return false;
+
+    const qreal pathLength = targetPath.length();
+    if(pathLength <= 0) return false;
+
+    BoxSvgAttributes textAttributes = attributes;
+    textAttributes.loadBoundingBoxAttributes(textPathElement);
+
+    applyGradientToAttributes(textElement, textAttributes, gradientCreator, QPointF(), true);
+    applyGradientToAttributes(textElement, textAttributes, gradientCreator, QPointF(), false);
+    applyGradientToAttributes(textPathElement, textAttributes, gradientCreator, QPointF(), true);
+    applyGradientToAttributes(textPathElement, textAttributes, gradientCreator, QPointF(), false);
+
+    const SkFont skFont = textAttributes.getTextAttributes().getFont();
+
+    qreal startOffset = parseSvgUnit(textPathElement.attribute("startOffset"), pathLength);
+    const QString textAnchor = textElement.attribute("text-anchor",
+                                                     textPathElement.attribute("text-anchor"));
+    qreal textWidth = 0;
+    for(int i = 0; i < text.size(); i++) {
+        const QString letter = text.mid(i, 1);
+        if(letter == "\n" || letter == "\r") continue;
+        textWidth += textPathHorizontalAdvance(skFont, letter);
+    }
+    if(textAnchor == "middle") {
+        startOffset -= 0.5*textWidth;
+    } else if(textAnchor == "end") {
+        startOffset -= textWidth;
+    }
+
+    QPainterPath resultPath;
+    qreal distance = startOffset;
+
+    for(int i = 0; i < text.size(); i++) {
+        const QString letter = text.mid(i, 1);
+        if(letter == "\n" || letter == "\r") continue;
+        const qreal advance = textPathHorizontalAdvance(skFont, letter);
+
+        const qreal letterCenter = distance + 0.5*advance;
+        if(letterCenter >= 0 && letterCenter <= pathLength) {
+            const qreal per = targetPath.percentAtLength(letterCenter);
+            const auto pos = targetPath.pointAtPercent(per);
+            const qreal angle = textPathTangentDegrees(targetPath, per);
+
+            SkPath glyphPath;
+            SkiaHelpers::textToPath(skFont, 0, 0, letter, glyphPath);
+
+            QTransform transform;
+            transform.translate(pos.x(), pos.y());
+            transform.rotate(angle);
+            transform.translate(-0.5*advance, 0);
+            const QMatrix matrix(transform.m11(), transform.m12(),
+                                 transform.m21(), transform.m22(),
+                                 transform.dx(), transform.dy());
+            glyphPath.transform(toSkMatrix(matrix), &glyphPath);
+            resultPath.addPath(toQPainterPath(glyphPath));
+        }
+        distance += advance;
+    }
+
+    if(resultPath.isEmpty()) return false;
+
+    const auto vectorPath = enve::make_shared<SmartVectorPath>();
+    vectorPath->loadSkPath(toSkPath(resultPath));
+    vectorPath->planCenterPivotPosition();
+    textAttributes.apply(vectorPath.get());
+    parentGroup->addContained(vectorPath);
+    return true;
 }
 
 bool extractTranslation(const QString& str, QMatrix& target) {
@@ -819,6 +1056,15 @@ void loadText(const QDomElement &textElement,
               const BoxSvgAttributes &attributes,
               const GradientCreator& gradientCreator)
 {
+    const auto textPathNodes = textElement.elementsByTagName("textPath");
+    if(textPathNodes.count() > 0) {
+        const auto textPathElement = textPathNodes.at(0).toElement();
+        if(loadTextPathAsVector(textElement, textPathElement,
+                                parentGroup, attributes, gradientCreator)) {
+            return;
+        }
+    }
+
     // inkscape?
     bool hasInkscapeLines = false;
     QDomNodeList tspans = textElement.elementsByTagName("tspan");
