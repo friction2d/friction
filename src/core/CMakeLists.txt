@@ -314,6 +314,15 @@ set(
     Animators/intanimator.cpp
     Animators/key.cpp
     Animators/boolanimator.cpp
+    lottie/dotlottiewriter.cpp
+    lottie/lottieexporter.cpp
+    lottie/lottieanimatedproperty.cpp
+    lottie/lottieblendmode.cpp
+    lottie/lottiejsonoptimizer.cpp
+    lottie/lottierealkeyframes.cpp
+    lottie/lottielayerbuilder.cpp
+    lottie/lottieparenting.cpp
+    lottie/lottiepatheffects.cpp
     svgexporter.cpp
     svgexporthelpers.cpp
     svgimporter.cpp
@@ -717,6 +726,8 @@ set(
     pointtypemenu.h
     wrappedint.h
     windowsincludes.h
+    lottie/dotlottiewriter.h
+    lottie/lottieparenting.h
     zipfileloader.h
     zipfilesaver.h
     outputsettings.h
