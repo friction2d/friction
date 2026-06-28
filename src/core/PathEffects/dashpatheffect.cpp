@@ -28,37 +28,62 @@
 
 DashPathEffect::DashPathEffect() :
     PathEffect("dash effect", PathEffectType::DASH) {
-    mSize = enve::make_shared<QrealAnimator>("size");
+    mSize = enve::make_shared<QrealAnimator>("scale");
     mSize->setValueRange(0.1, 9999.999);
-    mSize->setCurrentBaseValue(5);
+    mSize->setCurrentBaseValue(1);
+
+    mDashLength = enve::make_shared<QrealAnimator>("length");
+    mDashLength->setValueRange(0.1, 9999.999);
+    mDashLength->setCurrentBaseValue(10);
+
+    mSpaceLength = enve::make_shared<QrealAnimator>("spacing");
+    mSpaceLength->setValueRange(0.1, 9999.999);
+    mSpaceLength->setCurrentBaseValue(5);
+
+    mOffset = enve::make_shared<QrealAnimator>("offset");
+    mOffset->setValueRange(0, 9999.999);
+    mOffset->setCurrentBaseValue(0);
 
     ca_addChild(mSize);
+    ca_addChild(mDashLength);
+    ca_addChild(mSpaceLength);
+    ca_addChild(mOffset);
 
-    ca_setGUIProperty(mSize.get());
+    ca_setGUIProperty(mDashLength.get());
 }
 
 class DashEffectCaller : public PathEffectCaller {
 public:
-    DashEffectCaller(const qreal width) :
-        mWidth(toSkScalar(width)) {}
+    DashEffectCaller(const qreal dashLength, const qreal spaceLength,
+                     const qreal offset, const qreal size) :
+        mDashLength(toSkScalar(dashLength * size)),
+        mSpaceLength(toSkScalar(spaceLength * size)),
+        mOffset(toSkScalar(offset)) {}
 
     void apply(SkPath& path);
 private:
-    const float mWidth;
+    const float mDashLength;
+    const float mSpaceLength;
+    const float mOffset;
 };
 
 void DashEffectCaller::apply(SkPath &path) {
     SkPath src;
     path.swap(src);
     path.setFillType(src.getFillType());
-    const float intervals[] = { mWidth, mWidth };
+    const float intervals[] = { mDashLength, mSpaceLength };
     SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
     SkRect cullRec = src.getBounds();
-    SkDashPathEffect::Make(intervals, 2, 0.f)->filterPath(&path, src, &rec, &cullRec);
+    SkDashPathEffect::Make(intervals, 2, mOffset)->filterPath(&path, src, &rec, &cullRec);
 }
 
 stdsptr<PathEffectCaller> DashPathEffect::getEffectCaller(
         const qreal relFrame, const qreal influence) const {
-    const qreal width = mSize->getEffectiveValue(relFrame)*influence;
-    return enve::make_shared<DashEffectCaller>(width);
+    const qreal size = mSize->getEffectiveValue(relFrame);
+    const qreal dashLength = mDashLength->getEffectiveValue(relFrame);
+    const qreal spaceLength = mSpaceLength->getEffectiveValue(relFrame);
+    const qreal offset = mOffset->getEffectiveValue(relFrame);
+    return enve::make_shared<DashEffectCaller>(
+        dashLength * influence, spaceLength * influence,
+        offset * influence, size * influence * 5);
 }
