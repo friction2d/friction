@@ -35,7 +35,7 @@
 BrightnessContrastEffect::BrightnessContrastEffect() :
     RasterEffect("brightness-contrast",
                  AppSupport::getRasterEffectHardwareSupport("BrightnessContrast",
-                                                            HardwareSupport::gpuPreffered),
+                                                            HardwareSupport::cpuOnly),
                  true,
                  RasterEffectType::BRIGHTNESS_CONTRAST)
 {

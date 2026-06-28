@@ -238,7 +238,7 @@ void PerformanceSettingsWidget::setupRasterEffectWidgets()
                            "NoiseFade",
                            "Shadow",
                            "Wipe"};
-    HardwareSupport defaultSupport = HardwareSupport::gpuPreffered;
+    HardwareSupport defaultSupport = HardwareSupport::cpuOnly;
 
     addSeparator();
 
@@ -302,7 +302,7 @@ void PerformanceSettingsWidget::saveRasterEffectsSupport()
 void PerformanceSettingsWidget::restoreDefaultRasterEffectsSupport()
 {
     for (const auto &box : mRasterEffectsHardwareSupport) {
-        box->setCurrentText(tr("GPU preferred"));
+        box->setCurrentText(tr("CPU-only"));
     }
 }
 

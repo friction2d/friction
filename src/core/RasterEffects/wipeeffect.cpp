@@ -34,7 +34,7 @@
 WipeEffect::WipeEffect() :
     RasterEffect("wipe",
                  AppSupport::getRasterEffectHardwareSupport("Wipe",
-                                                            HardwareSupport::gpuPreffered),
+                                                            HardwareSupport::cpuOnly),
                  true,
                  RasterEffectType::WIPE)
 {
