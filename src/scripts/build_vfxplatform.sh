@@ -35,7 +35,7 @@ TAR_VERSION=${TAR_VERSION:-""}
 HEAD_REPO_URL=${HEAD_REPO_URL:-""}
 
 SDK_VERSION=${SDK_VERSION:-"1.0.0"}
-SDK_REV=${SDK_REV:-"r11"}
+SDK_REV=${SDK_REV:-"r13"}
 SDK_URL=${SDK_URL:-"https://github.com/friction2d/friction-sdk/releases/download/v${SDK_VERSION}"}
 SDK_FILE=${SDK_FILE:-"friction-sdk-${SDK_VERSION}${SDK_REV}-linux-x86_64.tar"}
 SDK_PATH="${DISTFILES}/sdk/${SDK_FILE}"
