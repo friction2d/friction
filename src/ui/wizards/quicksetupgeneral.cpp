@@ -173,8 +173,8 @@ QuickSetupGeneralPage::QuickSetupGeneralPage(QWidget *parent)
         const auto pickDur = new QSpinBox(this);
 
         pickDur->setMinimum(1);
-        pickDur->setValue(1);
-        pickDur->setSuffix(tr(" min"));
+        pickDur->setValue(10);
+        pickDur->setSuffix(tr(" sec"));
 
         for (const auto &res : resList) {
             pickResolution->addItem(res.at(2),

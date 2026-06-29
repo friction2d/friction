@@ -140,15 +140,15 @@ void QuickSetup::accept()
         const auto dur = field("duration");
         if (fps.isValid() && dur.isValid()) {
             const double fpsVal = fps.toDouble();
-            const int durMinutes = dur.toInt();
+            const int durSeconds = dur.toInt();
 
-            const int totalFrames = static_cast<int>(durMinutes * 60 * fpsVal);
+            const int totalFrames = static_cast<int>(durSeconds * fpsVal);
 
             const int startFrame = 0;
             const int endFrame = totalFrames - 1;
 
             qDebug() << "scene fps" << fpsVal
-                     << "scene dur" << durMinutes
+                     << "scene dur" << durSeconds
                      << "scene min" << startFrame
                      << "scene max" << endFrame;
             AppSupport::setSettings("scene", "DefaultFps", fpsVal);
