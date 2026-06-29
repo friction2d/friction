@@ -33,6 +33,10 @@
 #include <QPushButton>
 #include "renderinstancesettings.h"
 
+#ifdef HAS_DBUS
+#include "desktop/unitylauncherentry.h"
+#endif
+
 class ScrollArea;
 class Canvas;
 class RenderInstanceWidget;
@@ -74,6 +78,10 @@ private:
     RenderInstanceSettings *mCurrentRenderedSettings;
     QList<RenderInstanceWidget*> mAwaitingSettings;
     RenderState mState;
+
+#ifdef HAS_DBUS
+    Friction::Ui::UnityLauncherEntry *mUnity;
+#endif
 
     void handleRenderState(const RenderState &state);
     void handleRenderStarted();
