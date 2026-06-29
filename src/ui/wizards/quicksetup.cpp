@@ -202,6 +202,10 @@ void QuickSetup::accept()
         AppSupport::setSettings("RasterEffects", "ShadowHardwareSupport", 0);
         AppSupport::setSettings("RasterEffects", "WipeHardwareSupport", 0);
     }
+    if (!AppSupport::isFlatpak()) {
+        // enable backup on save as default (unless we run in a Flatpak)
+        AppSupport::setSettings("files", "BackupOnSave", true);
+    }
 
     QWizard::accept();
 }
