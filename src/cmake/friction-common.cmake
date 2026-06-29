@@ -102,6 +102,12 @@ set(QT_LIBRARIES
     #Qt${QT_VERSION_MAJOR}::Svg
 )
 
+if(UNIX AND NOT APPLE)
+    find_package(Qt${QT_VERSION_MAJOR} COMPONENTS DBus REQUIRED)
+    list(APPEND QT_LIBRARIES Qt${QT_VERSION_MAJOR}::DBus)
+    add_definitions(-DHAS_DBUS)
+endif()
+
 if(WIN32)
     set(SKIA_LIBRARIES
         skia

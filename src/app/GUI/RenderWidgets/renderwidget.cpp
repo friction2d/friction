@@ -35,6 +35,8 @@
 #include "../mainwindow.h"
 #include "../timelinedockwidget.h"
 
+using namespace Friction;
+
 RenderWidget::RenderWidget(QWidget *parent)
     : QWidget(parent)
     , mMainLayout(nullptr)
@@ -48,6 +50,9 @@ RenderWidget::RenderWidget(QWidget *parent)
     , mScrollArea(nullptr)
     , mCurrentRenderedSettings(nullptr)
     , mState(RenderState::none)
+#ifdef HAS_DBUS
+    , mUnity(nullptr)
+#endif
 {
     mMainLayout = new QVBoxLayout(this);
     mMainLayout->setMargin(0);
@@ -174,6 +179,20 @@ RenderWidget::RenderWidget(QWidget *parent)
             this, &RenderWidget::handleRenderFailed);
     connect(vidEmitter, &VideoEncoderEmitter::encodingStartFailed,
             this, &RenderWidget::sendNextForRender);
+
+#ifdef HAS_DBUS
+    mUnity = new Ui::UnityLauncherEntry(QStringLiteral("%1.desktop").arg(AppSupport::getAppID()), this);
+    connect(this, &RenderWidget::progress,
+            this, [this](int frame, int total) {
+        if (total > 0) {
+            const double currentProgress = static_cast<double>(frame) / total;
+            mUnity->setProgress(currentProgress);
+            mUnity->setProgressVisible(frame < total);
+        } else {
+            mUnity->setProgressVisible(false);
+        }
+    });
+#endif
 }
 
 void RenderWidget::createNewRenderInstanceWidgetForCanvas(Canvas *canvas)

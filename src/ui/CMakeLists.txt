@@ -42,6 +42,7 @@ include_directories(
 
 set(
     SOURCES
+    desktop/unitylauncherentry.cpp
     dialogs/adjustscenedialog.cpp
     dialogs/applyexpressiondialog.cpp
     dialogs/askdialog.cpp
@@ -129,6 +130,7 @@ endif()
 set(
     HEADERS
     ui_global.h
+    desktop/unitylauncherentry.h
     dialogs/adjustscenedialog.h
     dialogs/applyexpressiondialog.h
     dialogs/askdialog.h
