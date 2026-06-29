@@ -57,12 +57,13 @@ TaskScheduler::TaskScheduler() {
             this, &TaskScheduler::afterCpuGpuTaskFinished);
 }
 
-TaskScheduler::~TaskScheduler() {
-    for(const auto& exec : mCpuExecs) {
-        exec->stopAndWait();
-    }
+TaskScheduler::~TaskScheduler()
+{
+    mGpuExec->stop(); // workaround for deadlock, waiting will not work here
+    // may result in "QThread: Destroyed while thread is still running" during shutdown
+
+    for (const auto& exec : mCpuExecs) { exec->stopAndWait(); }
     mHddExec->stopAndWait();
-    mGpuExec->stopAndWait();
 }
 
 void TaskScheduler::sSetTaskUnderflowFunc(const Func& func) {

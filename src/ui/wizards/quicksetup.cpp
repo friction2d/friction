@@ -192,6 +192,15 @@ void QuickSetup::accept()
         const int mssa = gpu.contains("intel", Qt::CaseInsensitive) ? 4 : 16;
         qDebug() << "gpu" << gpu << "mssa" << mssa;
         AppSupport::setSettings("settings", "mssa", mssa);
+
+        // default to cpu mode on included effects
+        AppSupport::setSettings("RasterEffects", "BlurHardwareSupport", 0);
+        AppSupport::setSettings("RasterEffects", "BrightnessContrastHardwareSupport", 0);
+        AppSupport::setSettings("RasterEffects", "ColorizeHardwareSupport", 0);
+        AppSupport::setSettings("RasterEffects", "MotionBlurHardwareSupport", 0);
+        AppSupport::setSettings("RasterEffects", "NoiseFadeHardwareSupport", 0);
+        AppSupport::setSettings("RasterEffects", "ShadowHardwareSupport", 0);
+        AppSupport::setSettings("RasterEffects", "WipeHardwareSupport", 0);
     }
 
     QWizard::accept();

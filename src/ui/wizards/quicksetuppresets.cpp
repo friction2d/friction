@@ -41,8 +41,8 @@ QuickSetupPresetsPage::QuickSetupPresetsPage(QWidget *parent)
             {"ProRes 444 + Audio (AAC)", "004-friction-preset-prores-444-aac.conf"},
             {"WebM", "007-friction-preset-webm.conf"},
             {"PNG", "005-friction-preset-png.conf"},
-            {"TIFF", "006-friction-preset-tiff.conf"},
-            {"EXR", "008-friction-preset-exr.conf"}
+            {"TIFF", "006-friction-preset-tiff.conf"}
+            //{"EXR", "008-friction-preset-exr.conf"} // not supported in ffmpeg used in v1.0
         };
 
         const auto selector = new CheckBoxes(profiles, this);

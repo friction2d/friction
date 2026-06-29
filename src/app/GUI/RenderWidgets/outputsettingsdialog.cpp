@@ -38,48 +38,85 @@ OutputSettingsDialog::OutputSettingsDialog(const OutputSettings &settings,
     setWindowTitle(tr("Output Settings"));
 
     mSupportedFormats = {
-        FormatCodecs(QList<AVCodecID>() << AV_CODEC_ID_PNG,
+        FormatCodecs(QList<AVCodecID>()
+                     << AV_CODEC_ID_PNG
+                     << AV_CODEC_ID_TIFF
+                     << AV_CODEC_ID_MJPEG
+                     << AV_CODEC_ID_EXR,
+                        QList<AVCodecID>(),
+                        "*.png"),
+        FormatCodecs(QList<AVCodecID>()
+                         << AV_CODEC_ID_GIF,
                      QList<AVCodecID>(),
-                     "*.png"),
-        FormatCodecs(QList<AVCodecID>() << AV_CODEC_ID_TIFF,
-                     QList<AVCodecID>(),
-                     "*.tif"),
-        FormatCodecs(QList<AVCodecID>() << AV_CODEC_ID_MJPEG << AV_CODEC_ID_LJPEG,
-                     QList<AVCodecID>(),
-                     "*.jpg"),
-        FormatCodecs(QList<AVCodecID>() << AV_CODEC_ID_EXR,
-                     QList<AVCodecID>(),
-                     "*.exr"),
-        FormatCodecs(QList<AVCodecID>() << AV_CODEC_ID_PRORES << AV_CODEC_ID_PNG << AV_CODEC_ID_QTRLE << AV_CODEC_ID_H264,
-                     QList<AVCodecID>() << AV_CODEC_ID_MP3 << AV_CODEC_ID_AAC << AV_CODEC_ID_AC3 << AV_CODEC_ID_FLAC << AV_CODEC_ID_VORBIS << AV_CODEC_ID_WAVPACK,
+                     "*.gif"),
+        FormatCodecs(QList<AVCodecID>()
+                         << AV_CODEC_ID_PRORES
+                         << AV_CODEC_ID_PNG
+                         << AV_CODEC_ID_H264
+                         << AV_CODEC_ID_HEVC
+                         << AV_CODEC_ID_QTRLE,
+                     QList<AVCodecID>()
+                         << AV_CODEC_ID_MP3
+                         << AV_CODEC_ID_AAC
+                         << AV_CODEC_ID_PCM_S16LE
+                         << AV_CODEC_ID_PCM_S24LE
+                         << AV_CODEC_ID_PCM_F32LE,
                      "*.mov"),
-        FormatCodecs(QList<AVCodecID>() << AV_CODEC_ID_H264 << AV_CODEC_ID_MPEG4 << AV_CODEC_ID_MPEG2VIDEO << AV_CODEC_ID_HEVC,
-                     QList<AVCodecID>() << AV_CODEC_ID_MP3 << AV_CODEC_ID_AAC << AV_CODEC_ID_AC3 << AV_CODEC_ID_FLAC << AV_CODEC_ID_VORBIS << AV_CODEC_ID_WAVPACK,
+        FormatCodecs(QList<AVCodecID>()
+                         << AV_CODEC_ID_H264
+                         << AV_CODEC_ID_HEVC
+                         << AV_CODEC_ID_AV1
+                         << AV_CODEC_ID_MPEG4,
+                     QList<AVCodecID>()
+                         << AV_CODEC_ID_AAC
+                         << AV_CODEC_ID_MP3
+                         << AV_CODEC_ID_OPUS
+                         << AV_CODEC_ID_FLAC,
                      "*.mp4"),
-        FormatCodecs(QList<AVCodecID>() << AV_CODEC_ID_H264 << AV_CODEC_ID_MPEG4 << AV_CODEC_ID_MPEG2VIDEO << AV_CODEC_ID_HEVC,
-                     QList<AVCodecID>() << AV_CODEC_ID_MP3 << AV_CODEC_ID_AAC << AV_CODEC_ID_AC3 << AV_CODEC_ID_FLAC << AV_CODEC_ID_VORBIS << AV_CODEC_ID_WAVPACK,
+        FormatCodecs(QList<AVCodecID>()
+                         << AV_CODEC_ID_H264
+                         << AV_CODEC_ID_HEVC
+                         << AV_CODEC_ID_AV1
+                         << AV_CODEC_ID_PRORES
+                         << AV_CODEC_ID_PNG,
+                     QList<AVCodecID>()
+                         << AV_CODEC_ID_AAC
+                         << AV_CODEC_ID_MP3
+                         << AV_CODEC_ID_OPUS
+                         << AV_CODEC_ID_FLAC
+                         << AV_CODEC_ID_VORBIS
+                         << AV_CODEC_ID_PCM_S16LE
+                         << AV_CODEC_ID_PCM_S24LE
+                         << AV_CODEC_ID_PCM_F32LE,
                      "*.mkv"),
-        FormatCodecs(QList<AVCodecID>() << AV_CODEC_ID_H264 << AV_CODEC_ID_MPEG4 << AV_CODEC_ID_MPEG2VIDEO << AV_CODEC_ID_HEVC << AV_CODEC_ID_RAWVIDEO << AV_CODEC_ID_LJPEG,
-                     QList<AVCodecID>() << AV_CODEC_ID_MP3 << AV_CODEC_ID_AAC << AV_CODEC_ID_AC3 << AV_CODEC_ID_FLAC << AV_CODEC_ID_VORBIS << AV_CODEC_ID_WAVPACK,
-                     "*.avi"),
-        FormatCodecs(QList<AVCodecID>() << AV_CODEC_ID_VP8 << AV_CODEC_ID_VP9,
-                     QList<AVCodecID>() << AV_CODEC_ID_VORBIS << AV_CODEC_ID_OPUS,
+        FormatCodecs(QList<AVCodecID>()
+                         << AV_CODEC_ID_VP9
+                         << AV_CODEC_ID_AV1
+                         << AV_CODEC_ID_VP8,
+                     QList<AVCodecID>()
+                         << AV_CODEC_ID_OPUS
+                         << AV_CODEC_ID_VORBIS,
                      "*.webm"),
         FormatCodecs(QList<AVCodecID>(),
-                     QList<AVCodecID>() << AV_CODEC_ID_MP3 << AV_CODEC_ID_AAC << AV_CODEC_ID_AC3 << AV_CODEC_ID_FLAC << AV_CODEC_ID_VORBIS << AV_CODEC_ID_WAVPACK,
+                     QList<AVCodecID>()
+                         << AV_CODEC_ID_MP3,
                      "*.mp3"),
         FormatCodecs(QList<AVCodecID>(),
-                     QList<AVCodecID>() << AV_CODEC_ID_FLAC,
+                     QList<AVCodecID>()
+                         << AV_CODEC_ID_FLAC,
                      "*.flac"),
         FormatCodecs(QList<AVCodecID>(),
-                     QList<AVCodecID>() << AV_CODEC_ID_MP3 << AV_CODEC_ID_AAC << AV_CODEC_ID_AC3 << AV_CODEC_ID_FLAC << AV_CODEC_ID_VORBIS << AV_CODEC_ID_WAVPACK << AV_CODEC_ID_PCM_U8 << AV_CODEC_ID_PCM_S16LE << AV_CODEC_ID_PCM_S24LE << AV_CODEC_ID_PCM_S32LE << AV_CODEC_ID_PCM_S64LE << AV_CODEC_ID_PCM_F32LE << AV_CODEC_ID_PCM_F64LE,
+                     QList<AVCodecID>()
+                         << AV_CODEC_ID_PCM_S16LE
+                         << AV_CODEC_ID_PCM_S24LE
+                         << AV_CODEC_ID_PCM_F32LE,
                      "*.wav"),
         FormatCodecs(QList<AVCodecID>(),
-                     QList<AVCodecID>() << AV_CODEC_ID_MP3 << AV_CODEC_ID_AAC << AV_CODEC_ID_AC3 << AV_CODEC_ID_FLAC << AV_CODEC_ID_VORBIS << AV_CODEC_ID_WAVPACK,
-                     "*.ogg"),
-        FormatCodecs(QList<AVCodecID>(),
-                     QList<AVCodecID>() << AV_CODEC_ID_MP3 << AV_CODEC_ID_AAC << AV_CODEC_ID_AC3 << AV_CODEC_ID_FLAC << AV_CODEC_ID_VORBIS << AV_CODEC_ID_WAVPACK,
-                     "*.aiff")
+                     QList<AVCodecID>()
+                         << AV_CODEC_ID_OPUS
+                         << AV_CODEC_ID_VORBIS
+                         << AV_CODEC_ID_FLAC,
+                     "*.ogg")
     };
 
     mMainLayout = new QVBoxLayout(this);
@@ -222,9 +259,13 @@ OutputSettings OutputSettingsDialog::getSettings() {
 
     settings.fVideoEnabled = mVideoGroupBox->isChecked();
     const AVCodec *currentVideoCodec = nullptr;
-    if(mVideoCodecsComboBox->count() > 0) {
+    if (mVideoCodecsComboBox->count() > 0) {
         int codecId = mVideoCodecsComboBox->currentIndex();
-        currentVideoCodec = mVideoCodecsList.at(codecId);
+        const AVCodec *selectedCodec = mVideoCodecsList.at(codecId);
+        if (selectedCodec && selectedCodec->id == AV_CODEC_ID_PRORES) {
+            currentVideoCodec = avcodec_find_encoder_by_name("prores_ks");
+        }
+        if (!currentVideoCodec) { currentVideoCodec = selectedCodec; }
     }
     settings.fVideoCodec = currentVideoCodec;
 
@@ -306,7 +347,7 @@ void OutputSettingsDialog::addVideoCodec(const AVCodec* const codec,
     if(codec->pix_fmts == nullptr) return;
     if(avformat_query_codec(outputFormat, codec->id, COMPLIANCE) == 0) return;
     mVideoCodecsList << codec;
-    const QString codecName(codec->long_name);
+    const QString codecName = AppSupport::filterFormatsName(QString(codec->long_name));
     mVideoCodecsComboBox->addItem(codecName);
     if(codecName == currentCodecName) {
         mVideoCodecsComboBox->setCurrentText(codecName);
@@ -323,7 +364,7 @@ void OutputSettingsDialog::addAudioCodec(const AVCodecID &codecId,
     if(currentCodec->sample_fmts == nullptr) return;
     if(avformat_query_codec(outputFormat, codecId, COMPLIANCE) == 0) return;
     mAudioCodecsList << currentCodec;
-    const QString codecName(currentCodec->long_name);
+    const QString codecName = AppSupport::filterFormatsName(QString(currentCodec->long_name));
     mAudioCodecsComboBox->addItem(codecName);
     if(codecName == currentCodecName) {
         mAudioCodecsComboBox->setCurrentText(codecName);
@@ -522,16 +563,15 @@ void OutputSettingsDialog::updateAvailableVideoCodecs() {
           }
         }
     } else {
-        const FormatCodecs currFormatT =
-                mSupportedFormats.at(outputFormatId);
-        for(const AVCodecID &codecId : currFormatT.mVidCodecs) {
-            const AVCodec* iCodec = avcodec_find_encoder(codecId);
-            if(!iCodec) break;
-            if(iCodec->type != AVMEDIA_TYPE_VIDEO) continue;
-            if(iCodec->capabilities & AV_CODEC_CAP_EXPERIMENTAL) {
-                continue;
-            }
-            if(iCodec->pix_fmts == nullptr) continue;
+        const FormatCodecs currFormatT = mSupportedFormats.at(outputFormatId);
+        for (const AVCodecID &codecId : currFormatT.mVidCodecs) {
+            const AVCodec* iCodec = nullptr;
+            if (codecId == AV_CODEC_ID_PRORES) { iCodec = avcodec_find_encoder_by_name("prores_ks"); }
+            if (!iCodec) { iCodec = avcodec_find_encoder(codecId); }
+            if (!iCodec) { continue; }
+            if (iCodec->type != AVMEDIA_TYPE_VIDEO) { continue; }
+            if (iCodec->capabilities & AV_CODEC_CAP_EXPERIMENTAL) { continue; }
+            if (iCodec->pix_fmts == nullptr) { continue; }
             addVideoCodec(iCodec, outputFormat, currentCodecName);
         }
     }

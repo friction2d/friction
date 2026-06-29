@@ -186,15 +186,12 @@ MainWindow::MainWindow(Document& document,
 
 MainWindow::~MainWindow()
 {
+    disconnect();
     mShutdown = true;
-    std::cout << "Closing Friction, please wait ... " << std::endl;
     if (mAutoSaveTimer->isActive()) { mAutoSaveTimer->stop(); }
     writeSettings();
     sInstance = nullptr;
 }
-
-
-
 
 BoundingBox *MainWindow::getCurrentBox()
 {
@@ -816,6 +813,8 @@ void MainWindow::readSettings(const QString &openProject)
 
 void MainWindow::writeSettings()
 {
+    mUI->writeSettings();
+
     if (eSettings::instance().fRestoreDefaultUi) {
         AppSupport::clearSettings("ui");
     } else {

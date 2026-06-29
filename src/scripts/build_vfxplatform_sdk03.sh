@@ -36,9 +36,7 @@ LAME_V=3.100
 VPX_V=1.8.2
 OGG_V=1.3.5
 VORBIS_V=1.3.7
-THEORA_V=1.1.1
-XVID_V=1.3.4
-LSMASH_V=2.14.5
+OPUS_V=1.3.1
 X264_V=20180806-2245
 X265_V=3.5
 AOM_V=3.6.1
@@ -163,49 +161,20 @@ if [ ! -f "${SDK}/lib/libvorbis.so" ]; then
     make install
 fi # libvorbis
 
-# libtheora
-if [ ! -f "${SDK}/lib/libtheora.so" ]; then
+# opus
+if [ ! -f "${SDK}/lib/libopus.so" ]; then
     cd ${SRC}
-    THEORA_SRC=libtheora-${THEORA_V}
-    rm -rf ${THEORA_SRC} || true
-    tar xf ${DIST}/ffmpeg/${THEORA_SRC}.tar.gz
-    cd ${THEORA_SRC}
+    OPUS_SRC=opus-${OPUS_V}
+    rm -rf ${OPUS_SRC} || true
+    tar xf ${DIST}/ffmpeg/${OPUS_SRC}.tar.gz
+    cd ${OPUS_SRC}
     CFLAGS="${DEFAULT_CFLAGS}" \
     CXXFLAGS="${DEFAULT_CFLAGS}" \
     LDFLAGS="${DEFAULT_LDFLAGS}" \
-    ./configure ${DEFAULT_CONFIGURE} --disable-examples --disable-sdltest
+    ./configure ${DEFAULT_CONFIGURE} --disable-docs --disable-extra-programs
     make -j${MKJOBS}
     make install
-fi # libtheora
-
-# xvidcore
-if [ ! -f "${SDK}/lib/libxvidcore.so" ]; then
-    cd ${SRC}
-    rm -rf xvidcore || true
-    tar xf ${DIST}/ffmpeg/xvidcore-${XVID_V}.tar.gz
-    cd xvidcore/build/generic
-    CFLAGS="${DEFAULT_CFLAGS}" \
-    CXXFLAGS="${DEFAULT_CFLAGS}" \
-    LDFLAGS="${DEFAULT_LDFLAGS}" \
-    ./configure ${COMMON_CONFIGURE}
-    make -j${MKJOBS}
-    make install
-fi # xvidcore
-
-# liblsmash
-if [ ! -f "${SDK}/lib/liblsmash.so" ]; then
-    cd ${SRC}
-    LSMASH_SRC=l-smash-${LSMASH_V}
-    rm -rf ${LSMASH_SRC} || true
-    tar xf ${DIST}/ffmpeg/liblsmash-v${LSMASH_V}.tar.gz
-    cd ${LSMASH_SRC}
-    CFLAGS="${DEFAULT_CFLAGS}" \
-    CXXFLAGS="${DEFAULT_CFLAGS}" \
-    LDFLAGS="${DEFAULT_LDFLAGS}" \
-    ./configure ${DEFAULT_CONFIGURE}
-    make -j${MKJOBS}
-    make install
-fi # liblsmash
+fi # opus
 
 # x264
 if [ ! -f "${SDK}/lib/libx264.so" ]; then
@@ -283,38 +252,57 @@ if [ ! -f "${SDK}/lib/pkgconfig/libavcodec.pc" ]; then
     CXXFLAGS="${DEFAULT_CFLAGS}" \
     LDFLAGS="${DEFAULT_LDFLAGS}" \
     ./configure ${SHARED_CONFIGURE} \
+    --extra-version=friction \
+    --disable-network \
+    --disable-protocols \
+    --disable-devices \
+    --disable-hwaccels \
+    --disable-doc \
+    --disable-debug \
+    --disable-securetransport \
+    --disable-videotoolbox \
+    --disable-openssl \
+    --disable-gnutls \
+    --disable-sdl2 \
     --disable-xlib \
     --disable-libxcb \
     --disable-libv4l2 \
     --disable-alsa \
-    --disable-network \
-    --disable-programs \
-    --disable-debug \
-    --disable-doc \
-    --enable-avresample \
-    --enable-gpl \
-    --enable-version3 \
-    --extra-version=friction \
     --disable-avisynth \
-    --disable-gnutls \
     --disable-libass \
     --disable-libbluray \
     --disable-libbs2b \
     --disable-libcaca \
-    --enable-libmp3lame \
     --disable-libopencore-amrnb \
     --disable-libopencore-amrwb \
-    --disable-libopus \
     --disable-libspeex \
-    --enable-libtheora \
     --disable-libvidstab \
     --disable-libvo-amrwbenc \
-    --enable-libvorbis \
-    --enable-libvpx \
+    --disable-libtheora \
+    --disable-libxvid \
+    --disable-demuxers \
+    --disable-muxers \
+    --disable-decoders \
+    --disable-encoders \
+    --enable-gpl \
+    --enable-version3 \
+    --enable-avresample \
+    --enable-protocol=file \
+    --enable-libopus \
     --enable-libx264 \
-    --enable-libaom \
     --enable-libx265 \
-    --enable-libxvid
+    --enable-libvpx \
+    --enable-libaom \
+    --enable-libmp3lame \
+    --enable-libvorbis \
+    --enable-demuxer=aac,avi,flac,gif,image2,matroska,mov,mp3,mp4,ogg,wav,webm \
+    --enable-muxer=aac,flac,gif,image2,matroska,mov,mp3,mp4,ogg,wav,webm \
+    --enable-decoder=libaom_av1,gif,h264,hevc,mjpeg,mpeg4,png,prores,prores_ks,rawvideo,tiff,vp8,vp9 \
+    --enable-decoder=aac,flac,mp3,opus,vorbis \
+    --enable-decoder=pcm_f32le,pcm_s16le,pcm_s24le \
+    --enable-encoder=libaom_av1,gif,libx264,libx264rgb,libx265,mjpeg,png,mpeg4,prores,prores_ks,rawvideo,tiff,libvpx_vp8,libvpx_vp9 \
+    --enable-encoder=aac,flac,libmp3lame,libopus,libvorbis \
+    --enable-encoder=pcm_f32le,pcm_s16le,pcm_s24le
      make -j${MKJOBS}
      make install
 fi # ffmpeg

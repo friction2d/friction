@@ -50,7 +50,6 @@ public:
                     const bool &showLabel = true,
                     const bool &showHeader = true,
                     const bool &darkHeader = false);
-    ~UIDock();
     void setPosition(const Position &pos);
     Position getPosition();
     void setIndex(const int &index);
@@ -58,6 +57,7 @@ public:
     const QString getLabel();
     const QString getId();
     void addWidget(QWidget *widget);
+    void writeSettings();
 
 signals:
     void changePosition(const Position &pos,
@@ -68,7 +68,7 @@ private:
     QString mLabel;
     Position mPos;
     int mIndex;
-    void writeSettings();
+
 };
 
 class UI_EXPORT UILayout : public QSplitter
@@ -91,7 +91,6 @@ public:
         }
     };
     explicit UILayout(QWidget *parent = nullptr);
-    ~UILayout();
     void readSettings();
     void writeSettings();
     void addDocks(std::vector<Item> items);
@@ -117,6 +116,8 @@ private:
     void updateDock(QSplitter *container,
                     const UIDock::Position &pos);
     void updateDocks();
+    void saveDocks();
+    void saveDock(QSplitter *container);
 };
 
 #endif // UILAYOUT_H

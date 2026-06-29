@@ -907,8 +907,8 @@ void AppSupport::installRenderPresets(const bool force,
                 << "004-friction-preset-prores-444-aac.conf"
                 << "005-friction-preset-png.conf"
                 << "006-friction-preset-tiff.conf"
-                << "007-friction-preset-webm.conf"
-                << "008-friction-preset-exr.conf";
+                << "007-friction-preset-webm.conf";
+                //<< "008-friction-preset-exr.conf"; // not supported in ffmpeg used in v1.0
     }
 
     qDebug() << "install render presets"
@@ -989,10 +989,42 @@ const QString AppSupport::filterTextAZW(const QString &text)
 
 const QString AppSupport::filterFormatsName(const QString &text)
 {
-    QString output(text);
-    if (output == "image2") { output = "image"; }
-    else if (output == "image2 sequence") { output = "Image Sequence"; }
-    return output;
+    if (text.isEmpty()) { return text; }
+
+    if (text == "QuickTime / MOV") { return "MOV"; }
+    if (text == "MP4 (MPEG-4 Part 14)") { return "MP4"; }
+    if (text == "AVI (Audio Video Interleaved)") { return "AVI"; }
+    if (text == "image2") { return "image"; }
+    if (text == "image2 sequence") { return "Image Sequence"; }
+    if (text == "Matroska") { return "MKV"; }
+    if (text.contains("GIF")) { return "GIF"; }
+    if (text.contains("FLAC")) { return "FLAC"; }
+    if (text.contains("WAV")) { return "WAV"; }
+    if (text.contains("MP3")) { return "MP3"; }
+    if (text == "Ogg") { return "OGG"; }
+
+    if (text == "OpenEXR image") { return "EXR"; }
+    if (text == "PNG (Portable Network Graphics) image") { return "PNG"; }
+    if (text == "TIFF image") { return "TIFF"; }
+    if (text == "MJPEG (Motion JPEG)") { return "JPEG"; }
+
+    if (text == "QuickTime Animation (RLE) video") { return "RLE"; }
+    if (text.contains("iCodec Pro")) { return "ProRes"; }
+    if (text.contains("Apple ProRes")) { return "Legacy ProRes"; }
+    if (text.contains("libx264")) { return "H.264 AVC"; }
+    if (text.contains("libx265")) { return "H.265 HEVC"; }
+    if (text.contains("libaom")) { return "AV1"; }
+    if (text.contains("VP8")) { return "VP8"; }
+    if (text.contains("VP9")) { return "VP9"; }
+
+    if (text.contains("AAC")) { return "AAC"; }
+    if (text.contains("vorbis")) { return "Vorbis"; }
+    if (text.contains("libopus")) { return "Opus"; }
+    if (text.contains("PCM signed 16-bit")) { return "PCM 16-bit"; }
+    if (text.contains("PCM signed 24-bit")) { return "PCM 24-bit"; }
+    if (text.contains("PCM 32-bit floating point")) { return "PCM 32-bit"; }
+
+    return text;
 }
 
 int AppSupport::getProjectVersion(const QString &fileName)
