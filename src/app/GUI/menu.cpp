@@ -825,6 +825,9 @@ void MainWindow::setupMenuBar()
     help->addAction(QIcon::fromTheme("workspace"),
                     tr("Restore default user interface"),
                     this, &MainWindow::askRestoreDefaultUi);
+    help->addAction(QIcon::fromTheme("window"),
+                    tr("Run Quick Setup on startup"),
+                    this, &MainWindow::askRunQuickSetup);
 
     // toolbar actions
     mToolbar->addAction(newAct);

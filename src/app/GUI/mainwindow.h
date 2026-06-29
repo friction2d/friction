@@ -374,6 +374,7 @@ private:
     void askInstallDefaultPresets();
     void askRestoreFillStrokeDefault();
     void askRestoreDefaultUi();
+    void askRunQuickSetup();
 
     QAction *mToolBarMainAct;
     QAction *mToolBarColorAct;

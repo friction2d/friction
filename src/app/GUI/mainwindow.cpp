@@ -345,6 +345,15 @@ void MainWindow::askRestoreDefaultUi()
     eSettings::sInstance->fRestoreDefaultUi = true;
 }
 
+void MainWindow::askRunQuickSetup()
+{
+    const auto result = QMessageBox::question(this,
+                                              tr("Run Quick Setup on startup?"),
+                                              tr("Are you sure you want to run Quick Setup the next time you start Friction?"));
+    if (result != QMessageBox::Yes) { return; }
+    AppSupport::setSettings("settings", "firstRun", true);
+}
+
 void MainWindow::openWelcomeDialog()
 {
     mStackWidget->setCurrentIndex(mStackIndexWelcome);
