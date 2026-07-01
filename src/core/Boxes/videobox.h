@@ -29,6 +29,7 @@
 #include <unordered_map>
 #include "Boxes/animationbox.h"
 #include "FileCacheHandlers/videocachehandler.h"
+#include "canvas.h"
 
 class eVideoSound;
 
@@ -66,6 +67,27 @@ private:
 
     qsptr<eVideoSound> mSound;
     FileHandlerObjRef<VideoFileHandler> mFileHandler;
+
+    void setCorrectFps(){
+        auto const pScene = getParentScene();
+        if (!pScene) { return; }
+        
+        auto const dataHandler = mFileHandler->getFrameHandler();
+        if (!dataHandler) { return; }
+        qsptr<VideoFrameHandler> vframeHandler;
+        vframeHandler = enve::make_shared<VideoFrameHandler>(dataHandler);
+
+        // Any changes we make to the video in the timeline have to be reflected on the video stream, that's why we have to apply the changes to dataHandler and vframeHandler.
+        qreal newmod = (pScene->getFps() /  dataHandler->getFps());
+        dataHandler->setFps(dataHandler->getFps() *newmod);
+        vframeHandler->mVideoStreamsData->fFps = dataHandler->getFps();
+        dataHandler->setFrameCount(vframeHandler->mVideoStreamsData->fFrameCount*newmod); 
+        vframeHandler->mVideoStreamsData->fFrameCount = vframeHandler->mVideoStreamsData->fFrameCount*newmod; 
+        setAnimationFramesHandler(vframeHandler);
+        animationDataChanged();
+        return;
+    }
+
 };
 
 #endif // VIDEOBOX_H

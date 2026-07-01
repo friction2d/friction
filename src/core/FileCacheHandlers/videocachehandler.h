@@ -66,6 +66,7 @@ private:
     qreal mFrameFps = 0;
     int mFrameWidth = 0;
     int mFrameHeight = 0;
+public:
     QList<VideoFrameHandler*> mFrameHandlers;
     QList<int> mFramesBeingLoaded;
     QList<stdsptr<VideoFrameLoader>> mFrameLoaders;
@@ -103,6 +104,7 @@ private:
     std::set<int> mNeededFrames;
 
     VideoDataHandler* const mDataHandler;
+public:
     stdsptr<VideoStreamsData> mVideoStreamsData;
 };
 #include "CacheHandlers/soundcachehandler.h"
