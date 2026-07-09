@@ -342,6 +342,9 @@ public:
 
     void setPivotAbsPos(const QPointF &absPos);
     void setPivotRelPos(const QPointF &relPos);
+protected:
+    virtual void onPivotChanged(const UpdateReason reason);
+public:
 
     bool isAnimated() const;
 
