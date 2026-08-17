@@ -33,7 +33,7 @@
 #include <QAbstractItemView>
 
 #include "GUI/global.h"
-#include "Animators/qrealanimator.h"
+#include "Properties/property.h"
 
 class ExpressionHighlighter;
 
@@ -42,10 +42,7 @@ class ExpressionEditor : public QTextEdit
     Q_OBJECT
 
 public:
-    ExpressionEditor(QrealAnimator* const target,
-                     QWidget* const parent);
-
-    ExpressionEditor(QrealAnimator* const target,
+    ExpressionEditor(Property* const target,
                      const QString& text, QWidget* const parent);
 
     void setCompleterList(const QStringList& values);

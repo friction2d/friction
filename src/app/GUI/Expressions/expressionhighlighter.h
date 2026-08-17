@@ -28,13 +28,13 @@
 
 #include <QSyntaxHighlighter>
 
-#include "Animators/qrealanimator.h"
+#include "Properties/property.h"
 
 class ExpressionEditor;
 
 class ExpressionHighlighter : public QSyntaxHighlighter {
 public:
-    ExpressionHighlighter(QrealAnimator* const target,
+    ExpressionHighlighter(Property* const target,
                           ExpressionEditor* const editor,
                           QTextDocument *parent);
 
@@ -68,7 +68,7 @@ private:
     QStringList mBaseComplete;
     QStringList mBaseVarsComplete;
 
-    QrealAnimator* const mTarget;
+    Property* const mTarget;
     ComplexAnimator* const mSearchCtxt;
     ExpressionEditor* const mEditor;
 };
