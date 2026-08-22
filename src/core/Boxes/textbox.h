@@ -65,9 +65,23 @@ public:
                          Canvas * const scene);
 
     SkScalar getFontSize() const;
+    SkScalar getFontSpacing() const;
     const QString& getFontFamily() const;
     const SkFontStyle& getFontStyle() const;
     const QString& getCurrentValue() const;
+    QString getValueAtRelFrame(const qreal relFrame) const;
+    Qt::Alignment getTextHAlignment() const;
+    Qt::Alignment getTextVAlignment() const;
+    qreal getLetterSpacing(const qreal relFrame) const;
+    qreal getWordSpacing(const qreal relFrame) const;
+    qreal getLineSpacing(const qreal relFrame) const;
+    qreal getMaxLineWidth(const qreal relFrame) const;
+    qreal getTextWidth(const QString& text,
+                       const qreal letterSpacing = 0,
+                       const qreal wordSpacing = 1) const;
+    SkPath getTextPath(const QString& text,
+                       const qreal x,
+                       const qreal y) const;
 
     void openTextEditor(QWidget* dialogParent);
 

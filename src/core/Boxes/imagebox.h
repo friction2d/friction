@@ -65,6 +65,9 @@ public:
 
     void changeSourceFile();
     void setFilePath(const QString &path);
+    QString filePath() const;
+    bool hasImage() const;
+    sk_sp<SkImage> image() const;
 
     void reload();
 private:
