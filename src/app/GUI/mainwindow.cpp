@@ -24,8 +24,11 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "mainwindow.h"
+#include "svganimationimporter.h"
+#include "GUI/Dialogs/svganimationimportdialog.h"
 #include "GUI/Expressions/expressiondialog.h"
 #include "canvas.h"
+#include "Animators/transformanimator.h"
 #include <QKeyEvent>
 #include <QApplication>
 #include <QDebug>
@@ -111,6 +114,7 @@ MainWindow::MainWindow(Document& document,
     , mLinkedAct(nullptr)
     , mImportAct(nullptr)
     , mImportSeqAct(nullptr)
+    , mImportSVGAnimationAct(nullptr)
     , mRevertAct(nullptr)
     , mSelectAllAct(nullptr)
     , mInvertSelAct(nullptr)
@@ -390,6 +394,7 @@ void MainWindow::updateSettingsForCurrentCanvas(Canvas* const scene)
     if (mLinkedAct) { mLinkedAct->setEnabled(scene); }
     if (mImportAct) { mImportAct->setEnabled(scene); }
     if (mImportSeqAct) { mImportSeqAct->setEnabled(scene); }
+    if (mImportSVGAnimationAct) { mImportSVGAnimationAct->setEnabled(scene); }
     if (mRevertAct) { mRevertAct->setEnabled(scene); }
     if (mSelectAllAct) { mSelectAllAct->setEnabled(scene); }
     if (mInvertSelAct) { mInvertSelAct->setEnabled(scene); }
@@ -1294,6 +1299,85 @@ void MainWindow::importImageSequence()
                                                      defPath);
     enableEventFilter();
     if (!folder.isEmpty()) { mActions.importFile(folder); }
+}
+
+void MainWindow::importSVGAnimation()
+{
+    if (!mDocument.fActiveScene) { return; }
+    disableEventFilter();
+    const QString recentDir = AppSupport::getSettings("files",
+                                                       "recentImportDir",
+                                                       QDir::homePath()).toString();
+    const QString title = tr("Import SVG Animation",
+                             "ImportSVGAnimationDialog_Title");
+    const QString path = AppSupport::getOpenFile(this, title, recentDir,
+                                                 tr("SVG Files (*.svg)"));
+    enableEventFilter();
+    if (path.isEmpty()) { return; }
+
+    try {
+        Canvas* const scene = mDocument.fActiveScene;
+        QSizeF svgSize;
+        SVGAnimationImportDialog::ScaleMode scaleMode;
+        SVGAnimationImportDialog::StructureMode structureMode;
+        SVGAnimationImportDialog::SceneDurationMode durationMode;
+        const SVGAnimationImportDialog::SceneInfo sceneInfo{
+            QSize(scene->getCanvasWidth(), scene->getCanvasHeight()),
+            scene->getMinFrame(), scene->getMaxFrame(), scene->getFps()
+        };
+        if (!SVGAnimationImportDialog::sExec(
+                    path, sceneInfo, svgSize, scaleMode, structureMode,
+                    durationMode, this)) {
+            return;
+        }
+
+        qreal scaleX = 1;
+        qreal scaleY = 1;
+        if (scaleMode == SVGAnimationImportDialog::ScaleMode::fitWidth) {
+            scaleX = scaleY = scene->getCanvasWidth()/svgSize.width();
+        } else if (scaleMode == SVGAnimationImportDialog::ScaleMode::fitHeight) {
+            scaleX = scaleY = scene->getCanvasHeight()/svgSize.height();
+        } else if (scaleMode == SVGAnimationImportDialog::ScaleMode::stretch) {
+            scaleX = scene->getCanvasWidth()/svgSize.width();
+            scaleY = scene->getCanvasHeight()/svgSize.height();
+        }
+
+        ContainerBox* const target = scene->getCurrentGroup();
+        auto block = scene->blockUndoRedo();
+        bool technicalRoot = false;
+        const auto imported = ImportSVGAnimation::loadSVGFile(
+                    path, scene, durationMode, &technicalRoot);
+        if (!imported) { return; }
+        const QString importName = QFileInfo(path).completeBaseName();
+        block.reset();
+        target->prp_pushUndoRedoName(tr("Import SVG Animation"));
+
+        const bool directObjects = structureMode ==
+                SVGAnimationImportDialog::StructureMode::directObjects;
+        qsptr<ContainerBox> wrapper;
+        if (technicalRoot) {
+            wrapper = qSharedPointerCast<ContainerBox>(imported);
+            wrapper->prp_setName(importName);
+        } else {
+            wrapper = enve::make_shared<ContainerBox>(importName,
+                                                       eBoxType::group);
+            wrapper->addContained(imported);
+        }
+        wrapper->getBoxTransformAnimator()->setScale(scaleX, scaleY);
+        target->insertContained(0, wrapper);
+        if (directObjects) {
+            wrapper->ungroupKeepTransform_k();
+        } else {
+            wrapper->planCenterPivotPosition();
+            wrapper->updateAllBoxes(UpdateReason::userChange);
+        }
+        scene->requestUpdate();
+        mDocument.actionFinished();
+        AppSupport::setSettings("files", "recentImportDir",
+                                QFileInfo(path).absoluteDir().absolutePath());
+    } catch (const std::exception& e) {
+        gPrintExceptionCritical(e);
+    }
 }
 
 void MainWindow::revert()
