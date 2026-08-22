@@ -26,6 +26,25 @@ set SDK_DIR=%CWD%\sdk
 set SDK_VERSION=1.0.0
 set SDK_REV=r6
 set SDK_SUFFIX=windows-x64.7z
+set "CMAKE_TOOLCHAIN="
+
+if defined VCPKG_ROOT (
+    if exist "%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake" (
+        set "CMAKE_TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows"
+    )
+)
+if not defined CMAKE_TOOLCHAIN (
+    if defined VCPKG_INSTALLATION_ROOT (
+        if exist "%VCPKG_INSTALLATION_ROOT%\scripts\buildsystems\vcpkg.cmake" (
+            set "CMAKE_TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=%VCPKG_INSTALLATION_ROOT%\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows"
+        )
+    )
+)
+if not defined CMAKE_TOOLCHAIN (
+    if exist "C:\vcpkg\scripts\buildsystems\vcpkg.cmake" (
+        set "CMAKE_TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows"
+    )
+)
 
 set PATH=%SDK_DIR%\bin;%PATH%
 
@@ -50,7 +69,7 @@ mkdir build
 cd "%CWD%\build"
 mkdir output
 
-cmake -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=%BTYPE% -DCMAKE_PREFIX_PATH=%SDK_DIR% -DCUSTOM_BUILD=%CBUILD% -DBUILD_SKIA=OFF -DFRICTION_OFFICIAL_RELEASE=%REL% -DWIN_DEPLOY=ON -DGIT_COMMIT=%COMMIT% -DGIT_BRANCH=%BRANCH% ..
+cmake -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=%BTYPE% -DCMAKE_PREFIX_PATH=%SDK_DIR% %CMAKE_TOOLCHAIN% -DCUSTOM_BUILD=%CBUILD% -DBUILD_SKIA=OFF -DFRICTION_OFFICIAL_RELEASE=%REL% -DWIN_DEPLOY=ON -DGIT_COMMIT=%COMMIT% -DGIT_BRANCH=%BRANCH% ..
 set /p VERSION=<version.txt
 cmake --build . --config %BTYPE%
 
