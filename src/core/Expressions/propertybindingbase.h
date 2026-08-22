@@ -40,6 +40,8 @@ protected:
 public:
     virtual QJSValue getJSValue(QJSEngine& e) = 0;
     virtual QJSValue getJSValue(QJSEngine& e, const qreal relFrame) = 0;
+    virtual QJSValue getJSValueAtAbsFrame(QJSEngine& e,
+                                          const qreal absFrame);
     virtual FrameRange identicalRelRange(const int absFrame) = 0;
     virtual FrameRange nextNonUnaryIdenticalRelRange(const int absFrame) = 0;
     virtual QString path() const = 0;

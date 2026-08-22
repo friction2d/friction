@@ -25,8 +25,14 @@
 
 #include "expression.h"
 
+#include "expressioncontext.h"
 #include "exceptions.h"
 #include "Private/esettings.h"
+#include "canvas.h"
+
+namespace {
+const QString gExpressionContextName = "__frictionExpressionContext";
+}
 
 Expression::ResultTester Expression::sQrealAnimatorTester =
         [](const QJSValue& val) {
@@ -42,12 +48,24 @@ Expression::Expression(const QString& definitionsStr,
     mScriptStr(scriptStr),
     mEEvaluate(std::move(eEvaluate)),
     mBindings(std::move(bindings)),
-    mEngine(std::move(engine)) {
+    mEngine(std::move(engine)),
+    mExpressionContext(qobject_cast<ExpressionContext*>(
+        mEngine->globalObject().property(gExpressionContextName).toQObject())) {
     for(const auto& binding : mBindings) {
         connect(binding.second.get(), &PropertyBinding::currentValueChanged,
                 this, &Expression::currentValueChanged);
         connect(binding.second.get(), &PropertyBinding::relRangeChanged,
-                this, &Expression::relRangeChanged);
+                this, [this](const FrameRange& range) {
+            emit relRangeChanged(mExpressionContext &&
+                                 mExpressionContext->usesTemporalSampling() ?
+                                     FrameRange::EMINMAX : range);
+        });
+    }
+    if(mExpressionContext) {
+        connect(mExpressionContext, &ExpressionContext::temporalSamplingUsed,
+                this, [this]() {
+            emit relRangeChanged(FrameRange::EMINMAX);
+        });
     }
 }
 
@@ -75,10 +93,45 @@ void Expression::sAddDefinitionsTo(const QString& definitionsStr,
 void Expression::sAddScriptTo(const QString& scriptStr,
                               const PropertyBindingMap& bindings,
                               QJSEngine& e, QJSValue& eEvaluate,
-                              const ResultTester& resultTester) {
+                              const ResultTester& resultTester,
+                              const Property* const context) {
+    if(bindings.find("valueAtTime") != bindings.end()) {
+        PrettyRuntimeThrow("'valueAtTime' is a reserved expression function");
+    }
+
+    const auto expressionContext =
+            new ExpressionContext(context, bindings, &e);
+    expressionContext->setParent(&e);
+    e.globalObject().setProperty(
+                gExpressionContextName, e.newQObject(expressionContext));
+
+    const auto builtinsResult = e.evaluate(
+        "var valueAtTime = function(sourceOrTime, time) {"
+        "  if (arguments.length === 1) {"
+        "    if (typeof sourceOrTime !== 'number' || !isFinite(sourceOrTime)) {"
+        "      throw new TypeError(\"valueAtTime(): time must be a finite number\");"
+        "    }"
+        "    return __frictionExpressionContext.valueAtTime(sourceOrTime);"
+        "  }"
+        "  if (arguments.length === 2) {"
+        "    if (typeof sourceOrTime !== 'string') {"
+        "      throw new TypeError(\"valueAtTime(): the first argument must be a binding name\");"
+        "    }"
+        "    if (typeof time !== 'number' || !isFinite(time)) {"
+        "      throw new TypeError(\"valueAtTime(): time must be a finite number\");"
+        "    }"
+        "    return __frictionExpressionContext.bindingValueAtTime(sourceOrTime, time);"
+        "  }"
+        "  throw new TypeError(\"valueAtTime() expects one or two arguments\");"
+        "};");
+    throwIfError(builtinsResult, "Expression built-ins");
+
     QStringList bindingVars;
     QJSValueList testArgs;
+    const auto scene = context ? context->getParentScene() : nullptr;
+    const int testAbsFrame = scene ? scene->getCurrentFrame() : 0;
     for(const auto& binding : bindings) {
+        binding.second->setAbsFrame(testAbsFrame);
         bindingVars << binding.first;
         testArgs << binding.second->getJSValue(e);
     }
@@ -108,7 +161,8 @@ qsptr<Expression> Expression::sCreate(const QString& bindingsStr,
     auto engine = std::make_unique<QJSEngine>();
     sAddDefinitionsTo(definitionsStr, *engine);
     QJSValue eEvaluate;
-    sAddScriptTo(scriptStr, bindings, *engine, eEvaluate, resultTester);
+    sAddScriptTo(scriptStr, bindings, *engine, eEvaluate,
+                 resultTester, context);
     return sCreate(definitionsStr, scriptStr,
                    std::move(bindings),
                    std::move(engine),
@@ -138,6 +192,8 @@ bool Expression::setAbsFrame(const int absFrame) {
 }
 
 bool Expression::isStatic() const {
+    if(mExpressionContext && mExpressionContext->usesTemporalSampling())
+        return false;
     return identicalRelRange(0) == FrameRange::EMINMAX;
 }
 
@@ -169,16 +225,18 @@ QJSValue Expression::evaluate(const qreal relFrame)
 {
     QJSValueList values;
     for (const auto& binding : mBindings) {
-        QString path = binding.second->path();
-        QJSValue val = binding.second->getJSValue(*mEngine, relFrame);
-        if (path == "$frame") { values << QJSValue(relFrame); }
-        else { values << val; }
+        values << binding.second->getJSValue(*mEngine, relFrame);
     }
     QJSValue res = mEEvaluate.call(values);
     return res;
 }
 
 FrameRange Expression::identicalRelRange(const int absFrame) const {
+    if(mExpressionContext && mExpressionContext->usesTemporalSampling()) {
+        const int relFrame = qRound(
+                    mExpressionContext->contextRelFrame(absFrame));
+        return {relFrame, relFrame};
+    }
     FrameRange result{FrameRange::EMINMAX};
     for(const auto& binding : mBindings) {
         const auto prop = binding.second.get();
@@ -190,6 +248,10 @@ FrameRange Expression::identicalRelRange(const int absFrame) const {
 
 FrameRange Expression::nextNonUnaryIdenticalRelRange(const int absFrame) const
 {
+    if(mExpressionContext && mExpressionContext->usesTemporalSampling()) {
+        Q_UNUSED(absFrame)
+        return {FrameRange::EMAX/2, FrameRange::EMAX};
+    }
     for (int i = absFrame; i < FrameRange::EMAX; i++) {
         FrameRange result{FrameRange::EMINMAX};
         int lowestMax = INT_MAX;
