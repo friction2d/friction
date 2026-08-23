@@ -41,55 +41,102 @@ const int BufferSize = 32768;
 
 QAudioFormat::SampleType toQtAudioFormat(const AVSampleFormat avFormat)
 {
-    if (avFormat == AV_SAMPLE_FMT_S32) {
+    if (avFormat == AV_SAMPLE_FMT_S32 || avFormat == AV_SAMPLE_FMT_S16) {
         return QAudioFormat::SignedInt;
     } else if (avFormat == AV_SAMPLE_FMT_FLT) {
         return QAudioFormat::Float;
-    } else { RuntimeThrow("Unsupported sample format " +
-                          av_get_sample_fmt_name(avFormat)); }
+    } else if (avFormat == AV_SAMPLE_FMT_U8) {
+        return QAudioFormat::UnSignedInt;
+    } else {
+        RuntimeThrow("Unsupported sample format " + QString(av_get_sample_fmt_name(avFormat)));
+        return QAudioFormat::Unknown;
+    }
 }
 
-AVSampleFormat toAVAudioFormat(const QAudioFormat::SampleType qFormat)
+AVSampleFormat toAVAudioFormat(const QAudioFormat& qFormat)
 {
-    if (qFormat == QAudioFormat::SignedInt) {
-        return AV_SAMPLE_FMT_S32;
-    } else if (qFormat == QAudioFormat::Float) {
+    if (qFormat.sampleType() == QAudioFormat::SignedInt) {
+        if (qFormat.sampleSize() == 16) { return AV_SAMPLE_FMT_S16; }
+        if (qFormat.sampleSize() == 32) { return AV_SAMPLE_FMT_S32; }
+    } else if (qFormat.sampleType() == QAudioFormat::Float) {
         return AV_SAMPLE_FMT_FLT;
-    } else { RuntimeThrow("Unsupported sample format " +
-                          QString::number(qFormat)); }
+    } else if (qFormat.sampleType() == QAudioFormat::UnSignedInt && qFormat.sampleSize() == 8) {
+        return AV_SAMPLE_FMT_U8;
+    }
+
+    RuntimeThrow("Unsupported sample format: Type " +
+                 QString::number(qFormat.sampleType()) +
+                 " Size " + QString::number(qFormat.sampleSize()));
+
+    return AV_SAMPLE_FMT_NONE;
 }
 
 void AudioHandler::initializeAudio(eSoundSettingsData& soundSettings,
                                    const QString &deviceName)
 {
-    if (mAudioOutput) { delete mAudioOutput; }
+    if (mAudioOutput) {
+        delete mAudioOutput;
+        mAudioOutput = nullptr;
+    }
 
     mAudioBuffer = QByteArray(BufferSize, 0);
 
     mAudioDevice = findDevice(deviceName);
-    qDebug() << "Using audio device" << mAudioDevice.deviceName();
+
+    if (mAudioDevice.isNull()) {
+        mAudioDevice = QAudioDeviceInfo::defaultOutputDevice();
+    }
+
+    qWarning() << "Audio Device:" << mAudioDevice.deviceName();
 
     mAudioFormat.setSampleRate(soundSettings.fSampleRate);
     mAudioFormat.setChannelCount(soundSettings.channelCount());
-    mAudioFormat.setSampleSize(8*soundSettings.bytesPerSample());
+    mAudioFormat.setSampleSize(8 * soundSettings.bytesPerSample());
     mAudioFormat.setCodec("audio/pcm");
     mAudioFormat.setByteOrder(QAudioFormat::LittleEndian);
     mAudioFormat.setSampleType(toQtAudioFormat(soundSettings.fSampleFormat));
 
     QAudioDeviceInfo info(mAudioDevice);
+
     if (!info.isFormatSupported(mAudioFormat)) {
-        const auto oldFormat = mAudioFormat;
-        mAudioFormat = info.nearestFormat(mAudioFormat);
-        /*std::cout << "Using:" << std::endl <<
-                     "    Sample rate: " << mAudioFormat.sampleRate() << std::endl <<
-                     "    Channel count: " << mAudioFormat.channelCount() << std::endl <<
-                     "    Sample size: " << mAudioFormat.sampleSize() << std::endl <<
-                     "    Codec: " << mAudioFormat.codec().toStdString() << std::endl <<
-                     "    Sample Type: " << mAudioFormat.sampleType() << std::endl <<
-                     "    Byte order: " << mAudioFormat.byteOrder() << std::endl;*/
-        soundSettings.fSampleRate = mAudioFormat.sampleRate();
-        soundSettings.fSampleFormat = toAVAudioFormat(mAudioFormat.sampleType());
+        qWarning() << "Requested audio format not supported, negotiating fallback...";
+        QAudioFormat nearest = info.nearestFormat(mAudioFormat);
+
+        try {
+            soundSettings.fSampleFormat = toAVAudioFormat(nearest);
+            mAudioFormat = nearest;
+            soundSettings.fSampleRate = mAudioFormat.sampleRate();
+
+            if (mAudioFormat.channelCount() == 1) {
+                soundSettings.fChannelLayout = AV_CH_LAYOUT_MONO;
+            } else if (mAudioFormat.channelCount() == 2) {
+                soundSettings.fChannelLayout = AV_CH_LAYOUT_STEREO;
+            }
+
+            qWarning() << "Successfully negotiated format: Rate:" << mAudioFormat.sampleRate()
+                       << "Size:" << mAudioFormat.sampleSize();
+
+        } catch (const std::exception& e) {
+            qWarning() << "Nearest format unusable, forcing standard 16-bit 44.1kHz stereo fallback";
+            mAudioFormat.setSampleRate(44100);
+            mAudioFormat.setChannelCount(2);
+            mAudioFormat.setSampleSize(16);
+            mAudioFormat.setSampleType(QAudioFormat::SignedInt);
+
+            soundSettings.fSampleFormat = AV_SAMPLE_FMT_S16;
+            soundSettings.fSampleRate = 44100;
+            soundSettings.fChannelLayout = AV_CH_LAYOUT_STEREO;
+        }
     }
+
+    std::cout
+        << "Audio Format:" << std::endl
+        << "    Sample rate: " << mAudioFormat.sampleRate() << std::endl
+        << "    Channel count: " << mAudioFormat.channelCount() << std::endl
+        << "    Sample size: " << mAudioFormat.sampleSize() << std::endl
+        << "    Codec: " << mAudioFormat.codec().toStdString() << std::endl
+        << "    Sample Type: " << mAudioFormat.sampleType() << std::endl
+        << "    Byte order: " << mAudioFormat.byteOrder() << std::endl;
 
     mAudioOutput = new QAudioOutput(mAudioDevice, mAudioFormat, this);
     mAudioOutput->setNotifyInterval(128);
@@ -99,12 +146,21 @@ void AudioHandler::initializeAudio(eSoundSettingsData& soundSettings,
 void AudioHandler::initializeAudio(const QString &deviceName,
                                    bool save)
 {
-    if (mAudioOutput) { delete mAudioOutput; }
+    if (mAudioOutput) {
+        delete mAudioOutput;
+        mAudioOutput = nullptr;
+    }
 
     mAudioBuffer = QByteArray(BufferSize, 0);
 
     mAudioDevice = findDevice(deviceName);
-    qDebug() << "Using audio device" << mAudioDevice.deviceName();
+
+    if (mAudioDevice.isNull()) {
+        mAudioDevice = QAudioDeviceInfo::defaultOutputDevice();
+    }
+
+    qWarning() << "Audio Device:" << mAudioDevice.deviceName();
+
     if (save) {
         AppSupport::setSettings(QString::fromUtf8("audio"),
                                 QString::fromUtf8("output"),
@@ -113,8 +169,46 @@ void AudioHandler::initializeAudio(const QString &deviceName,
 
     QAudioDeviceInfo info(mAudioDevice);
     if (!info.isFormatSupported(mAudioFormat)) {
-        mAudioFormat = info.nearestFormat(mAudioFormat);
+        qWarning() << "Requested audio format not supported, negotiating fallback...";
+        QAudioFormat nearest = info.nearestFormat(mAudioFormat);
+        eSoundSettingsData& soundSettings = eSoundSettings::sData();
+
+        try {
+            soundSettings.fSampleFormat = toAVAudioFormat(nearest);
+            mAudioFormat = nearest;
+            soundSettings.fSampleRate = mAudioFormat.sampleRate();
+
+            if (mAudioFormat.channelCount() == 1) {
+                soundSettings.fChannelLayout = AV_CH_LAYOUT_MONO;
+            } else if (mAudioFormat.channelCount() == 2) {
+                soundSettings.fChannelLayout = AV_CH_LAYOUT_STEREO;
+            }
+
+        } catch (const std::exception& e) {
+            qWarning() << "Nearest format unusable, forcing standard 16-bit 44.1kHz stereo fallback";
+            mAudioFormat.setSampleRate(44100);
+            mAudioFormat.setChannelCount(2);
+            mAudioFormat.setSampleSize(16);
+            mAudioFormat.setSampleType(QAudioFormat::SignedInt);
+
+            soundSettings.fSampleFormat = AV_SAMPLE_FMT_S16;
+            soundSettings.fSampleRate = 44100;
+            soundSettings.fChannelLayout = AV_CH_LAYOUT_STEREO;
+        }
+
+        if (eSoundSettings::sInstance) {
+            eSoundSettings::sInstance->setAll(soundSettings);
+        }
     }
+
+    std::cout
+        << "Audio Format:" << std::endl
+        << "    Sample rate: " << mAudioFormat.sampleRate() << std::endl
+        << "    Channel count: " << mAudioFormat.channelCount() << std::endl
+        << "    Sample size: " << mAudioFormat.sampleSize() << std::endl
+        << "    Codec: " << mAudioFormat.codec().toStdString() << std::endl
+        << "    Sample Type: " << mAudioFormat.sampleType() << std::endl
+        << "    Byte order: " << mAudioFormat.byteOrder() << std::endl;
 
     mAudioOutput = new QAudioOutput(mAudioDevice, mAudioFormat, this);
     mAudioOutput->setNotifyInterval(128);
