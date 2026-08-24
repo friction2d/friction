@@ -49,6 +49,7 @@ void MainWindow::setupMenuBar()
                                              Qt::CTRL + Qt::Key_N);
     newAct->setData(tr("New Project"));
     newAct->setObjectName("NewProjectAct");
+    newAct->setShortcutContext(Qt::ApplicationShortcut);
 
     cmdAddAction(newAct);
 
@@ -58,6 +59,7 @@ void MainWindow::setupMenuBar()
                                               Qt::CTRL + Qt::Key_O);
     openAct->setData(tr("Open Project"));
     openAct->setObjectName("OpenProjectAct");
+    openAct->setShortcutContext(Qt::ApplicationShortcut);
 
     cmdAddAction(openAct);
     mRecentMenu = mFileMenu->addMenu(QIcon::fromTheme("file_folder"),
@@ -70,6 +72,7 @@ void MainWindow::setupMenuBar()
     mLinkedAct->setEnabled(false);
     mLinkedAct->setData(tr("Link File"));
     mLinkedAct->setObjectName("LinkFileAct");
+    mLinkedAct->setShortcutContext(Qt::ApplicationShortcut);
 
     cmdAddAction(mLinkedAct);
 
@@ -79,6 +82,7 @@ void MainWindow::setupMenuBar()
                                       Qt::CTRL + Qt::Key_I);
     mImportAct->setEnabled(false);
     mImportAct->setObjectName("ImportFileAct");
+    mImportAct->setShortcutContext(Qt::ApplicationShortcut);
     cmdAddAction(mImportAct);
 
     mImportSeqAct = mFileMenu->addAction(QIcon::fromTheme("renderlayers"),
@@ -103,6 +107,7 @@ void MainWindow::setupMenuBar()
     mSaveAct->setEnabled(false);
     mSaveAct->setData(tr("Save Project"));
     mSaveAct->setObjectName("SaveProjectAct");
+    mSaveAct->setShortcutContext(Qt::ApplicationShortcut);
     cmdAddAction(mSaveAct);
 
     mSaveAsAct = mFileMenu->addAction(QIcon::fromTheme("disk_drive"),
@@ -111,6 +116,7 @@ void MainWindow::setupMenuBar()
                                       Qt::CTRL + Qt::SHIFT + Qt::Key_S);
     mSaveAsAct->setEnabled(false);
     mSaveAsAct->setData(tr("Save Project As ..."));
+    mSaveAct->setShortcutContext(Qt::ApplicationShortcut);
     cmdAddAction(mSaveAsAct);
 
     mSaveBackAct = mFileMenu->addAction(QIcon::fromTheme("disk_drive"),
@@ -130,6 +136,7 @@ void MainWindow::setupMenuBar()
     mPreviewSVGAct->setToolTip(tr("Preview SVG Animation in Web Browser"));
     mPreviewSVGAct->setData(mPreviewSVGAct->toolTip());
     mPreviewSVGAct->setObjectName("PreviewSVGAct");
+    mPreviewSVGAct->setShortcutContext(Qt::ApplicationShortcut);
     cmdAddAction(mPreviewSVGAct);
 
     mExportSVGAct = mFileMenu->addAction(QIcon::fromTheme("output"),
@@ -142,6 +149,7 @@ void MainWindow::setupMenuBar()
     mExportSVGAct->setToolTip(tr("Export SVG Animation for the Web"));
     mExportSVGAct->setData(mExportSVGAct->toolTip());
     mExportSVGAct->setObjectName("ExportSVGAct");
+    mExportSVGAct->setShortcutContext(Qt::ApplicationShortcut);
     cmdAddAction(mExportSVGAct);
 
     mFileMenu->addSeparator();
@@ -151,6 +159,7 @@ void MainWindow::setupMenuBar()
                                             QKeySequence(tr("Ctrl+W")));
     mCloseProjectAct->setEnabled(false);
     mCloseProjectAct->setData(tr("Close Project"));
+    mCloseProjectAct->setShortcutContext(Qt::ApplicationShortcut);
     cmdAddAction(mCloseProjectAct);
 
     const auto prefsAct = mFileMenu->addAction(QIcon::fromTheme("preferences"),
@@ -159,6 +168,7 @@ void MainWindow::setupMenuBar()
                                                    settDial->setAttribute(Qt::WA_DeleteOnClose);
                                                    settDial->show();
                                                }, QKeySequence(tr("Ctrl+P")));
+    prefsAct->setShortcutContext(Qt::ApplicationShortcut);
     cmdAddAction(prefsAct);
 
     const auto quitAppAct = mFileMenu->addAction(QIcon::fromTheme("quit"),
@@ -166,6 +176,7 @@ void MainWindow::setupMenuBar()
                                                  this, &MainWindow::close,
                                                  QKeySequence(tr("Ctrl+Q")));
     quitAppAct->setData(tr("Quit Friction"));
+    quitAppAct->setShortcutContext(Qt::ApplicationShortcut);
     cmdAddAction(quitAppAct);
 
     mEditMenu = mMenuBar->addMenu(tr("Edit", "MenuBar"));
@@ -173,12 +184,14 @@ void MainWindow::setupMenuBar()
     const auto undoQAct = mEditMenu->addAction(QIcon::fromTheme("loop_back"),
                                                tr("Undo", "MenuBar_Edit"));
     undoQAct->setShortcut(Qt::CTRL + Qt::Key_Z);
+    undoQAct->setShortcutContext(Qt::ApplicationShortcut);
     mActions.undoAction->connect(undoQAct);
     cmdAddAction(undoQAct);
 
     const auto redoQAct = mEditMenu->addAction(QIcon::fromTheme("loop_forwards"),
                                                tr("Redo", "MenuBar_Edit"));
     redoQAct->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_Z);
+    redoQAct->setShortcutContext(Qt::ApplicationShortcut);
     mActions.redoAction->connect(redoQAct);
     cmdAddAction(redoQAct);
 
@@ -228,15 +241,16 @@ void MainWindow::setupMenuBar()
     }
 
     { // import (paste) SVG from clipboard
-        mEditMenu->addAction(QIcon::fromTheme("paste"),
-                             tr("Paste from Clipboard"),
-                             [this]() {
-                                 const QString svg = Ui::SvgClipBoard::getContent();
-                                 if (!svg.isEmpty()) {
-                                         try { mActions.importClipboard(svg); }
-                                         catch (const std::exception& e) { gPrintExceptionCritical(e); }
-                                 }
-                             }, QKeySequence(tr("Ctrl+Shift+V")));
+        const auto qAct = mEditMenu->addAction(QIcon::fromTheme("paste"),
+                                               tr("Paste from Clipboard"),
+                                               [this]() {
+                                                   const QString svg = Ui::SvgClipBoard::getContent();
+                                                   if (!svg.isEmpty()) {
+                                                       try { mActions.importClipboard(svg); }
+                                                       catch (const std::exception& e) { gPrintExceptionCritical(e); }
+                                                   }
+                                               }, QKeySequence(tr("Ctrl+Shift+V")));
+        qAct->setShortcutContext(Qt::ApplicationShortcut);
     }
 
     {
@@ -309,6 +323,7 @@ void MainWindow::setupMenuBar()
                                           scene->addKeySelectedProperties();
                                       }, QKeySequence(tr("Alt+K")));
     mAddKeyAct->setEnabled(false);
+    mAddKeyAct->setShortcutContext(Qt::ApplicationShortcut);
     cmdAddAction(mAddKeyAct);
 
     mEditMenu->addSeparator();
@@ -319,6 +334,7 @@ void MainWindow::setupMenuBar()
                                                         m->clearMemory();
                                                         mTimeline->update();
                                                     }, QKeySequence(tr("Ctrl+R")));
+    clearCacheAct->setShortcutContext(Qt::ApplicationShortcut);
     cmdAddAction(clearCacheAct);
 
     const auto clearRecentAct = mEditMenu->addAction(QIcon::fromTheme("trash"),
@@ -393,6 +409,7 @@ void MainWindow::setupMenuBar()
         const auto qAct = mObjectMenu->addAction(tr("Flip Horizontal", "MenuBar_Object"));
         qAct->setIcon(QIcon::fromTheme("width"));
         qAct->setShortcut(Qt::Key_H);
+        qAct->setShortcutContext(Qt::ApplicationShortcut);
         mActions.flipHorizontalAction->connect(qAct);
         cmdAddAction(qAct);
     }
@@ -401,6 +418,7 @@ void MainWindow::setupMenuBar()
         const auto qAct = mObjectMenu->addAction(tr("Flip Vertical", "MenuBar_Object"));
         qAct->setIcon(QIcon::fromTheme("height"));
         qAct->setShortcut(Qt::Key_V);
+        qAct->setShortcutContext(Qt::ApplicationShortcut);
         mActions.flipVerticalAction->connect(qAct);
         cmdAddAction(qAct);
     }
@@ -411,6 +429,7 @@ void MainWindow::setupMenuBar()
         tr("Group", "MenuBar_Object"));
     groupQAct->setIcon(QIcon::fromTheme("group"));
     groupQAct->setShortcut(Qt::CTRL + Qt::Key_G);
+    groupQAct->setShortcutContext(Qt::ApplicationShortcut);
     mActions.groupAction->connect(groupQAct);
     groupQAct->setData(tr("Group Selected"));
     cmdAddAction(groupQAct);
@@ -419,6 +438,7 @@ void MainWindow::setupMenuBar()
         tr("Ungroup", "MenuBar_Object"));
     ungroupQAct->setIcon(QIcon::fromTheme("group"));
     ungroupQAct->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_G);
+    ungroupQAct->setShortcutContext(Qt::ApplicationShortcut);
     mActions.ungroupAction->connect(ungroupQAct);
     cmdAddAction(ungroupQAct);
 
@@ -427,12 +447,14 @@ void MainWindow::setupMenuBar()
     const auto otpQAct = mPathMenu->addAction(
         tr("Object to Path", "MenuBar_Path"));
     otpQAct->setShortcut(Qt::SHIFT + Qt::CTRL + Qt::Key_C);
+    otpQAct->setShortcutContext(Qt::ApplicationShortcut);
     mActions.objectsToPathAction->connect(otpQAct);
     cmdAddAction(otpQAct);
 
     const auto stpQAct = mPathMenu->addAction(
         tr("Stroke to Path", "MenuBar_Path"));
     stpQAct->setShortcut(Qt::CTRL + Qt::ALT + Qt::Key_C);
+    stpQAct->setShortcutContext(Qt::ApplicationShortcut);
     mActions.strokeToPathAction->connect(stpQAct);
     cmdAddAction(stpQAct);
 
@@ -443,6 +465,7 @@ void MainWindow::setupMenuBar()
             tr("Union", "MenuBar_Path"));
         qAct->setIcon(QIcon::fromTheme("booleans_union"));
         qAct->setShortcut(Qt::CTRL + Qt::Key_Plus);
+        qAct->setShortcutContext(Qt::ApplicationShortcut);
         mActions.pathsUnionAction->connect(qAct);
         cmdAddAction(qAct);
     }
@@ -452,6 +475,7 @@ void MainWindow::setupMenuBar()
             tr("Difference", "MenuBar_Path"));
         qAct->setIcon(QIcon::fromTheme("booleans_difference"));
         qAct->setShortcut(Qt::CTRL + Qt::Key_Minus);
+        qAct->setShortcutContext(Qt::ApplicationShortcut);
         mActions.pathsDifferenceAction->connect(qAct);
         cmdAddAction(qAct);
     }
@@ -461,6 +485,7 @@ void MainWindow::setupMenuBar()
             tr("Intersection", "MenuBar_Path"));
         qAct->setIcon(QIcon::fromTheme("booleans_intersection"));
         qAct->setShortcut(Qt::CTRL + Qt::Key_Asterisk);
+        qAct->setShortcutContext(Qt::ApplicationShortcut);
         mActions.pathsIntersectionAction->connect(qAct);
         cmdAddAction(qAct);
     }
@@ -470,6 +495,7 @@ void MainWindow::setupMenuBar()
             tr("Exclusion", "MenuBar_Path"));
         qAct->setIcon(QIcon::fromTheme("booleans_exclusion"));
         qAct->setShortcut(Qt::CTRL + Qt::Key_AsciiCircum);
+        qAct->setShortcutContext(Qt::ApplicationShortcut);
         mActions.pathsExclusionAction->connect(qAct);
         cmdAddAction(qAct);
     }
@@ -479,6 +505,7 @@ void MainWindow::setupMenuBar()
             tr("Division", "MenuBar_Path"));
         qAct->setIcon(QIcon::fromTheme("booleans_division"));
         qAct->setShortcut(Qt::CTRL + Qt::Key_Slash);
+        qAct->setShortcutContext(Qt::ApplicationShortcut);
         mActions.pathsDivisionAction->connect(qAct);
         cmdAddAction(qAct);
     }
@@ -490,6 +517,7 @@ void MainWindow::setupMenuBar()
             tr("Combine", "MenuBar_Path"));
         qAct->setIcon(QIcon::fromTheme("booleans_combine"));
         qAct->setShortcut(Qt::CTRL + Qt::Key_K);
+        qAct->setShortcutContext(Qt::ApplicationShortcut);
         mActions.pathsCombineAction->connect(qAct);
         cmdAddAction(qAct);
     }
@@ -499,6 +527,7 @@ void MainWindow::setupMenuBar()
             tr("Break Apart", "MenuBar_Path"));
         qAct->setIcon(QIcon::fromTheme("booleans_break_apart"));
         qAct->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_K);
+        qAct->setShortcutContext(Qt::ApplicationShortcut);
         mActions.pathsBreakApartAction->connect(qAct);
         cmdAddAction(qAct);
     }
@@ -520,6 +549,7 @@ void MainWindow::setupMenuBar()
     mZoomInAction = zoomMenu->addAction(tr("Zoom In", "MenuBar_View_Zoom"));
     mZoomInAction->setIcon(QIcon::fromTheme("zoom_in"));
     mZoomInAction->setShortcut(QKeySequence("Ctrl+Shift++"));
+    mZoomInAction->setShortcutContext(Qt::ApplicationShortcut);
     cmdAddAction(mZoomInAction);
     connect(mZoomInAction, &QAction::triggered,
             this, [](){
@@ -532,6 +562,7 @@ void MainWindow::setupMenuBar()
     mZoomOutAction = zoomMenu->addAction(tr("Zoom Out", "MenuBar_View_Zoom"));
     mZoomOutAction->setIcon(QIcon::fromTheme("zoom_out"));
     mZoomOutAction->setShortcut(QKeySequence("Ctrl+Shift+-"));
+    mZoomOutAction->setShortcutContext(Qt::ApplicationShortcut);
     cmdAddAction(mZoomOutAction);
     connect(mZoomOutAction, &QAction::triggered,
             this, [](){
@@ -544,6 +575,7 @@ void MainWindow::setupMenuBar()
     mFitViewAction = zoomMenu->addAction(tr("Fit to Canvas", "MenuBar_View_Zoom"));
     mFitViewAction->setIcon(QIcon::fromTheme("zoom_all"));
     mFitViewAction->setShortcut(QKeySequence("Ctrl+0"));
+    mFitViewAction->setShortcutContext(Qt::ApplicationShortcut);
     connect(mFitViewAction, &QAction::triggered,
             this, [](){
                 const auto target = KeyFocusTarget::KFT_getCurrentTarget();
@@ -556,6 +588,7 @@ void MainWindow::setupMenuBar()
     const auto fitViewWidth = zoomMenu->addAction(QIcon::fromTheme("zoom_all"),
                                                   tr("Fit to Canvas Width"));
     fitViewWidth->setShortcut(QKeySequence("Ctrl+9"));
+    fitViewWidth->setShortcutContext(Qt::ApplicationShortcut);
     connect(fitViewWidth, &QAction::triggered,
             this, []() {
                 const auto target = KeyFocusTarget::KFT_getCurrentTarget();
@@ -567,6 +600,7 @@ void MainWindow::setupMenuBar()
 
     mResetZoomAction = zoomMenu->addAction(tr("Reset Zoom", "MenuBar_View_Zoom"));
     mResetZoomAction->setShortcut(QKeySequence("Ctrl+1"));
+    mResetZoomAction->setShortcutContext(Qt::ApplicationShortcut);
     connect(mResetZoomAction, &QAction::triggered,
             this, [](){
                 const auto target = KeyFocusTarget::KFT_getCurrentTarget();
@@ -658,6 +692,7 @@ void MainWindow::setupMenuBar()
     mClipViewToCanvas->setCheckable(true);
     //mClipViewToCanvas->setChecked(true);
     mClipViewToCanvas->setShortcut(QKeySequence(Qt::Key_C));
+    mClipViewToCanvas->setShortcutContext(Qt::ApplicationShortcut);
     cmdAddAction(mClipViewToCanvas);
     connect(mClipViewToCanvas, &QAction::triggered,
             &mActions, &Actions::setClipToCanvas);
@@ -702,6 +737,7 @@ void MainWindow::setupMenuBar()
     mViewFullScreenAct->setShortcut(QKeySequence(AppSupport::getSettings("shortcuts",
                                                                          "fullScreen",
                                                                          "F11").toString()));
+    mViewFullScreenAct->setShortcutContext(Qt::ApplicationShortcut);
     cmdAddAction(mViewFullScreenAct);
     connect(mViewFullScreenAct, &QAction::triggered,
             this, [this](const bool checked) {
@@ -715,6 +751,7 @@ void MainWindow::setupMenuBar()
     mViewTimelineAct->setCheckable(true);
     mViewTimelineAct->setChecked(true);
     mViewTimelineAct->setShortcut(QKeySequence(Qt::Key_T));
+    mViewTimelineAct->setShortcutContext(Qt::ApplicationShortcut);
     connect(mViewTimelineAct, &QAction::triggered,
             this, [this](bool triggered) {
                 if (mTimelineWindowAct->isChecked()) {
@@ -728,6 +765,7 @@ void MainWindow::setupMenuBar()
     mViewFillStrokeAct->setCheckable(true);
     mViewFillStrokeAct->setChecked(true);
     mViewFillStrokeAct->setShortcut(QKeySequence(Qt::Key_F));
+    mViewFillStrokeAct->setShortcutContext(Qt::ApplicationShortcut);
     connect(mViewFillStrokeAct, &QAction::triggered,
             this, [this](bool triggered) {
                 mUI->setDockVisible("Fill and Stroke", triggered);
@@ -794,13 +832,14 @@ void MainWindow::setupMenuBar()
     cmdDefKey = "Alt+Space";
 #endif
 
-    help->addAction(QIcon::fromTheme("cmd"),
-                    tr("Command Palette"), this, [this]() {
-                        CommandPalette dialog(mDocument, this);
-                        dialog.exec();
-                    }, QKeySequence(AppSupport::getSettings("shortcuts",
-                                                         "cmdPalette",
-                                                         cmdDefKey).toString()));
+    const auto cmdAct = help->addAction(QIcon::fromTheme("cmd"),
+                                        tr("Command Palette"), this, [this]() {
+                                            CommandPalette dialog(mDocument, this);
+                                            dialog.exec();
+                                        }, QKeySequence(AppSupport::getSettings("shortcuts",
+                                                                                "cmdPalette",
+                                                                                cmdDefKey).toString()));
+    cmdAct->setShortcutContext(Qt::ApplicationShortcut);
 
     help->addSeparator();
     help->addAction(QIcon::fromTheme("user-home"),
@@ -901,6 +940,7 @@ void MainWindow::setupMenuScene()
                                          QKeySequence(AppSupport::getSettings("shortcuts",
                                                                               "addToQue",
                                                                               "F12").toString()));
+    mAddKeyAct->setShortcutContext(Qt::ApplicationShortcut);
     mAddToQueAct->setEnabled(false);
     cmdAddAction(mAddToQueAct);
 
