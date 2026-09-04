@@ -26,12 +26,29 @@
 #include "framerange.h"
 
 #include <QDomDocument>
+#include <functional>
 
 class Canvas;
 
 class CORE_EXPORT SvgExporter : public ComplexTask
 {
 public:
+    using FrameMapper = std::function<qreal(qreal)>;
+    struct FrameMapping {
+        FrameMapper mapper;
+        bool active = false;
+        bool discrete = false;
+    };
+
+    class FrameMappingScope {
+    public:
+        FrameMappingScope(SvgExporter& exp, const FrameMapping& mapping);
+        ~FrameMappingScope();
+    private:
+        SvgExporter& mExp;
+        bool mActive = false;
+    };
+
     SvgExporter(const QString& path,
                 Canvas* const scene,
                 const FrameRange& frameRange,
@@ -49,6 +66,11 @@ public:
     void nextStep() override;
 
     void addNextTask(const stdsptr<eTask>& task);
+
+    FrameMapping currentFrameMapping() const;
+    qreal mapRelFrame(const qreal frame) const;
+    bool hasFrameMapping() const;
+    bool forceDiscreteMapping() const;
 
     Canvas* const fScene;
     const FrameRange fAbsRange;
@@ -84,6 +106,8 @@ public:
 
 private:
     void finish();
+    void pushFrameMapping(const FrameMapping& mapping);
+    void popFrameMapping();
     bool mHtml;
     bool mOpen;
     QFile mFile;
