@@ -87,6 +87,14 @@ void MainWindow::setupMenuBar()
     mImportSeqAct->setEnabled(false);
     cmdAddAction(mImportSeqAct);
 
+    mImportLottieAct = mFileMenu->addAction(
+                QIcon::fromTheme("file_import"),
+                tr("Import Lottie Animation", "MenuBar_File"),
+                this, &MainWindow::importLottieAnimation);
+    mImportLottieAct->setEnabled(false);
+    mImportLottieAct->setObjectName("ImportLottieAnimationAct");
+    cmdAddAction(mImportLottieAct);
+
     mRevertAct = mFileMenu->addAction(QIcon::fromTheme("loop_back"),
                                       tr("Revert", "MenuBar_File"),
                                       this, &MainWindow::revert);

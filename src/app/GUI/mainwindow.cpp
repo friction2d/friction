@@ -24,8 +24,12 @@
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
 #include "mainwindow.h"
+#include "GUI/Dialogs/lottieimportdialog.h"
 #include "GUI/Expressions/expressiondialog.h"
+#include "Animators/transformanimator.h"
+#include "Boxes/containerbox.h"
 #include "canvas.h"
+#include "lottie/lottieimporter.h"
 #include <QKeyEvent>
 #include <QApplication>
 #include <QDebug>
@@ -111,6 +115,7 @@ MainWindow::MainWindow(Document& document,
     , mLinkedAct(nullptr)
     , mImportAct(nullptr)
     , mImportSeqAct(nullptr)
+    , mImportLottieAct(nullptr)
     , mRevertAct(nullptr)
     , mSelectAllAct(nullptr)
     , mInvertSelAct(nullptr)
@@ -390,6 +395,7 @@ void MainWindow::updateSettingsForCurrentCanvas(Canvas* const scene)
     if (mLinkedAct) { mLinkedAct->setEnabled(scene); }
     if (mImportAct) { mImportAct->setEnabled(scene); }
     if (mImportSeqAct) { mImportSeqAct->setEnabled(scene); }
+    if (mImportLottieAct) { mImportLottieAct->setEnabled(scene); }
     if (mRevertAct) { mRevertAct->setEnabled(scene); }
     if (mSelectAllAct) { mSelectAllAct->setEnabled(scene); }
     if (mInvertSelAct) { mInvertSelAct->setEnabled(scene); }
@@ -1294,6 +1300,79 @@ void MainWindow::importImageSequence()
                                                      defPath);
     enableEventFilter();
     if (!folder.isEmpty()) { mActions.importFile(folder); }
+}
+
+void MainWindow::importLottieAnimation()
+{
+    if (!mDocument.fActiveScene) { return; }
+    disableEventFilter();
+    const QString recentDir = AppSupport::getSettings("files",
+                                                       "recentImportDir",
+                                                       QDir::homePath()).toString();
+    const QString title = tr("Import Lottie Animation",
+                             "ImportLottieAnimationDialog_Title");
+    const QString path = AppSupport::getOpenFile(
+                this, title, recentDir, tr("Lottie Files (*.json *.lottie)"));
+    enableEventFilter();
+    if (path.isEmpty()) { return; }
+
+    try {
+        Canvas* const scene = mDocument.fActiveScene;
+        ImportLottie::Analysis analysis;
+        LottieImportDialog::ScaleMode scaleMode;
+        LottieImportDialog::StructureMode structureMode;
+        LottieImportDialog::SceneDurationMode durationMode;
+        const LottieImportDialog::SceneInfo sceneInfo{
+            QSize(scene->getCanvasWidth(), scene->getCanvasHeight()),
+            scene->getMinFrame(), scene->getMaxFrame(), scene->getFps()
+        };
+        if (!LottieImportDialog::sExec(path, sceneInfo, analysis, scaleMode,
+                                       structureMode, durationMode, this)) {
+            return;
+        }
+
+        qreal scaleX = 1;
+        qreal scaleY = 1;
+        if (analysis.size.width() > 0 && analysis.size.height() > 0) {
+            if (scaleMode == LottieImportDialog::ScaleMode::scaleScene) {
+                scene->setCanvasSize(analysis.size.width(), analysis.size.height());
+            } else if (scaleMode == LottieImportDialog::ScaleMode::fitWidth) {
+                scaleX = scaleY = scene->getCanvasWidth()/qreal(analysis.size.width());
+            } else if (scaleMode == LottieImportDialog::ScaleMode::fitHeight) {
+                scaleX = scaleY = scene->getCanvasHeight()/qreal(analysis.size.height());
+            } else if (scaleMode == LottieImportDialog::ScaleMode::stretch) {
+                scaleX = scene->getCanvasWidth()/qreal(analysis.size.width());
+                scaleY = scene->getCanvasHeight()/qreal(analysis.size.height());
+            }
+        }
+
+        ContainerBox* const target = scene->getCurrentGroup();
+        auto block = scene->blockUndoRedo();
+        const auto imported = ImportLottie::loadFile(path, scene, durationMode);
+        if (!imported) { return; }
+        block.reset();
+        target->prp_pushUndoRedoName(tr("Import Lottie Animation"));
+
+        const auto wrapper = qSharedPointerCast<ContainerBox>(imported);
+        if (wrapper) {
+            wrapper->getBoxTransformAnimator()->setScale(scaleX, scaleY);
+            target->insertContained(0, wrapper);
+            if (structureMode == LottieImportDialog::StructureMode::directObjects) {
+                wrapper->ungroupKeepTransform_k();
+            } else {
+                wrapper->planCenterPivotPosition();
+                wrapper->updateAllBoxes(UpdateReason::userChange);
+            }
+        } else {
+            target->insertContained(0, imported);
+        }
+        scene->requestUpdate();
+        mDocument.actionFinished();
+        AppSupport::setSettings("files", "recentImportDir",
+                                QFileInfo(path).absoluteDir().absolutePath());
+    } catch (const std::exception& e) {
+        gPrintExceptionCritical(e);
+    }
 }
 
 void MainWindow::revert()
