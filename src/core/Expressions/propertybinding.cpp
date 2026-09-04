@@ -78,9 +78,22 @@ QJSValue PropertyBinding::getJSValue(QJSEngine& e) {
 }
 
 QJSValue PropertyBinding::getJSValue(QJSEngine& e, const qreal relFrame) {
-    if(mBindPathValid && mBindProperty)
-        return mBindProperty->prp_getEffectiveJSValue(e, relFrame);
-    else return QJSValue::NullValue;
+    if(!mBindPathValid || !mBindProperty) return QJSValue::NullValue;
+
+    qreal bindRelFrame = relFrame;
+    if(mContext) {
+        const qreal absFrame = mContext->prp_relFrameToAbsFrameF(relFrame);
+        bindRelFrame = mBindProperty->prp_absFrameToRelFrameF(absFrame);
+    }
+    return mBindProperty->prp_getEffectiveJSValue(e, bindRelFrame);
+}
+
+QJSValue PropertyBinding::getJSValueAtAbsFrame(QJSEngine& e,
+                                                const qreal absFrame) {
+    if(!mBindPathValid || !mBindProperty) return QJSValue::NullValue;
+    const qreal bindRelFrame =
+            mBindProperty->prp_absFrameToRelFrameF(absFrame);
+    return mBindProperty->prp_getEffectiveJSValue(e, bindRelFrame);
 }
 
 bool PropertyBinding::dependsOn(const Property* const prop) {
