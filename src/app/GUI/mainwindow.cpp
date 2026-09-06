@@ -396,6 +396,7 @@ void MainWindow::updateSettingsForCurrentCanvas(Canvas* const scene)
     if (mClearSelAct) { mClearSelAct->setEnabled(scene); }
     if (mAddKeyAct) { mAddKeyAct->setEnabled(scene); }
     if (mEffectsMenu) { mEffectsMenu->setEnabled(scene); }
+    if (mPluginsMenu) { mPluginsMenu->setEnabled(scene); }
 
     if (!scene) {
         mObjectSettingsWidget->setMainTarget(nullptr);
@@ -1240,7 +1241,10 @@ void MainWindow::importFile()
     const QString fileTypes = "(*.friction *.svg " +
             FileExtensions::videoFilters() +
             FileExtensions::imageFilters() +
-            FileExtensions::soundFilters() + ")";
+            FileExtensions::soundFilters() +
+            FileExtensions::filters(mDocument.getCorePluginsImportExtensions()) +
+                              ")";
+    qDebug() << "import file types" << fileTypes;
     const auto importPaths = AppSupport::getOpenFiles(this,
                                                       title,
                                                       defPath,

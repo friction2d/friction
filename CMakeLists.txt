@@ -68,6 +68,13 @@ add_subdirectory(src/core)
 add_subdirectory(src/ui)
 add_subdirectory(src/app)
 
+set(PLUGDIR "${CMAKE_CURRENT_SOURCE_DIR}/src/plugins")
+if(EXISTS "${PLUGDIR}" AND IS_DIRECTORY "${PLUGDIR}")
+    message(STATUS "Found plugins")
+    add_subdirectory(${PLUGDIR})
+    add_dependencies(friction all_friction_plugins)
+endif()
+
 if(${BUILD_SKIA})
     add_dependencies(frictioncore skialib)
 endif()

@@ -27,6 +27,8 @@
 
 #include "exceptions.h"
 
+#include "Private/document.h"
+
 ImportHandler* ImportHandler::sInstance = nullptr;
 
 eImporter::~eImporter() {}
@@ -37,14 +39,35 @@ ImportHandler::ImportHandler() {
 }
 
 qsptr<BoundingBox> ImportHandler::import(const QString &path,
-                                         Canvas* const scene) const {
+                                         Canvas* const scene) const
+{
+    qDebug() << "ImportHandler::import" << path;
+
     {
         const QFile file(path);
-        if(!file.exists()) RuntimeThrow("File does not exist");
+        if (!file.exists()) { RuntimeThrow("File does not exist"); }
     }
+
     const QFileInfo info(path);
-    for(const auto& importer : mImporters) {
-        if(importer->supports(info)) {
+
+    if (Document::sInstance->isCorePluginImportExtension(info.suffix())) {
+        for (const auto& pluginData : Document::sInstance->getCorePlugins()) {
+            if (!pluginData.instance) { continue; }
+            if (!pluginData.meta.contains("import_extensions")) { continue; }
+            const QJsonArray extensions = pluginData.meta.value("import_extensions").toArray();
+            for (const QJsonValue &ext : extensions) {
+                if (ext.toString().trimmed().toLower() == info.suffix()) {
+                    if (pluginData.instance) {
+                        qsptr<BoundingBox> importedBox = pluginData.instance->importFile(scene, path);
+                        if (importedBox) { return importedBox; }
+                    }
+                }
+            }
+        }
+    }
+
+    for (const auto& importer : mImporters) {
+        if (importer->supports(info)) {
             try {
                 return importer->import(info, scene);
             } catch(...) {
@@ -53,5 +76,6 @@ qsptr<BoundingBox> ImportHandler::import(const QString &path,
             }
         }
     }
+
     RuntimeThrow("Unsupported file format:\n'" + path + "'\n");
 }

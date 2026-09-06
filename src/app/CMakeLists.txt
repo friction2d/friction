@@ -188,6 +188,7 @@ set(
     GUI/mainwindow.cpp
     GUI/extraactions.cpp
     GUI/effectactions.cpp
+    GUI/pluginsactions.cpp
     GUI/menu.cpp
 )
 
