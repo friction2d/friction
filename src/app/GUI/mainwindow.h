@@ -167,6 +167,8 @@ public:
     void saveBackup();
     const QString checkBeforeExportSVG();
     void exportSVG(const bool &preview = false);
+    const QString checkBeforeExportLottie();
+    void exportLottie(const bool &preview = false);
     void updateLastOpenDir(const QString &path);
     void updateLastSaveDir(const QString &path);
     const QString getLastOpenDir();
@@ -219,6 +221,7 @@ private:
     static MainWindow *sInstance;
 
     void updateRecentMenu();
+    void updatePreviewLottieAction(const QString& format = QString());
 
     void addRecentFile(const QString &recent);
     void readRecentFiles();
@@ -243,6 +246,8 @@ private:
     QAction *mSaveBackAct;
     QAction *mPreviewSVGAct;
     QAction *mExportSVGAct;
+    QAction *mPreviewLottieAct;
+    QAction *mExportLottieAct;
     QAction *mRenderVideoAct;
     QAction *mCloseProjectAct;
     QAction *mLinkedAct;
