@@ -126,7 +126,8 @@ bool parseSceneRangeMin(const QString& exp, int& pos) {
 void parseBinding(const QString& exp, int& pos, QString& binding) {
     while(pos < exp.count()) {
         const auto& c = exp.at(pos++);
-        if(!c.isLetterOrNumber() && c != ' ' && c != '.' && c != '_') break;
+        if(!c.isLetterOrNumber() && c != ' ' && c != '.' &&
+           c != '_' && c != '$') break;
         binding.append(c);
     }
 }

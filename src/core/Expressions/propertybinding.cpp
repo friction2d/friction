@@ -127,6 +127,8 @@ Property *PropertyBinding::sFindPropertyToBind(const QString& binding,
 
 void PropertyBinding::updateBindPath() {
     if(!mBindProperty || !mContext) return;
+    if(mPath == QStringLiteral("$parent") ||
+       mPath.startsWith(QStringLiteral("$parent."))) return;
     QStringList prntPath;
     mContext->prp_getFullPath(prntPath);
     QStringList srcPath;
