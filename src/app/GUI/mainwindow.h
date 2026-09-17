@@ -174,6 +174,7 @@ public:
     bool closeProject();
     void linkFile();
     void importImageSequence();
+    void importSVGAnimation();
     void importFile();
     void revert();
     void updateAutoSaveBackupState();
@@ -248,6 +249,7 @@ private:
     QAction *mLinkedAct;
     QAction *mImportAct;
     QAction *mImportSeqAct;
+    QAction *mImportSVGAnimationAct;
     QAction *mRevertAct;
     QAction *mSelectAllAct;
     QAction *mInvertSelAct;
