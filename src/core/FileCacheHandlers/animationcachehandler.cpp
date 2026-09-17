@@ -44,6 +44,7 @@ public:
         ComplexTask(visRelRange.fMax, "SVG Paint Object"),
         mSrc(src), mExp(exp), mUse(use),
         mRelRange(relRange), mVisRange(visRelRange),
+        mFrameMapping(exp.currentFrameMapping()),
         mDiv(div), mRelFrame(visRelRange.fMin - 1) {}
 
     void nextStep() override {
@@ -59,13 +60,13 @@ public:
             const int span = mExp.fAbsRange.span();
 
             if(idRange.inRange(mVisRange) || span == 1) {
-                addSurface(0, mVisRange.fMin);
+                addSurface(mappedFrameForTime(0), mVisRange.fMin);
                 mRelFrame = mVisRange.fMax;
                 return nextStep();
             }
         }
 
-        if(mRelFrame >= mSrc->getFrameCount()) {
+        if(!mFrameMapping.active && mRelFrame >= mSrc->getFrameCount()) {
             mRelFrame = mVisRange.fMax;
             return nextStep();
         }
@@ -73,10 +74,11 @@ public:
         if(mRelFrame >= mVisRange.fMax) return nextStep();
         if(mRelFrame >= mVisRange.fMin) {
             bool wait;
+            const qreal mapped = mappedFrameForTime(mRelFrame);
             if(mRelFrame < 0) {
-                wait = addSurface(0, mRelFrame);
+                wait = addSurface(mappedFrameForTime(0), mRelFrame);
             } else {
-                wait = addSurface(mRelFrame, mRelFrame);
+                wait = addSurface(mapped, mRelFrame);
             }
             if(!wait) addEmptyTask();
         } else nextStep();
@@ -84,24 +86,39 @@ public:
 
 private:
     //! @brief Returns true if there is a task, does have to wait.
-    bool addSurface(const int relFrame, const int timeFrame) {
+    bool addSurface(const qreal relFrame, const int timeFrame) {
+        const int srcFrame = clampFrame(qRound(relFrame));
         const QString imageId = SvgExportHelpers::ptrToStr(mSrc) +
-                                QString::number(relFrame);
-        const auto task = mSrc->scheduleFrameLoad(relFrame);
+                                QString::number(srcFrame);
+        const auto task = mSrc->scheduleFrameLoad(srcFrame);
         if(task) {
             const QPointer<AnimationSaverSVG> ptr = this;
-            task->addDependent({[ptr, relFrame, timeFrame, imageId]() {
+            task->addDependent({[ptr, srcFrame, timeFrame, imageId]() {
                 if(!ptr) return;
-                const auto cont = ptr->mSrc->getFrameAtOrBeforeFrame(relFrame);
+                const auto cont = ptr->mSrc->getFrameAtOrBeforeFrame(srcFrame);
                 if(cont) ptr->saveSurfaceValues(timeFrame, cont->getImage(), imageId);
             }, nullptr});
             addTask(task->ref<eTask>());
             return true;
         } else {
-            const auto cont = mSrc->getFrameAtOrBeforeFrame(relFrame);
+            const auto cont = mSrc->getFrameAtOrBeforeFrame(srcFrame);
             if(cont) saveSurfaceValues(timeFrame, cont->getImage(), imageId);
             return false;
         }
+    }
+
+    qreal mappedFrameForTime(const int timeFrame) const {
+        if(!mFrameMapping.active || !mFrameMapping.mapper) return timeFrame;
+        return mFrameMapping.mapper(timeFrame);
+    }
+
+    int clampFrame(const int frame) const {
+        if(!mSrc) return frame;
+        const int maxFrame = mSrc->getFrameCount() - 1;
+        if(frame < 0) return 0;
+        if(maxFrame < 0) return 0;
+        if(frame > maxFrame) return maxFrame;
+        return frame;
     }
 
     void saveSurfaceValues(const int timeFrame, const sk_sp<SkImage>& image,
@@ -148,6 +165,7 @@ private:
     QDomElement& mUse;
     const FrameRange mRelRange;
     const FrameRange mVisRange;
+    const SvgExporter::FrameMapping mFrameMapping;
     const qreal mDiv;
 
     bool mFirst = true;

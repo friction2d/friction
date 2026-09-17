@@ -537,6 +537,70 @@ void GraphAnimator::graph_saveSVG(SvgExporter& exp,
                                   const QString &motionPath) const
 {
     Q_ASSERT(!transform || attrName == "transform");
+    if(exp.hasFrameMapping()) {
+        const int span = exp.fAbsRange.span();
+        if(span <= 1) {
+            if (motion) { return; }
+            auto value = valueGetter(exp.mapRelFrame(visRange.fMin));
+            if (transform) {
+                value = parent.attribute(attrName) + " " + type + "(" + value + ")";
+            }
+            parent.setAttribute(attrName, value.trimmed());
+            return;
+        }
+
+        const auto tagName = motion ? "animateMotion" :
+                                      transform ? "animateTransform" : "animate";
+        auto anim = exp.createElement(tagName);
+
+        if (!beginEvent.isEmpty()) { anim.setAttribute("begin", beginEvent); }
+        if (!endEvent.isEmpty()) { anim.setAttribute("end", endEvent); }
+
+        if (!motion) {
+            anim.setAttribute("attributeName", attrName);
+            if (!type.isEmpty()) { anim.setAttribute("type", type);  }
+        } else {
+            if (motionRotate) { anim.setAttribute("rotate", "auto"); }
+            if (!motionPath.isEmpty()) {
+                auto mpath = exp.createElement("mpath");
+                mpath.setAttribute("href", QString("#%1").arg(AppSupport::filterId(motionPath)));
+                anim.appendChild(mpath);
+            }
+        }
+
+        const qreal div = span - 1;
+        const qreal dur = div/exp.fFps;
+        anim.setAttribute("dur", QString::number(dur)  + 's');
+
+        QStringList values;
+        QStringList keyTimes;
+        for(int i = visRange.fMin; i <= visRange.fMax; i++) {
+            const qreal mapped = exp.mapRelFrame(i);
+            values << valueGetter(mapped);
+            const qreal t = (i - exp.fAbsRange.fMin)/div;
+            keyTimes << QString::number(t);
+        }
+        if(keyTimes.isEmpty()) return;
+        if(keyTimes.last() != "1") {
+            values << values.last();
+            keyTimes << "1";
+        }
+        if(keyTimes.first() != "0") {
+            values.prepend(values.first());
+            keyTimes.prepend("0");
+        }
+
+        anim.setAttribute("calcMode", exp.forceDiscreteMapping() ? "discrete" : "linear");
+        anim.setAttribute("values", values.join(';'));
+        if (motion) {
+            anim.setAttribute("keyPoints", values.join(';'));
+        }
+        anim.setAttribute("keyTimes", keyTimes.join(';'));
+        SvgExportHelpers::assignLoop(anim, exp.fLoop);
+        parent.appendChild(anim);
+        return;
+    }
+
     const auto relRange = prp_absRangeToRelRange(exp.fAbsRange);
     const auto idRange = prp_getIdenticalRelRange(visRange.fMin);
     const int span = exp.fAbsRange.span();
