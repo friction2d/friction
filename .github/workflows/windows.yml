@@ -7,6 +7,14 @@ jobs:
     runs-on: windows-2022
     steps:
     - uses: actions/checkout@v3
+    - name: Install dependencies
+      shell: cmd
+      run: |
+        if defined VCPKG_INSTALLATION_ROOT (
+          "%VCPKG_INSTALLATION_ROOT%\vcpkg.exe" install zlib:x64-windows
+        ) else (
+          vcpkg install zlib:x64-windows
+        )
     - name: Build
       shell: cmd
       run: .\src\scripts\build.bat ci

@@ -27,6 +27,7 @@ include(friction-meta)
 include(friction-common)
 #include(friction-quazip)
 include(friction-ffmpeg)
+find_package(ZLIB REQUIRED)
 
 message(STATUS "ffmpeg include: ${FFMPEG_INCLUDE_DIRS}")
 message(STATUS "ffmpeg libraries: ${FFMPEG_LIBRARIES_DIRS} ${FFMPEG_LIBRARIES}")
@@ -313,6 +314,7 @@ set(
     Animators/intanimator.cpp
     Animators/key.cpp
     Animators/boolanimator.cpp
+    lottie/lottieimporter.cpp
     svgexporter.cpp
     svgexporthelpers.cpp
     svgimporter.cpp
@@ -648,6 +650,7 @@ set(
     Animators/animator.h
     Animators/intanimator.h
     Animators/boolanimator.h
+    lottie/lottieimporter.h
     svgexporter.h
     svgexporthelpers.h
     svgimporter.h
@@ -761,6 +764,7 @@ target_link_libraries(
     #${QUAZIP_LIBRARIES}
     ${FFMPEG_LIBRARIES}
     ${SKIA_LIBRARIES}
+    ZLIB::ZLIB
 )
 
 if(APPLE)
