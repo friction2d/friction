@@ -58,6 +58,7 @@ class XevReadBoxesHandler;
 enum class SWT_Type : short;
 enum class SWT_BoxRule : short;
 enum class SWT_Target : short;
+enum class SWT_ParamRule : short;
 
 class TimelineWidget : public QWidget {
     Q_OBJECT
@@ -96,10 +97,12 @@ signals:
     void typeChanged(const SWT_Type target);
     void targetChanged(const SWT_Target target);
     void boxRuleChanged(const SWT_BoxRule rule);
+    void paramRuleChanged(const SWT_ParamRule rule);
 private:
     void setType(const SWT_Type type);
     void setBoxRule(const SWT_BoxRule rule);
     void setTarget(const SWT_Target target);
+    void setParamRule(const SWT_ParamRule rule);
 
     Canvas* mCurrentScene = nullptr;
 

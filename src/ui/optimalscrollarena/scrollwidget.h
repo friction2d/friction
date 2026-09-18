@@ -44,6 +44,7 @@ class ScrollArea;
 enum class SWT_BoxRule : short;
 enum class SWT_Target : short;
 enum class SWT_Type : short;
+enum class SWT_ParamRule : short;
 
 class UI_EXPORT ScrollWidget : public MinimalScrollWidget
 {
@@ -61,6 +62,7 @@ public:
                           const SWT_Target target);
     void setCurrentSearchText(const QString &text);
     void setCurrentType(const SWT_Type type);
+    void setCurrentParamRule(const SWT_ParamRule rule);
 
     void scheduleContentUpdateIfIsCurrentRule(const SWT_BoxRule rule);
     bool isCurrentRule(const SWT_BoxRule rule);
