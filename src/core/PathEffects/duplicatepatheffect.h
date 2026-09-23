@@ -28,6 +28,8 @@
 #include "PathEffects/patheffect.h"
 class IntAnimator;
 class QPointFAnimator;
+class QrealAnimator;
+class BoolProperty;
 
 class CORE_EXPORT DuplicatePathEffect : public PathEffect {
     e_OBJECT
@@ -35,11 +37,14 @@ protected:
     DuplicatePathEffect();
 public:
     stdsptr<PathEffectCaller> getEffectCaller(
-            const qreal relFrame, const qreal influence) const;
-    bool skipZeroInfluence(const qreal relFrame) const;
+            const qreal relFrame, const qreal influence) const override;
+    bool skipZeroInfluence(const qreal relFrame) const override;
 private:
-    qsptr<IntAnimator> mCount;
     qsptr<QPointFAnimator> mTranslation;
+    qsptr<QrealAnimator> mRotation;
+    qsptr<IntAnimator> mCount;
+    qsptr<BoolProperty> mUseCustomPivot;
+    qsptr<QPointFAnimator> mCustomPivot;
 };
 
 #endif // DUPLICATEPATHEFFECT_H
