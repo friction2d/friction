@@ -39,6 +39,8 @@ ToolControls::ToolControls(QWidget *parent)
     , mTransformSY(nullptr)
     , mTransformRX(nullptr)
     , mTransformRY(nullptr)
+    , mTransformTX(nullptr)
+    , mTransformTY(nullptr)
     , mTransformBX(nullptr)
     , mTransformBY(nullptr)
     , mTransformPX(nullptr)
@@ -48,6 +50,8 @@ ToolControls::ToolControls(QWidget *parent)
     , mTransformRotate(nullptr)
     , mTransformScale(nullptr)
     , mTransformRadius(nullptr)
+    , mTransformRectangle(nullptr)
+    , mTransformTopLeft(nullptr)
     , mTransformBottomRight(nullptr)
     , mTransformPivot(nullptr)
     , mTransformOpacity(nullptr)
@@ -88,7 +92,10 @@ void ToolControls::setCanvasMode(const CanvasMode &mode)
     const bool isBoxOrPointMode = isBoxMode || mode == CanvasMode::pointTransform;
 
     const bool hasRadius = mTransformRX->hasTarget() && mTransformRY->hasTarget();
-    const bool hasRectangle = mTransformBX->hasTarget() && mTransformBY->hasTarget();
+
+    const bool hasRectangleTop = mTransformTX->hasTarget() && mTransformTY->hasTarget();
+    const bool hasRectangleBottom = mTransformBX->hasTarget() && mTransformBY->hasTarget();
+    const bool hasRectangle = hasRectangleTop || hasRectangleBottom;
 
     const bool showRectangle = isBoxOrPointMode || mode == CanvasMode::rectCreate;
 
@@ -102,7 +109,9 @@ void ToolControls::setCanvasMode(const CanvasMode &mode)
     mTransformPivot->setVisible(hasPivot && isBoxMode);
     mTransformOpacity->setVisible(hasOpacity && isBoxMode);
     mTransformRadius->setVisible(hasRadius && showRadius);
-    mTransformBottomRight->setVisible(hasRectangle && showRectangle);
+    mTransformRectangle->setVisible(hasRectangle && showRectangle);
+    mTransformTopLeft->setVisible(hasRectangleTop && showRectangle && !isBoxMode);
+    mTransformBottomRight->setVisible(hasRectangleBottom && showRectangle);
 }
 
 void ToolControls::setTransform(BoundingBox * const target)
@@ -159,11 +168,16 @@ void ToolControls::setTransform(BoundingBox * const target)
                                 circle->getVRadiusAnimator()->getYAnimator() :
                                 (rectangle ? rectangle->getRadiusAnimator()->getYAnimator() : nullptr));
 
+    mTransformTX->setTarget(rectangle ? rectangle->getTopLeftAnimator()->getXAnimator() : nullptr);
+    mTransformTY->setTarget(rectangle ? rectangle->getTopLeftAnimator()->getYAnimator() : nullptr);
     mTransformBX->setTarget(rectangle ? rectangle->getBottomRightAnimator()->getXAnimator() : nullptr);
     mTransformBY->setTarget(rectangle ? rectangle->getBottomRightAnimator()->getYAnimator() : nullptr);
 
     const bool hasRadius = (circle || rectangle);
     mTransformRadius->setEnabled(hasRadius);
+
+    mTransformRectangle->setEnabled(rectangle);
+    mTransformTopLeft->setEnabled(rectangle);
     mTransformBottomRight->setEnabled(rectangle);
 
     setCanvasMode(mCanvasMode);
@@ -178,6 +192,8 @@ void ToolControls::resetWidgets()
     mTransformSY->setTarget(nullptr);
     mTransformRX->setTarget(nullptr);
     mTransformRY->setTarget(nullptr);
+    mTransformTX->setTarget(nullptr);
+    mTransformTY->setTarget(nullptr);
     mTransformBX->setTarget(nullptr);
     mTransformBY->setTarget(nullptr);
     mTransformPX->setTarget(nullptr);
@@ -188,11 +204,15 @@ void ToolControls::resetWidgets()
     mTransformRotate->setEnabled(false);
     mTransformScale->setEnabled(false);
     mTransformRadius->setEnabled(false);
+    mTransformRectangle->setEnabled(false);
+    mTransformTopLeft->setEnabled(false);
     mTransformBottomRight->setEnabled(false);
     mTransformPivot->setEnabled(false);
     mTransformOpacity->setEnabled(false);
 
     mTransformRadius->setVisible(false);
+    mTransformRectangle->setVisible(false);
+    mTransformTopLeft->setVisible(false);
     mTransformBottomRight->setVisible(false);
     mTransformPivot->setVisible(false);
     mTransformOpacity->setVisible(false);
@@ -204,6 +224,8 @@ void ToolControls::setupWidgets()
     mTransformRotate = new QActionGroup(this);
     mTransformScale = new QActionGroup(this);
     mTransformRadius = new QActionGroup(this);
+    mTransformRectangle = new QActionGroup(this);
+    mTransformTopLeft = new QActionGroup(this);
     mTransformBottomRight = new QActionGroup(this);
     mTransformPivot = new QActionGroup(this);
     mTransformOpacity = new QActionGroup(this);
@@ -220,6 +242,8 @@ void ToolControls::setupTransform()
     mTransformSY = new QrealAnimatorValueSlider(nullptr, this);
     mTransformRX = new QrealAnimatorValueSlider(nullptr, this);
     mTransformRY = new QrealAnimatorValueSlider(nullptr, this);
+    mTransformTX = new QrealAnimatorValueSlider(nullptr, this);
+    mTransformTY = new QrealAnimatorValueSlider(nullptr, this);
     mTransformBX = new QrealAnimatorValueSlider(nullptr, this);
     mTransformBY = new QrealAnimatorValueSlider(nullptr, this);
     mTransformPX = new QrealAnimatorValueSlider(nullptr, this);
@@ -257,12 +281,18 @@ void ToolControls::setupTransform()
                                            tr("Opacity")));
     mTransformOpacity->addAction(addWidget(mTransformOX));
 
-    mTransformBottomRight->addAction(addSpacer(true, true));
-    mTransformBottomRight->addAction(addAction(QIcon::fromTheme("rectCreate"),
-                                              tr("Rectangle")));
+    mTransformRectangle->addAction(addSpacer(true, true));
+    mTransformRectangle->addAction(addAction(QIcon::fromTheme("rectCreate"),
+                                             tr("Rectangle")));
+
     mTransformBottomRight->addAction(addWidget(mTransformBX));
     mTransformBottomRight->addAction(addSeparator());
     mTransformBottomRight->addAction(addWidget(mTransformBY));
+
+    mTransformTopLeft->addAction(addSeparator());
+    mTransformTopLeft->addAction(addWidget(mTransformTX));
+    mTransformTopLeft->addAction(addSeparator());
+    mTransformTopLeft->addAction(addWidget(mTransformTY));
 
     mTransformRadius->addAction(addSpacer(true, true));
     mTransformRadius->addAction(addAction(QIcon::fromTheme("transform_radius"),
@@ -287,6 +317,10 @@ void ToolControls::setupTransform()
     mTransformRX->setDisplayedValue(0);
     mTransformRY->setValueRange(0, 1);
     mTransformRY->setDisplayedValue(0);
+    mTransformTX->setValueRange(0, 1);
+    mTransformTX->setDisplayedValue(0);
+    mTransformTY->setValueRange(0, 1);
+    mTransformTY->setDisplayedValue(0);
     mTransformBX->setValueRange(0, 1);
     mTransformBX->setDisplayedValue(0);
     mTransformBY->setValueRange(0, 1);
