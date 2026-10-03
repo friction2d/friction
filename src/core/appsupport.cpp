@@ -67,6 +67,11 @@ extern "C" {
 #include <libavutil/avutil.h>
 }
 
+
+#ifndef FRICTION_LIBDIR
+#define FRICTION_LIBDIR "lib"
+#endif
+
 using namespace Friction::Core;
 
 AppSupport::AppSupport(QObject *parent)
@@ -327,6 +332,36 @@ const QString AppSupport::getAppTempPath(const QString &filename)
     return QString::fromUtf8("%1/%2").arg(cache, filename);
 }
 
+const QStringList AppSupport::getAppCorePluginsPath()
+{
+    QStringList paths;
+    QDir appDir(getAppPath());
+
+    auto addPathIfValid = [&paths](const QString& p) {
+        QString cleanP = QDir::cleanPath(p);
+        if (isDirectory(cleanP) && !paths.contains(cleanP)) {
+            paths.append(cleanP);
+        }
+    };
+
+    QString defaultAppPath = appDir.absoluteFilePath("plugins");
+    addPathIfValid(defaultAppPath);
+
+    QString libDir = QString("../%1/friction/plugins").arg(FRICTION_LIBDIR);
+    QString sysPath = appDir.absoluteFilePath(libDir);
+    addPathIfValid(sysPath);
+
+    addPathIfValid(getAppUserCorePluginsPath());
+
+    return paths;
+}
+
+bool AppSupport::isDirectory(const QString &path)
+{
+    QFileInfo fileInfo(path);
+    return fileInfo.exists() && fileInfo.isDir();
+}
+
 const QString AppSupport::getExistingDirectory(QWidget *parent,
                                                const QString &caption,
                                                const QString &path)
@@ -576,6 +611,17 @@ const QString AppSupport::getAppUserExPresetsPath()
                                def).toString();
     if (path.isEmpty()) { path = def; }
 
+    QDir dir(path);
+    if (!dir.exists()) { dir.mkpath(path); }
+    return path;
+}
+
+const QString AppSupport::getAppUserCorePluginsPath(bool restore)
+{
+    const QString def = QString::fromUtf8("%1/CorePlugins").arg(getAppConfigPath());
+    QString path = restore ? def : getSettings("settings",
+                                               "CustomCorePluginsPath",
+                                               def).toString();
     QDir dir(path);
     if (!dir.exists()) { dir.mkpath(path); }
     return path;

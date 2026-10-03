@@ -38,6 +38,10 @@ ARM_APP=${ARM_BUILD}/dmg/Friction.app/Contents/MacOS
 INTEL_APP=${INTEL_BUILD}/dmg/Friction.app/Contents/MacOS
 UNI_APP=${UNI_BUILD}/Friction.app/Contents/MacOS
 
+ARM_CORE_PLUGINS=${ARM_APP}/plugins
+INTEL_CORE_PLUGINS=${INTEL_APP}/plugins
+UNI_CORE_PLUGINS=${UNI_APP}/plugins
+
 PLIST=${UNI_BUILD}/Friction.app/Contents/Info.plist
 
 if [ -d "${UNI_BUILD}" ]; then
@@ -58,6 +62,30 @@ lipo -create -output libqcocoa.dylib ${ARM_PLUGINS}/platforms/libqcocoa.dylib ${
 
 cd ${UNI_APP}
 lipo -create -output friction ${ARM_APP}/friction ${INTEL_APP}/friction
+
+if [ -d "${ARM_CORE_PLUGINS}" ] && [ -d "${INTEL_CORE_PLUGINS}" ]; then
+    mkdir -p "${UNI_CORE_PLUGINS}"
+    for plugin in "${ARM_CORE_PLUGINS}"/*; do
+        [ -f "${plugin}" ] || continue
+        plugin_name=`basename "${plugin}"`
+        intel_plugin="${INTEL_CORE_PLUGINS}/${plugin_name}"
+        if [ ! -f "${intel_plugin}" ]; then
+            echo "Missing Intel build for core plugin: ${plugin_name}"
+            exit 1
+        fi
+        lipo -create -output "${UNI_CORE_PLUGINS}/${plugin_name}" \
+            "${plugin}" "${intel_plugin}"
+    done
+
+    for plugin in "${INTEL_CORE_PLUGINS}"/*; do
+        [ -f "${plugin}" ] || continue
+        plugin_name=`basename "${plugin}"`
+        if [ ! -f "${ARM_CORE_PLUGINS}/${plugin_name}" ]; then
+            echo "Missing ARM build for core plugin: ${plugin_name}"
+            exit 1
+        fi
+    done
+fi
 
 cd ${UNI_BUILD}
 

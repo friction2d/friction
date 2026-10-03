@@ -723,6 +723,7 @@ set(
     videoencoder.h
     formatoptions.h
     svgo.h
+    coreplugininterface.h
 )
 
 add_library(${PROJECT_NAME} SHARED ${HEADERS} ${SOURCES} coreresources.qrc)
@@ -776,6 +777,9 @@ endif()
 
 if(UNIX AND NOT APPLE)
     include(GNUInstallDirs)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE
+        FRICTION_LIBDIR=\"${CMAKE_INSTALL_LIBDIR}\"
+    )
     install(
         TARGETS
         ${PROJECT_NAME}
