@@ -55,6 +55,8 @@ void ColorSettingsWidget::updateWidgetTargets()
 
     aSpin->setTarget(nullptr);
 
+    if (mColorWheel) { mColorWheel->setTarget(nullptr); }
+
     if (mTarget) {
         auto& conn = mUpdateConnections;
 
@@ -87,6 +89,9 @@ void ColorSettingsWidget::updateWidgetTargets()
             conn << connect(mTarget, &ColorAnimator::colorChanged,
                             this, &ColorSettingsWidget::updateValuesFromHSLSpins);
         }
+
+        if (mColorWheel) { mColorWheel->setTarget(mTarget); }
+
         updateAlphaFromSpin();
         const auto currColor = getCurrentQColor();
         mHexEdit->setText(currColor.name(QColor::HexArgb));
@@ -111,36 +116,37 @@ void ColorSettingsWidget::setTarget(ColorAnimator * const target) {
     }
 }
 
-ColorSetting ColorSettingsWidget::getColorSetting(
-        const ColorSettingType type,
-        const ColorParameter parameter) const {
-    const int tabId = mTabWidget->currentIndex();
+ColorSetting ColorSettingsWidget::getColorSetting(const ColorSettingType type,
+                                                  const ColorParameter parameter) const
+{
+    QWidget* currentTab = mTabWidget->currentWidget();
     qreal alphaVal = 1;
-    if(!mAlphaHidden) alphaVal = aSpin->value();
-    if(tabId == 0) {
-        return ColorSetting(
-                    ColorMode::rgb, parameter,
-                    rSpin->value(),
-                    gSpin->value(),
-                    bSpin->value(),
-                    alphaVal,
-                    type);
-    } else if(tabId == 1) {
-        return ColorSetting(
-                    ColorMode::hsv, parameter,
-                    hSpin->value(),
-                    hsvSSpin->value(),
-                    vSpin->value(),
-                    alphaVal,
-                    type);
-    } else { //if(tabId == 2) {
-        return ColorSetting(
-                    ColorMode::hsl, parameter,
-                    hSpin->value(),
-                    hslSSpin->value(),
-                    lSpin->value(),
-                    alphaVal,
-                    type);
+    if (!mAlphaHidden) { alphaVal = aSpin->value(); }
+
+    if (currentTab == mRGBWidget) {
+        return ColorSetting(ColorMode::rgb,
+                            parameter,
+                            rSpin->value(),
+                            gSpin->value(),
+                            bSpin->value(),
+                            alphaVal,
+                            type);
+    } else if (currentTab == mHSVWidget /*|| currentTab == mWheelWidget*/) {
+        return ColorSetting(ColorMode::hsv,
+                            parameter,
+                            hSpin->value(),
+                            hsvSSpin->value(),
+                            vSpin->value(),
+                            alphaVal,
+                            type);
+    } else {
+        return ColorSetting(ColorMode::hsl,
+                            parameter,
+                            hSpin->value(),
+                            hslSSpin->value(),
+                            lSpin->value(),
+                            alphaVal,
+                            type);
     }
 }
 
@@ -239,46 +245,39 @@ void ColorSettingsWidget::emitFinishFullColorChangedSignal() {
     emitEditingFinishedSignal();
 }
 
-void ColorSettingsWidget::moveAlphaWidgetToTab(const int tabId) {
-    if(hLayout->parent()) ((QLayout*)hLayout->parent())->removeItem(hLayout);
-    if(tabId == 1) {
-        mHSVLayout->insertLayout(0, hLayout);
-    } else if(tabId == 2) {
-        mHSLLayout->insertLayout(0, hLayout);
-    }/* else if(tabId == 3) {
-        mWheelLayout->addLayout(hLayout);
-    }*/
-    if(!mAlphaHidden) {
-        ((QLayout*)aLayout->parent())->removeItem(aLayout);
-        if(tabId == 0) {
-            mRGBLayout->addLayout(aLayout);
-        } else if(tabId == 1) {
-            mHSVLayout->addLayout(aLayout);
-        } else if(tabId == 2) {
-            mHSLLayout->addLayout(aLayout);
-        }/* else if(tabId == 3) {
-            mWheelLayout->addLayout(aLayout);
-        }*/
-    }
-    ((QLayout*)hexLayout->parent())->removeItem(hexLayout);
-    if(tabId == 0) {
-        mRGBLayout->addLayout(hexLayout);
-    } else if(tabId == 1) {
-        mHSVLayout->addLayout(hexLayout);
-    } else if(tabId == 2) {
-        mHSLLayout->addLayout(hexLayout);
-    }/* else if(tabId == 3) {
-        mWheelLayout->addLayout(hexLayout);
-    }*/
-    /*for(int i=0;i < mTabWidget->count();i++)
-        if(i!=tabId)
-            mTabWidget->widget(i)->setSizePolicy(QSizePolicy::Minimum,
-                                                 QSizePolicy::Ignored);
+void ColorSettingsWidget::moveAlphaWidgetToTab(const int tabId)
+{
+    QWidget *currentTab = mTabWidget->widget(tabId);
 
-    mTabWidget->widget(tabId)->setSizePolicy(QSizePolicy::Minimum,
-                                             QSizePolicy::Preferred);
-    mTabWidget->widget(tabId)->resize(
-                mTabWidget->widget(tabId)->minimumSizeHint());*/
+    if (hLayout->parentWidget()) { hLayout->parentWidget()->layout()->removeItem(hLayout); }
+    if (currentTab == mHSVWidget) {
+        mHSVLayout->insertLayout(0, hLayout);
+    } else if (currentTab == mHSLWidget) {
+        mHSLLayout->insertLayout(0, hLayout);
+    }
+
+    QVBoxLayout *targetLayout = nullptr;
+    if (currentTab == mRGBWidget) { targetLayout = mRGBLayout; }
+    else if (currentTab == mHSVWidget) { targetLayout = mHSVLayout; }
+    else if (currentTab == mHSLWidget) { targetLayout = mHSLLayout; }
+    //else if (currentTab == mWheelWidget) { targetLayout = mWheelLayout; }
+
+    if (aLayout->parentWidget()) { aLayout->parentWidget()->layout()->removeItem(aLayout); }
+    if (hexLayout->parentWidget()) { hexLayout->parentWidget()->layout()->removeItem(hexLayout); }
+
+    if (targetLayout) {
+        if (!mAlphaHidden) { targetLayout->addLayout(aLayout); }
+        targetLayout->addLayout(hexLayout);
+    }
+
+    for (int i = 0; i < mTabWidget->count(); i++) {
+        if (i != tabId) {
+            mTabWidget->widget(i)->setSizePolicy(QSizePolicy::Ignored,
+                                                 QSizePolicy::Ignored);
+        }
+    }
+    currentTab->setSizePolicy(QSizePolicy::Preferred,
+                              QSizePolicy::Preferred);
 }
 
 void ColorSettingsWidget::startColorPicking()
@@ -327,12 +326,13 @@ ColorSettingsWidget::ColorSettingsWidget(QWidget *parent)
     connect(book, &QShortcut::activated,
             mColorLabel, &ColorLabel::addBookmark);
 
-//    mWheelWidget->setLayout(mWheelLayout);
-//    mWheelLayout->setAlignment(Qt::AlignTop);
-//    wheel_triangle_widget = new H_Wheel_SV_Triangle(this);
-//    mWheelLayout->addWidget(wheel_triangle_widget, Qt::AlignHCenter);
-//    mWheelLayout->setAlignment(wheel_triangle_widget, Qt::AlignHCenter);
 
+    mWheelWidget->setLayout(mWheelLayout);
+    mWheelLayout->setContentsMargins(0, 0, 0, 0);
+    mColorWheel = new Friction::Ui::ColorWheel(this);
+
+    mWheelLayout->addWidget(mColorWheel);
+    mWidgetsLayout->addWidget(mWheelWidget);
 
     int spinWidth = eSizesUI::widget * 3;
     rSpin->setFixedWidth(spinWidth);
@@ -724,6 +724,10 @@ void ColorSettingsWidget::setDisplayedHSV(const qreal hue,
     if(!mAlphaHidden) aRect->setColor(hue, saturation, value);
 
     mColorLabel->setColor(hue, saturation, value);
+
+    if (mColorWheel) {
+        mColorWheel->setColor(hue, saturation, value);
+    }
 }
 
 void ColorSettingsWidget::setDisplayedHSL(const qreal hue,
