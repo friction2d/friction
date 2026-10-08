@@ -115,6 +115,7 @@ set(
     widgets/widgetstack.cpp
     widgets/widgetwrappernode.cpp
     widgets/wrappernode.cpp
+    widgets/colorwheel.cpp
     wizards/installpresets.cpp
     wizards/wizardpage.cpp
     wizards/quicksetup.cpp
@@ -205,6 +206,7 @@ set(
     widgets/widgetstack.h
     widgets/widgetwrappernode.h
     widgets/wrappernode.h
+    widgets/colorwheel.h
     wizards/installpresets.h
     wizards/wizardpage.h
     wizards/quicksetup.h
