@@ -30,9 +30,30 @@
 #include "Animators/transformanimator.h"
 #include "svgexporter.h"
 
-FollowPathEffect::FollowPathEffect() :
-    TargetTransformEffect("follow path", TransformEffectType::followPath) {
+FollowPathEffect::FollowPathEffect()
+    : TargetTransformEffect("follow path",
+                            TransformEffectType::followPath)
+{
     targetProperty()->setValidator<PathBox>();
+
+    // Following a path depends on its geometry as well as its transform.
+    connect(targetProperty(), &BoxTargetProperty::targetSet,
+            this, [this](BoundingBox* const target) {
+        auto& conn = mPathTargetConn.assign(target);
+        const auto parent = getFirstAncestor<BoundingBox>();
+        if (!target || !parent) { return; }
+        const auto parentTransform = parent->getTransformAnimator();
+        conn << connect(target, &Property::prp_absFrameRangeChanged,
+                        this, [parentTransform](const FrameRange& range,
+                                                const bool clip) {
+            parentTransform->prp_afterChangedAbsRange(range, clip);
+        });
+        conn << connect(target, &Property::prp_currentFrameChanged,
+                        this, [parentTransform, target](const UpdateReason reason) {
+            parentTransform->anim_setAbsFrame(target->anim_getCurrentAbsFrame());
+            parentTransform->prp_afterChangedCurrent(reason);
+        });
+    });
 
     mRotate = enve::make_shared<BoolProperty>("rotate");
     mLengthBased = enve::make_shared<BoolProperty>("length based");
@@ -45,51 +66,67 @@ FollowPathEffect::FollowPathEffect() :
     ca_addChild(mInfluence);
 }
 
-void calculateFollowRotPosChange(
-        const SkPath relPath,
-        const QMatrix transform,
-        const bool lengthBased,
-        const bool rotate,
-        const qreal infl,
-        qreal per,
-        qreal& rotChange,
-        qreal& posXChange,
-        qreal& posYChange) {
+FrameRange FollowPathEffect::prp_getIdenticalRelRange(const int relFrame) const
+{
+    const auto thisIdent = TargetTransformEffect::prp_getIdenticalRelRange(relFrame);
+    const auto target = targetProperty()->getTarget();
+    if (!target) { return thisIdent; }
+
+    const int absFrame = prp_relFrameToAbsFrame(relFrame);
+    const int targetRelFrame = target->prp_absFrameToRelFrame(absFrame);
+    const auto targetIdent = target->prp_getIdenticalRelRange(targetRelFrame);
+    return thisIdent*prp_absRangeToRelRange(target->prp_relRangeToAbsRange(targetIdent));
+}
+
+void calculateFollowRotPosChange(const SkPath relPath,
+                                 const QMatrix transform,
+                                 const bool lengthBased,
+                                 const bool rotate,
+                                 const qreal infl,
+                                 qreal per,
+                                 qreal& rotChange,
+                                 qreal& posXChange,
+                                 qreal& posYChange)
+{
     SkPath path;
     relPath.transform(toSkMatrix(transform), &path);
     const QPainterPath qpath = toQPainterPath(path);
 
-    if(lengthBased) {
+    if (lengthBased) {
         const qreal length = qpath.length();
         per = qpath.percentAtLength(per*length);
     }
     const auto p1 = qpath.pointAtPercent(per);
 
-    if(rotate) {
+    if (rotate) {
         qreal t2 = per + 0.0001;
         const bool reverse = t2 > 1;
-        if(reverse) t2 = 0.9999;
+        if (reverse) { t2 = 0.9999; }
         const auto p2 = qpath.pointAtPercent(t2);
 
         const QLineF baseLine(QPointF(0., 0.), QPointF(100., 0.));
         QLineF l;
-        if(reverse) l = QLineF(p2, p1);
+        if (reverse) { l = QLineF(p2, p1); }
         else l = QLineF(p1, p2);
         qreal trackAngle = l.angleTo(baseLine);
-        if(trackAngle > 180) trackAngle -= 360;
+        if (trackAngle > 180) { trackAngle -= 360; }
 
         rotChange = trackAngle*infl;
-    } else rotChange = 0;
+    } else { rotChange = 0; }
+
     posXChange = p1.x();
     posYChange = p1.y();
 }
 
-void FollowPathEffect::setRotScaleAfterTargetChange(
-        BoundingBox* const oldTarget, BoundingBox* const newTarget) {
+void FollowPathEffect::setRotScaleAfterTargetChange(BoundingBox* const oldTarget,
+                                                    BoundingBox* const newTarget)
+{
     const bool rotate = mRotate->getValue();
-    if(!rotate) return;
+    if (!rotate) { return; }
+
     const auto parent = getFirstAncestor<BoundingBox>();
-    if(!parent) return;
+    if (!parent) { return; }
+
     const auto oldTargetP = static_cast<PathBox*>(oldTarget);
     const auto newTargetP = static_cast<PathBox*>(newTarget);
 
@@ -100,7 +137,7 @@ void FollowPathEffect::setRotScaleAfterTargetChange(
     const auto parentTransform = parent->getInheritedTransformAtFrame(relFrame);
 
     qreal rot = 0.;
-    if(oldTargetP) {
+    if (oldTargetP) {
         const auto relPath = oldTargetP->getRelativePath();
         const auto targetTransform = oldTargetP->getTotalTransform();
         const auto transform = targetTransform*parentTransform.inverted();
@@ -115,7 +152,7 @@ void FollowPathEffect::setRotScaleAfterTargetChange(
         rot += rotChange;
     }
 
-    if(newTargetP) {
+    if (newTargetP) {
         const auto relPath = newTargetP->getRelativePath();
         const auto targetTransform = newTargetP->getTotalTransform();
         const auto transform = targetTransform*parentTransform.inverted();
@@ -135,13 +172,18 @@ void FollowPathEffect::setRotScaleAfterTargetChange(
 }
 
 void FollowPathEffect::applyEffect(const qreal relFrame,
-        qreal& pivotX, qreal& pivotY,
-        qreal& posX, qreal& posY,
-        qreal& rot,
-        qreal& scaleX, qreal& scaleY,
-        qreal& shearX, qreal& shearY,
-        QMatrix& postTransform,
-        BoundingBox* const parent) {
+                                   qreal& pivotX,
+                                   qreal& pivotY,
+                                   qreal& posX,
+                                   qreal& posY,
+                                   qreal& rot,
+                                   qreal& scaleX,
+                                   qreal& scaleY,
+                                   qreal& shearX,
+                                   qreal& shearY,
+                                   QMatrix& postTransform,
+                                   BoundingBox* const parent)
+{
     Q_UNUSED(pivotX)
     Q_UNUSED(pivotY)
     Q_UNUSED(scaleX)
@@ -150,11 +192,11 @@ void FollowPathEffect::applyEffect(const qreal relFrame,
     Q_UNUSED(shearY)
     Q_UNUSED(postTransform)
 
-    if(!isVisible()) return;
+    if (!isVisible() || !parent) { return; }
 
-    if(!parent) return;
     const auto target = static_cast<PathBox*>(targetProperty()->getTarget());
-    if(!target) return;
+    if (!target) { return; }
+
     const qreal absFrame = prp_relFrameToAbsFrameF(relFrame);
     const qreal targetRelFrame = target->prp_absFrameToRelFrameF(absFrame);
 
@@ -173,11 +215,17 @@ void FollowPathEffect::applyEffect(const qreal relFrame,
     qreal posXChange;
     qreal posYChange;
 
-    calculateFollowRotPosChange(relPath, transform,
-                                lengthBased, rotate, infl, per,
-                                rotChange, posXChange, posYChange);
+    calculateFollowRotPosChange(relPath,
+                                transform,
+                                lengthBased,
+                                rotate,
+                                infl,
+                                per,
+                                rotChange,
+                                posXChange,
+                                posYChange);
 
-    if(rotate) rot += rotChange;
+    if (rotate) { rot += rotChange; }
 
     posX += posXChange; //p1.x()*infl;
     posY += posYChange; //p1.y()*infl;
