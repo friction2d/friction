@@ -20,6 +20,9 @@
         <file alias="plain.frag">colorshaders/plain.frag</file>
         <file alias="red.frag">colorshaders/red.frag</file>
         <file alias="value.frag">colorshaders/value.frag</file>
+        <file alias="wheel.frag">colorshaders/wheel.frag</file>
+        <file alias="triangle.frag">colorshaders/triangle.frag</file>
+        <file alias="map.frag">colorshaders/map.frag</file>
     </qresource>
     <qresource prefix="/expressions">
         <file alias="clamp.fexpr">Expressions/presets/clamp.fexpr</file>
