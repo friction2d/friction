@@ -45,6 +45,7 @@
 #include "widgets/colorlabel.h"
 #include "widgets/savedcolorswidget.h"
 #include "widgets/colorwheel.h"
+#include "widgets/colormap.h"
 
 class UI_EXPORT ColorSettingsWidget : public QWidget
 {
@@ -156,6 +157,10 @@ private:
     QWidget *mWheelWidget = new QWidget();
     QVBoxLayout *mWheelLayout = new QVBoxLayout();
     Friction::Ui::ColorWheel *mColorWheel = nullptr;
+
+    QWidget *mMapWidget = new QWidget();
+    QVBoxLayout *mMapLayout = new QVBoxLayout();
+    Friction::Ui::ColorMap *mColorMap = nullptr;
 
     QWidget *mRGBWidget = new QWidget();
     QVBoxLayout *mRGBLayout = new QVBoxLayout();
