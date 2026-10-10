@@ -31,6 +31,8 @@
 
 #include "propertybindingparser.h"
 
+class ExpressionContext;
+
 class CORE_EXPORT Expression : public QObject {
     Q_OBJECT
     Expression(const QString& definitionsStr,
@@ -45,7 +47,8 @@ public:
     static void sAddScriptTo(const QString& scriptStr,
                              const PropertyBindingMap& bindings,
                              QJSEngine& e, QJSValue& eEvaluate,
-                             const ResultTester& resultTester);
+                             const ResultTester& resultTester,
+                             const Property* context = nullptr);
     static qsptr<Expression> sCreate(const QString& definitionsStr,
                                      const QString& scriptStr,
                                      PropertyBindingMap&& bindings,
@@ -88,6 +91,7 @@ private:
     QJSValue mEEvaluate;
     const PropertyBindingMap mBindings;
     const std::unique_ptr<QJSEngine> mEngine;
+    ExpressionContext* const mExpressionContext;
 };
 
 #endif // EXPRESSION_H

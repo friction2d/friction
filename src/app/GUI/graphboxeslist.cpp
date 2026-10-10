@@ -123,7 +123,7 @@ bool KeysView::graphEasingApplyExpression(QrealAnimator *anim,
     QJSValue eEvaluate;
     try {
         Expression::sAddScriptTo(script, bindings, *engine, eEvaluate,
-                                 Expression::sQrealAnimatorTester);
+                                 Expression::sQrealAnimatorTester, anim);
     } catch(const std::exception& e) { return false; }
 
     try {

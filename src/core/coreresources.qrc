@@ -35,6 +35,7 @@
         <file alias="rotation.fexpr">Expressions/presets/rotation.fexpr</file>
         <file alias="time.fexpr">Expressions/presets/time.fexpr</file>
         <file alias="trackObject.fexpr">Expressions/presets/trackObject.fexpr</file>
+        <file alias="valueAtTime.fexpr">Expressions/presets/valueAtTime.fexpr</file>
         <file alias="wave.fexpr">Expressions/presets/wave.fexpr</file>
         <file alias="wiggle.fexpr">Expressions/presets/wiggle.fexpr</file>
         <file alias="easeInBack.fexpr">Expressions/presets/easeInBack.fexpr</file>
