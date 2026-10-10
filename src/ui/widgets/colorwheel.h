@@ -52,23 +52,21 @@ namespace Friction
             void editingFinished();
 
         protected:
-            void initializeGL();
+            void initializeGL() override;
+            void paintGL() override;
+            void resizeGL(int w, int h) override;
+            void mousePressEvent(QMouseEvent *e) override;
+            void mouseReleaseEvent(QMouseEvent *) override;
+            void mouseMoveEvent(QMouseEvent *e) override;
+            //void wheelEvent(QWheelEvent *e) override;
 
         private:
-            void paintGL();
-            void resizeGL(int w, int h);
-
             void drawTriangle();
-            void mousePressEvent(QMouseEvent *e);
-            void mouseReleaseEvent(QMouseEvent *);
-            void mouseMoveEvent(QMouseEvent *e);
+            void drawWheel();
             bool isInTriangle(const QPoint &pos_t);
             bool isInWheel(const QPoint &pos_t);
             void wheelInteraction(const int x_t, const int y_t);
             void triangleInteraction(int x_t, int y_t);
-
-            //void wheelEvent(QWheelEvent *e);
-            void drawWheel();
 
             void applyToTarget(bool isStart,
                                bool isFinish);
