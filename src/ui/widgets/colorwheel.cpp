@@ -255,9 +255,12 @@ void ColorWheel::applyToTarget(bool isStart,
     QColor c = QColor::fromHsvF(mHue, mSaturation, mValue);
 
     if (mTarget->getColorMode() == ColorMode::hsv) {
-        if (a1) { a1->setCurrentBaseValue(mHue); }
-        if (a2) a2->setCurrentBaseValue(mSaturation);
-        if (a3) { a3->setCurrentBaseValue(mValue); }
+        if (mFocus == H) {
+            if (a1) { a1->setCurrentBaseValue(mHue); }
+        } else if (mFocus == SV) {
+            if (a2) { a2->setCurrentBaseValue(mSaturation); }
+            if (a3) { a3->setCurrentBaseValue(mValue); }
+        }
     } else if (mTarget->getColorMode() == ColorMode::rgb) {
         if (a1) { a1->setCurrentBaseValue(c.redF()); }
         if (a2) { a2->setCurrentBaseValue(c.greenF()); }
@@ -276,10 +279,14 @@ void ColorWheel::wheelInteraction(const int x_t, const int y_t)
     double cx = x_t - width() * 0.5;
     double cy = y_t - height() * 0.5;
     mHue = getAngleF(1, 0, -cx, cy);
+
     update();
 
-    applyToTarget(false, false);
-
+    if (mTarget) { // HSV
+        applyToTarget(false, false);
+    } else { // RGB/HSL
+        emit colorChanged(mHue, mSaturation, mValue);
+    }
     Document::sInstance->updateScenes();
 }
 
@@ -306,8 +313,11 @@ void ColorWheel::triangleInteraction(int x_t, int y_t)
 
     update();
 
-    applyToTarget(false, false);
-
+    if (mTarget) { // HSV
+        applyToTarget(false, false);
+    } else { // RGB/HSL
+        emit colorChanged(mHue, mSaturation, mValue);
+    }
     Document::sInstance->updateScenes();
 }
 
@@ -318,8 +328,12 @@ void ColorWheel::mousePressEvent(QMouseEvent *e)
     mIsDragging = true;
     grabMouse();
 
-    Actions::sInstance->startSmoothChange();
-    applyToTarget(true, false);
+    if (mTarget) { // HSV
+        Actions::sInstance->startSmoothChange();
+        applyToTarget(true, false);
+    } else { // RGB/HSL
+        emit editingStarted();
+    }
 
     if (isInTriangle(e->pos())) {
         mFocus = SV;
@@ -330,7 +344,14 @@ void ColorWheel::mousePressEvent(QMouseEvent *e)
     } else {
         mFocus = NONE;
         mIsDragging = false;
-        applyToTarget(false, true);
+
+        if (mTarget) { // HSV
+            applyToTarget(false, true);
+            Actions::sInstance->finishSmoothChange();
+        } else { // RGB/HSL
+            emit editingFinished();
+        }
+
         releaseMouse();
         return;
     }
@@ -338,14 +359,19 @@ void ColorWheel::mousePressEvent(QMouseEvent *e)
 
 void ColorWheel::mouseReleaseEvent(QMouseEvent *)
 {
-    applyToTarget(false, true);
+    if (!mIsDragging) { return; }
+
+    if (mTarget) { // HSV
+        applyToTarget(false, true);
+        Actions::sInstance->finishSmoothChange();
+        Document::sInstance->actionFinished();
+    } else { // RGB/HSL
+        emit editingFinished();
+    }
 
     releaseMouse();
     mFocus = NONE;
     mIsDragging = false;
-
-    Actions::sInstance->finishSmoothChange();
-    Document::sInstance->actionFinished();
 }
 
 void ColorWheel::mouseMoveEvent(QMouseEvent *e)

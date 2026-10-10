@@ -46,6 +46,11 @@ namespace Friction
             void setTarget(ColorAnimator * const target);
             void setColor(qreal h, qreal s, qreal v);
 
+        signals:
+            void editingStarted();
+            void colorChanged(qreal h, qreal s, qreal v);
+            void editingFinished();
+
         protected:
             void initializeGL();
 
