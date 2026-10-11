@@ -87,6 +87,14 @@ void MainWindow::setupMenuBar()
     mImportSeqAct->setEnabled(false);
     cmdAddAction(mImportSeqAct);
 
+    mImportSVGAnimationAct = mFileMenu->addAction(
+                QIcon::fromTheme("file_import"),
+                tr("Import SVG Animation", "MenuBar_File"),
+                this, &MainWindow::importSVGAnimation);
+    mImportSVGAnimationAct->setEnabled(false);
+    mImportSVGAnimationAct->setObjectName("ImportSVGAnimationAct");
+    cmdAddAction(mImportSVGAnimationAct);
+
     mRevertAct = mFileMenu->addAction(QIcon::fromTheme("loop_back"),
                                       tr("Revert", "MenuBar_File"),
                                       this, &MainWindow::revert);
