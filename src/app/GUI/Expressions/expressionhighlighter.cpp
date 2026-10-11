@@ -44,7 +44,10 @@ ExpressionHighlighter::ExpressionHighlighter(
     mErrorFormat.setForeground(Qt::red);
     mAssignFormat.setForeground(QColor(255, 128, 128));
 
-    const QString propPath = "([a-zA-Z0-9_\\.]+[a-zA-Z0-9_ \\.]*[a-zA-Z0-9_\\.]+)";
+    const QString propPath = "((?:\\$parent\\.)*"
+                             "[a-zA-Z0-9_\\.]+"
+                             "[a-zA-Z0-9_ \\.]*"
+                             "[a-zA-Z0-9_\\.]+)";
     mPropSetRegex = QRegularExpression("^\\s*"
                                             "([A-Za-z_][A-Za-z0-9_]*)"
                                        "\\s*=\\s*" + propPath);
@@ -62,6 +65,7 @@ ExpressionHighlighter::ExpressionHighlighter(
     const QStringList specs = {
         QStringLiteral("$value"),
         QStringLiteral("$frame"),
+        QStringLiteral("$parent"),
         QStringLiteral("$scene.fps"),
         QStringLiteral("$scene.width"),
         QStringLiteral("$scene.height"),
