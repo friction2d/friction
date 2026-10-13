@@ -29,14 +29,38 @@
 #include <QDBusInterface>
 #include <QDBusReply>
 #include <QDBusArgument>
+#include <QDBusMetaType>
 #include <QDebug>
 
 using namespace Friction::Core;
+
+struct PortalRGB
+{
+    double r, g, b;
+};
+Q_DECLARE_METATYPE(PortalRGB)
+
+const QDBusArgument &operator>>(const QDBusArgument &argument, PortalRGB &color)
+{
+    argument.beginStructure();
+    argument >> color.r >> color.g >> color.b;
+    argument.endStructure();
+    return argument;
+}
+
+QDBusArgument &operator<<(QDBusArgument &argument, const PortalRGB &color)
+{
+    argument.beginStructure();
+    argument << color.r << color.g << color.b;
+    argument.endStructure();
+    return argument;
+}
 
 PortalAppearance::PortalAppearance(QObject *parent)
     : QObject(parent)
     , m_defaultColor(ThemeSupport::getThemeHighlightColor())
 {
+    qDBusRegisterMetaType<PortalRGB>();
     bool connected = QDBusConnection::sessionBus().connect(QStringLiteral("org.freedesktop.portal.Desktop"),
                                                            QStringLiteral("/org/freedesktop/portal/desktop"),
                                                            QStringLiteral("org.freedesktop.portal.Settings"),
@@ -92,29 +116,20 @@ QColor PortalAppearance::parseAccentColor(const QVariant &variant) const
     if (!variant.isValid()) { return m_defaultColor; }
 
     QVariant val = variant;
-    if (val.canConvert<QDBusVariant>()) {
+    while (val.userType() == qMetaTypeId<QDBusVariant>()) {
         val = val.value<QDBusVariant>().variant();
     }
 
-    QVariantList list;
-    if (val.canConvert<QDBusArgument>()) {
+    if (!val.isValid()) { return m_defaultColor; }
+
+    if (val.userType() == qMetaTypeId<QDBusArgument>()) {
         QDBusArgument arg = val.value<QDBusArgument>();
-        list = qdbus_cast<QVariantList>(arg);
-    } else if (val.canConvert<QVariantList>()) {
-        list = val.toList();
-    }
-
-    if (list.size() >= 3) {
-        bool okR = false, okG = false, okB = false;
-        double r = list[0].toDouble(&okR);
-        double g = list[1].toDouble(&okG);
-        double b = list[2].toDouble(&okB);
-
-        if (okR && okG && okB &&
-            r >= 0.0 && r <= 1.0 &&
-            g >= 0.0 && g <= 1.0 &&
-            b >= 0.0 && b <= 1.0) {
-            return QColor::fromRgbF(r, g, b);
+        if (arg.currentSignature() == QStringLiteral("(ddd)")) {
+            PortalRGB color;
+            arg >> color;
+            return QColor::fromRgbF(qBound(0.0, color.r, 1.0),
+                                    qBound(0.0, color.g, 1.0),
+                                    qBound(0.0, color.b, 1.0));
         }
     }
 
