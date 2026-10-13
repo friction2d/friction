@@ -91,8 +91,13 @@ QColor PortalAppearance::parseAccentColor(const QVariant &variant) const
 {
     if (!variant.isValid()) { return m_defaultColor; }
 
-    if (variant.canConvert<QDBusArgument>()) {
-        QDBusArgument arg = variant.value<QDBusArgument>();
+    QVariant val = variant;
+    if (val.canConvert<QDBusVariant>()) {
+        val = val.value<QDBusVariant>().variant();
+    }
+
+    if (val.canConvert<QDBusArgument>()) {
+        QDBusArgument arg = val.value<QDBusArgument>();
         if (arg.currentType() == QDBusArgument::ArrayType) {
             QList<double> rgbValues;
             arg >> rgbValues;
@@ -107,17 +112,24 @@ QColor PortalAppearance::parseAccentColor(const QVariant &variant) const
                 }
             }
         } else if (arg.currentType() == QDBusArgument::StructureType) {
-            double r = 0.0, g = 0.0, b = 0.0;
+            QVariant v1, v2, v3;
             arg.beginStructure();
-            arg >> r >> g >> b;
+            arg >> v1 >> v2 >> v3;
             arg.endStructure();
 
-            if (r >= 0.0 && r <= 1.0 && g >= 0.0 && g <= 1.0 && b >= 0.0 && b <= 1.0) {
+            bool ok1, ok2, ok3;
+            double r = v1.toDouble(&ok1);
+            double g = v2.toDouble(&ok2);
+            double b = v3.toDouble(&ok3);
+
+            if (ok1 && ok2 && ok3 && r >= 0.0 && r <= 1.0 && g >= 0.0 && g <= 1.0 && b >= 0.0 && b <= 1.0) {
                 return QColor::fromRgbF(r, g, b);
             }
         }
-    } else if (variant.canConvert<QVariantList>()) {
-        QVariantList list = variant.toList();
+    }
+
+    if (val.canConvert<QVariantList>()) {
+        QVariantList list = val.toList();
         if (list.size() >= 3) {
             bool okR, okG, okB;
             double r = list[0].toDouble(&okR);
