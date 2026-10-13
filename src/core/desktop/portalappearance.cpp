@@ -90,37 +90,31 @@ void PortalAppearance::onSettingChanged(const QString &namespaceName,
 QColor PortalAppearance::parseAccentColor(const QVariant &variant) const
 {
     if (!variant.isValid()) { return m_defaultColor; }
+
     QVariant val = variant;
     if (val.canConvert<QDBusVariant>()) {
         val = val.value<QDBusVariant>().variant();
     }
 
+    QVariantList list;
     if (val.canConvert<QDBusArgument>()) {
         QDBusArgument arg = val.value<QDBusArgument>();
-        if (arg.currentType() == QDBusArgument::StructureType) {
-            double r = 0.0, g = 0.0, b = 0.0;
-            const QDBusArgument copy(arg);
-            const_cast<QDBusArgument&>(arg).beginStructure();
-            const_cast<QDBusArgument&>(arg) >> r >> g >> b;
-            const_cast<QDBusArgument&>(arg).endStructure();
+        list = qdbus_cast<QVariantList>(arg);
+    } else if (val.canConvert<QVariantList>()) {
+        list = val.toList();
+    }
 
-            if (r >= 0.0 && r <= 1.0 &&
-                g >= 0.0 && g <= 1.0 &&
-                b >= 0.0 && b <= 1.0) {
-                return QColor::fromRgbF(r, g, b);
-            }
-        } else if (arg.currentType() == QDBusArgument::ArrayType) {
-            QList<double> rgbValues;
-            arg >> rgbValues;
-            if (rgbValues.size() >= 3) {
-                if (rgbValues[0] >= 0.0 && rgbValues[0] <= 1.0 &&
-                    rgbValues[1] >= 0.0 && rgbValues[1] <= 1.0 &&
-                    rgbValues[2] >= 0.0 && rgbValues[2] <= 1.0) {
-                    return QColor::fromRgbF(rgbValues.at(0),
-                                            rgbValues.at(1),
-                                            rgbValues.at(2));
-                }
-            }
+    if (list.size() >= 3) {
+        bool okR = false, okG = false, okB = false;
+        double r = list[0].toDouble(&okR);
+        double g = list[1].toDouble(&okG);
+        double b = list[2].toDouble(&okB);
+
+        if (okR && okG && okB &&
+            r >= 0.0 && r <= 1.0 &&
+            g >= 0.0 && g <= 1.0 &&
+            b >= 0.0 && b <= 1.0) {
+            return QColor::fromRgbF(r, g, b);
         }
     }
 
