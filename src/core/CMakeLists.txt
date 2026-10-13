@@ -380,6 +380,7 @@ set(
     renderinstancesettings.cpp
     videoencoder.cpp
     svgo.cpp
+    desktop/portalappearance.cpp
 )
 
 set(
@@ -723,6 +724,7 @@ set(
     videoencoder.h
     formatoptions.h
     svgo.h
+    desktop/portalappearance.h
 )
 
 add_library(${PROJECT_NAME} SHARED ${HEADERS} ${SOURCES} coreresources.qrc)
