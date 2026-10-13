@@ -39,6 +39,10 @@
 #include "themesupport.h"
 #include "wizards/quicksetup.h"
 
+#ifdef HAS_DBUS
+#include "desktop/portalappearance.h"
+#endif
+
 #ifdef Q_OS_WIN
 #include "windowsincludes.h"
 #include <QtPlatformHeaders/QWindowsWindowFunctions>
@@ -267,7 +271,20 @@ int main(int argc, char *argv[])
     });
     ALPHA_MESH_PIX = &alphaMesh;
 
+#ifdef HAS_DBUS
+    // TODO
+    Friction::Core::PortalAppearance portal;
+    ThemeSupport::setupTheme(eSizesUI::widget,
+                             portal.currentAccentColor());
+    QObject::connect(&portal,
+                     &Friction::Core::PortalAppearance::accentChanged,
+                     [](const QColor &newColor) {
+        ThemeSupport::setupTheme(eSizesUI::widget, newColor);
+        for (const auto widget : QApplication::topLevelWidgets()) { widget->update(); }
+    });
+#else
     ThemeSupport::setupTheme(eSizesUI::widget);
+#endif
 
     // check permissions
     AppSupport::checkPerms(isRenderer);
