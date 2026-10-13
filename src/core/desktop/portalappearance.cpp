@@ -90,7 +90,6 @@ void PortalAppearance::onSettingChanged(const QString &namespaceName,
 QColor PortalAppearance::parseAccentColor(const QVariant &variant) const
 {
     if (!variant.isValid()) { return m_defaultColor; }
-
     QVariant val = variant;
     if (val.canConvert<QDBusVariant>()) {
         val = val.value<QDBusVariant>().variant();
@@ -98,46 +97,29 @@ QColor PortalAppearance::parseAccentColor(const QVariant &variant) const
 
     if (val.canConvert<QDBusArgument>()) {
         QDBusArgument arg = val.value<QDBusArgument>();
-        if (arg.currentType() == QDBusArgument::ArrayType) {
+        if (arg.currentType() == QDBusArgument::StructureType) {
+            double r = 0.0, g = 0.0, b = 0.0;
+            const QDBusArgument copy(arg);
+            const_cast<QDBusArgument&>(arg).beginStructure();
+            const_cast<QDBusArgument&>(arg) >> r >> g >> b;
+            const_cast<QDBusArgument&>(arg).endStructure();
+
+            if (r >= 0.0 && r <= 1.0 &&
+                g >= 0.0 && g <= 1.0 &&
+                b >= 0.0 && b <= 1.0) {
+                return QColor::fromRgbF(r, g, b);
+            }
+        } else if (arg.currentType() == QDBusArgument::ArrayType) {
             QList<double> rgbValues;
             arg >> rgbValues;
-
             if (rgbValues.size() >= 3) {
-                double r = rgbValues[0];
-                double g = rgbValues[1];
-                double b = rgbValues[2];
-
-                if (r >= 0.0 && r <= 1.0 && g >= 0.0 && g <= 1.0 && b >= 0.0 && b <= 1.0) {
-                    return QColor::fromRgbF(r, g, b);
+                if (rgbValues[0] >= 0.0 && rgbValues[0] <= 1.0 &&
+                    rgbValues[1] >= 0.0 && rgbValues[1] <= 1.0 &&
+                    rgbValues[2] >= 0.0 && rgbValues[2] <= 1.0) {
+                    return QColor::fromRgbF(rgbValues.at(0),
+                                            rgbValues.at(1),
+                                            rgbValues.at(2));
                 }
-            }
-        } else if (arg.currentType() == QDBusArgument::StructureType) {
-            QVariant v1, v2, v3;
-            arg.beginStructure();
-            arg >> v1 >> v2 >> v3;
-            arg.endStructure();
-
-            bool ok1, ok2, ok3;
-            double r = v1.toDouble(&ok1);
-            double g = v2.toDouble(&ok2);
-            double b = v3.toDouble(&ok3);
-
-            if (ok1 && ok2 && ok3 && r >= 0.0 && r <= 1.0 && g >= 0.0 && g <= 1.0 && b >= 0.0 && b <= 1.0) {
-                return QColor::fromRgbF(r, g, b);
-            }
-        }
-    }
-
-    if (val.canConvert<QVariantList>()) {
-        QVariantList list = val.toList();
-        if (list.size() >= 3) {
-            bool okR, okG, okB;
-            double r = list[0].toDouble(&okR);
-            double g = list[1].toDouble(&okG);
-            double b = list[2].toDouble(&okB);
-
-            if (okR && okG && okB && r >= 0.0 && r <= 1.0 && g >= 0.0 && g <= 1.0 && b >= 0.0 && b <= 1.0) {
-                return QColor::fromRgbF(r, g, b);
             }
         }
     }
