@@ -70,8 +70,10 @@ public:
     static const QPalette getDarkPalette(int alpha = 255);
     static const QPalette getDarkerPalette(int alpha = 255);
     static const QPalette getNotSoDarkPalette(int alpha = 255);
-    static const QString getThemeStyle(int iconSize = 20);
-    static void setupTheme(const int iconSize = 20);
+    static const QString getThemeStyle(int iconSize = 20,
+                                       const QColor accent = QColor());
+    static void setupTheme(const int iconSize = 20,
+                           const QColor accent = QColor());
     static const QList<QSize> getAvailableIconSizes();
     static const QSize getIconSize(const int size);
     static bool hasIconSize(const int size);

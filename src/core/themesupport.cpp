@@ -223,8 +223,10 @@ const QPalette ThemeSupport::getNotSoDarkPalette(int alpha)
     return pal;
 }
 
-const QString ThemeSupport::getThemeStyle(int iconSize)
+const QString ThemeSupport::getThemeStyle(int iconSize,
+                                          const QColor accent)
 {
+    qDebug() << "getThemeStyle accent" << accent;
     QString css;
     QFile stylesheet(QString::fromUtf8(":/styles/friction.qss"));
     if (stylesheet.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -235,7 +237,7 @@ const QString ThemeSupport::getThemeStyle(int iconSize)
     return css.arg(getThemeButtonBaseColor().name(),
                    getThemeButtonBorderColor().name(),
                    getThemeBaseDarkerColor().name(),
-                   getThemeHighlightColor().name(),
+                   accent.isValid() ? accent.name() : getThemeHighlightColor().name(),
                    getThemeBaseColor().name(),
                    getThemeAlternateColor().name(),
                    QString::number(getIconSize(iconSize).width()),
@@ -248,13 +250,15 @@ const QString ThemeSupport::getThemeStyle(int iconSize)
                    QString::number(getIconSize(iconSize).width() / 4));
 }
 
-void ThemeSupport::setupTheme(const int iconSize)
+void ThemeSupport::setupTheme(const int iconSize,
+                              const QColor accent)
 {
+    qDebug() << "setupTheme accent" << accent;
     QIcon::setThemeSearchPaths(QStringList() << QString::fromUtf8(":/icons"));
     QIcon::setThemeName(QString::fromUtf8("hicolor"));
     qApp->setStyle(QString::fromUtf8("fusion"));
-    qApp->setPalette(getDefaultPalette());
-    qApp->setStyleSheet(getThemeStyle(iconSize));
+    qApp->setPalette(getDefaultPalette(accent));
+    qApp->setStyleSheet(getThemeStyle(iconSize, accent));
 }
 
 const QList<QSize> ThemeSupport::getAvailableIconSizes()
