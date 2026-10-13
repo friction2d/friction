@@ -89,9 +89,10 @@ void PortalAppearance::onSettingChanged(const QString &namespaceName,
 
 QColor PortalAppearance::parseAccentColor(const QVariant &variant) const
 {
+    if (!variant.isValid()) { return m_defaultColor; }
+
     if (variant.canConvert<QDBusArgument>()) {
         QDBusArgument arg = variant.value<QDBusArgument>();
-
         if (arg.currentType() == QDBusArgument::ArrayType) {
             QList<double> rgbValues;
             arg >> rgbValues;
@@ -112,6 +113,18 @@ QColor PortalAppearance::parseAccentColor(const QVariant &variant) const
             arg.endStructure();
 
             if (r >= 0.0 && r <= 1.0 && g >= 0.0 && g <= 1.0 && b >= 0.0 && b <= 1.0) {
+                return QColor::fromRgbF(r, g, b);
+            }
+        }
+    } else if (variant.canConvert<QVariantList>()) {
+        QVariantList list = variant.toList();
+        if (list.size() >= 3) {
+            bool okR, okG, okB;
+            double r = list[0].toDouble(&okR);
+            double g = list[1].toDouble(&okG);
+            double b = list[2].toDouble(&okB);
+
+            if (okR && okG && okB && r >= 0.0 && r <= 1.0 && g >= 0.0 && g <= 1.0 && b >= 0.0 && b <= 1.0) {
                 return QColor::fromRgbF(r, g, b);
             }
         }
