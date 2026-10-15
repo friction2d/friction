@@ -31,6 +31,7 @@
 #include "Private/esettings.h"
 #include "Private/document.h"
 #include "canvas.h"
+#include "persistentmenu.h"
 
 #include <QResizeEvent>
 #include <QWindow>
@@ -606,7 +607,7 @@ void ColorSettingsWidget::setupWidgetButton(const bool loadState,
     mWheelWidget->setVisible(wheelState);
     mMapWidget->setVisible(mapState);
 
-    const auto menu = new QMenu(mWidgetButton);
+    const auto menu = new PersistentMenu(mWidgetButton);
     mWidgetButton->setMenu(menu);
 
     const auto wheelAct = new QAction(this);
