@@ -75,6 +75,25 @@ protected:
     void showEvent(QShowEvent *e) override;
 
 private:
+    void setupWidgetTabs();
+    void setupWidgetWheel(QVBoxLayout *lay);
+    void setupWidgetMap(QVBoxLayout *lay);
+    void setupWidgetRGB(const int spinWidth);
+    void setupWidgetHSV(const int spinWidth);
+    void setupWidgetHSL(const int spinWidth);
+    void setupWidgetAlpha(const int spinWidth);
+    void setupWidgetHex();
+    void setupWidgetButton(const bool loadState,
+                           const bool saveState,
+                           const bool defWheel,
+                           const bool defMap,
+                           const QString &prefix);
+    void setupWidgetPickButton();
+    void setupWidgetColorMode();
+    void setupWidgetColorLabel(QVBoxLayout *lay);
+    void setupWidgetsAddTabs(QVBoxLayout *lay);
+    void setupWidgetsBookmark(QVBoxLayout *lay);
+
     void emitColorChangedSignal();
     void emitEditingFinishedSignal();
     void emitEditingStartedSignal();
@@ -207,6 +226,7 @@ private:
     QLineEdit *mHexEdit;
 
     QPushButton *mPickingButton;
+    QPushButton *mWidgetButton;
 
     ColorLabel *mColorLabel;
 

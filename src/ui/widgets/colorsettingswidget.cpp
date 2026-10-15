@@ -172,6 +172,581 @@ void ColorSettingsWidget::showEvent(QShowEvent *e)
     QWidget::showEvent(e);
 }
 
+void ColorSettingsWidget::setupWidgetTabs()
+{
+    mTabWidget = new QTabWidget(this);
+    mTabWidget->setFocusPolicy(Qt::NoFocus);
+    mTabWidget->setObjectName("ColorTabWidget");
+    mTabWidget->setSizePolicy(QSizePolicy::MinimumExpanding,
+                              QSizePolicy::Maximum);
+    mTabWidget->setTabPosition(QTabWidget::South);
+
+    connect(mTabWidget, &QTabWidget::currentChanged,
+            this, &ColorSettingsWidget::moveAlphaWidgetToTab);
+
+    connect(mTabWidget, &QTabWidget::currentChanged,
+            this, [](int index){
+        const auto settings = eSettings::sInstance;
+        if (settings->fDefaultFillStrokeIndex != index) {
+            settings->fDefaultFillStrokeIndex = index;
+            settings->saveKeyToFile("DefaultFillStrokeIndex");
+        }
+    });
+}
+
+void ColorSettingsWidget::setupWidgetWheel(QVBoxLayout *lay)
+{
+    if (!lay) { return; }
+
+    mWheelWidget = new QWidget(this);
+    const auto wheelLayout = new QVBoxLayout(mWheelWidget);
+    mWheelWidget->setLayout(wheelLayout);
+    wheelLayout->setContentsMargins(0, 0, 0, 0);
+
+    mColorWheel = new Friction::Ui::ColorWheel(this);
+    wheelLayout->addWidget(mColorWheel);
+    lay->addWidget(mWheelWidget);
+
+    connect(mColorWheel, &Friction::Ui::ColorWheel::editingStarted,
+            this, &ColorSettingsWidget::emitStartFullColorChangedSignal);
+    connect(mColorWheel, &Friction::Ui::ColorWheel::colorChanged,
+            this, &ColorSettingsWidget::setHSV);
+    connect(mColorWheel, &Friction::Ui::ColorWheel::editingFinished,
+            this, &ColorSettingsWidget::emitFinishFullColorChangedSignal);
+}
+
+void ColorSettingsWidget::setupWidgetMap(QVBoxLayout *lay)
+{
+    if (!lay) { return; }
+
+    mMapWidget = new QWidget(this);
+    const auto mapLayout = new QVBoxLayout(mMapWidget);
+    mMapWidget->setLayout(mapLayout);
+    mapLayout->setContentsMargins(0, 0 ,0, 0);
+
+    mColorMap = new Friction::Ui::ColorMap(this);
+    mapLayout->addWidget(mColorMap);
+    lay->addWidget(mMapWidget);
+
+    connect(mColorMap, &Friction::Ui::ColorMap::editingStarted,
+            this, &ColorSettingsWidget::emitStartFullColorChangedSignal);
+    connect(mColorMap, &Friction::Ui::ColorMap::colorChanged,
+            this, &ColorSettingsWidget::setHSV);
+    connect(mColorMap, &Friction::Ui::ColorMap::editingFinished,
+            this, &ColorSettingsWidget::emitFinishFullColorChangedSignal);
+
+}
+
+void ColorSettingsWidget::setupWidgetRGB(const int spinWidth)
+{
+    rSpin = new QrealAnimatorValueSlider(0., 1., 0.01, this, false);
+    rSpin->setFixedWidth(spinWidth);
+
+    const auto rLabel = new QLabel("R", this);
+    rRect = new ColorValueRect(RED_PROGRAM, this);
+
+    const auto rLayout = new QHBoxLayout();
+    rLayout->addWidget(rLabel);
+    rLayout->addWidget(rRect);
+    rLayout->addWidget(rSpin);
+
+    gSpin = new QrealAnimatorValueSlider(0., 1., 0.01, this, false);
+    gSpin->setFixedWidth(spinWidth);
+
+    const auto gLabel = new QLabel("G", this);
+    gRect = new ColorValueRect(GREEN_PROGRAM, this);
+
+    const auto gLayout = new QHBoxLayout();
+    gLayout->addWidget(gLabel);
+    gLayout->addWidget(gRect);
+    gLayout->addWidget(gSpin);
+
+    bSpin = new QrealAnimatorValueSlider(0., 1., 0.01, this, false);
+    bSpin->setFixedWidth(spinWidth);
+
+    const auto bLabel = new QLabel("B", this);
+    bRect = new ColorValueRect(BLUE_PROGRAM, this);
+
+    const auto bLayout = new QHBoxLayout();
+    bLayout->addWidget(bLabel);
+    bLayout->addWidget(bRect);
+    bLayout->addWidget(bSpin);
+
+    mRGBWidget = new QWidget(this);
+    mRGBLayout = new QVBoxLayout(mRGBWidget);
+    mRGBLayout->setAlignment(Qt::AlignTop);
+    mRGBLayout->addLayout(rLayout);
+    mRGBLayout->addLayout(gLayout);
+    mRGBLayout->addLayout(bLayout);
+    mRGBWidget->setLayout(mRGBLayout);
+
+    mRGBLayout->setContentsMargins(0, 0, 0, 0);
+    mRGBWidget->setContentsMargins(0, 0, 0, 0);
+
+    connect(rSpin, &QrealAnimatorValueSlider::valueEdited,
+            this, &ColorSettingsWidget::setRed);
+    connect(gSpin, &QrealAnimatorValueSlider::valueEdited,
+            this, &ColorSettingsWidget::setGreen);
+    connect(bSpin, &QrealAnimatorValueSlider::valueEdited,
+            this, &ColorSettingsWidget::setBlue);
+
+    connect(rSpin, &QrealAnimatorValueSlider::editingStarted,
+            this, &ColorSettingsWidget::emitEditingStartedRed);
+    connect(gSpin, &QrealAnimatorValueSlider::editingStarted,
+            this, &ColorSettingsWidget::emitEditingStartedGreen);
+    connect(bSpin, &QrealAnimatorValueSlider::editingStarted,
+            this, &ColorSettingsWidget::emitEditingStartedBlue);
+
+    connect(rSpin, &QrealAnimatorValueSlider::editingFinished,
+            this, &ColorSettingsWidget::emitEditingFinishedSignal);
+    connect(gSpin, &QrealAnimatorValueSlider::editingFinished,
+            this, &ColorSettingsWidget::emitEditingFinishedSignal);
+    connect(bSpin, &QrealAnimatorValueSlider::editingFinished,
+            this, &ColorSettingsWidget::emitEditingFinishedSignal);
+
+    connect(rRect, &ColorValueRect::valueChanged,
+            this, &ColorSettingsWidget::setRed);
+    connect(gRect, &ColorValueRect::valueChanged,
+            this, &ColorSettingsWidget::setGreen);
+    connect(bRect, &ColorValueRect::valueChanged,
+            this, &ColorSettingsWidget::setBlue);
+
+    connect(rRect, &ColorValueRect::editingStarted,
+            this, &ColorSettingsWidget::emitEditingStartedRed);
+    connect(gRect, &ColorValueRect::editingStarted,
+            this, &ColorSettingsWidget::emitEditingStartedGreen);
+    connect(bRect, &ColorValueRect::editingStarted,
+            this, &ColorSettingsWidget::emitEditingStartedBlue);
+
+    connect(rRect, &ColorValueRect::editingFinished,
+            this, &ColorSettingsWidget::emitEditingFinishedSignal);
+    connect(gRect, &ColorValueRect::editingFinished,
+            this, &ColorSettingsWidget::emitEditingFinishedSignal);
+    connect(bRect, &ColorValueRect::editingFinished,
+            this, &ColorSettingsWidget::emitEditingFinishedSignal);
+
+    eSizesUI::widget.add(rRect,
+                         [this,
+                          rLabel,
+                          gLabel,
+                          bLabel](const int size) {
+        rRect->setFixedHeight(size);
+        rLabel->setFixedWidth(size);
+        gRect->setFixedHeight(size);
+        gLabel->setFixedWidth(size);
+        bRect->setFixedHeight(size);
+        bLabel->setFixedWidth(size);
+    });
+}
+
+void ColorSettingsWidget::setupWidgetHSV(const int spinWidth)
+{
+    hSpin = new QrealAnimatorValueSlider(0., 1., 0.01, this, false);
+    hSpin->setFixedWidth(spinWidth);
+
+    const auto hLabel = new QLabel("H", this);
+    hRect = new ColorValueRect(HUE_PROGRAM, this);
+
+    hLayout = new QHBoxLayout();
+    hLayout->addWidget(hLabel);
+    hLayout->addWidget(hRect);
+    hLayout->addWidget(hSpin);
+
+    hsvSSpin = new QrealAnimatorValueSlider(0., 1., 0.01, this, false);
+    hsvSSpin->setFixedWidth(spinWidth);
+
+    const auto hsvSLabel = new QLabel("S", this);
+    hsvSatRect = new ColorValueRect(HSV_SATURATION_PROGRAM, this);
+
+    const auto hsvSLayout = new QHBoxLayout();
+    hsvSLayout->addWidget(hsvSLabel);
+    hsvSLayout->addWidget(hsvSatRect);
+    hsvSLayout->addWidget(hsvSSpin);
+
+    vSpin = new QrealAnimatorValueSlider(0., 1., 0.01, this, false);
+    vSpin->setFixedWidth(spinWidth);
+
+    const auto vLabel = new QLabel("V", this);
+    vRect = new ColorValueRect(VALUE_PROGRAM, this);
+
+    const auto vLayout = new QHBoxLayout();
+    vLayout->addWidget(vLabel);
+    vLayout->addWidget(vRect);
+    vLayout->addWidget(vSpin);
+
+    mHSVWidget = new QWidget(this);
+    mHSVLayout = new QVBoxLayout(mHSVWidget);
+    mHSVLayout->setAlignment(Qt::AlignTop);
+    mHSVLayout->addLayout(hLayout);
+    mHSVLayout->addLayout(hsvSLayout);
+    mHSVLayout->addLayout(vLayout);
+    mHSVWidget->setLayout(mHSVLayout);
+
+    mHSVLayout->setContentsMargins(0, 0, 0, 0);
+    mHSVWidget->setContentsMargins(0, 0, 0, 0);
+
+    connect(hSpin, &QrealAnimatorValueSlider::valueEdited,
+            this, &ColorSettingsWidget::setHSVHue);
+    connect(hsvSSpin, &QrealAnimatorValueSlider::valueEdited,
+            this, &ColorSettingsWidget::setHSVSaturation);
+    connect(vSpin, &QrealAnimatorValueSlider::valueEdited,
+            this, &ColorSettingsWidget::setHSVValue);
+
+    connect(hSpin, &QrealAnimatorValueSlider::editingStarted,
+            this, &ColorSettingsWidget::emitEditingStartedHue);
+    connect(hsvSSpin, &QrealAnimatorValueSlider::editingStarted,
+            this, &ColorSettingsWidget::emitEditingStartedHSVSaturation);
+    connect(vSpin, &QrealAnimatorValueSlider::editingStarted,
+            this, &ColorSettingsWidget::emitEditingStartedValue);
+
+    connect(hSpin, &QrealAnimatorValueSlider::editingFinished,
+            this, &ColorSettingsWidget::emitEditingFinishedSignal);
+    connect(hsvSSpin, &QrealAnimatorValueSlider::editingFinished,
+            this, &ColorSettingsWidget::emitEditingFinishedSignal);
+    connect(vSpin, &QrealAnimatorValueSlider::editingFinished,
+            this, &ColorSettingsWidget::emitEditingFinishedSignal);
+
+    connect(hRect, &ColorValueRect::valueChanged,
+            this, &ColorSettingsWidget::setHSVHue);
+    connect(hsvSatRect, &ColorValueRect::valueChanged,
+            this, &ColorSettingsWidget::setHSVSaturation);
+    connect(vRect, &ColorValueRect::valueChanged,
+            this, &ColorSettingsWidget::setHSVValue);
+
+    connect(hRect, &ColorValueRect::editingStarted,
+            this, &ColorSettingsWidget::emitEditingStartedHue);
+    connect(hsvSatRect, &ColorValueRect::editingStarted,
+            this, &ColorSettingsWidget::emitEditingStartedHSVSaturation);
+    connect(vRect, &ColorValueRect::editingStarted,
+            this, &ColorSettingsWidget::emitEditingStartedValue);
+
+    connect(hRect, &ColorValueRect::editingFinished,
+            this, &ColorSettingsWidget::emitEditingFinishedSignal);
+    connect(hsvSatRect, &ColorValueRect::editingFinished,
+            this, &ColorSettingsWidget::emitEditingFinishedSignal);
+    connect(vRect, &ColorValueRect::editingFinished,
+            this, &ColorSettingsWidget::emitEditingFinishedSignal);
+
+    eSizesUI::widget.add(hRect,
+                         [this,
+                          hLabel,
+                          hsvSLabel,
+                          vLabel](const int size) {
+        hRect->setFixedHeight(size);
+        hLabel->setFixedWidth(size);
+        hsvSatRect->setFixedHeight(size);
+        hsvSLabel->setFixedWidth(size);
+        vRect->setFixedHeight(size);
+        vLabel->setFixedWidth(size);
+    });
+}
+
+void ColorSettingsWidget::setupWidgetHSL(const int spinWidth)
+{
+    hslSSpin = new QrealAnimatorValueSlider(0., 1., 0.01, this, false);
+    hslSSpin->setFixedWidth(spinWidth);
+
+    const auto hslSLabel = new QLabel("S", this);
+    hslSatRect = new ColorValueRect(HSL_SATURATION_PROGRAM, this);
+
+    hslSLayout = new QHBoxLayout();
+    hslSLayout->addWidget(hslSLabel);
+    hslSLayout->addWidget(hslSatRect);
+    hslSLayout->addWidget(hslSSpin);
+
+    lSpin = new QrealAnimatorValueSlider(0., 1., 0.01, this, false);
+    lSpin->setFixedWidth(spinWidth);
+
+    const auto lLabel = new QLabel("L", this);
+    lRect = new ColorValueRect(LIGHTNESS_PROGRAM, this);
+
+    const auto lLayout = new QHBoxLayout();
+    lLayout->addWidget(lLabel);
+    lLayout->addWidget(lRect);
+    lLayout->addWidget(lSpin);
+
+    mHSLWidget = new QWidget(this);
+    mHSLLayout = new QVBoxLayout(mHSLWidget);
+    mHSLLayout->setAlignment(Qt::AlignTop);
+    mHSLLayout->addLayout(hslSLayout);
+    mHSLLayout->addLayout(lLayout);
+    mHSLWidget->setLayout(mHSLLayout);
+
+    mHSLLayout->setContentsMargins(0, 0, 0, 0);
+    mHSLWidget->setContentsMargins(0, 0, 0, 0);
+
+    connect(hslSSpin, &QrealAnimatorValueSlider::valueEdited,
+            this, &ColorSettingsWidget::setHSLSaturation);
+    connect(lSpin, &QrealAnimatorValueSlider::valueEdited,
+            this, &ColorSettingsWidget::setHSLLightness);
+
+    connect(hslSSpin, &QrealAnimatorValueSlider::editingStarted,
+            this, &ColorSettingsWidget::emitEditingStartedHSLSaturation);
+    connect(lSpin, &QrealAnimatorValueSlider::editingStarted,
+            this, &ColorSettingsWidget::emitEditingStartedLightness);
+
+    connect(hslSSpin, &QrealAnimatorValueSlider::editingFinished,
+            this, &ColorSettingsWidget::emitEditingFinishedSignal);
+    connect(lSpin, &QrealAnimatorValueSlider::editingFinished,
+            this, &ColorSettingsWidget::emitEditingFinishedSignal);
+
+    connect(hslSatRect, &ColorValueRect::valueChanged,
+            this, &ColorSettingsWidget::setHSLSaturation);
+    connect(lRect, &ColorValueRect::valueChanged,
+            this, &ColorSettingsWidget::setHSLLightness);
+
+    connect(hslSatRect, &ColorValueRect::editingStarted,
+            this, &ColorSettingsWidget::emitEditingStartedHSLSaturation);
+    connect(lRect, &ColorValueRect::editingStarted,
+            this, &ColorSettingsWidget::emitEditingStartedLightness);
+
+    connect(hslSatRect, &ColorValueRect::editingFinished,
+            this, &ColorSettingsWidget::emitEditingFinishedSignal);
+    connect(lRect, &ColorValueRect::editingFinished,
+            this, &ColorSettingsWidget::emitEditingFinishedSignal);
+
+    eSizesUI::widget.add(hslSatRect,
+                         [this,
+                          hslSLabel,
+                          lLabel](const int size) {
+        hslSatRect->setFixedHeight(size);
+        hslSLabel->setFixedWidth(size);
+        lRect->setFixedHeight(size);
+        lLabel->setFixedWidth(size);
+    });
+}
+
+void ColorSettingsWidget::setupWidgetAlpha(const int spinWidth)
+{
+    aSpin = new QrealAnimatorValueSlider(0., 1., 0.01, this, false);
+    aSpin->setFixedWidth(spinWidth);
+
+    const auto aLabel = new QLabel("A", this);
+    aRect = new ColorValueRect(ALPHA_PROGRAM, this);
+
+    aLayout = new QHBoxLayout();
+    aLayout->addWidget(aLabel);
+    aLayout->addWidget(aRect);
+    aLayout->addWidget(aSpin);
+
+    mRGBLayout->addLayout(aLayout);
+
+    connect(aSpin, &QrealAnimatorValueSlider::valueEdited,
+            this, &ColorSettingsWidget::setAlpha);
+
+    connect(aSpin, &QrealAnimatorValueSlider::editingStarted,
+            this, &ColorSettingsWidget::emitEditingStartedAlpha);
+
+    connect(aSpin, &QrealAnimatorValueSlider::editingFinished,
+            this, &ColorSettingsWidget::emitEditingFinishedSignal);
+
+    connect(aRect, &ColorValueRect::valueChanged,
+            this, &ColorSettingsWidget::setAlpha);
+
+    connect(aRect, &ColorValueRect::editingStarted,
+            this, &ColorSettingsWidget::emitEditingStartedAlpha);
+
+    connect(aRect, &ColorValueRect::editingFinished,
+            this, &ColorSettingsWidget::emitEditingFinishedSignal);
+
+    eSizesUI::widget.add(aRect,
+                         [this, aLabel](const int size) {
+        aRect->setFixedHeight(size);
+        aLabel->setFixedWidth(size);
+    });
+}
+
+void ColorSettingsWidget::setupWidgetHex()
+{
+    const auto mHexLabel = new QLabel("Hex", this);
+    hexLayout = new QHBoxLayout();
+    hexLayout->addWidget(mHexLabel);
+    mHexEdit = new QLineEdit("#FF000000", this);
+    mHexEdit->setFocusPolicy(Qt::ClickFocus);
+    hexLayout->addWidget(mHexEdit);
+
+    mRGBLayout->addLayout(hexLayout);
+
+    connect(this, &ColorSettingsWidget::colorSettingSignal,
+            this, [this](const ColorSetting& sett) {
+        if (mHexEdit->hasFocus()) { return; }
+        mHexEdit->setText(sett.getColor().name(QColor::HexArgb));
+    });
+
+    connect(mHexEdit, &QLineEdit::textEdited,
+            this, [this](const QString& text) {
+        const QColor color(text);
+        emitStartFullColorChangedSignal();
+        setDisplayedColor(color);
+        emitFinishFullColorChangedSignal();
+    });
+}
+
+void ColorSettingsWidget::setupWidgetButton(const bool loadState,
+                                            const bool saveState,
+                                            const bool defWheel,
+                                            const bool defMap,
+                                            const QString &prefix)
+{
+    mWidgetButton = new QPushButton(QIcon::fromTheme("color"),
+                                    QString(), this);
+    mWidgetButton->setFocusPolicy(Qt::NoFocus);
+    mWidgetButton->setToolTip(tr("Widgets (wheel/map)"));
+
+    const bool wheelState = loadState ?
+                                AppSupport::getSettings("ui",
+                                                        QString("%1ColorWheel").arg(prefix),
+                                                        defWheel).toBool() : defWheel;
+    const bool mapState = loadState ?
+                              AppSupport::getSettings("ui",
+                                                      QString("%1ColorMap").arg(prefix),
+                                                      defMap).toBool() : defMap;
+
+    mWheelWidget->setVisible(wheelState);
+    mMapWidget->setVisible(mapState);
+
+    const auto menu = new QMenu(mWidgetButton);
+    mWidgetButton->setMenu(menu);
+
+    const auto wheelAct = new QAction(this);
+    wheelAct->setCheckable(true);
+    wheelAct->setChecked(wheelState);
+    wheelAct->setText(tr("Color Wheel"));
+
+    connect(wheelAct, &QAction::triggered,
+            this, [this, prefix, saveState](bool enabled) {
+        qDebug() << "color wheel" << enabled;
+        mWheelWidget->setVisible(enabled);
+        if (saveState) {
+            AppSupport::setSettings("ui",
+                                    QString("%1ColorWheel").arg(prefix),
+                                    enabled);
+        }
+    });
+    menu->addAction(wheelAct);
+
+    const auto mapAct = new QAction(this);
+    mapAct->setCheckable(true);
+    mapAct->setChecked(mapState);
+    mapAct->setText(tr("Color Map"));
+
+    connect(mapAct, &QAction::triggered,
+            this, [this, prefix, saveState](bool enabled){
+        qDebug() << "color map" << enabled;
+        mMapWidget->setVisible(enabled);
+        if (saveState) {
+            AppSupport::setSettings("ui",
+                                    QString("%1ColorMap").arg(prefix),
+                                    enabled);
+        }
+    });
+    menu->addAction(mapAct);
+
+    eSizesUI::widget.add(mWidgetButton,
+                         [this](const int size) {
+        mWidgetButton->setFixedSize(size, size);
+    });
+}
+
+void ColorSettingsWidget::setupWidgetPickButton()
+{
+    mPickingButton = new QPushButton(QIcon::fromTheme("pick"),
+                                     QString(), this);
+    mPickingButton->setFocusPolicy(Qt::NoFocus);
+    mPickingButton->setToolTip(tr("Pick Color"));
+
+    connect(mPickingButton, &QPushButton::released,
+            this, &ColorSettingsWidget::startColorPicking);
+
+    eSizesUI::widget.add(mPickingButton,
+                         [this](const int size) {
+        mPickingButton->setFixedSize(size, size);
+    });
+}
+
+void ColorSettingsWidget::setupWidgetColorMode()
+{
+    const auto mColorModeWidget = new QWidget(this);
+    mColorModeWidget->setSizePolicy(QSizePolicy::Expanding,
+                                    QSizePolicy::Expanding);
+    mColorModeWidget->setContentsMargins(0, 0, 0, 0);
+
+    mColorModeLabel = new QLabel(tr("Mode"), this);
+
+    mColorModeCombo = new QComboBox(this);
+    mColorModeCombo->setMinimumWidth(60);
+    mColorModeCombo->setFocusPolicy(Qt::NoFocus);
+
+    const auto mColorModeLayout = new QHBoxLayout(mColorModeWidget);
+    mColorModeLayout->setContentsMargins(0, 0, 0, 0);
+    mColorModeLayout->addWidget(mColorModeLabel);
+    mColorModeLayout->addWidget(mColorModeCombo);
+
+    mColorModeCombo->addItem("RGB");
+    mColorModeCombo->addItem("HSV");
+    mColorModeCombo->addItem("HSL");
+
+    connect(mColorModeCombo, qOverload<int>(&QComboBox::activated),
+            this, &ColorSettingsWidget::setColorModeFromCombo);
+
+    mTabWidget->setCornerWidget(mColorModeWidget);
+}
+
+void ColorSettingsWidget::setupWidgetColorLabel(QVBoxLayout *lay)
+{
+    if (!lay) { return; }
+
+    mColorLabel = new ColorLabel(this);
+    mColorLabel->setSizePolicy(QSizePolicy::Expanding,
+                               QSizePolicy::Expanding);
+
+    const auto mColorLabelLayout = new QHBoxLayout();
+    mColorLabelLayout->addWidget(mWidgetButton);
+    mColorLabelLayout->addWidget(mColorLabel);
+    mColorLabelLayout->addWidget(mPickingButton);
+
+    eSizesUI::widget.add(mColorLabel,
+                         [this](const int size) {
+         mColorLabel->setFixedHeight(size);
+     });
+
+    lay->addLayout(mColorLabelLayout);
+}
+
+void ColorSettingsWidget::setupWidgetsAddTabs(QVBoxLayout *lay)
+{
+    if (!lay) { return; }
+
+    mTabWidget->addTab(mRGBWidget, "RGB");
+    mTabWidget->addTab(mHSVWidget, "HSV");
+    mTabWidget->addTab(mHSLWidget, "HSL");
+
+    lay->addWidget(mTabWidget);
+}
+
+void ColorSettingsWidget::setupWidgetsBookmark(QVBoxLayout *lay)
+{
+    mBookmarkedColors = new SavedColorsWidget(this);
+
+    const auto book = new QShortcut(QKeySequence(AppSupport::getSettings("shortcuts",
+                                                                         "colorBookmark",
+                                                                         "B").toString()),
+                                    this);
+
+    connect(mBookmarkedColors, &SavedColorsWidget::colorSet,
+            this, [this](const QColor& color) {
+        emitStartFullColorChangedSignal();
+        setDisplayedColor(color);
+        emitFinishFullColorChangedSignal();
+        Document::sInstance->actionFinished();
+    });
+
+    connect(book, &QShortcut::activated,
+            mColorLabel, &ColorLabel::addBookmark);
+
+    lay->addWidget(mBookmarkedColors);
+}
+
 void ColorSettingsWidget::emitColorChangedSignal()
 {
     const auto colorSetting = getColorSetting(ColorSettingType::change,
@@ -363,6 +938,7 @@ ColorSettingsWidget::ColorSettingsWidget(QWidget *parent,
     , hexLayout(nullptr)
     , mHexEdit(nullptr)
     , mPickingButton(nullptr)
+    , mWidgetButton(nullptr)
     , mColorLabel(nullptr)
 {
     setContentsMargins(0, 0, 0, 0);
@@ -372,502 +948,32 @@ ColorSettingsWidget::ColorSettingsWidget(QWidget *parent,
     mWidgetsLayout->setAlignment(Qt::AlignTop);
     setLayout(mWidgetsLayout);
 
-    // Tabs
-    mTabWidget = new QTabWidget(this);
-    mTabWidget->setFocusPolicy(Qt::NoFocus);
-    mTabWidget->setObjectName("ColorTabWidget");
-    mTabWidget->setSizePolicy(QSizePolicy::MinimumExpanding,
-                              QSizePolicy::Maximum);
-    mTabWidget->setTabPosition(QTabWidget::South);
-
-    // Color mode
-    mColorModeCombo = new QComboBox(this);
-    mColorModeCombo->setMinimumWidth(60);
-    mColorModeCombo->setFocusPolicy(Qt::NoFocus);
-
-    // Current color
-    mColorLabel = new ColorLabel(this);
-    mColorLabel->setSizePolicy(QSizePolicy::Expanding,
-                               QSizePolicy::Expanding);
-
-    // Color Wheel
-    mWheelWidget = new QWidget(this);
-    const auto wheelLayout = new QVBoxLayout(mWheelWidget);
-    mWheelWidget->setLayout(wheelLayout);
-    wheelLayout->setContentsMargins(0, 0, 0, 0);
-    mColorWheel = new Friction::Ui::ColorWheel(this);
-    wheelLayout->addWidget(mColorWheel);
-    mWidgetsLayout->addWidget(mWheelWidget);
-
-    // Color Map
-    mMapWidget = new QWidget(this);
-    const auto mapLayout = new QVBoxLayout(mMapWidget);
-    mMapWidget->setLayout(mapLayout);
-    mapLayout->setContentsMargins(0, 0 ,0, 0);
-    mColorMap = new Friction::Ui::ColorMap(this);
-    mapLayout->addWidget(mColorMap);
-    mWidgetsLayout->addWidget(mMapWidget);
-
-    // RGB
-    rSpin = new QrealAnimatorValueSlider(0., 1., 0.01, this, false);
-    const auto rLabel = new QLabel("R", this);
-    rRect = new ColorValueRect(RED_PROGRAM, this);
-    const auto rLayout = new QHBoxLayout();
-    rLayout->addWidget(rLabel);
-    rLayout->addWidget(rRect);
-    rLayout->addWidget(rSpin);
-
-    gSpin = new QrealAnimatorValueSlider(0., 1., 0.01, this, false);
-    const auto gLabel = new QLabel("G", this);
-    gRect = new ColorValueRect(GREEN_PROGRAM, this);
-    const auto gLayout = new QHBoxLayout();
-    gLayout->addWidget(gLabel);
-    gLayout->addWidget(gRect);
-    gLayout->addWidget(gSpin);
-
-    bSpin = new QrealAnimatorValueSlider(0., 1., 0.01, this, false);
-    const auto bLabel = new QLabel("B", this);
-    bRect = new ColorValueRect(BLUE_PROGRAM, this);
-    const auto bLayout = new QHBoxLayout();
-    bLayout->addWidget(bLabel);
-    bLayout->addWidget(bRect);
-    bLayout->addWidget(bSpin);
-
-    mRGBWidget = new QWidget(this);
-    mRGBLayout = new QVBoxLayout(mRGBWidget);
-    mRGBLayout->setAlignment(Qt::AlignTop);
-    mRGBLayout->addLayout(rLayout);
-    mRGBLayout->addLayout(gLayout);
-    mRGBLayout->addLayout(bLayout);
-    mRGBWidget->setLayout(mRGBLayout);
-
-    mRGBLayout->setContentsMargins(0, 0, 0, 0);
-    mRGBWidget->setContentsMargins(0, 0, 0, 0);
-
-    // HSV
-    hSpin = new QrealAnimatorValueSlider(0., 1., 0.01, this, false);
-    const auto hLabel = new QLabel("H", this);
-    hRect = new ColorValueRect(HUE_PROGRAM, this);
-    hLayout = new QHBoxLayout();
-    hLayout->addWidget(hLabel);
-    hLayout->addWidget(hRect);
-    hLayout->addWidget(hSpin);
-
-    hsvSSpin = new QrealAnimatorValueSlider(0., 1., 0.01, this, false);
-    const auto hsvSLabel = new QLabel("S", this);
-    hsvSatRect = new ColorValueRect(HSV_SATURATION_PROGRAM, this);
-    const auto hsvSLayout = new QHBoxLayout();
-    hsvSLayout->addWidget(hsvSLabel);
-    hsvSLayout->addWidget(hsvSatRect);
-    hsvSLayout->addWidget(hsvSSpin);
-
-    vSpin = new QrealAnimatorValueSlider(0., 1., 0.01, this, false);
-    const auto vLabel = new QLabel("V", this);
-    vRect = new ColorValueRect(VALUE_PROGRAM, this);
-    const auto vLayout = new QHBoxLayout();
-    vLayout->addWidget(vLabel);
-    vLayout->addWidget(vRect);
-    vLayout->addWidget(vSpin);
-
-    mHSVWidget = new QWidget(this);
-    mHSVLayout = new QVBoxLayout(mHSVWidget);
-    mHSVLayout->setAlignment(Qt::AlignTop);
-    mHSVLayout->addLayout(hLayout);
-    mHSVLayout->addLayout(hsvSLayout);
-    mHSVLayout->addLayout(vLayout);
-    mHSVWidget->setLayout(mHSVLayout);
-
-    mHSVLayout->setContentsMargins(0, 0, 0, 0);
-    mHSVWidget->setContentsMargins(0, 0, 0, 0);
-
-    // HSL
-    hslSSpin = new QrealAnimatorValueSlider(0., 1., 0.01, this, false);
-    const auto hslSLabel = new QLabel("S", this);
-    hslSatRect = new ColorValueRect(HSL_SATURATION_PROGRAM, this);
-    hslSLayout = new QHBoxLayout();
-    hslSLayout->addWidget(hslSLabel);
-    hslSLayout->addWidget(hslSatRect);
-    hslSLayout->addWidget(hslSSpin);
-
-    lSpin = new QrealAnimatorValueSlider(0., 1., 0.01, this, false);
-    const auto lLabel = new QLabel("L", this);
-    lRect = new ColorValueRect(LIGHTNESS_PROGRAM, this);
-    const auto lLayout = new QHBoxLayout();
-    lLayout->addWidget(lLabel);
-    lLayout->addWidget(lRect);
-    lLayout->addWidget(lSpin);
-
-    mHSLWidget = new QWidget(this);
-    mHSLLayout = new QVBoxLayout(mHSLWidget);
-    mHSLLayout->setAlignment(Qt::AlignTop);
-    mHSLLayout->addLayout(hslSLayout);
-    mHSLLayout->addLayout(lLayout);
-    mHSLWidget->setLayout(mHSLLayout);
-
-    mHSLLayout->setContentsMargins(0, 0, 0, 0);
-    mHSLWidget->setContentsMargins(0, 0, 0, 0);
-
-    // Alpha
-    aSpin = new QrealAnimatorValueSlider(0., 1., 0.01, this, false);
-    const auto aLabel = new QLabel("A", this);
-    aRect = new ColorValueRect(ALPHA_PROGRAM, this);
-    aLayout = new QHBoxLayout();
-    aLayout->addWidget(aLabel);
-    aLayout->addWidget(aRect);
-    aLayout->addWidget(aSpin);
-
-    mRGBLayout->addLayout(aLayout);
-
-    // HEX
-    const auto mHexLabel = new QLabel("Hex", this);
-    hexLayout = new QHBoxLayout();
-    hexLayout->addWidget(mHexLabel);
-    mHexEdit = new QLineEdit("#FF000000", this);
-    mHexEdit->setFocusPolicy(Qt::ClickFocus);
-    hexLayout->addWidget(mHexEdit);
-
-    mRGBLayout->addLayout(hexLayout);
-
-    // Widgets button
-    const auto widButton = new QPushButton(QIcon::fromTheme("color"),
-                                           QString(), this);
-    widButton->setFocusPolicy(Qt::NoFocus);
-    widButton->setToolTip(tr("Widgets (wheel/map)"));
-    {
-        const bool wheelState = loadState ?
-                                    AppSupport::getSettings("ui",
-                                                            QString("%1ColorWheel").arg(confPrefix),
-                                                            defWheel).toBool() : defWheel;
-        const bool mapState = loadState ?
-                                  AppSupport::getSettings("ui",
-                                                          QString("%1ColorMap").arg(confPrefix),
-                                                          defMap).toBool() : defMap;
-
-        mWheelWidget->setVisible(wheelState);
-        mMapWidget->setVisible(mapState);
-
-        const auto menu = new QMenu(widButton);
-        widButton->setMenu(menu);
-
-        const auto wheelAct = new QAction(this);
-        wheelAct->setCheckable(true);
-        wheelAct->setChecked(wheelState);
-        wheelAct->setText(tr("Color Wheel"));
-        connect(wheelAct, &QAction::triggered,
-                this, [this, confPrefix, saveState](bool enabled) {
-            qDebug() << "color wheel" << enabled;
-            mWheelWidget->setVisible(enabled);
-            if (saveState) {
-                AppSupport::setSettings("ui",
-                                        QString("%1ColorWheel").arg(confPrefix),
-                                        enabled);
-            }
-        });
-        menu->addAction(wheelAct);
-
-        const auto mapAct = new QAction(this);
-        mapAct->setCheckable(true);
-        mapAct->setChecked(mapState);
-        mapAct->setText(tr("Color Map"));
-        connect(mapAct, &QAction::triggered,
-                this, [this, confPrefix, saveState](bool enabled){
-            qDebug() << "color map" << enabled;
-            mMapWidget->setVisible(enabled);
-            if (saveState) {
-                AppSupport::setSettings("ui",
-                                        QString("%1ColorMap").arg(confPrefix),
-                                        enabled);
-            }
-        });
-        menu->addAction(mapAct);
-    }
-
-    // Picking button
-    mPickingButton = new QPushButton(QIcon::fromTheme("pick"), QString(), this);
-    mPickingButton->setFocusPolicy(Qt::NoFocus);
-    mPickingButton->setToolTip(tr("Pick Color"));
-    connect(mPickingButton, &QPushButton::released,
-            this, &ColorSettingsWidget::startColorPicking);
-
-    // Layout
-    eSizesUI::widget.add(mPickingButton, [this, widButton](const int size) {
-        mPickingButton->setFixedSize(size, size);
-        widButton->setFixedSize(size, size);
-    });
-
-    const auto mColorLabelLayout = new QHBoxLayout();
-    mColorLabelLayout->addWidget(widButton);
-    mColorLabelLayout->addWidget(mColorLabel);
-    mColorLabelLayout->addWidget(mPickingButton);
-    mWidgetsLayout->addLayout(mColorLabelLayout);
-
-    mTabWidget->addTab(mRGBWidget, "RGB");
-    mTabWidget->addTab(mHSVWidget, "HSV");
-    mTabWidget->addTab(mHSLWidget, "HSL");
-
-    mWidgetsLayout->addWidget(mTabWidget);
-
-    QWidget *mColorModeWidget = new QWidget(this);
-    mColorModeWidget->setSizePolicy(QSizePolicy::Expanding,
-                                    QSizePolicy::Expanding);
-    mColorModeWidget->setContentsMargins(0, 0, 0, 0);
-
-    mColorModeLabel = new QLabel(tr("Mode"), this);
-    // TODO: tooltip
-
-    const auto mColorModeLayout = new QHBoxLayout(mColorModeWidget);
-    mColorModeLayout->setContentsMargins(0, 0, 0, 0);
-    mColorModeLayout->addWidget(mColorModeLabel);
-    mColorModeLayout->addWidget(mColorModeCombo);
-    mColorModeCombo->addItem("RGB");
-    mColorModeCombo->addItem("HSV");
-    mColorModeCombo->addItem("HSL");
-    connect(mColorModeCombo, qOverload<int>(&QComboBox::activated),
-            this, &ColorSettingsWidget::setColorModeFromCombo);
-
-    mTabWidget->setCornerWidget(mColorModeWidget);
-
-    mBookmarkedColors = new SavedColorsWidget(this);
-    mWidgetsLayout->addWidget(mBookmarkedColors);
-    connect(mBookmarkedColors, &SavedColorsWidget::colorSet,
-            this, [this](const QColor& color) {
-        emitStartFullColorChangedSignal();
-        setDisplayedColor(color);
-        emitFinishFullColorChangedSignal();
-        Document::sInstance->actionFinished();
-    });
-
     int spinWidth = eSizesUI::widget * 3;
-    rSpin->setFixedWidth(spinWidth);
-    gSpin->setFixedWidth(spinWidth);
-    bSpin->setFixedWidth(spinWidth);
-    hSpin->setFixedWidth(spinWidth);
-    hsvSSpin->setFixedWidth(spinWidth);
-    vSpin->setFixedWidth(spinWidth);
-    hslSSpin->setFixedWidth(spinWidth);
-    lSpin->setFixedWidth(spinWidth);
-    aSpin->setFixedWidth(spinWidth);
 
-    eSizesUI::widget.add(mColorLabel, [this,
-                                       rLabel,
-                                       gLabel,
-                                       bLabel,
-                                       hLabel,
-                                       hsvSLabel,
-                                       vLabel,
-                                       hslSLabel,
-                                       lLabel,
-                                       aLabel](const int size) {
-        mColorLabel->setFixedHeight(size);
-        rRect->setFixedHeight(size);
-        rLabel->setFixedWidth(size);
-        gRect->setFixedHeight(size);
-        gLabel->setFixedWidth(size);
-        bRect->setFixedHeight(size);
-        bLabel->setFixedWidth(size);
-        hRect->setFixedHeight(size);
-        hLabel->setFixedWidth(size);
-        hsvSatRect->setFixedHeight(size);
-        hsvSLabel->setFixedWidth(size);
-        vRect->setFixedHeight(size);
-        vLabel->setFixedWidth(size);
-        hslSatRect->setFixedHeight(size);
-        hslSLabel->setFixedWidth(size);
-        lRect->setFixedHeight(size);
-        lLabel->setFixedWidth(size);
-        aRect->setFixedHeight(size);
-        aLabel->setFixedWidth(size);
-    });
-
-
-    // Connect the dots ...
-    const auto book = new QShortcut(QKeySequence(AppSupport::getSettings("shortcuts",
-                                                                         "colorBookmark",
-                                                                         "B").toString()),
-                                    this);
-    connect(book, &QShortcut::activated,
-            mColorLabel, &ColorLabel::addBookmark);
-
-    connect(mTabWidget, &QTabWidget::currentChanged,
-            this, &ColorSettingsWidget::moveAlphaWidgetToTab);
-
-    connect(mTabWidget, &QTabWidget::currentChanged,
-            this, [](int index){
-        const auto settings = eSettings::sInstance;
-        if (settings->fDefaultFillStrokeIndex != index) {
-            settings->fDefaultFillStrokeIndex = index;
-            settings->saveKeyToFile("DefaultFillStrokeIndex");
-        }
-    });
-
-    connect(rSpin, &QrealAnimatorValueSlider::valueEdited,
-            this, &ColorSettingsWidget::setRed);
-    connect(gSpin, &QrealAnimatorValueSlider::valueEdited,
-            this, &ColorSettingsWidget::setGreen);
-    connect(bSpin, &QrealAnimatorValueSlider::valueEdited,
-            this, &ColorSettingsWidget::setBlue);
-
-    connect(hSpin, &QrealAnimatorValueSlider::valueEdited,
-            this, &ColorSettingsWidget::setHSVHue);
-    connect(hsvSSpin, &QrealAnimatorValueSlider::valueEdited,
-            this, &ColorSettingsWidget::setHSVSaturation);
-    connect(vSpin, &QrealAnimatorValueSlider::valueEdited,
-            this, &ColorSettingsWidget::setHSVValue);
-
-    connect(hslSSpin, &QrealAnimatorValueSlider::valueEdited,
-            this, &ColorSettingsWidget::setHSLSaturation);
-    connect(lSpin, &QrealAnimatorValueSlider::valueEdited,
-            this, &ColorSettingsWidget::setHSLLightness);
-
-    connect(aSpin, &QrealAnimatorValueSlider::valueEdited,
-            this, &ColorSettingsWidget::setAlpha);
-
-    connect(rSpin, &QrealAnimatorValueSlider::editingStarted,
-            this, &ColorSettingsWidget::emitEditingStartedRed);
-    connect(gSpin, &QrealAnimatorValueSlider::editingStarted,
-            this, &ColorSettingsWidget::emitEditingStartedGreen);
-    connect(bSpin, &QrealAnimatorValueSlider::editingStarted,
-            this, &ColorSettingsWidget::emitEditingStartedBlue);
-
-    connect(hSpin, &QrealAnimatorValueSlider::editingStarted,
-            this, &ColorSettingsWidget::emitEditingStartedHue);
-    connect(hsvSSpin, &QrealAnimatorValueSlider::editingStarted,
-            this, &ColorSettingsWidget::emitEditingStartedHSVSaturation);
-    connect(vSpin, &QrealAnimatorValueSlider::editingStarted,
-            this, &ColorSettingsWidget::emitEditingStartedValue);
-
-    connect(hslSSpin, &QrealAnimatorValueSlider::editingStarted,
-            this, &ColorSettingsWidget::emitEditingStartedHSLSaturation);
-    connect(lSpin, &QrealAnimatorValueSlider::editingStarted,
-            this, &ColorSettingsWidget::emitEditingStartedLightness);
-
-    connect(aSpin, &QrealAnimatorValueSlider::editingStarted,
-            this, &ColorSettingsWidget::emitEditingStartedAlpha);
-
-    connect(rSpin, &QrealAnimatorValueSlider::editingFinished,
-            this, &ColorSettingsWidget::emitEditingFinishedSignal);
-    connect(gSpin, &QrealAnimatorValueSlider::editingFinished,
-            this, &ColorSettingsWidget::emitEditingFinishedSignal);
-    connect(bSpin, &QrealAnimatorValueSlider::editingFinished,
-            this, &ColorSettingsWidget::emitEditingFinishedSignal);
-
-    connect(hSpin, &QrealAnimatorValueSlider::editingFinished,
-            this, &ColorSettingsWidget::emitEditingFinishedSignal);
-    connect(hsvSSpin, &QrealAnimatorValueSlider::editingFinished,
-            this, &ColorSettingsWidget::emitEditingFinishedSignal);
-    connect(vSpin, &QrealAnimatorValueSlider::editingFinished,
-            this, &ColorSettingsWidget::emitEditingFinishedSignal);
-
-    connect(hslSSpin, &QrealAnimatorValueSlider::editingFinished,
-            this, &ColorSettingsWidget::emitEditingFinishedSignal);
-    connect(lSpin, &QrealAnimatorValueSlider::editingFinished,
-            this, &ColorSettingsWidget::emitEditingFinishedSignal);
-
-    connect(aSpin, &QrealAnimatorValueSlider::editingFinished,
-            this, &ColorSettingsWidget::emitEditingFinishedSignal);
-
-    connect(this, &ColorSettingsWidget::colorSettingSignal,
-            this, [this](const ColorSetting& sett) {
-        if (mHexEdit->hasFocus()) { return; }
-        mHexEdit->setText(sett.getColor().name(QColor::HexArgb));
-    });
-    connect(mHexEdit, &QLineEdit::textEdited,
-            this, [this](const QString& text) {
-        const QColor color(text);
-        emitStartFullColorChangedSignal();
-        setDisplayedColor(color);
-        emitFinishFullColorChangedSignal();
-    });
-
-    connect(rRect, &ColorValueRect::valueChanged,
-            this, &ColorSettingsWidget::setRed);
-    connect(gRect, &ColorValueRect::valueChanged,
-            this, &ColorSettingsWidget::setGreen);
-    connect(bRect, &ColorValueRect::valueChanged,
-            this, &ColorSettingsWidget::setBlue);
-
-    connect(hRect, &ColorValueRect::valueChanged,
-            this, &ColorSettingsWidget::setHSVHue);
-    connect(hsvSatRect, &ColorValueRect::valueChanged,
-            this, &ColorSettingsWidget::setHSVSaturation);
-    connect(vRect, &ColorValueRect::valueChanged,
-            this, &ColorSettingsWidget::setHSVValue);
-
-    connect(hslSatRect, &ColorValueRect::valueChanged,
-            this, &ColorSettingsWidget::setHSLSaturation);
-    connect(lRect, &ColorValueRect::valueChanged,
-            this, &ColorSettingsWidget::setHSLLightness);
-
-    connect(aRect, &ColorValueRect::valueChanged,
-            this, &ColorSettingsWidget::setAlpha);
-
-    connect(rRect, &ColorValueRect::editingStarted,
-            this, &ColorSettingsWidget::emitEditingStartedRed);
-    connect(gRect, &ColorValueRect::editingStarted,
-            this, &ColorSettingsWidget::emitEditingStartedGreen);
-    connect(bRect, &ColorValueRect::editingStarted,
-            this, &ColorSettingsWidget::emitEditingStartedBlue);
-
-    connect(hRect, &ColorValueRect::editingStarted,
-            this, &ColorSettingsWidget::emitEditingStartedHue);
-    connect(hsvSatRect, &ColorValueRect::editingStarted,
-            this, &ColorSettingsWidget::emitEditingStartedHSVSaturation);
-    connect(vRect, &ColorValueRect::editingStarted,
-            this, &ColorSettingsWidget::emitEditingStartedValue);
-
-    connect(hslSatRect, &ColorValueRect::editingStarted,
-            this, &ColorSettingsWidget::emitEditingStartedHSLSaturation);
-    connect(lRect, &ColorValueRect::editingStarted,
-            this, &ColorSettingsWidget::emitEditingStartedLightness);
-
-    connect(aRect, &ColorValueRect::editingStarted,
-            this, &ColorSettingsWidget::emitEditingStartedAlpha);
-
-    connect(rRect, &ColorValueRect::editingFinished,
-            this, &ColorSettingsWidget::emitEditingFinishedSignal);
-    connect(gRect, &ColorValueRect::editingFinished,
-            this, &ColorSettingsWidget::emitEditingFinishedSignal);
-    connect(bRect, &ColorValueRect::editingFinished,
-            this, &ColorSettingsWidget::emitEditingFinishedSignal);
-
-    connect(hRect, &ColorValueRect::editingFinished,
-            this, &ColorSettingsWidget::emitEditingFinishedSignal);
-    connect(hsvSatRect, &ColorValueRect::editingFinished,
-            this, &ColorSettingsWidget::emitEditingFinishedSignal);
-    connect(vRect, &ColorValueRect::editingFinished,
-            this, &ColorSettingsWidget::emitEditingFinishedSignal);
-
-    connect(hslSatRect, &ColorValueRect::editingFinished,
-            this, &ColorSettingsWidget::emitEditingFinishedSignal);
-    connect(lRect, &ColorValueRect::editingFinished,
-            this, &ColorSettingsWidget::emitEditingFinishedSignal);
-
-    connect(aRect, &ColorValueRect::editingFinished,
-            this, &ColorSettingsWidget::emitEditingFinishedSignal);
+    setupWidgetTabs();
+    setupWidgetWheel(mWidgetsLayout);
+    setupWidgetMap(mWidgetsLayout);
+    setupWidgetRGB(spinWidth);
+    setupWidgetHSV(spinWidth);
+    setupWidgetHSL(spinWidth);
+    setupWidgetAlpha(spinWidth);
+    setupWidgetHex();
+    setupWidgetButton(loadState,
+                      saveState,
+                      defWheel,
+                      defMap,
+                      confPrefix);
+    setupWidgetPickButton();
+    setupWidgetColorLabel(mWidgetsLayout);
+    setupWidgetsAddTabs(mWidgetsLayout);
+    setupWidgetColorMode();
+    setupWidgetsBookmark(mWidgetsLayout);
 
     connect(this, &ColorSettingsWidget::colorSettingSignal,
             this, [this](const ColorSetting& setting) {
         if (mTarget) { setting.apply(mTarget); }
     });
 
-    if (mColorWheel) {
-        connect(mColorWheel, &Friction::Ui::ColorWheel::editingStarted,
-                this, &ColorSettingsWidget::emitStartFullColorChangedSignal);
-        connect(mColorWheel, &Friction::Ui::ColorWheel::colorChanged,
-                this, &ColorSettingsWidget::setHSV);
-        connect(mColorWheel, &Friction::Ui::ColorWheel::editingFinished,
-                this, &ColorSettingsWidget::emitFinishFullColorChangedSignal);
-    }
-    if (mColorMap) {
-        connect(mColorMap, &Friction::Ui::ColorMap::editingStarted,
-                this, &ColorSettingsWidget::emitStartFullColorChangedSignal);
-        connect(mColorMap, &Friction::Ui::ColorMap::colorChanged,
-                this, &ColorSettingsWidget::setHSV);
-        connect(mColorMap, &Friction::Ui::ColorMap::editingFinished,
-                this, &ColorSettingsWidget::emitFinishFullColorChangedSignal);
-    }
-
-    // Default
     setDisplayedColor(Qt::black);
     setCurrentTab(eSettings::instance().fDefaultFillStrokeIndex);
 }
