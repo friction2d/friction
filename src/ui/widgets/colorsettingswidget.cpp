@@ -99,11 +99,12 @@ void ColorSettingsWidget::updateWidgetTargets()
     }
 }
 
-void ColorSettingsWidget::setTarget(ColorAnimator * const target) {
+void ColorSettingsWidget::setTarget(ColorAnimator * const target)
+{
     auto& conn = mTarget.assign(target);
 
     updateWidgetTargets();
-    if(target) {
+    if (target) {
         conn << connect(target, &ColorAnimator::colorModeChanged,
                         this, &ColorSettingsWidget::updateWidgetTargets);
         conn << connect(target, &ColorAnimator::colorChanged,
@@ -171,77 +172,91 @@ void ColorSettingsWidget::showEvent(QShowEvent *e)
     QWidget::showEvent(e);
 }
 
-void ColorSettingsWidget::emitColorChangedSignal() {
+void ColorSettingsWidget::emitColorChangedSignal()
+{
     const auto colorSetting = getColorSetting(ColorSettingType::change,
                                               mLastTriggered);
     mBookmarkedColors->setColor(colorSetting.getColor());
     emit colorSettingSignal(colorSetting);
 }
 
-void ColorSettingsWidget::emitEditingFinishedSignal() {
+void ColorSettingsWidget::emitEditingFinishedSignal()
+{
     const auto colorSetting = getColorSetting(ColorSettingType::finish,
                                               mLastTriggered);
     mLastTriggered = ColorParameter::none;
     emit colorSettingSignal(colorSetting);
 }
 
-void ColorSettingsWidget::emitEditingStartedSignal() {
+void ColorSettingsWidget::emitEditingStartedSignal()
+{
     const auto colorSetting = getColorSetting(ColorSettingType::start,
                                               mLastTriggered);
     emit colorSettingSignal(colorSetting);
 }
 
-void ColorSettingsWidget::emitEditingStartedRed() {
+void ColorSettingsWidget::emitEditingStartedRed()
+{
     mLastTriggered = ColorParameter::red;
     emitEditingStartedSignal();
 }
 
-void ColorSettingsWidget::emitEditingStartedGreen() {
+void ColorSettingsWidget::emitEditingStartedGreen()
+{
     mLastTriggered = ColorParameter::green;
     emitEditingStartedSignal();
 }
 
-void ColorSettingsWidget::emitEditingStartedBlue() {
+void ColorSettingsWidget::emitEditingStartedBlue()
+{
     mLastTriggered = ColorParameter::blue;
     emitEditingStartedSignal();
 }
 
-void ColorSettingsWidget::emitEditingStartedHue() {
+void ColorSettingsWidget::emitEditingStartedHue()
+{
     mLastTriggered = ColorParameter::hue;
     emitEditingStartedSignal();
 }
 
-void ColorSettingsWidget::emitEditingStartedHSVSaturation() {
+void ColorSettingsWidget::emitEditingStartedHSVSaturation()
+{
     mLastTriggered = ColorParameter::hsvSaturation;
     emitEditingStartedSignal();
 }
 
-void ColorSettingsWidget::emitEditingStartedValue() {
+void ColorSettingsWidget::emitEditingStartedValue()
+{
     mLastTriggered = ColorParameter::value;
     emitEditingStartedSignal();
 }
 
-void ColorSettingsWidget::emitEditingStartedHSLSaturation() {
+void ColorSettingsWidget::emitEditingStartedHSLSaturation()
+{
     mLastTriggered = ColorParameter::hslSaturation;
     emitEditingStartedSignal();
 }
 
-void ColorSettingsWidget::emitEditingStartedLightness() {
+void ColorSettingsWidget::emitEditingStartedLightness()
+{
     mLastTriggered = ColorParameter::lightness;
     emitEditingStartedSignal();
 }
 
-void ColorSettingsWidget::emitEditingStartedAlpha() {
+void ColorSettingsWidget::emitEditingStartedAlpha()
+{
     mLastTriggered = ColorParameter::alpha;
     emitEditingStartedSignal();
 }
 
-void ColorSettingsWidget::emitStartFullColorChangedSignal() {
+void ColorSettingsWidget::emitStartFullColorChangedSignal()
+{
     mLastTriggered = ColorParameter::all;
     emitEditingStartedSignal();
 }
 
-void ColorSettingsWidget::emitFinishFullColorChangedSignal() {
+void ColorSettingsWidget::emitFinishFullColorChangedSignal()
+{
     emitColorChangedSignal();
     emitEditingFinishedSignal();
 }
@@ -300,70 +315,126 @@ void ColorSettingsWidget::startColorPicking()
     });
 }
 
-ColorSettingsWidget::ColorSettingsWidget(QWidget *parent)
+ColorSettingsWidget::ColorSettingsWidget(QWidget *parent,
+                                         bool loadState,
+                                         bool saveState,
+                                         bool defWheel,
+                                         bool defMap,
+                                         const QString &confPrefix)
     : QWidget(parent)
+    , mLastNonZeroHue(0)
+    , mLastNonZeroHsvS(0)
+    , mLastNonZeroHslS(0)
+    , mColorModeLabel(nullptr)
+    , mColorModeCombo(nullptr)
+    , mBookmarkedColors(nullptr)
+    , mTabWidget(nullptr)
+    , mWheelWidget(nullptr)
+    , mColorWheel(nullptr)
+    , mMapWidget(nullptr)
+    , mColorMap(nullptr)
+    , mRGBWidget(nullptr)
+    , rRect(nullptr)
+    , rSpin(nullptr)
+    , gRect(nullptr)
+    , gSpin(nullptr)
+    , bRect(nullptr)
+    , bSpin(nullptr)
+    , mHSVWidget(nullptr)
+    , mHSVLayout(nullptr)
+    , hLayout(nullptr)
+    , hRect(nullptr)
+    , hSpin(nullptr)
+    , hsvSatRect(nullptr)
+    , hsvSSpin(nullptr)
+    , vRect(nullptr)
+    , vSpin(nullptr)
+    , mHSLWidget(nullptr)
+    , mHSLLayout(nullptr)
+    , hslSLayout(nullptr)
+    , hslSatRect(nullptr)
+    , hslSSpin(nullptr)
+    , lRect(nullptr)
+    , lSpin(nullptr)
+    , mAlphaHidden(false)
+    , aLayout(nullptr)
+    , aRect(nullptr)
+    , aSpin(nullptr)
+    , hexLayout(nullptr)
+    , mHexEdit(nullptr)
+    , mPickingButton(nullptr)
+    , mColorLabel(nullptr)
 {
     setContentsMargins(0, 0, 0, 0);
+
+    const auto mWidgetsLayout = new QVBoxLayout(this);
     mWidgetsLayout->setMargin(0);
+    mWidgetsLayout->setAlignment(Qt::AlignTop);
+    setLayout(mWidgetsLayout);
 
+    // Tabs
+    mTabWidget = new QTabWidget(this);
     mTabWidget->setFocusPolicy(Qt::NoFocus);
+    mTabWidget->setObjectName("ColorTabWidget");
+    mTabWidget->setSizePolicy(QSizePolicy::MinimumExpanding,
+                              QSizePolicy::Maximum);
+    mTabWidget->setTabPosition(QTabWidget::South);
 
+    // Color mode
     mColorModeCombo = new QComboBox(this);
     mColorModeCombo->setMinimumWidth(60);
     mColorModeCombo->setFocusPolicy(Qt::NoFocus);
 
-    mWidgetsLayout->setAlignment(Qt::AlignTop);
-    setLayout(mWidgetsLayout);
-
+    // Current color
     mColorLabel = new ColorLabel(this);
     mColorLabel->setSizePolicy(QSizePolicy::Expanding,
                                QSizePolicy::Expanding);
 
-    const auto book = new QShortcut(QKeySequence(AppSupport::getSettings("shortcuts",
-                                                                         "colorBookmark",
-                                                                         "B").toString()),
-                                    this);
-    connect(book, &QShortcut::activated,
-            mColorLabel, &ColorLabel::addBookmark);
-
-
-    mWheelWidget->setLayout(mWheelLayout);
-    mWheelLayout->setContentsMargins(0, 0, 0, 0);
+    // Color Wheel
+    mWheelWidget = new QWidget(this);
+    const auto wheelLayout = new QVBoxLayout(mWheelWidget);
+    mWheelWidget->setLayout(wheelLayout);
+    wheelLayout->setContentsMargins(0, 0, 0, 0);
     mColorWheel = new Friction::Ui::ColorWheel(this);
-
-    mWheelLayout->addWidget(mColorWheel);
+    wheelLayout->addWidget(mColorWheel);
     mWidgetsLayout->addWidget(mWheelWidget);
 
-    mMapWidget->setLayout(mMapLayout);
-    mMapLayout->setContentsMargins(0, 0 ,0, 0);
+    // Color Map
+    mMapWidget = new QWidget(this);
+    const auto mapLayout = new QVBoxLayout(mMapWidget);
+    mMapWidget->setLayout(mapLayout);
+    mapLayout->setContentsMargins(0, 0 ,0, 0);
     mColorMap = new Friction::Ui::ColorMap(this);
-
-    mMapLayout->addWidget(mColorMap);
+    mapLayout->addWidget(mColorMap);
     mWidgetsLayout->addWidget(mMapWidget);
 
-    int spinWidth = eSizesUI::widget * 3;
-    rSpin->setFixedWidth(spinWidth);
-    gSpin->setFixedWidth(spinWidth);
-    bSpin->setFixedWidth(spinWidth);
-    hSpin->setFixedWidth(spinWidth);
-    hsvSSpin->setFixedWidth(spinWidth);
-    vSpin->setFixedWidth(spinWidth);
-    hslSSpin->setFixedWidth(spinWidth);
-    lSpin->setFixedWidth(spinWidth);
-    aSpin->setFixedWidth(spinWidth);
-
+    // RGB
+    rSpin = new QrealAnimatorValueSlider(0., 1., 0.01, this, false);
+    const auto rLabel = new QLabel("R", this);
     rRect = new ColorValueRect(RED_PROGRAM, this);
+    const auto rLayout = new QHBoxLayout();
     rLayout->addWidget(rLabel);
     rLayout->addWidget(rRect);
     rLayout->addWidget(rSpin);
+
+    gSpin = new QrealAnimatorValueSlider(0., 1., 0.01, this, false);
+    const auto gLabel = new QLabel("G", this);
     gRect = new ColorValueRect(GREEN_PROGRAM, this);
+    const auto gLayout = new QHBoxLayout();
     gLayout->addWidget(gLabel);
     gLayout->addWidget(gRect);
     gLayout->addWidget(gSpin);
+
+    bSpin = new QrealAnimatorValueSlider(0., 1., 0.01, this, false);
+    const auto bLabel = new QLabel("B", this);
     bRect = new ColorValueRect(BLUE_PROGRAM, this);
+    const auto bLayout = new QHBoxLayout();
     bLayout->addWidget(bLabel);
     bLayout->addWidget(bRect);
     bLayout->addWidget(bSpin);
+
+    mRGBWidget = new QWidget(this);
+    mRGBLayout = new QVBoxLayout(mRGBWidget);
     mRGBLayout->setAlignment(Qt::AlignTop);
     mRGBLayout->addLayout(rLayout);
     mRGBLayout->addLayout(gLayout);
@@ -373,18 +444,33 @@ ColorSettingsWidget::ColorSettingsWidget(QWidget *parent)
     mRGBLayout->setContentsMargins(0, 0, 0, 0);
     mRGBWidget->setContentsMargins(0, 0, 0, 0);
 
+    // HSV
+    hSpin = new QrealAnimatorValueSlider(0., 1., 0.01, this, false);
+    const auto hLabel = new QLabel("H", this);
     hRect = new ColorValueRect(HUE_PROGRAM, this);
+    hLayout = new QHBoxLayout();
     hLayout->addWidget(hLabel);
     hLayout->addWidget(hRect);
     hLayout->addWidget(hSpin);
+
+    hsvSSpin = new QrealAnimatorValueSlider(0., 1., 0.01, this, false);
+    const auto hsvSLabel = new QLabel("S", this);
     hsvSatRect = new ColorValueRect(HSV_SATURATION_PROGRAM, this);
+    const auto hsvSLayout = new QHBoxLayout();
     hsvSLayout->addWidget(hsvSLabel);
     hsvSLayout->addWidget(hsvSatRect);
     hsvSLayout->addWidget(hsvSSpin);
+
+    vSpin = new QrealAnimatorValueSlider(0., 1., 0.01, this, false);
+    const auto vLabel = new QLabel("V", this);
     vRect = new ColorValueRect(VALUE_PROGRAM, this);
+    const auto vLayout = new QHBoxLayout();
     vLayout->addWidget(vLabel);
     vLayout->addWidget(vRect);
     vLayout->addWidget(vSpin);
+
+    mHSVWidget = new QWidget(this);
+    mHSVLayout = new QVBoxLayout(mHSVWidget);
     mHSVLayout->setAlignment(Qt::AlignTop);
     mHSVLayout->addLayout(hLayout);
     mHSVLayout->addLayout(hsvSLayout);
@@ -394,14 +480,25 @@ ColorSettingsWidget::ColorSettingsWidget(QWidget *parent)
     mHSVLayout->setContentsMargins(0, 0, 0, 0);
     mHSVWidget->setContentsMargins(0, 0, 0, 0);
 
+    // HSL
+    hslSSpin = new QrealAnimatorValueSlider(0., 1., 0.01, this, false);
+    const auto hslSLabel = new QLabel("S", this);
     hslSatRect = new ColorValueRect(HSL_SATURATION_PROGRAM, this);
+    hslSLayout = new QHBoxLayout();
     hslSLayout->addWidget(hslSLabel);
     hslSLayout->addWidget(hslSatRect);
     hslSLayout->addWidget(hslSSpin);
+
+    lSpin = new QrealAnimatorValueSlider(0., 1., 0.01, this, false);
+    const auto lLabel = new QLabel("L", this);
     lRect = new ColorValueRect(LIGHTNESS_PROGRAM, this);
+    const auto lLayout = new QHBoxLayout();
     lLayout->addWidget(lLabel);
     lLayout->addWidget(lRect);
     lLayout->addWidget(lSpin);
+
+    mHSLWidget = new QWidget(this);
+    mHSLLayout = new QVBoxLayout(mHSLWidget);
     mHSLLayout->setAlignment(Qt::AlignTop);
     mHSLLayout->addLayout(hslSLayout);
     mHSLLayout->addLayout(lLayout);
@@ -410,22 +507,41 @@ ColorSettingsWidget::ColorSettingsWidget(QWidget *parent)
     mHSLLayout->setContentsMargins(0, 0, 0, 0);
     mHSLWidget->setContentsMargins(0, 0, 0, 0);
 
+    // Alpha
+    aSpin = new QrealAnimatorValueSlider(0., 1., 0.01, this, false);
+    const auto aLabel = new QLabel("A", this);
     aRect = new ColorValueRect(ALPHA_PROGRAM, this);
+    aLayout = new QHBoxLayout();
     aLayout->addWidget(aLabel);
     aLayout->addWidget(aRect);
     aLayout->addWidget(aSpin);
 
+    mRGBLayout->addLayout(aLayout);
+
+    // HEX
+    const auto mHexLabel = new QLabel("Hex", this);
+    hexLayout = new QHBoxLayout();
+    hexLayout->addWidget(mHexLabel);
+    mHexEdit = new QLineEdit("#FF000000", this);
+    mHexEdit->setFocusPolicy(Qt::ClickFocus);
+    hexLayout->addWidget(mHexEdit);
+
+    mRGBLayout->addLayout(hexLayout);
+
+    // Widgets button
     const auto widButton = new QPushButton(QIcon::fromTheme("color"),
                                            QString(), this);
     widButton->setFocusPolicy(Qt::NoFocus);
-    widButton->setToolTip(tr("Widgets"));
+    widButton->setToolTip(tr("Widgets (wheel/map)"));
     {
-        const bool wheelState = AppSupport::getSettings("ui",
-                                                        "ColorWheel",
-                                                        true).toBool();
-        const bool mapState = AppSupport::getSettings("ui",
-                                                      "ColorMap",
-                                                      false).toBool();
+        const bool wheelState = loadState ?
+                                    AppSupport::getSettings("ui",
+                                                            QString("%1ColorWheel").arg(confPrefix),
+                                                            defWheel).toBool() : defWheel;
+        const bool mapState = loadState ?
+                                  AppSupport::getSettings("ui",
+                                                          QString("%1ColorMap").arg(confPrefix),
+                                                          defMap).toBool() : defMap;
 
         mWheelWidget->setVisible(wheelState);
         mMapWidget->setVisible(mapState);
@@ -438,10 +554,14 @@ ColorSettingsWidget::ColorSettingsWidget(QWidget *parent)
         wheelAct->setChecked(wheelState);
         wheelAct->setText(tr("Color Wheel"));
         connect(wheelAct, &QAction::triggered,
-                this, [this](bool enabled){
+                this, [this, confPrefix, saveState](bool enabled) {
             qDebug() << "color wheel" << enabled;
             mWheelWidget->setVisible(enabled);
-            AppSupport::setSettings("ui", "ColorWheel", enabled);
+            if (saveState) {
+                AppSupport::setSettings("ui",
+                                        QString("%1ColorWheel").arg(confPrefix),
+                                        enabled);
+            }
         });
         menu->addAction(wheelAct);
 
@@ -450,53 +570,52 @@ ColorSettingsWidget::ColorSettingsWidget(QWidget *parent)
         mapAct->setChecked(mapState);
         mapAct->setText(tr("Color Map"));
         connect(mapAct, &QAction::triggered,
-                this, [this](bool enabled){
+                this, [this, confPrefix, saveState](bool enabled){
             qDebug() << "color map" << enabled;
             mMapWidget->setVisible(enabled);
-            AppSupport::setSettings("ui", "ColorMap", enabled);
+            if (saveState) {
+                AppSupport::setSettings("ui",
+                                        QString("%1ColorMap").arg(confPrefix),
+                                        enabled);
+            }
         });
         menu->addAction(mapAct);
     }
 
+    // Picking button
     mPickingButton = new QPushButton(QIcon::fromTheme("pick"), QString(), this);
     mPickingButton->setFocusPolicy(Qt::NoFocus);
     mPickingButton->setToolTip(tr("Pick Color"));
     connect(mPickingButton, &QPushButton::released,
             this, &ColorSettingsWidget::startColorPicking);
 
+    // Layout
     eSizesUI::widget.add(mPickingButton, [this, widButton](const int size) {
         mPickingButton->setFixedSize(size, size);
         widButton->setFixedSize(size, size);
     });
 
+    const auto mColorLabelLayout = new QHBoxLayout();
     mColorLabelLayout->addWidget(widButton);
     mColorLabelLayout->addWidget(mColorLabel);
     mColorLabelLayout->addWidget(mPickingButton);
     mWidgetsLayout->addLayout(mColorLabelLayout);
 
-    mTabWidget->setObjectName("ColorTabWidget");
-    mTabWidget->setTabPosition(QTabWidget::South);
     mTabWidget->addTab(mRGBWidget, "RGB");
     mTabWidget->addTab(mHSVWidget, "HSV");
     mTabWidget->addTab(mHSLWidget, "HSL");
 
     mWidgetsLayout->addWidget(mTabWidget);
-    mRGBLayout->addLayout(aLayout);
-
-    mHexLabel = new QLabel("Hex", this);
-
-    hexLayout = new QHBoxLayout;
-    hexLayout->addWidget(mHexLabel);
-    mHexEdit = new QLineEdit("#FF000000", this);
-    mHexEdit->setFocusPolicy(Qt::ClickFocus);
-    hexLayout->addWidget(mHexEdit);
-    mRGBLayout->addLayout(hexLayout);
 
     QWidget *mColorModeWidget = new QWidget(this);
     mColorModeWidget->setSizePolicy(QSizePolicy::Expanding,
                                     QSizePolicy::Expanding);
     mColorModeWidget->setContentsMargins(0, 0, 0, 0);
-    mColorModeLayout = new QHBoxLayout(mColorModeWidget);
+
+    mColorModeLabel = new QLabel(tr("Mode"), this);
+    // TODO: tooltip
+
+    const auto mColorModeLayout = new QHBoxLayout(mColorModeWidget);
     mColorModeLayout->setContentsMargins(0, 0, 0, 0);
     mColorModeLayout->addWidget(mColorModeLabel);
     mColorModeLayout->addWidget(mColorModeCombo);
@@ -507,7 +626,6 @@ ColorSettingsWidget::ColorSettingsWidget(QWidget *parent)
             this, &ColorSettingsWidget::setColorModeFromCombo);
 
     mTabWidget->setCornerWidget(mColorModeWidget);
-    //mWidgetsLayout->addLayout(mColorModeLayout);
 
     mBookmarkedColors = new SavedColorsWidget(this);
     mWidgetsLayout->addWidget(mBookmarkedColors);
@@ -519,7 +637,27 @@ ColorSettingsWidget::ColorSettingsWidget(QWidget *parent)
         Document::sInstance->actionFinished();
     });
 
-    eSizesUI::widget.add(mColorLabel, [this](const int size) {
+    int spinWidth = eSizesUI::widget * 3;
+    rSpin->setFixedWidth(spinWidth);
+    gSpin->setFixedWidth(spinWidth);
+    bSpin->setFixedWidth(spinWidth);
+    hSpin->setFixedWidth(spinWidth);
+    hsvSSpin->setFixedWidth(spinWidth);
+    vSpin->setFixedWidth(spinWidth);
+    hslSSpin->setFixedWidth(spinWidth);
+    lSpin->setFixedWidth(spinWidth);
+    aSpin->setFixedWidth(spinWidth);
+
+    eSizesUI::widget.add(mColorLabel, [this,
+                                       rLabel,
+                                       gLabel,
+                                       bLabel,
+                                       hLabel,
+                                       hsvSLabel,
+                                       vLabel,
+                                       hslSLabel,
+                                       lLabel,
+                                       aLabel](const int size) {
         mColorLabel->setFixedHeight(size);
         rRect->setFixedHeight(size);
         rLabel->setFixedWidth(size);
@@ -540,6 +678,15 @@ ColorSettingsWidget::ColorSettingsWidget(QWidget *parent)
         aRect->setFixedHeight(size);
         aLabel->setFixedWidth(size);
     });
+
+
+    // Connect the dots ...
+    const auto book = new QShortcut(QKeySequence(AppSupport::getSettings("shortcuts",
+                                                                         "colorBookmark",
+                                                                         "B").toString()),
+                                    this);
+    connect(book, &QShortcut::activated,
+            mColorLabel, &ColorLabel::addBookmark);
 
     connect(mTabWidget, &QTabWidget::currentChanged,
             this, &ColorSettingsWidget::moveAlphaWidgetToTab);
@@ -621,7 +768,7 @@ ColorSettingsWidget::ColorSettingsWidget(QWidget *parent)
 
     connect(this, &ColorSettingsWidget::colorSettingSignal,
             this, [this](const ColorSetting& sett) {
-        if(mHexEdit->hasFocus()) return;
+        if (mHexEdit->hasFocus()) { return; }
         mHexEdit->setText(sett.getColor().name(QColor::HexArgb));
     });
     connect(mHexEdit, &QLineEdit::textEdited,
@@ -700,7 +847,7 @@ ColorSettingsWidget::ColorSettingsWidget(QWidget *parent)
 
     connect(this, &ColorSettingsWidget::colorSettingSignal,
             this, [this](const ColorSetting& setting) {
-        if(mTarget) setting.apply(mTarget);
+        if (mTarget) { setting.apply(mTarget); }
     });
 
     if (mColorWheel) {
@@ -720,15 +867,13 @@ ColorSettingsWidget::ColorSettingsWidget(QWidget *parent)
                 this, &ColorSettingsWidget::emitFinishFullColorChangedSignal);
     }
 
-
-    //setMinimumSize(250, 200);
-    mTabWidget->setSizePolicy(QSizePolicy::MinimumExpanding,
-                              QSizePolicy::Maximum);
+    // Default
     setDisplayedColor(Qt::black);
     setCurrentTab(eSettings::instance().fDefaultFillStrokeIndex);
 }
 
-QColor ColorSettingsWidget::getCurrentQColor() {
+QColor ColorSettingsWidget::getCurrentQColor()
+{
     const qreal red = rSpin->value();
     const qreal green = gSpin->value();
     const qreal blue = bSpin->value();
@@ -736,7 +881,8 @@ QColor ColorSettingsWidget::getCurrentQColor() {
     return QColor::fromRgbF(red, green, blue, alpha);
 }
 
-void ColorSettingsWidget::updateValuesFromRGBSpins() {
+void ColorSettingsWidget::updateValuesFromRGBSpins()
+{
     if (mTarget) {
         setDisplayedColor(mTarget->getColor());
         return;
@@ -747,7 +893,8 @@ void ColorSettingsWidget::updateValuesFromRGBSpins() {
                                        aSpin->value()));
 }
 
-void ColorSettingsWidget::updateValuesFromHSVSpins() {
+void ColorSettingsWidget::updateValuesFromHSVSpins()
+{
     if (mTarget) {
         setDisplayedColor(mTarget->getColor());
         return;
@@ -758,7 +905,8 @@ void ColorSettingsWidget::updateValuesFromHSVSpins() {
                                        aSpin->value()));
 }
 
-void ColorSettingsWidget::updateValuesFromHSLSpins() {
+void ColorSettingsWidget::updateValuesFromHSLSpins()
+{
     if (mTarget) {
         setDisplayedColor(mTarget->getColor());
         return;
@@ -771,7 +919,8 @@ void ColorSettingsWidget::updateValuesFromHSLSpins() {
 
 void ColorSettingsWidget::setDisplayedRGB(const qreal red,
                                           const qreal green,
-                                          const qreal blue) {
+                                          const qreal blue)
+{
     rSpin->setDisplayedValue(red);
     gSpin->setDisplayedValue(green);
     bSpin->setDisplayedValue(blue);
@@ -783,7 +932,8 @@ void ColorSettingsWidget::setDisplayedRGB(const qreal red,
 
 void ColorSettingsWidget::setDisplayedHSV(const qreal hue,
                                           const qreal saturation,
-                                          const qreal value) {
+                                          const qreal value)
+{
     hSpin->setDisplayedValue(hue);
     hsvSSpin->setDisplayedValue(saturation);
     vSpin->setDisplayedValue(value);
@@ -803,7 +953,7 @@ void ColorSettingsWidget::setDisplayedHSV(const qreal hue,
     hslSatRect->setColor(hue, saturation, value);
     lRect->setColor(hue, saturation, value);
 
-    if(!mAlphaHidden) aRect->setColor(hue, saturation, value);
+    if (!mAlphaHidden) { aRect->setColor(hue, saturation, value); }
 
     mColorLabel->setColor(hue, saturation, value);
 
@@ -817,7 +967,8 @@ void ColorSettingsWidget::setDisplayedHSV(const qreal hue,
 
 void ColorSettingsWidget::setDisplayedHSL(const qreal hue,
                                           const qreal saturation,
-                                          const qreal lightness) {
+                                          const qreal lightness)
+{
     hSpin->setDisplayedValue(hue);
     hslSSpin->setDisplayedValue(saturation);
     lSpin->setDisplayedValue(lightness);
@@ -827,34 +978,39 @@ void ColorSettingsWidget::setDisplayedHSL(const qreal hue,
     lRect->setDisplayedValue(lightness);
 }
 
-void ColorSettingsWidget::setDisplayedAlpha(const qreal alpha) {
-    if(mAlphaHidden) return;
+void ColorSettingsWidget::setDisplayedAlpha(const qreal alpha)
+{
+    if (mAlphaHidden) { return; }
     mColorLabel->setAlpha(alpha);
     aRect->setDisplayedValue(alpha);
     aSpin->setDisplayedValue(alpha);
 }
 
-void ColorSettingsWidget::setDisplayedColor(const QColor& color) {
+void ColorSettingsWidget::setDisplayedColor(const QColor& color)
+{
     qreal hue = qBound(0., color.hueF(), 1.);
-    if(isZero4Dec(hue) &&
-       (mLastTriggered == ColorParameter::value ||
-        mLastTriggered == ColorParameter::lightness ||
-        mLastTriggered == ColorParameter::hsvSaturation ||
-        mLastTriggered == ColorParameter::hslSaturation)) {
+    if (isZero4Dec(hue) &&
+        (mLastTriggered == ColorParameter::value ||
+         mLastTriggered == ColorParameter::lightness ||
+         mLastTriggered == ColorParameter::hsvSaturation ||
+         mLastTriggered == ColorParameter::hslSaturation)) {
         hue = mLastNonZeroHue;
-    } else mLastNonZeroHue = hue;
+    } else { mLastNonZeroHue = hue; }
+
     qreal hsvS = color.hsvSaturationF();
-    if(isZero4Dec(hsvS) &&
-       (mLastTriggered == ColorParameter::value ||
-        mLastTriggered == ColorParameter::lightness)) {
+    if (isZero4Dec(hsvS) &&
+        (mLastTriggered == ColorParameter::value ||
+         mLastTriggered == ColorParameter::lightness)) {
         hsvS = mLastNonZeroHsvS;
-    } else mLastNonZeroHsvS = hsvS;
+    } else { mLastNonZeroHsvS = hsvS; }
+
     qreal hslS = color.hslSaturationF();
-    if(isZero4Dec(hslS) &&
-       (mLastTriggered == ColorParameter::value ||
-        mLastTriggered == ColorParameter::lightness)) {
+    if (isZero4Dec(hslS) &&
+        (mLastTriggered == ColorParameter::value ||
+         mLastTriggered == ColorParameter::lightness)) {
         hslS = mLastNonZeroHslS;
-    } else mLastNonZeroHslS = hslS;
+    } else { mLastNonZeroHslS = hslS; }
+
     setDisplayedRGB(color.redF(), color.greenF(), color.blueF());
     setDisplayedHSV(hue, hsvS, color.valueF());
     setDisplayedHSL(hue, hslS, color.lightnessF());
@@ -864,7 +1020,8 @@ void ColorSettingsWidget::setDisplayedColor(const QColor& color) {
 
 void ColorSettingsWidget::setRGB(const qreal red,
                                  const qreal green,
-                                 const qreal blue) {
+                                 const qreal blue)
+{
     setDisplayedColor(QColor::fromRgbF(red, green, blue,
                                        aSpin->value()));
     emitColorChangedSignal();
@@ -902,55 +1059,67 @@ void ColorSettingsWidget::setHSV(const qreal hue,
 
 void ColorSettingsWidget::setHSL(const qreal hue,
                                  const qreal saturation,
-                                 const qreal lightness) {
+                                 const qreal lightness)
+{
     setDisplayedColor(QColor::fromHslF(hue, saturation, lightness,
                                        aSpin->value()));
     emitColorChangedSignal();
 }
 
-void ColorSettingsWidget::setRed(const qreal red) {
+void ColorSettingsWidget::setRed(const qreal red)
+{
     setRGB(red, gSpin->value(), bSpin->value());
 }
 
-void ColorSettingsWidget::setGreen(const qreal green) {
+void ColorSettingsWidget::setGreen(const qreal green)
+{
     setRGB(rSpin->value(), green, bSpin->value());
 }
 
-void ColorSettingsWidget::setBlue(const qreal blue) {
+void ColorSettingsWidget::setBlue(const qreal blue)
+{
     setRGB(rSpin->value(), gSpin->value(), blue);
 }
 
-void ColorSettingsWidget::setHSVHue(const qreal hue) {
+void ColorSettingsWidget::setHSVHue(const qreal hue)
+{
     setHSV(hue, hsvSSpin->value(), vSpin->value());
 }
 
-void ColorSettingsWidget::setHSVSaturation(const qreal saturation) {
+void ColorSettingsWidget::setHSVSaturation(const qreal saturation)
+{
     setHSV(hSpin->value(), saturation, vSpin->value());
 }
 
-void ColorSettingsWidget::setHSVValue(const qreal value) {
+void ColorSettingsWidget::setHSVValue(const qreal value)
+{
     setHSV(hSpin->value(), hsvSSpin->value(), value);
 }
 
-void ColorSettingsWidget::setHSLHue(const qreal hue) {
+void ColorSettingsWidget::setHSLHue(const qreal hue)
+{
     setHSL(hue, hslSSpin->value(), lSpin->value());
 }
 
-void ColorSettingsWidget::setHSLSaturation(const qreal saturation) {
+void ColorSettingsWidget::setHSLSaturation(const qreal saturation)
+{
     setHSL(hSpin->value(), saturation, lSpin->value());
 }
 
-void ColorSettingsWidget::setHSLLightness(const qreal value) {
+void ColorSettingsWidget::setHSLLightness(const qreal value)
+{
     setHSL(hSpin->value(), hslSSpin->value(), value);
 }
 
-void ColorSettingsWidget::updateAlphaFromSpin() {
-    if(mAlphaHidden) return;
+void ColorSettingsWidget::updateAlphaFromSpin()
+{
+    if (mAlphaHidden) { return; }
     mColorLabel->setAlpha(aSpin->value());
     aRect->setDisplayedValue(aSpin->value());
 }
 
-void ColorSettingsWidget::setColorMode() {
+void ColorSettingsWidget::setColorMode()
+{
     const auto colorSetting = getColorSetting(ColorSettingType::apply,
                                               ColorParameter::colorMode);
     emit colorSettingSignal(colorSetting);
@@ -959,7 +1128,6 @@ void ColorSettingsWidget::setColorMode() {
 
 void ColorSettingsWidget::setColorModeFromCombo(int index)
 {
-    qDebug() << "setColorModeFromCombo" << index;
     auto colorSetting = getColorSetting(ColorSettingType::apply,
                                         ColorParameter::colorMode);
     switch(index) {
@@ -976,8 +1144,9 @@ void ColorSettingsWidget::setColorModeFromCombo(int index)
     Document::sInstance->actionFinished();
 }
 
-void ColorSettingsWidget::setAlpha(const qreal val) {
-    if(mAlphaHidden) return;
+void ColorSettingsWidget::setAlpha(const qreal val)
+{
+    if (mAlphaHidden) { return; }
     aSpin->setDisplayedValue(val);
     mColorLabel->setAlpha(val);
     aRect->setDisplayedValue(val);
