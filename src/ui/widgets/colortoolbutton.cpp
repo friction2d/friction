@@ -79,11 +79,21 @@ ColorToolButton::ColorToolButton(Document& document,
                                                          this,
                                                          true,
                                                          mIsFillOnly,
-                                                         mIsStrokeOnly);
+                                                         mIsStrokeOnly,
+                                                         true,
+                                                         true,
+                                                         true,
+                                                         false,
+                                                         "popup");
         mFillStrokeWidget->setContentsMargins(0, 0, 0, 0);
         mScroll->setWidget(mFillStrokeWidget);
     } else {
-        mBackgroundWidget = new ColorSettingsWidget(this);
+        mBackgroundWidget = new ColorSettingsWidget(this,
+                                                    true,
+                                                    true,
+                                                    true,
+                                                    false,
+                                                    "background");
         mBackgroundWidget->setObjectName("DarkWidget");
         mBackgroundWidget->setColorModeVisible(false);
         mScroll->setWidget(mBackgroundWidget);

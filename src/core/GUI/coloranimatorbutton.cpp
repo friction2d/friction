@@ -141,6 +141,8 @@ void ColorAnimatorButton::openColorSettingsDialog()
     const auto dialog = new QDialog(this);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->setLayout(new QVBoxLayout(dialog));
+    dialog->setMinimumWidth(300);
+
     QWidget* colorWidget = nullptr;
 
     if (mColorTarget) {

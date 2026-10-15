@@ -6,8 +6,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# the Free Software Foundation, version 3.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -23,8 +22,8 @@
 
 // Fork of enve - Copyright (C) 2016-2020 Maurycy Liebner
 
-#ifndef COLORSETTINGSWIDGET_H
-#define COLORSETTINGSWIDGET_H
+#ifndef FRICTION_COLORSETTINGSWIDGET_H
+#define FRICTION_COLORSETTINGSWIDGET_H
 
 #include "ui_global.h"
 
@@ -38,199 +37,203 @@
 #include "widgets/colorvaluerect.h"
 #include "widgets/qrealanimatorvalueslider.h"
 #include "Animators/coloranimator.h"
-#include "Animators/paintsettingsanimator.h"
 #include "paintsettingsapplier.h"
 #include "conncontextptr.h"
-#include "widgets/actionbutton.h"
 #include "widgets/colorlabel.h"
 #include "widgets/savedcolorswidget.h"
 #include "widgets/colorwheel.h"
 #include "widgets/colormap.h"
 
-class UI_EXPORT ColorSettingsWidget : public QWidget
+namespace Friction
 {
-    Q_OBJECT
-public:
-    explicit ColorSettingsWidget(QWidget *parent = nullptr,
-                                 bool loadState = true,
-                                 bool saveState = true,
-                                 bool defWheel = true,
-                                 bool defMap = false,
-                                 const QString &confPrefix = QString());
+    namespace Ui
+    {
+        class UI_EXPORT ColorSettingsWidget : public QWidget
+        {
+            Q_OBJECT
+        public:
+            explicit ColorSettingsWidget(QWidget *parent = nullptr,
+                                         bool loadState = true,
+                                         bool saveState = true,
+                                         bool defWheel = true,
+                                         bool defMap = false,
+                                         const QString &confPrefix = QString());
 
-    QColor getCurrentQColor();
-    void setDisplayedColor(const QColor& color);
+            QColor getCurrentQColor();
+            void setDisplayedColor(const QColor& color);
 
-    void setTarget(ColorAnimator * const target);
+            void setTarget(ColorAnimator * const target);
 
-    ColorSetting getColorSetting(const ColorSettingType type,
-                                 const ColorParameter parameter) const;
-    void setColorModeVisible(const bool &visible);
-    void setCurrentTab(const int &index);
+            ColorSetting getColorSetting(const ColorSettingType type,
+                                         const ColorParameter parameter) const;
+            void setColorModeVisible(const bool &visible);
+            void setCurrentTab(const int &index);
 
-signals:
-    void colorSettingSignal(const ColorSetting&);
+        signals:
+            void colorSettingSignal(const ColorSetting&);
 
-protected:
-    void showEvent(QShowEvent *e) override;
+        protected:
+            void showEvent(QShowEvent *e) override;
 
-private:
-    void setupWidgetTabs();
-    void setupWidgetWheel(QVBoxLayout *lay);
-    void setupWidgetMap(QVBoxLayout *lay);
-    void setupWidgetRGB(const int spinWidth);
-    void setupWidgetHSV(const int spinWidth);
-    void setupWidgetHSL(const int spinWidth);
-    void setupWidgetAlpha(const int spinWidth);
-    void setupWidgetHex();
-    void setupWidgetButton(const bool loadState,
-                           const bool saveState,
-                           const bool defWheel,
-                           const bool defMap,
-                           const QString &prefix);
-    void setupWidgetPickButton();
-    void setupWidgetColorMode();
-    void setupWidgetColorLabel(QVBoxLayout *lay);
-    void setupWidgetsAddTabs(QVBoxLayout *lay);
-    void setupWidgetsBookmark(QVBoxLayout *lay);
+        private:
+            void setupWidgetTabs();
+            void setupWidgetWheel(QVBoxLayout *lay);
+            void setupWidgetMap(QVBoxLayout *lay);
+            void setupWidgetRGB(const int spinWidth);
+            void setupWidgetHSV(const int spinWidth);
+            void setupWidgetHSL(const int spinWidth);
+            void setupWidgetAlpha(const int spinWidth);
+            void setupWidgetHex();
+            void setupWidgetButton(const bool loadState,
+                                   const bool saveState,
+                                   const bool defWheel,
+                                   const bool defMap,
+                                   const QString &prefix);
+            void setupWidgetPickButton();
+            void setupWidgetColorMode();
+            void setupWidgetColorLabel(QVBoxLayout *lay);
+            void setupWidgetsAddTabs(QVBoxLayout *lay);
+            void setupWidgetsBookmark(QVBoxLayout *lay);
 
-    void emitColorChangedSignal();
-    void emitEditingFinishedSignal();
-    void emitEditingStartedSignal();
+            void emitColorChangedSignal();
+            void emitEditingFinishedSignal();
+            void emitEditingStartedSignal();
 
-    void emitEditingStartedRed();
-    void emitEditingStartedGreen();
-    void emitEditingStartedBlue();
+            void emitEditingStartedRed();
+            void emitEditingStartedGreen();
+            void emitEditingStartedBlue();
 
-    void emitEditingStartedHue();
-    void emitEditingStartedHSVSaturation();
-    void emitEditingStartedValue();
+            void emitEditingStartedHue();
+            void emitEditingStartedHSVSaturation();
+            void emitEditingStartedValue();
 
-    void emitEditingStartedHSLSaturation();
-    void emitEditingStartedLightness();
+            void emitEditingStartedHSLSaturation();
+            void emitEditingStartedLightness();
 
-    void emitEditingStartedAlpha();
+            void emitEditingStartedAlpha();
 
-    void emitStartFullColorChangedSignal();
-    void emitFinishFullColorChangedSignal();
+            void emitStartFullColorChangedSignal();
+            void emitFinishFullColorChangedSignal();
 
-    void moveAlphaWidgetToTab(const int tabId);
+            void moveAlphaWidgetToTab(const int tabId);
 
-    void startColorPicking();
+            void startColorPicking();
 
-    void setAlpha(const qreal val);
+            void setAlpha(const qreal val);
 
-    void updateValuesFromRGBSpins();
-    void updateValuesFromHSVSpins();
-    void updateValuesFromHSLSpins();
-    void updateAlphaFromSpin();
+            void updateValuesFromRGBSpins();
+            void updateValuesFromHSVSpins();
+            void updateValuesFromHSLSpins();
+            void updateAlphaFromSpin();
 
-    void setDisplayedRGB(const qreal red,
-                         const qreal green,
-                         const qreal blue);
-    void setDisplayedHSV(const qreal hue,
-                         const qreal saturation,
-                         const qreal value);
-    void setDisplayedHSL(const qreal hue,
-                         const qreal saturation,
-                         const qreal lightness);
-    void setDisplayedAlpha(const qreal alpha);
+            void setDisplayedRGB(const qreal red,
+                                 const qreal green,
+                                 const qreal blue);
+            void setDisplayedHSV(const qreal hue,
+                                 const qreal saturation,
+                                 const qreal value);
+            void setDisplayedHSL(const qreal hue,
+                                 const qreal saturation,
+                                 const qreal lightness);
+            void setDisplayedAlpha(const qreal alpha);
 
-    void setRGB(const qreal red,
-                const qreal green,
-                const qreal blue);
-    void setHSV(const qreal hue,
-                const qreal saturation,
-                const qreal value);
-    void setHSL(const qreal hue,
-                const qreal saturation,
-                const qreal lightness);
+            void setRGB(const qreal red,
+                        const qreal green,
+                        const qreal blue);
+            void setHSV(const qreal hue,
+                        const qreal saturation,
+                        const qreal value);
+            void setHSL(const qreal hue,
+                        const qreal saturation,
+                        const qreal lightness);
 
-    void setRed(const qreal red);
-    void setGreen(const qreal green);
-    void setBlue(const qreal blue);
+            void setRed(const qreal red);
+            void setGreen(const qreal green);
+            void setBlue(const qreal blue);
 
-    void setHSVHue(const qreal hue);
-    void setHSVSaturation(const qreal saturation);
-    void setHSVValue(const qreal value);
+            void setHSVHue(const qreal hue);
+            void setHSVSaturation(const qreal saturation);
+            void setHSVValue(const qreal value);
 
-    void setHSLHue(const qreal hue);
-    void setHSLSaturation(const qreal saturation);
-    void setHSLLightness(const qreal value);
+            void setHSLHue(const qreal hue);
+            void setHSLSaturation(const qreal saturation);
+            void setHSLLightness(const qreal value);
 
-    void setColorMode();
-    void setColorModeFromCombo(int index);
-    void updateWidgetTargets();
+            void setColorMode();
+            void setColorModeFromCombo(int index);
+            void updateWidgetTargets();
 
-    qreal mLastNonZeroHue;
-    qreal mLastNonZeroHsvS;
-    qreal mLastNonZeroHslS;
+            qreal mLastNonZeroHue;
+            qreal mLastNonZeroHsvS;
+            qreal mLastNonZeroHslS;
 
-    ColorParameter mLastTriggered;
+            ColorParameter mLastTriggered;
 
-    ConnContextQPtr<ColorAnimator> mTarget;
+            ConnContextQPtr<ColorAnimator> mTarget;
 
-    QLabel *mColorModeLabel;
-    QComboBox *mColorModeCombo;
-    SavedColorsWidget* mBookmarkedColors;
+            QLabel *mColorModeLabel;
+            QComboBox *mColorModeCombo;
+            SavedColorsWidget* mBookmarkedColors;
 
-    QTabWidget *mTabWidget;
+            QTabWidget *mTabWidget;
 
-    QWidget *mWheelWidget;
-    Friction::Ui::ColorWheel *mColorWheel;
+            QWidget *mWheelWidget;
+            Friction::Ui::ColorWheel *mColorWheel;
 
-    QWidget *mMapWidget;
-    Friction::Ui::ColorMap *mColorMap;
+            QWidget *mMapWidget;
+            Friction::Ui::ColorMap *mColorMap;
 
-    QWidget *mRGBWidget;
-    QVBoxLayout *mRGBLayout;
+            QWidget *mRGBWidget;
+            QVBoxLayout *mRGBLayout;
 
-    ColorValueRect *rRect;
-    QrealAnimatorValueSlider *rSpin;
+            ColorValueRect *rRect;
+            QrealAnimatorValueSlider *rSpin;
 
-    ColorValueRect *gRect;
-    QrealAnimatorValueSlider *gSpin;
+            ColorValueRect *gRect;
+            QrealAnimatorValueSlider *gSpin;
 
-    ColorValueRect *bRect;
-    QrealAnimatorValueSlider *bSpin;
+            ColorValueRect *bRect;
+            QrealAnimatorValueSlider *bSpin;
 
-    QWidget *mHSVWidget;
-    QVBoxLayout *mHSVLayout;
+            QWidget *mHSVWidget;
+            QVBoxLayout *mHSVLayout;
 
-    QHBoxLayout *hLayout;
-    ColorValueRect *hRect;
-    QrealAnimatorValueSlider *hSpin;
+            QHBoxLayout *hLayout;
+            ColorValueRect *hRect;
+            QrealAnimatorValueSlider *hSpin;
 
-    ColorValueRect *hsvSatRect;
-    QrealAnimatorValueSlider *hsvSSpin;
+            ColorValueRect *hsvSatRect;
+            QrealAnimatorValueSlider *hsvSSpin;
 
-    ColorValueRect *vRect;
-    QrealAnimatorValueSlider *vSpin;
+            ColorValueRect *vRect;
+            QrealAnimatorValueSlider *vSpin;
 
-    QWidget *mHSLWidget;
-    QVBoxLayout *mHSLLayout;
+            QWidget *mHSLWidget;
+            QVBoxLayout *mHSLLayout;
 
-    QHBoxLayout *hslSLayout;
-    ColorValueRect *hslSatRect;
-    QrealAnimatorValueSlider *hslSSpin;
+            QHBoxLayout *hslSLayout;
+            ColorValueRect *hslSatRect;
+            QrealAnimatorValueSlider *hslSSpin;
 
-    ColorValueRect *lRect;
-    QrealAnimatorValueSlider *lSpin;
+            ColorValueRect *lRect;
+            QrealAnimatorValueSlider *lSpin;
 
-    bool mAlphaHidden;
-    QHBoxLayout *aLayout;
-    ColorValueRect *aRect;
-    QrealAnimatorValueSlider *aSpin;
+            bool mAlphaHidden;
+            QHBoxLayout *aLayout;
+            ColorValueRect *aRect;
+            QrealAnimatorValueSlider *aSpin;
 
-    QHBoxLayout *hexLayout;
-    QLineEdit *mHexEdit;
+            QHBoxLayout *hexLayout;
+            QLineEdit *mHexEdit;
 
-    QPushButton *mPickingButton;
-    QPushButton *mWidgetButton;
+            QPushButton *mPickingButton;
+            QPushButton *mWidgetButton;
 
-    ColorLabel *mColorLabel;
+            ColorLabel *mColorLabel;
 
-    ConnContext mUpdateConnections;
-};
+            ConnContext mUpdateConnections;
+        };
+    }
+}
 
-#endif // COLORSETTINGSWIDGET_H
+#endif // FRICTION_COLORSETTINGSWIDGET_H

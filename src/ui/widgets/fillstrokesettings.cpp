@@ -35,11 +35,18 @@
 
 #include "GUI/global.h"
 
+using namespace Friction::Ui;
+
 FillStrokeSettingsWidget::FillStrokeSettingsWidget(Document &document,
                                                    QWidget * const parent,
                                                    const bool noScroll,
                                                    const bool fillOnly,
-                                                   const bool strokeOnly)
+                                                   const bool strokeOnly,
+                                                   bool loadState,
+                                                   bool saveState,
+                                                   bool defWheel,
+                                                   bool defMap,
+                                                   const QString &confPrefix)
     : QWidget(parent)
     , mDocument(document)
     , mTarget(PaintSetting::FILL)
@@ -254,7 +261,12 @@ FillStrokeSettingsWidget::FillStrokeSettingsWidget(Document &document,
     mGradientWidget = new GradientWidget(this);
 
     // color settings
-    mColorsSettingsWidget = new ColorSettingsWidget(this);
+    mColorsSettingsWidget = new ColorSettingsWidget(this,
+                                                    loadState,
+                                                    saveState,
+                                                    defWheel,
+                                                    defMap,
+                                                    confPrefix);
     connect(mColorsSettingsWidget, &ColorSettingsWidget::colorSettingSignal,
             this, &FillStrokeSettingsWidget::colorSettingReceived);
 
