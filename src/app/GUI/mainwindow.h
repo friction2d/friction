@@ -39,7 +39,6 @@
 #include <QComboBox>
 #include <QTimer>
 
-
 #include "Private/Tasks/taskscheduler.h"
 #include "Private/document.h"
 #include "Sound/audiohandler.h"
@@ -283,6 +282,7 @@ private:
     QMenu *mObjectMenu;
     QMenu *mPathMenu;
     QMenu *mEffectsMenu;
+    QMenu *mPluginsMenu;
     QMenu *mSceneMenu;
 #ifndef Q_OS_MAC
     Friction::Ui::PersistentMenu *mViewMenu;
@@ -320,6 +320,7 @@ private:
     void setupMenuBar();
     void setupMenuScene();
     void setupMenuEffects();
+    void setupMenuPlugins();
     void setupMenuExtras();
     void setupPropertiesActions();
 

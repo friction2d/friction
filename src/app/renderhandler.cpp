@@ -168,6 +168,7 @@ void RenderHandler::setPreviewState(const PreviewState state)
         setPreviewing(false);
     }
     mPreviewState = state;
+    mDocument.setRenderState(state);
 }
 
 void RenderHandler::renderPreview() {

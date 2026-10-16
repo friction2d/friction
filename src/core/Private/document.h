@@ -48,6 +48,8 @@
 #include "appsupport.h"
 #include "grid.h"
 
+#include "coreplugininterface.h"
+
 class SceneBoundGradient;
 class FileDataCacheHandler;
 class Canvas;
@@ -62,6 +64,16 @@ enum class NodeVisiblity {
 enum class PaintMode {
     normal, erase, lockAlpha, colorize,
     move, crop
+};
+
+struct CorePluginData
+{
+    QJsonObject meta;
+    FrictionCorePluginInterface* instance = nullptr;
+};
+
+enum class PreviewState {
+    stopped, rendering, playing, paused
 };
 
 class CORE_EXPORT Document : public SingleWidgetTarget {
@@ -208,6 +220,15 @@ public:
     void SWT_setupAbstraction(SWT_Abstraction * const abstraction,
                               const UpdateFuncs &updateFuncs,
                               const int visiblePartWidgetId);
+
+    QHash<QString, CorePluginData> getCorePlugins() const;
+    CorePluginData getCorePlugin(const QString& id) const;
+    QStringList getCorePluginsImportExtensions() const;
+    bool isCorePluginImportExtension(const QString& ext) const;
+
+    PreviewState getRenderState() const;
+    void setRenderState(PreviewState state);
+
 private:
     void readDocumentXEV(const QDomDocument& doc,
                          QList<Canvas*>& scenes);
@@ -218,6 +239,11 @@ private:
     void readBookmarked(eReadStream &src);
 
     void readGradients(eReadStream& src);
+
+    void loadCorePlugins();
+    QHash<QString, CorePluginData> mCorePlugins;
+
+    PreviewState mRenderState = PreviewState::stopped;
 
 signals:
 
@@ -261,6 +287,12 @@ signals:
 
     // https://github.com/friction2d/friction/pull/736
     void fitCanvasToSize();
+
+    void renderStateChanged(PreviewState state);
+    void renderProgress(int frame, int total);
+
+    void showNotification(const QString& title,
+                          const QString& message);
 };
 
 #endif // DOCUMENT_H

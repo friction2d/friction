@@ -34,17 +34,16 @@
 #include <QHeaderView>
 
 #include "GUI/global.h"
-#include "Private/esettings.h"
+#include "Private/document.h"
 
 PluginsSettingsWidget::PluginsSettingsWidget(QWidget *parent)
     : SettingsWidget(parent)
     , mShaderPath(nullptr)
     , mShaderTree(nullptr)
+    , mCorePath(nullptr)
+    , mCoreTree(nullptr)
 {
-#ifdef USE_GLES
-    const auto label = new QLabel(tr("Shaders not supported when using OpenGL ES 3.0."), this);
-    addWidget(label);
-#else
+#ifndef USE_GLES
     mShadersList = EffectsLoader::sInstance->getLoadedShaderEffects();
 
     mShadersDisabled = AppSupport::getSettings("settings",
@@ -91,13 +90,52 @@ PluginsSettingsWidget::PluginsSettingsWidget(QWidget *parent)
 
     addWidget(mShaderTree);
     populateShaderTree();
-
-    const auto infoLabel = new QLabel(this);
-    infoLabel->setText(QString("<strong>%1.</strong><br><i>%2.</i>")
-                       .arg(tr("Any changes in this section require a restart of Friction"),
-                            tr("Also note that shader effects are still considered experimental")));
-    addWidget(infoLabel);
 #endif
+
+    mCoreDisabled = AppSupport::getSettings("settings",
+                                            "DisabledCorePlugins").toStringList();
+
+    const auto mCoreWidget = new QWidget(this);
+    mCoreWidget->setContentsMargins(0, 0, 0, 0);
+    const auto mCoreLayout = new QHBoxLayout(mCoreWidget);
+    mCoreLayout->setContentsMargins(0, 0, 0, 0);
+
+    const auto mCoreLabel = new QLabel(tr("Core Plugins Path"), this);
+    mCoreLabel->setToolTip(tr("This location will be scanned for core plugins during startup."));
+    mCorePath = new QLineEdit(this);
+    mCorePath->setText(AppSupport::getAppUserCorePluginsPath());
+    const auto mCorePathButton = new QPushButton(QIcon::fromTheme("file_folder"),
+                                                 QString(),
+                                                 this);
+    mCorePathButton->setFocusPolicy(Qt::NoFocus);
+
+    eSizesUI::widget.add(mCorePathButton, [mCorePathButton](const int size) {
+        Q_UNUSED(size)
+        mCorePathButton->setFixedSize(eSizesUI::button, eSizesUI::button);
+    });
+
+    mCoreLayout->addWidget(mCoreLabel);
+    mCoreLayout->addWidget(mCorePath);
+    mCoreLayout->addWidget(mCorePathButton);
+
+    addWidget(mCoreWidget);
+
+    connect(mCorePathButton, &QPushButton::pressed,
+            this, [this]() {
+        QString path = AppSupport::getExistingDirectory(this,
+                                                        tr("Select directory"),
+                                                        QDir::homePath());
+        if (QFile::exists(path)) { mCorePath->setText(path); }
+    });
+
+    mCoreTree = new QTreeWidget(this);
+    mCoreTree->setHeaderLabels(QStringList() << tr("Plugin") << tr("Description"));
+    mCoreTree->setAlternatingRowColors(true);
+    mCoreTree->setSortingEnabled(false);
+    mCoreTree->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+    addWidget(mCoreTree);
+    populateCoreTree();
 }
 
 void PluginsSettingsWidget::applySettings()
@@ -109,13 +147,28 @@ void PluginsSettingsWidget::applySettings()
     QStringList disabledShaders;
     for (int i = 0; i < mShaderTree->topLevelItemCount(); ++i ) {
         const auto item = mShaderTree->topLevelItem(i);
-        if (item->checkState(0) == Qt::Unchecked) { disabledShaders << item->data(0,
-                                                                                  Qt::UserRole).toString(); }
+        if (item->checkState(0) == Qt::Unchecked) {
+            disabledShaders << item->data(0, Qt::UserRole).toString();
+        }
     }
     AppSupport::setSettings("settings",
                             "DisabledShaders",
                             disabledShaders);
 #endif
+
+    AppSupport::setSettings("settings",
+                            "CustomCorePluginsPath",
+                            mCorePath->text());
+    QStringList disabledCore;
+    for (int i = 0; i < mCoreTree->topLevelItemCount(); ++i ) {
+        const auto item = mCoreTree->topLevelItem(i);
+        if (item->checkState(0) == Qt::Unchecked) {
+            disabledCore << item->data(0, Qt::UserRole).toString();
+        }
+    }
+    AppSupport::setSettings("settings",
+                            "DisabledCorePlugins",
+                            disabledCore);
 }
 
 void PluginsSettingsWidget::updateSettings(bool restore)
@@ -128,9 +181,15 @@ void PluginsSettingsWidget::updateSettings(bool restore)
         mShadersDisabled.clear();
         populateShaderTree();
     }
-#else
-    Q_UNUSED(restore)
 #endif
+
+    mCorePath->setText(AppSupport::getAppUserCorePluginsPath(restore));
+    mCoreDisabled = AppSupport::getSettings("settings",
+                                            "DisabledCorePlugins").toStringList();
+    if (restore) {
+        mCoreDisabled.clear();
+        populateCoreTree();
+    }
 }
 
 void PluginsSettingsWidget::populateShaderTree()
@@ -151,4 +210,31 @@ void PluginsSettingsWidget::populateShaderTree()
     mShaderTree->setSortingEnabled(true);
     mShaderTree->sortByColumn(0, Qt::AscendingOrder);
 #endif
+}
+
+void PluginsSettingsWidget::populateCoreTree()
+{
+    mCoreTree->setSortingEnabled(false);
+    mCoreTree->clear();
+    const auto plugins = Document::sInstance->getCorePlugins();
+    for (const auto& plugin : plugins) {
+        QString pluginId = plugin.meta.value("id").toString().trimmed();
+        QString pluginName = plugin.meta.value("name").toString().trimmed();
+        QString pluginDesc = plugin.meta.value("description").toString().trimmed();
+        if (pluginId.isEmpty() ||
+            pluginName.isEmpty() ||
+            pluginDesc.isEmpty()) { continue; }
+
+        QTreeWidgetItem *item = new QTreeWidgetItem(mCoreTree);
+        item->setCheckState(0, mCoreDisabled.contains(pluginId) ? Qt::Unchecked : Qt::Checked);
+        item->setToolTip(0, QString("%1 (%2)\n\n%3").arg(pluginName,
+                                                         pluginId,
+                                                         pluginDesc));
+        item->setData(0, Qt::UserRole, pluginId);
+        item->setText(0, pluginName);
+        item->setText(1, pluginDesc);
+        mCoreTree->addTopLevelItem(item);
+    }
+    mCoreTree->setSortingEnabled(true);
+    mCoreTree->sortByColumn(0, Qt::AscendingOrder);
 }
