@@ -200,7 +200,7 @@ public:
     void anim_appendKeyAction(const stdsptr<Key> &newKey);
     void anim_removeKeyAction(const stdsptr<Key> newKey);
 
-    using ValueGetter = std::function<QString(const int relFrame)>;
+    using ValueGetter = std::function<QString(const qreal relFrame)>;
     void saveSVG(SvgExporter& exp,
                  QDomElement& parent,
                  const FrameRange& visRange,

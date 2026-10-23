@@ -852,7 +852,7 @@ void QrealAnimator::saveQrealSVG(SvgExporter& exp,
         setExpression(mExpression.sptr());
     } else {
         graph_saveSVG(exp, parent, visRange, attrName,
-                      [this, mangler, &templ](const int relFrame) {
+                      [this, mangler, &templ](const qreal relFrame) {
             const qreal val = mangler(getEffectiveValue(relFrame));
             return templ.arg(val);
         }, transform, type, beginEvent, endEvent, motion, motionRotate, motionPath);

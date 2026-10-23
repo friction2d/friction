@@ -68,7 +68,7 @@ void SmartVectorPath::saveSVG(SvgExporter& exp, DomEleTask* const task) const {
         auto fill = exp.createElement("path");
         SmartPathCollection::EffectApplier fillApplier;
         if(baseEffects || fillEffects) {
-            fillApplier = [this](const int relFrame, SkPath& path) {
+            fillApplier = [this](const qreal relFrame, SkPath& path) {
                 applyBasePathEffects(relFrame, path);
                 applyFillEffects(relFrame, path);
             };
@@ -93,7 +93,7 @@ void SmartVectorPath::saveSVG(SvgExporter& exp, DomEleTask* const task) const {
         auto stroke = exp.createElement("path");
         SmartPathCollection::EffectApplier strokeApplier;
         if(baseEffects || outlineBaseEffects || outlineEffects) {
-            strokeApplier = [this, outlineEffects](const int relFrame, SkPath& path) {
+            strokeApplier = [this, outlineEffects](const qreal relFrame, SkPath& path) {
                 applyBasePathEffects(relFrame, path);
                 applyOutlineBaseEffects(relFrame, path);
                 if(!outlineEffects) return;
@@ -121,7 +121,7 @@ void SmartVectorPath::saveSVG(SvgExporter& exp, DomEleTask* const task) const {
         auto& ele = task->initialize("path");
         SmartPathCollection::EffectApplier applier;
         if(baseEffects) {
-            applier = [this](const int relFrame, SkPath& path) {
+            applier = [this](const qreal relFrame, SkPath& path) {
                 applyBasePathEffects(relFrame, path);
             };
         };

@@ -28,7 +28,9 @@
 #include "svgexporter.h"
 
 DomEleTask::DomEleTask(SvgExporter& exp, const FrameRange& visRange) :
-    mExp(exp), mVisRange(visRange) {}
+    mExp(exp),
+    mVisRange(visRange),
+    mFrameMapping(exp.currentFrameMapping()) {}
 
 QDomElement& DomEleTask::initialize(const QString& tag) {
     mEle = mExp.createElement(tag);

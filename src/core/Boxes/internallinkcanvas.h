@@ -39,6 +39,8 @@ public:
                          BoxRenderData * const data,
                          Canvas * const scene);
 
+    void saveSVG(SvgExporter& exp, DomEleTask* const task) const override;
+
     qsptr<BoundingBox> createLink(const bool inner);
 
     stdsptr<BoxRenderData> createRenderData();
