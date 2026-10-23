@@ -48,6 +48,9 @@ bool SWT_Abstraction::setAbstractions(
     if(currY > maxY) return true;
     const bool satisfiesRule = mTarget_k->SWT_shouldBeVisible(
                 rules, parentSatisfiesRule, parentMainTarget);
+    const bool passThrough = (parentSatisfiesRule || parentMainTarget) &&
+                             !satisfiesRule &&
+                             mTarget_k->SWT_shouldPassThrough(rules);
     if(currY > minY && satisfiesRule && !mIsMainTarget) {
         setAbsFunc(this, currX);
     }
@@ -56,7 +59,7 @@ bool SWT_Abstraction::setAbstractions(
         currY += swtHeight;
     }
     const bool childrenVisible = (satisfiesRule && mContentVisible) ||
-                                 mIsMainTarget;
+                                 passThrough || mIsMainTarget;
     for(const auto& abs : mChildren) {
         if(abs->setAbstractions(minY, maxY, currY, currX,
                                 swtHeight, setAbsFunc, rules,
@@ -76,13 +79,18 @@ int SWT_Abstraction::updateHeight(const SWT_RulesCollection &rules,
     if(mTarget_k->SWT_isVisible()) {
         const bool satisfiesRule = mTarget_k->SWT_shouldBeVisible(
                     rules, parentSatisfiesRule, parentMainTarget);
+        const bool passThrough = (parentSatisfiesRule || parentMainTarget) &&
+                                 !satisfiesRule &&
+                                 mTarget_k->SWT_shouldPassThrough(rules);
         if(satisfiesRule && !mIsMainTarget)
             mHeight += swtHeight;
         const bool childrenVisible = (satisfiesRule && mContentVisible) ||
-                                     mIsMainTarget;
-        for(const auto& abs : mChildren) {
-            mHeight += abs->updateHeight(rules, childrenVisible,
-                                         mIsMainTarget, swtHeight);
+                                     passThrough || mIsMainTarget;
+        if(childrenVisible) {
+            for(const auto& abs : mChildren) {
+                mHeight += abs->updateHeight(rules, childrenVisible,
+                                             mIsMainTarget, swtHeight);
+            }
         }
     }
 
