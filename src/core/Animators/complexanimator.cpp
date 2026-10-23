@@ -28,6 +28,7 @@
 #include "Sound/esound.h"
 #include <QPainter>
 #include "Boxes/boundingbox.h"
+#include "Animators/transformanimator.h"
 
 ComplexAnimator::ComplexAnimator(const QString &name) :
     Animator(name) {
@@ -205,6 +206,32 @@ void ComplexAnimator::ca_updateDescendatKeyFrame(Key* key) {
 Property *ComplexAnimator::ca_findPropertyWithPathRec(
         const int id, const QStringList &path,
         QStringList * const completions) const {
+    if(id < path.count() && path.at(id) == QStringLiteral("$parent")) {
+        const auto currentBox = getFirstAncestor<BoundingBox>();
+        const auto findParentBox = [](const BoundingBox* const box) {
+            const auto parentTransform = box ? box->getParentTransform() : nullptr;
+            return parentTransform ?
+                        parentTransform->getFirstAncestor<BoundingBox>() : nullptr;
+        };
+        auto parentBox = findParentBox(currentBox);
+        int nextId = id + 1;
+        while(parentBox && nextId < path.count() &&
+              path.at(nextId) == QStringLiteral("$parent")) {
+            parentBox = findParentBox(parentBox);
+            ++nextId;
+        }
+        if(!parentBox) return nullptr;
+        if(nextId == path.count()) {
+            if(completions) {
+                parentBox->ca_findPropertyWithPath(
+                            0, QStringList() << QString(), completions);
+            }
+            return parentBox;
+        }
+        return parentBox->ca_findPropertyWithPath(
+                    nextId, path, completions);
+    }
+
     Property* found = nullptr;
     const ComplexAnimator* acestorIter = this;
     while(acestorIter && (completions || !found)) {
