@@ -66,6 +66,7 @@ QuickSetupPresetsPage::QuickSetupPresetsPage(QWidget *parent)
             {"Rotation", "rotation.fexpr"},
             {"Time", "time.fexpr"},
             {"Track Object", "trackObject.fexpr"},
+            {"Value at Time (Delay)", "valueAtTime.fexpr"},
             {"Wave", "wave.fexpr"},
             {"Wiggle", "wiggle.fexpr"},
             {"Frame Remap Loop", "frameRemapLoop.fexpr"},

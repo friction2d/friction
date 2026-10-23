@@ -1,0 +1,13 @@
+[General]
+author=Friction
+bindings="// $value samples this property's pre-expression value.\n// Replace it with any mapped property when needed.\n// Example: source = RectangleBox.transform.translation.x;\nsource = $value;\n// $time is the absolute scene time in seconds.\ntime = $time;"
+categories=
+definitions=
+description="Samples a property at another time. Map 'source' to any property, then change delaySeconds to make the current property follow it with a delay. The script also shows how to sample the expression property's own pre-expression value."
+highlighters=valueAtTime
+id=graphics.friction.valueAtTime
+license=
+script="// Delay the mapped source by two seconds.\nvar delaySeconds = 2;\nvar delayedTime = time - delaySeconds;\n\n// To sample this property's own pre-expression value instead, use:\n// return valueAtTime(delayedTime);\n\nreturn valueAtTime(\"source\", delayedTime)"
+title=Value at Time (Delay)
+url=
+version=1

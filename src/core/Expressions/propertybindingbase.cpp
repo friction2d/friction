@@ -28,6 +28,13 @@
 PropertyBindingBase::PropertyBindingBase(const Property* const context) :
     mContext(context) {}
 
+QJSValue PropertyBindingBase::getJSValueAtAbsFrame(
+        QJSEngine& e, const qreal absFrame) {
+    if(!mContext) return QJSValue::NullValue;
+    const qreal relFrame = mContext->prp_absFrameToRelFrameF(absFrame);
+    return getJSValue(e, relFrame);
+}
+
 bool PropertyBindingBase::setAbsFrame(const int absFrame) {
     if(mContext) {
         const qreal oldRelFrame = mRelFrame;
