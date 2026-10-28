@@ -701,10 +701,25 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
     return QMainWindow::eventFilter(obj, e);
 }
 
+#ifdef Q_OS_MAC
+void hideMacApp();
+#endif
+
 void MainWindow::closeEvent(QCloseEvent *e)
 {
-    if (!closeProject()) { e->ignore(); }
-    else { mShutdown = true; }
+    if (!closeProject()) {
+        e->ignore();
+        return;
+    }
+    mShutdown = true;
+
+#ifdef Q_OS_MAC
+    e->ignore();
+    hideMacApp();
+    QTimer::singleShot(50, qApp, &QApplication::quit);
+#else
+    e->accept();
+#endif
 }
 
 bool MainWindow::processKeyEvent(QKeyEvent *event)

@@ -22,6 +22,10 @@
 cmake_minimum_required(VERSION 3.12)
 project(friction LANGUAGES CXX)
 
+if(APPLE)
+    enable_language(OBJCXX)
+endif()
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
 
 include(friction-version)
@@ -255,6 +259,7 @@ endif()
 
 if(APPLE)
     list(APPEND RESOURCES ${ICON_CAR})
+    list(APPEND SOURCES GUI/mainwindow.mm)
 endif()
 
 add_executable(
