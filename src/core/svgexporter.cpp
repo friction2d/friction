@@ -66,6 +66,11 @@ void SvgExporter::nextStep()
     if (!mOpen) {
         if (mFile.open(QIODevice::WriteOnly)) {
             mStream.setDevice(&mFile);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+            mStream.setCodec("UTF-8");
+#else
+            mStream.setEncoding(QStringConverter::Utf8);
+#endif
             fScene->saveSceneSVG(*this);
         } else {
             RuntimeThrow("Could not open:\n\"" + mFile.fileName() + "\"");
@@ -116,7 +121,7 @@ void SvgExporter::finish()
             result.append("</html>");
         }
 
-        mStream << result.toUtf8() << Qt::endl;
+        mStream << result << Qt::endl;
         mStream.flush();
         mFile.close();
     }
