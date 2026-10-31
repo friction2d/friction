@@ -6,28 +6,6 @@
 
 ![Screenshot of Friction 1.0.0](https://friction.graphics/assets/screenshots/100/friction-100-linux-screenshot.png?v=1)
 
-## Contribute
-
-We accept any contributions, big or small. Before submitting a pull request it's recommended that you communicate with the developers first (on [GitHub](https://github.com/friction2d/friction/issues) or [Codeberg](https://codeberg.org/friction/friction/issues)).
-
-It's always preferred to submit pull requests against the `main` branch.
-
-**Note:** All contributions must be original work. Generated code is considered tainted and will not be accepted directly. Non-developers may submit generated code drafts strictly to illustrate features or concepts, but a maintainer or contributor must rewrite the code before it can be merged.
-
-## Branches and versions
-
-Friction uses `X.Y.Z` version numbers and `vX.Y` branches.
-
-* `X` = Major
-* `Y` = Minor
-* `Z` = Patch
-
-Branch `main` is always the current branch for the next `X` or `Y` release.
-
-A new stable branch is cut from `main` on each `X` or `Y` release and is maintained until a new stable branch is created. Patch (`Z`) releases comes from the parent stable branch (`vX.Y`).
-
-Important fixes added to `main` will be backported to active stable branches when possible (and within reason).
-
 ## Documentation
 
 See https://friction.graphics/documentation for generic documentation.
