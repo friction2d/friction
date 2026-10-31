@@ -10,7 +10,7 @@
 
 ## Checklist
 
-- [ ] I have read and agree to the [CONTRIBUTING.md](CONTRIBUTING.md) guidelines.
+- [ ] I have read and agree to the [CONTRIBUTING](https://github.com/friction2d/friction/blob/main/CONTRIBUTING.md) guidelines.
 
 ## Additional Notes
 
