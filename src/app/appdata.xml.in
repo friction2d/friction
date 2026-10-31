@@ -18,6 +18,12 @@
     <p>@PROJECT_DESCRIPTION@</p>
   </description>
   <releases>
+    <release date="2026-11-08" version="1.0.0">
+      <description>
+        <p>Introducing Friction 1.0.0.</p>
+      </description>
+      <url type="details">https://friction.graphics/releases/friction-100.html</url>
+    </release>
     <release date="2025-12-31" version="1.0.0-rc.3">
       <description>
         <p>Third release candidate for v1.0.0 is now available. Features gizmos, snapping and grid. And of course many fixes!</p>
