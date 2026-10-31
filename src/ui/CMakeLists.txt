@@ -32,6 +32,7 @@ include(friction-common)
 include(friction-ffmpeg)
 
 add_definitions(-DUI_LIBRARY)
+add_definitions(-DPROJECT_DONATE_URL="${PROJECT_DONATE_URL}")
 
 include_directories(
     ${FFMPEG_INCLUDE_DIRS}
