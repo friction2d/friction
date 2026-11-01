@@ -584,9 +584,8 @@ void VideoEncoder::process()
             try {
                 FFmpegHelper::writeVideoFrame(mFormatContext,
                                               &mVideoStream,
-                                              cacheCont->getImage(),
+                                              image,
                                               &hasVideo);
-                avcodec_flush_buffers(mVideoStream.fCodec);
             } catch(...) {
                 RuntimeThrow("Failed to write video frame");
             }

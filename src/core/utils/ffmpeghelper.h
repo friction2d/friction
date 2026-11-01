@@ -38,6 +38,7 @@ extern "C" {
 #include <libavutil/channel_layout.h>
 #include <libswscale/swscale.h>
 #include <libswresample/swresample.h>
+#include <libavutil/imgutils.h>
 }
 
 #define AV_RuntimeThrow(errId, message) \

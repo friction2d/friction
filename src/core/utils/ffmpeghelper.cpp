@@ -310,38 +310,43 @@ AVFrame* FFmpegHelper::allocPicture(AVPixelFormat pix_fmt,
 AVFrame *FFmpegHelper::getVideoFrame(OutputStream * const ost,
                                      const sk_sp<SkImage> &image)
 {
+    if (!image) {  RuntimeThrow("Missing image frame"); }
+
     AVCodecContext *c = ost->fCodec;
 
-    // as we only generate a rgba picture, we must convert it
-    // to the codec pixel format if needed
+    if (c->width != image->width() || c->height != image->height()) {
+        RuntimeThrow("Image size don't match codec size");
+    }
+
+    ost->fSwsCtx = sws_getCachedContext(ost->fSwsCtx,
+                                        c->width, c->height,
+                                        AV_PIX_FMT_RGBA,
+                                        c->width, c->height,
+                                        c->pix_fmt, SWS_BICUBIC,
+                                        nullptr, nullptr, nullptr);
     if (!ost->fSwsCtx) {
-        ost->fSwsCtx = sws_getContext(c->width,
-                                      c->height,
-                                      AV_PIX_FMT_RGBA,
-                                      c->width,
-                                      c->height,
-                                      c->pix_fmt,
-                                      SWS_BICUBIC,
-                                      nullptr,
-                                      nullptr,
-                                      nullptr);
-        if (!ost->fSwsCtx) {
-            RuntimeThrow("Cannot initialize the conversion context");
-        }
+        RuntimeThrow("Cannot initialize the conversion context");
     }
 
     SkPixmap pixmap;
-    image->peekPixels(&pixmap);
+    SkBitmap unpremulBitmap;
+
+    if (!image->peekPixels(&pixmap)) {
+        RuntimeThrow("Could not peek image pixels");
+    }
 
     // check if we need to convert to "unpremultiplied"
-    const bool unpremul = c->codec_id == AV_CODEC_ID_PNG; // for now only check for PNG
+    const AVPixFmtDescriptor *desc = av_pix_fmt_desc_get(c->pix_fmt);
+    const bool hasAlpha = desc && (desc->flags & AV_PIX_FMT_FLAG_ALPHA);
+    const bool unpremul = hasAlpha && (c->codec_id == AV_CODEC_ID_PNG ||
+                                       c->codec_id == AV_CODEC_ID_VP9 ||
+                                       c->codec_id == AV_CODEC_ID_VP8);
     if (unpremul) {
         SkImageInfo unpremulInfo = SkImageInfo::Make(pixmap.width(),
                                                      pixmap.height(),
                                                      kRGBA_8888_SkColorType,
                                                      kUnpremul_SkAlphaType,
                                                      pixmap.info().refColorSpace());
-        SkBitmap unpremulBitmap;
         if (unpremulBitmap.tryAllocPixels(unpremulInfo)) {
             const bool converted = image->readPixels(unpremulInfo,
                                                      unpremulBitmap.getPixels(),
@@ -351,17 +356,20 @@ AVFrame *FFmpegHelper::getVideoFrame(OutputStream * const ost,
         }
     }
 
-    const uint8_t* srcData[] = { static_cast<const uint8_t*>(pixmap.addr()) };
-    int srcLinesizes[] = { static_cast<int>(pixmap.rowBytes()), 0, 0, 0 };
+    const uint8_t * const dstSk[] = { static_cast<uint8_t*>(pixmap.writable_addr()) };
+    int linesizesSk[4];
+
+    av_image_fill_linesizes(linesizesSk, AV_PIX_FMT_RGBA, pixmap.width());
+    linesizesSk[0] = static_cast<int>(pixmap.rowBytes());
 
     const int ret = av_frame_make_writable(ost->fDstFrame);
     if (ret < 0) { AV_RuntimeThrow(ret, "Could not make AVFrame writable"); }
 
     sws_scale(ost->fSwsCtx,
-              srcData,
-              srcLinesizes,
+              dstSk,
+              linesizesSk,
               0,
-              c->height,
+              pixmap.height(),
               ost->fDstFrame->data,
               ost->fDstFrame->linesize);
 
