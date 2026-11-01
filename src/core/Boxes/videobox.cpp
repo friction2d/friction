@@ -42,6 +42,7 @@ extern "C" {
 #include "filesourcescache.h"
 #include "fileshandler.h"
 #include "typemenu.h"
+#include "appsupport.h"
 
 VideoFileHandler* videoFileHandlerGetter(const QString& path) {
     return FilesHandler::sInstance->getFileHandler<VideoFileHandler>(path);
@@ -66,6 +67,8 @@ VideoBox::VideoBox() : AnimationBox("Video", eBoxType::video),
 
     connect(this, &eBoxOrSound::parentChanged,
             mSound.get(), &eBoxOrSound::setParentGroup);
+    connect(this, &eBoxOrSound::parentChanged,
+            this, &VideoBox::setCorrectFps);
 }
 
 void VideoBox::fileHandlerConnector(ConnContext &conn, VideoFileHandler *obj) {
@@ -101,6 +104,33 @@ void VideoBox::fileHandlerAfterAssigned(VideoFileHandler *obj) {
     animationDataChanged();
 }
 
+void VideoBox::setCorrectFps()
+{
+    auto const pScene = getParentScene();
+    if (!pScene) { return; }
+
+    auto const dataHandler = mFileHandler->getFrameHandler();
+    if (!dataHandler) { return; }
+
+    qsptr<VideoFrameHandler> vframeHandler;
+    vframeHandler = enve::make_shared<VideoFrameHandler>(dataHandler);
+
+    // Any changes we make to the video in the timeline have to be reflected on the video stream,
+    // that's why we have to apply the changes to dataHandler and vframeHandler.
+    qreal newmod = (pScene->getFps() /  dataHandler->getFps());
+
+    qDebug() << "VideoBox::setCorrectFps" << newmod;
+
+    dataHandler->setFps(dataHandler->getFps() * newmod);
+    vframeHandler->setVideoStreamFps(dataHandler->getFps());
+
+    dataHandler->setFrameCount(vframeHandler->videoStreamFrameCount() * newmod);
+    vframeHandler->setVideoStreamFrameCount(vframeHandler->videoStreamFrameCount() * newmod);
+
+    setAnimationFramesHandler(vframeHandler);
+    animationDataChanged();
+}
+
 void VideoBox::writeBoundingBox(eWriteStream& dst) const {
     AnimationBox::writeBoundingBox(dst);
     dst.writeFilePath(mFileHandler->path());
@@ -132,12 +162,13 @@ void VideoBox::prp_readPropertyXEV_impl(const QDomElement& ele,
     setFilePathNoRename(absSrc);
 }
 
-#include "GUI/edialogs.h"
-void VideoBox::changeSourceFile() {
-    const QString path = eDialogs::openFile(
-                "Change Source", getFilePath(),
-                "Video Files (" + FileExtensions::videoFilters() + ")");
-    if(!path.isEmpty()) setFilePath(path);
+void VideoBox::changeSourceFile()
+{
+    const QString path = AppSupport::getOpenFile(nullptr,
+                                                 tr("Change Source"),
+                                                 getFilePath(),
+                                                 tr("Video Files (%1)").arg(FileExtensions::videoFilters()));
+    if (!path.isEmpty()) { setFilePath(path); }
 }
 
 void VideoBox::setStretch(const qreal stretch) {

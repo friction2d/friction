@@ -69,7 +69,7 @@ namespace Friction
                                       const bool &defs = false);
             const QList<Expr> getUserDefinitions();
 
-            const Expr readExpr(const QString &path);
+            static const Expr readExpr(const QString &path);
 
             bool editExpr(const QString &id,
                           const QString &title = QString(),
@@ -105,13 +105,13 @@ namespace Friction
             void setExprEnabled(const QString &id,
                                 const bool &enabled);
 
-            bool isValidExprFile(const QString &path);
+            static bool isValidExprFile(const QString &path);
+            bool isExprEnabled(const QString &id);
 
         private:
             QList<Expr> mExpr;
             QStringList mDisabled;
 
-            void firstRun();
             void scanAll(const bool &clear = false);
         };
     }

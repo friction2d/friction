@@ -246,8 +246,9 @@ void BasicTransformAnimator::setSVGEventsVisibility(const bool visible)
     mSVGEndProperty->SWT_setVisible(visible);
 }
 
-bool BasicTransformAnimator::rotationFlipped() const {
-    return mInheritedTransform.m11() * mInheritedTransform.m22() < 0.;
+bool BasicTransformAnimator::rotationFlipped() const
+{
+    return mInheritedTransform.determinant() < 0.0;
 }
 
 const QMatrix &BasicTransformAnimator::getInheritedTransform() const {

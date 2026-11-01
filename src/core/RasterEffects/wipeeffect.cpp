@@ -34,7 +34,7 @@
 WipeEffect::WipeEffect() :
     RasterEffect("wipe",
                  AppSupport::getRasterEffectHardwareSupport("Wipe",
-                                                            HardwareSupport::gpuPreffered),
+                                                            HardwareSupport::cpuOnly),
                  true,
                  RasterEffectType::WIPE)
 {
@@ -131,7 +131,24 @@ qreal GLSL_mod(const qreal x, const qreal y) {
 }
 
 void WipeEffectCaller::processCpu(CpuRenderTools& renderTools,
-                                  const CpuRenderData& data) {
+                                  const CpuRenderData& data)
+{
+    const auto& srcBtmp = renderTools.fSrcBtmp;
+    const auto& dstBtmp = renderTools.fDstBtmp;
+
+    if (srcBtmp.empty() || srcBtmp.getPixels() == nullptr ||
+        dstBtmp.empty() || dstBtmp.getPixels() == nullptr) {
+        return;
+    }
+
+    const qreal imgWidth = srcBtmp.width();
+    const qreal imgHeight = srcBtmp.height();
+
+    const int xMin = std::max(0, data.fTexTile.left());
+    const int xMax = std::min((int)data.fTexTile.right(), (int)imgWidth - 1);
+    const int yMin = std::max(0, data.fTexTile.top());
+    const int yMax = std::min((int)data.fTexTile.bottom(), (int)imgHeight - 1);
+
     const qreal width = 2 - mSharpness;
     const qreal margin = 0.5*(width - 1);
     const qreal x0 = width * mTime - margin;
@@ -142,14 +159,6 @@ void WipeEffectCaller::processCpu(CpuRenderTools& renderTools,
     const bool i = GLSL_mod(direction, PI) > 0.5*PI;
     if(i) direction = PI - direction;
     const bool ii = GLSL_mod(direction, 2 * PI) > PI;
-
-    const qreal imgWidth = renderTools.fSrcBtmp.width();
-    const qreal imgHeight = renderTools.fSrcBtmp.height();
-
-    const int xMin = data.fTexTile.left();
-    const int xMax = data.fTexTile.right();
-    const int yMin = data.fTexTile.top();
-    const int yMax = data.fTexTile.bottom();
 
     const qreal c = 0.25*PI - direction;
 

@@ -69,6 +69,7 @@
 #include "ReadWrite/ereadstream.h"
 #include "ReadWrite/ewritestream.h"
 #include "XML/runtimewriteid.h"
+#include "dialogs/askdialog.h"
 
 void MainWindow::loadEVFile(const QString &path)
 {
@@ -90,6 +91,17 @@ void MainWindow::loadEVFile(const QString &path)
                                                                                  QString::number(EvFormat::version)));
             file.close();
             return;
+        } else if (evVersion < EvFormat::version) {
+            Friction::Ui::AskDialog::ask(this,
+                                         tr("Old project detected"),
+                                         tr("Old project file detected, "
+                                            "note that your project might behave differently. "
+                                            "Also note that if you save this project you will not be able to open "
+                                            "it in an older version of Friction anymore."),
+                                         "ask",
+                                         "openOldProject",
+                                         QMessageBox::Icon::Information,
+                                         false);
         }
 
         eReadStream readStream(evVersion, &file);
@@ -135,14 +147,17 @@ void MainWindow::saveToFile(const QString &path,
                             const bool addRecent)
 {
     QFile file(path);
-    if (file.exists()) { file.remove(); }
 
-    // check if folder exists first
-    QFileInfo info(path);
-    QDir dir = info.absoluteDir();
-    if (!dir.exists()) {
-        if (!dir.mkpath(dir.absolutePath())) {
-            RuntimeThrow(tr("Unable to create directory: %1").arg(dir.absolutePath()));
+    if (!AppSupport::isFlatpak()) {
+        if (file.exists()) { file.remove(); }
+
+        // check if folder exists first
+        QFileInfo info(path);
+        QDir dir = info.absoluteDir();
+        if (!dir.exists()) {
+            if (!dir.mkpath(dir.absolutePath())) {
+                RuntimeThrow(tr("Unable to create directory: %1").arg(dir.absolutePath()));
+            }
         }
     }
 

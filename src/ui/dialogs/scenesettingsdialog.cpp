@@ -369,6 +369,10 @@ void SceneSettingsDialog::sNewSceneDialog(Document& document,
         newCanvas->anim_setAbsFrame(newCanvas->getFrameRange().fMin);
         dialog->close();
         docPtr->actionFinished();
+#ifdef Q_OS_MAC
+        // https://github.com/friction2d/friction/pull/736
+        emit docPtr->fitCanvasToSize();
+#endif
     });
 
     dialog->show();

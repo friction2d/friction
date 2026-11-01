@@ -42,7 +42,6 @@
 #include <QClipboard>
 #include <QMimeData>
 
-#include "GUI/edialogs.h"
 #include "dialogs/applyexpressiondialog.h"
 #include "dialogs/markereditordialog.h"
 #include "timelinedockwidget.h"
@@ -61,7 +60,6 @@
 #include "memoryhandler.h"
 #include "dialogs/scenesettingsdialog.h"
 #include "importhandler.h"
-#include "GUI/edialogs.h"
 #include "eimporters.h"
 #include "dialogs/exportsvgdialog.h"
 #include "widgets/alignwidget.h"
@@ -76,6 +74,7 @@
 #include "widgets/assetswidget.h"
 #include "dialogs/adjustscenedialog.h"
 #include "dialogs/commandpalette.h"
+#include "wizards/installpresets.h"
 
 using namespace Friction;
 
@@ -160,7 +159,9 @@ MainWindow::MainWindow(Document& document,
     Q_ASSERT(!sInstance);
     sInstance = this;
 
+#ifndef Q_OS_MAC
     setWindowIcon(QIcon::fromTheme(AppSupport::getAppID()));
+#endif
     setContextMenuPolicy(Qt::NoContextMenu);
 
     setupImporters();
@@ -187,15 +188,12 @@ MainWindow::MainWindow(Document& document,
 
 MainWindow::~MainWindow()
 {
+    disconnect();
     mShutdown = true;
-    std::cout << "Closing Friction, please wait ... " << std::endl;
     if (mAutoSaveTimer->isActive()) { mAutoSaveTimer->stop(); }
     writeSettings();
     sInstance = nullptr;
 }
-
-
-
 
 BoundingBox *MainWindow::getCurrentBox()
 {
@@ -318,58 +316,10 @@ void MainWindow::closedRenderQueueWindow()
                                             tr("Queue"));
 }
 
-void MainWindow::initRenderPresets(const bool reinstall)
+void MainWindow::askInstallDefaultPresets()
 {
-    const bool doInstall = reinstall ? true : AppSupport::getSettings("settings",
-                                                                      "firstRunRenderPresets",
-                                                                      true).toBool();
-    if (!doInstall) { return; }
-    const QString path = AppSupport::getAppOutputProfilesPath();
-    if (path.isEmpty() || !QFileInfo(path).isWritable()) { return; }
-
-    QStringList presets;
-    presets << "001-friction-preset-mp4-h264.conf";
-    presets << "002-friction-preset-mp4-h264-mp3.conf";
-    presets << "003-friction-preset-prores-444.conf";
-    presets << "004-friction-preset-prores-444-aac.conf";
-    presets << "005-friction-preset-png.conf";
-    presets << "006-friction-preset-tiff.conf";
-
-    for (const auto &preset : presets) {
-        QString filePath(QString("%1/%2").arg(path, preset));
-        if (QFile::exists(filePath) && !reinstall) { continue; }
-        QFile file(filePath);
-        if (file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
-            QFile res(QString(":/presets/render/%1").arg(preset));
-            if (res.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                file.write(res.readAll());
-                res.close();
-            }
-            file.close();
-        }
-    }
-
-    AppSupport::setSettings("settings", "firstRunRenderPresets", false);
-}
-
-void MainWindow::askInstallRenderPresets()
-{
-    const auto result = QMessageBox::question(this,
-                                              tr("Install Render Profiles"),
-                                              tr("Are you sure you want to install the default render profiles?"
-                                                 "<p style='font-weight: normal;font-style: italic'>Note that a restart of the application is required to detect new profiles.</p>"));
-    if (result != QMessageBox::Yes) { return; }
-    initRenderPresets(true);
-}
-
-void MainWindow::askInstallExpressionsPresets()
-{
-    const auto result = QMessageBox::question(this,
-                                              tr("Install default Expressions Presets"),
-                                              tr("Are you sure you want to install the default Expressions Presets?"
-                                                 "<p style='font-weight: normal;font-style: italic'>Note that:<ul><li>any user modification to default presets will be removed.</li><li>a restart of the application is required to install them all.</li></ul></p>"));
-    if (result != QMessageBox::Yes) { return; }
-    AppSupport::setSettings("settings", "firstRunExprPresets", true);
+    Ui::InstallPresets dialog(this);
+    dialog.exec();
 }
 
 void MainWindow::askRestoreFillStrokeDefault()
@@ -395,6 +345,15 @@ void MainWindow::askRestoreDefaultUi()
                                                  "You must restart Friction to apply."));
     if (result != QMessageBox::Yes) { return; }
     eSettings::sInstance->fRestoreDefaultUi = true;
+}
+
+void MainWindow::askRunQuickSetup()
+{
+    const auto result = QMessageBox::question(this,
+                                              tr("Run Quick Setup on startup?"),
+                                              tr("Are you sure you want to run Quick Setup the next time you start Friction?"));
+    if (result != QMessageBox::Yes) { return; }
+    AppSupport::setSettings("settings", "firstRun", true);
 }
 
 void MainWindow::openWelcomeDialog()
@@ -541,6 +500,15 @@ void MainWindow::setupDocument()
         setFileChangedSinceSaving(true);
         if (mTimeline) { mTimeline->stopPreview(); }
     });
+
+#ifdef Q_OS_MAC
+    // https://github.com/friction2d/friction/pull/736
+    connect(&mDocument, &Document::fitCanvasToSize, this, []() {
+        const auto target = KeyFocusTarget::KFT_getCurrentTarget();
+        const auto cwTarget = dynamic_cast<CanvasWindow*>(target);
+        if (cwTarget) { cwTarget->fitCanvasToSize(); }
+    });
+#endif
 
     // set defaults
     mDocument.setPath("");
@@ -733,10 +701,25 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
     return QMainWindow::eventFilter(obj, e);
 }
 
+#ifdef Q_OS_MAC
+void hideMacApp();
+#endif
+
 void MainWindow::closeEvent(QCloseEvent *e)
 {
-    if (!closeProject()) { e->ignore(); }
-    else { mShutdown = true; }
+    if (!closeProject()) {
+        e->ignore();
+        return;
+    }
+    mShutdown = true;
+
+#ifdef Q_OS_MAC
+    e->ignore();
+    hideMacApp();
+    QTimer::singleShot(50, qApp, &QApplication::quit);
+#else
+    e->accept();
+#endif
 }
 
 bool MainWindow::processKeyEvent(QKeyEvent *event)
@@ -855,8 +838,6 @@ void MainWindow::readSettings(const QString &openProject)
 
     updateAutoSaveBackupState();
 
-    initRenderPresets();
-
     if (!openProject.isEmpty()) {
         QTimer::singleShot(10,
                            this,
@@ -867,6 +848,8 @@ void MainWindow::readSettings(const QString &openProject)
 
 void MainWindow::writeSettings()
 {
+    mUI->writeSettings();
+
     if (eSettings::instance().fRestoreDefaultUi) {
         AppSupport::clearSettings("ui");
     } else {
@@ -1078,8 +1061,10 @@ void MainWindow::openFile()
         const QString defPath = mDocument.fEvFile.isEmpty() ? getLastOpenDir() : mDocument.fEvFile;
         const QString title = tr("Open File", "OpenDialog_Title");
         const QString files = tr("Friction Files %1", "OpenDialog_FileType");
-        const QString openPath = eDialogs::openFile(title, defPath,
-                                                    files.arg("(*.friction *.ev)"));
+        const QString openPath = AppSupport::getOpenFile(this,
+                                                         title,
+                                                         defPath,
+                                                         files.arg("(*.friction)"));
         if (!openPath.isEmpty()) { openFile(openPath); }
         enable();
     }
@@ -1091,7 +1076,7 @@ void MainWindow::openFile(const QString& openPath)
     try {
         QFileInfo fi(openPath);
         const QString suffix = fi.suffix();
-        if (suffix == "friction" || suffix == "ev") {
+        if (suffix == "friction") {
             loadEVFile(openPath);
         } /*else if (suffix == "xev") {
             loadXevFile(openPath);
@@ -1132,7 +1117,7 @@ void MainWindow::saveFile(const QString& path,
     try {
         QFileInfo fi(path);
         const QString suffix = fi.suffix();
-        if (suffix == "friction" || suffix == "ev") {
+        if (suffix == "friction") {
             saveToFile(path);
         } /*else if (suffix == "xev") {
             saveToFileXEV(path);
@@ -1158,15 +1143,13 @@ void MainWindow::saveFileAs(const bool setPath)
 
     const QString title = tr("Save File", "SaveDialog_Title");
     const QString fileType = tr("Friction Files %1", "SaveDialog_FileType");
-    QString saveAs = eDialogs::saveFile(title, defPath, fileType.arg("(*.friction)"));
+    QString saveAs = AppSupport::getSaveFile(this,
+                                             title,
+                                             defPath,
+                                             fileType.arg("(*.friction)"),
+                                             "friction");
     enableEventFilter();
-    if (!saveAs.isEmpty()) {
-        //const bool isXEV = saveAs.right(4) == ".xev";
-        //if (!isXEV && saveAs.right(3) != ".ev") { saveAs += ".ev"; }
-        QString suffix = QString::fromUtf8(".friction");
-        if (!saveAs.endsWith(suffix)) { saveAs.append(suffix); }
-        saveFile(saveAs, setPath);
-    }
+    if (!saveAs.isEmpty()) { saveFile(saveAs, setPath); }
 }
 
 void MainWindow::saveBackup()
@@ -1271,12 +1254,14 @@ void MainWindow::importFile()
 
     const QString title = tr("Import File(s)", "ImportDialog_Title");
     const QString fileType = tr("Files %1", "ImportDialog_FileTypes");
-    const QString fileTypes = "(*.friction *.ev *.svg " +
+    const QString fileTypes = "(*.friction *.svg " +
             FileExtensions::videoFilters() +
             FileExtensions::imageFilters() +
             FileExtensions::soundFilters() + ")";
-    const auto importPaths = eDialogs::openFiles(
-                title, defPath, fileType.arg(fileTypes));
+    const auto importPaths = AppSupport::getOpenFiles(this,
+                                                      title,
+                                                      defPath,
+                                                      fileType.arg(fileTypes));
     enableEventFilter();
     if (!importPaths.isEmpty()) {
         for(const QString &path : importPaths) {
@@ -1297,8 +1282,10 @@ void MainWindow::linkFile()
                 QDir::homePath() : mDocument.fEvFile;
     const QString title = tr("Link File", "LinkDialog_Title");
     const QString fileType = tr("Files %1", "LinkDialog_FileType");
-    const auto importPaths = eDialogs::openFiles(
-                title, defPath, fileType.arg("(*.svg *.ora)"));
+    const auto importPaths = AppSupport::getOpenFiles(this,
+                                                      title,
+                                                      defPath,
+                                                      fileType.arg("(*.svg)"));
     enableEventFilter();
     if (!importPaths.isEmpty()) {
         for (const QString &path : importPaths) {
@@ -1319,7 +1306,9 @@ void MainWindow::importImageSequence()
                 QDir::homePath() : mDocument.fEvFile;
     const QString title = tr("Import Image Sequence",
                              "ImportSequenceDialog_Title");
-    const auto folder = eDialogs::openDir(title, defPath);
+    const auto folder = AppSupport::getOpenDirectory(this,
+                                                     title,
+                                                     defPath);
     enableEventFilter();
     if (!folder.isEmpty()) { mActions.importFile(folder); }
 }
@@ -1339,9 +1328,10 @@ void MainWindow::updateAutoSaveBackupState()
 {
     if (mShutdown) { return; }
 
-    mBackupOnSave = AppSupport::getSettings("files",
-                                            "BackupOnSave",
-                                            false).toBool();
+    mBackupOnSave = AppSupport::isFlatpak() ? false :
+                        AppSupport::getSettings("files",
+                                                "BackupOnSave",
+                                                false).toBool();
     mAutoSave = AppSupport::getSettings("files",
                                         "AutoSave",
                                         false).toBool();
@@ -1465,7 +1455,7 @@ void MainWindow::updateRecentMenu()
     for (const auto &path : mRecentFiles) {
         QFileInfo info(path);
         if (!info.exists()) { continue; }
-        mRecentMenu->addAction(QIcon::fromTheme(AppSupport::getAppID()), info.baseName(), [path, this]() {
+        mRecentMenu->addAction(QIcon::fromTheme(ThemeSupport::getAppIconName(true)), info.baseName(), [path, this]() {
             openFile(path);
         });
     }

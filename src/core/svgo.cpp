@@ -117,45 +117,63 @@ void SVGO::removeUselessDefs(QDomDocument &doc)
     QDomElement root = doc.documentElement();
     if (root.isNull()) { return; }
 
-    QDomElement defs = root.firstChildElement("defs");
-    if (defs.isNull()) { return; }
-
-    QDomNode defChild = defs.firstChild();
-    while (!defChild.isNull()) {
-        QDomNode nextDefChild = defChild.nextSibling();
-
-        if (defChild.isElement()) {
-            QDomElement defElem = defChild.toElement();
-            QString id = defElem.attribute("id");
-
-            if (id.isEmpty()) {
-                defChild = nextDefChild;
-                continue;
-            }
-
-            QString searchId = "#" + id;
-            bool isReferenced = false;
-
-            QDomNodeList allElements = doc.elementsByTagName("*");
-            for (int i = 0; i < allElements.count(); ++i) {
-                QDomElement elem = allElements.at(i).toElement();
-                QDomNamedNodeMap attrs = elem.attributes();
-                for (int j = 0; j < attrs.count(); ++j) {
-                    QDomAttr attr = attrs.item(j).toAttr();
-                    if (attr.value().contains(searchId)) {
-                        isReferenced = true;
-                        break;
-                    }
-                }
-                if (isReferenced) { break; }
-            }
-
-            if (!isReferenced) { defs.removeChild(defChild); }
-        }
-        defChild = nextDefChild;
+    QDomNodeList defsList = doc.elementsByTagNameNS("http://www.w3.org/2000/svg", "defs");
+    if (defsList.isEmpty()) {
+        defsList = doc.elementsByTagName("defs");
     }
 
-    if (!defs.hasChildNodes()) { root.removeChild(defs); }
+    QString fullSvgContent = doc.toString();
+
+    for (int d = 0; d < defsList.count(); ++d) {
+        QDomElement defs = defsList.at(d).toElement();
+        QDomNode child = defs.firstChild();
+
+        while (!child.isNull()) {
+            QDomNode nextChild = child.nextSibling();
+
+            if (child.isElement()) {
+                QDomElement defElem = child.toElement();
+                QString id = defElem.attribute("id");
+
+                if (!id.isEmpty()) {
+                    QString searchId = "#" + id;
+                    if (!isIdReferenced(root, id, defElem)) {
+                        defs.removeChild(child);
+                    }
+                }
+            }
+            child = nextChild;
+        }
+
+        if (!defs.hasChildNodes()) {
+            defs.parentNode().removeChild(defs);
+        }
+    }
+}
+
+bool SVGO::isIdReferenced(const QDomElement &currentElement,
+                          const QString &id,
+                          const QDomElement &originalDef)
+{
+    if (currentElement != originalDef) {
+        QDomNamedNodeMap attrs = currentElement.attributes();
+        QString searchPattern = "#" + id;
+        for (int i = 0; i < attrs.count(); ++i) {
+            if (attrs.item(i).toAttr().value().contains(searchPattern)) {
+                return true;
+            }
+        }
+    }
+
+    QDomElement child = currentElement.firstChildElement();
+    while (!child.isNull()) {
+        if (isIdReferenced(child, id, originalDef)) {
+            return true;
+        }
+        child = child.nextSiblingElement();
+    }
+
+    return false;
 }
 
 void SVGO::removeProcessingInstructions(QDomDocument &doc)

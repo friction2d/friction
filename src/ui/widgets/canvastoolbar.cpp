@@ -29,6 +29,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QDebug>
+#include <QLocale>
 
 using namespace Friction::Ui;
 
@@ -68,8 +69,8 @@ CanvasToolBar::CanvasToolBar(QWidget *parent)
         addWidget(space);
     }
 
-    mMemoryLabel = addAction(QIcon::fromTheme("memory"), tr("0 MB"));
-    mMemoryLabel->setToolTip(tr("0 MB used"));
+    mMemoryLabel = addAction(QIcon::fromTheme("memory"), QString());
+    mMemoryLabel->setToolTip(tr("No memory used"));
 
     setupDimensions();
     setupResolution();
@@ -84,15 +85,15 @@ void CanvasToolBar::setCurrentCanvas(Canvas * const target)
             setResolution(text, target);
         });
         mCanvas << connect(mSpinWidth,
-                           QOverload<int>::of(&QSpinBox::valueChanged),
+                           QOverload<qreal>::of(&QDoubleSlider::valueEdited),
                            this, [this, target]() {
-            setDimension({mSpinWidth->value(), mSpinHeight->value()},
+            setDimension({qRound(mSpinWidth->value()), qRound(mSpinHeight->value())},
                           target);
         });
         mCanvas << connect(mSpinHeight,
-                           QOverload<int>::of(&QSpinBox::valueChanged),
+                           QOverload<qreal>::of(&QDoubleSlider::valueEdited),
                            this, [this, target]() {
-            setDimension({mSpinWidth->value(), mSpinHeight->value()},
+            setDimension({qRound(mSpinWidth->value()), qRound(mSpinHeight->value())},
                          target);
         });
         mCanvas << connect(target, &Canvas::dimensionsChanged,
@@ -110,25 +111,27 @@ QComboBox *CanvasToolBar::getResolutionComboBox()
 
 void CanvasToolBar::setMemoryUsage(const intMB &usage)
 {
-    mMemoryLabel->setToolTip(tr("%1 MB used").arg(usage.fValue));
-    mMemoryLabel->setText(tr("%1 MB").arg(usage.fValue));
+    const longB bytes = longB(usage);
+    const QString humanReadable = QLocale::system().formattedDataSize(bytes.fValue, 2,
+                                                                      QLocale::DataSizeIecFormat);
+
+    mMemoryLabel->setToolTip(tr("%1 memory used").arg(humanReadable));
+    mMemoryLabel->setText(humanReadable);
 }
 
 void CanvasToolBar::setupDimensions()
 {
-    mSpinWidth = new QSpinBox(this);
+    mSpinWidth = new QDoubleSlider(1, 99999, 1, this, false);
     mSpinWidth->setFocusPolicy(Qt::ClickFocus);
+    mSpinWidth->setMinimumWidth(75);
+    mSpinWidth->setNumberDecimals(0);
     mSpinWidth->setObjectName("ComboSpinBox");
-    mSpinWidth->setMinimum(1);
-    mSpinWidth->setMaximum(99999);
-    mSpinWidth->setKeyboardTracking(false);
 
-    mSpinHeight = new QSpinBox(this);
+    mSpinHeight = new QDoubleSlider(1, 99999, 1, this, false);
     mSpinHeight->setFocusPolicy(Qt::ClickFocus);
+    mSpinHeight->setMinimumWidth(75);
+    mSpinHeight->setNumberDecimals(0);
     mSpinHeight->setObjectName("ComboSpinBox");
-    mSpinHeight->setMinimum(1);
-    mSpinHeight->setMaximum(99999);
-    mSpinHeight->setKeyboardTracking(false);
 
     addAction(QIcon::fromTheme("width"),
               tr("Width"));
@@ -156,6 +159,8 @@ void CanvasToolBar::setupResolution()
     mComboResolution->lineEdit()->setInputMask("D00 %");
     mComboResolution->setCurrentText("100 %");
     mComboResolution->setInsertPolicy(QComboBox::NoInsert);
+    mComboResolution->setSizePolicy(QSizePolicy::Preferred,
+                                    QSizePolicy::Expanding);
 
     addSeparator();
     addAction(QIcon::fromTheme("resolution"),
@@ -191,11 +196,11 @@ void CanvasToolBar::updateWidgets(Canvas * const target)
 void CanvasToolBar::updateDimension(const QSize dim)
 {
     mSpinWidth->blockSignals(true);
-    mSpinWidth->setValue(dim.width());
+    mSpinWidth->setDisplayedValue(dim.width());
     mSpinWidth->blockSignals(false);
 
     mSpinHeight->blockSignals(true);
-    mSpinHeight->setValue(dim.height());
+    mSpinHeight->setDisplayedValue(dim.height());
     mSpinHeight->blockSignals(false);
 }
 

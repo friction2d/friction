@@ -7,7 +7,7 @@ REM # GPLv3+
 set CWD=%cd%
 set SRC_DIR=%CWD%\src
 set QT_DIR=%SRC_DIR%\qt
-set QT_V=5.15.18_20251101_d8220074
+set QT_V=5.15.19_20260520_aa749695
 
 set PATH=C:\Python;%ProgramFiles%\CMake\bin;%PATH%
 

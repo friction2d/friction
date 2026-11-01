@@ -6,8 +6,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# the Free Software Foundation, version 3.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -30,7 +29,7 @@ PATCHES=${DIST}/patches
 MKJOBS=${MKJOBS:-4}
 SRC_SUFFIX=tar.xz
 
-QT_V=5.15.18_20251101_d8220074
+QT_V=5.15.19_20260520_aa749695
 QSCINTILLA_V=2.14.1
 
 PELF_V=0.17.0

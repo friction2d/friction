@@ -122,6 +122,8 @@ protected:
     void enterEvent(QEvent *);
     void leaveEvent(QEvent *);
 
+    void resizeEvent(QResizeEvent *event);
+
     void paint(QPainter *p,
                const QColor &allFill,
                const QColor &sliderFill,

@@ -37,9 +37,13 @@
 SliderEdit::SliderEdit(QWidget* const parent) :
     QLineEdit(parent) {
     setAttribute(Qt::WA_TranslucentBackground);
-    eSizesUI::widget.add(this, [this](const int size) {
+    /*eSizesUI::widget.add(this, [this](const int size) {
         setFixedHeight(size);
-    });
+    });*/
+
+    setAlignment(Qt::AlignCenter);
+    setFrame(false);
+    setStyleSheet("background: transparent; border: none;");
 
     connect(this, &QLineEdit::editingFinished,
             this, &SliderEdit::lineEditingFinished);
@@ -507,4 +511,14 @@ void QDoubleSlider::leaveEvent(QEvent *)
     mHovered = false;
     unsetCursor();
     update();
+}
+
+void QDoubleSlider::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+    if (mLineEdit) {
+        int leHeight = mLineEdit->height();
+        int yPos = (height() - leHeight) / 2;
+        mLineEdit->setGeometry(0, yPos, width(), leHeight);
+    }
 }

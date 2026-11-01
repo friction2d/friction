@@ -35,7 +35,7 @@
 BrightnessContrastEffect::BrightnessContrastEffect() :
     RasterEffect("brightness-contrast",
                  AppSupport::getRasterEffectHardwareSupport("BrightnessContrast",
-                                                            HardwareSupport::gpuPreffered),
+                                                            HardwareSupport::cpuOnly),
                  true,
                  RasterEffectType::BRIGHTNESS_CONTRAST)
 {
@@ -101,15 +101,27 @@ stdsptr<RasterEffectCaller> BrightnessContrastEffect::getEffectCaller(
 }
 
 void BrightnessContrastEffectCaller::processCpu(CpuRenderTools& renderTools,
-                                                const CpuRenderData& data) {
-    const int xMin = data.fTexTile.left();
-    const int xMax = data.fTexTile.right();
-    const int yMin = data.fTexTile.top();
-    const int yMax = data.fTexTile.bottom();
+                                                const CpuRenderData& data)
+{
+    const auto& srcBtmp = renderTools.fSrcBtmp;
+    const auto& dstBtmp = renderTools.fDstBtmp;
+
+    if (srcBtmp.empty() || srcBtmp.getPixels() == nullptr ||
+        dstBtmp.empty() || dstBtmp.getPixels() == nullptr) {
+        return;
+    }
+
+    const int imgWidth = srcBtmp.width();
+    const int imgHeight = srcBtmp.height();
+
+    const int xMin = std::max(0, data.fTexTile.left());
+    const int xMax = std::min((int)data.fTexTile.right(), imgWidth - 1);
+    const int yMin = std::max(0, data.fTexTile.top());
+    const int yMax = std::min((int)data.fTexTile.bottom(), imgHeight - 1);
 
     for(int yi = yMin; yi <= yMax; yi++) {
-        auto dst = static_cast<uchar*>(renderTools.fDstBtmp.getAddr(0, yi - yMin));
-        auto src = static_cast<uchar*>(renderTools.fSrcBtmp.getAddr(xMin, yi));
+        auto dst = static_cast<uchar*>(dstBtmp.getAddr(0, yi - yMin));
+        auto src = static_cast<uchar*>(srcBtmp.getAddr(xMin, yi));
         for(int xi = xMin; xi <= xMax; xi++) {
             const uchar r = *src++;
             const uchar g = *src++;

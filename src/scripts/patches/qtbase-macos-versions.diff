@@ -1,9 +1,11 @@
---- qtbase/src/corelib/global/qglobal.cpp.orig	2025-06-11 18:07:02
-+++ qtbase/src/corelib/global/qglobal.cpp	2025-06-11 18:09:20
-@@ -2137,6 +2137,12 @@
+--- qtbase/src/corelib/global/qglobal.cpp.orig	2026-06-25 19:19:06
++++ qtbase/src/corelib/global/qglobal.cpp	2026-06-25 19:23:11
+@@ -2137,6 +2137,14 @@
  static const char *osVer_helper(QOperatingSystemVersion version = QOperatingSystemVersion::current())
  {
  #ifdef Q_OS_MACOS
++    if (version.majorVersion() == 17 || version.majorVersion() == 27)
++        return "Golden Gate";
 +    if (version.majorVersion() == 16 || version.majorVersion() == 26)
 +        return "Tahoe";
 +    if (version.majorVersion() == 15)

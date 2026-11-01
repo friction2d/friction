@@ -188,7 +188,11 @@ public:
     }
     int getSceneId(const Canvas* const scene) { return sceneId(scene); };
     bool isCurrentScene(const int index) { return index == mCurrentId; };
-    void setCurrentScene(const int index) { setCurrent(index); };
+    void setCurrentScene(const Canvas* const scene) {
+        if (!scene) { return; }
+        setCurrent(sceneId(scene));
+        resetCurrentScene();
+    };
 
 private:
     void rename(const int id, const QString& newName) {

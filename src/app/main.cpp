@@ -25,6 +25,7 @@
 #include <QApplication>
 #include <QSurfaceFormat>
 #include <QDesktopWidget>
+#include <QSplashScreen>
 
 #include "hardwareinfo.h"
 #include "Private/esettings.h"
@@ -36,9 +37,9 @@
 #include "videoencoder.h"
 #include "appsupport.h"
 #include "themesupport.h"
+#include "wizards/quicksetup.h"
 
 #ifdef Q_OS_WIN
-#include <QSplashScreen>
 #include "windowsincludes.h"
 #include <QtPlatformHeaders/QWindowsWindowFunctions>
 #endif
@@ -49,9 +50,24 @@
 
 void setDefaultFormat()
 {
+    QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+
+#ifdef USE_GLES
+    QApplication::setAttribute(Qt::AA_UseOpenGLES);
+#else
+    QApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
+#endif
+
     QSurfaceFormat format;
+
+#ifdef USE_GLES
+    format.setVersion(3, 0);
+    format.setProfile(QSurfaceFormat::NoProfile);
+#else
     format.setVersion(3, 3);
     format.setProfile(QSurfaceFormat::CoreProfile);
+#endif
+
     format.setDepthBufferSize(24);
     format.setStencilBufferSize(8);
     format.setSamples(0);
@@ -74,10 +90,53 @@ void generateAlphaMesh(QPixmap& alphaMesh,
     p.end();
 }
 
+void setScaleFactor(const bool passThrough)
+{
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+#endif
+    QApplication::setHighDpiScaleFactorRoundingPolicy(passThrough ?
+                                                          Qt::HighDpiScaleFactorRoundingPolicy::PassThrough :
+                                                          Qt::HighDpiScaleFactorRoundingPolicy::RoundPreferFloor);
+}
+
+void earlySettings(char *argv[],
+                   bool *hdpiPassThrough)
+{
+    // we can't use AppSupport for this
+    const QString key = "settings/interfaceScalingPassThrough";
+
+#ifdef Q_OS_WIN
+    // we need to consider portable mode on Windows
+    const QString exePath = QString::fromLocal8Bit(argv[0]);
+    const QString appDir = QFileInfo(exePath).absolutePath();
+    const bool isPortable = QFile::exists(QString("%1/portable.txt").arg(appDir));
+    const QString portableConfigPath = QString("%1/config/friction.conf").arg(appDir);
+
+    if (QFile::exists(portableConfigPath) && isPortable) {
+        QSettings settings(portableConfigPath,
+                           QSettings::IniFormat);
+        *hdpiPassThrough = settings.value(key, true).toBool();
+        return;
+    }
+#else
+    Q_UNUSED(argv)
+#endif
+
+    QSettings settings(AppSupport::getAppName(),
+                       AppSupport::getAppOrg());
+    *hdpiPassThrough = settings.value(key, true).toBool();
+}
+
 int main(int argc, char *argv[])
 {
-    // check if cli renderer (not supported yet)
-    const bool isRenderer = false; // AppSupport::hasArg(argc, argv, "--renderer");
+    const bool isRenderer = false; // todo
+
+    // get early settings
+    bool hdpiPassThrough = true;
+    earlySettings(argv, &hdpiPassThrough);
+    qDebug() << "hdpiPassThrough" << hdpiPassThrough;
 
     // init env variables
     AppSupport::initEnv(isRenderer);
@@ -88,21 +147,30 @@ int main(int argc, char *argv[])
     // init app
     QApplication::setApplicationDisplayName(AppSupport::getAppDisplayName());
     QApplication::setApplicationName(AppSupport::getAppName());
-    QApplication::setOrganizationName(AppSupport::getAppCompany());
+    QApplication::setOrganizationName(AppSupport::getAppOrg());
     QApplication::setOrganizationDomain(AppSupport::getAppDomain());
     QApplication::setApplicationVersion(AppSupport::getAppVersion());
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-#endif
-    QApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
-    QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
-    QApplication::setAttribute(isRenderer ? Qt::AA_UseSoftwareOpenGL : Qt::AA_UseDesktopOpenGL);
+    // setup scaling
+    setScaleFactor(hdpiPassThrough);
 
+    // setup OpenGL
     setDefaultFormat();
+
+    // setup app
     QApplication app(argc, argv);
     setlocale(LC_NUMERIC, "C");
+
+    // first run
+    const bool firstRun = AppSupport::getSettings("settings",
+                                                  "firstRun",
+                                                  true).toBool();
+    if (firstRun) {
+        ThemeSupport::setupTheme();
+        Friction::Ui::QuickSetup wizard;
+        wizard.exec();
+        AppSupport::setSettings("settings", "firstRun", false);
+    }
 
     // handle XDG args
 #ifdef Q_OS_LINUX
@@ -114,31 +182,31 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    // init splash (windows-only)
+    // init windows
 #ifdef Q_OS_WIN
-    // load custom font if exists
-    const auto fontBundle = QString("%1/font.ttf").arg(AppSupport::getAppPath());
-    if (QFile::exists(fontBundle)) { AppSupport::setFont(fontBundle); }
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
     // https://bugreports.qt.io/browse/QTBUG-58610
     // https://github.com/musescore/MuseScore/pull/5820
-    else { QApplication::setFont(QApplication::font("QMessageBox")); }
+    QApplication::setFont(QApplication::font("QMessageBox"));
 #endif
-
-    QSplashScreen splash(QPixmap(":/icons/splash/splash-00001.png"));
-    splash.show();
-    splash.raise();
-    splash.showMessage(QObject::tr("Loading ..."),
-                       Qt::AlignRight | Qt::AlignBottom, Qt::white);
-#endif
-
-    // init hardware
-#ifdef Q_OS_WIN
     if (!isRenderer) {
         QWindowsWindowFunctions::setHasBorderInFullScreenDefault(true);
     }
+    const bool showSplash = true;
+#else
+    const bool showSplash = false;
 #endif
 
+    // init splash
+    QSplashScreen splash(QPixmap(":/icons/friction-splash.png"));
+    if (showSplash) {
+        splash.show();
+        splash.raise();
+        splash.showMessage(QObject::tr("Loading ..."),
+                           Qt::AlignRight | Qt::AlignBottom, Qt::white);
+    }
+
+    // init hardware
 #ifndef Q_OS_DARWIN
     const bool threadedOpenGL = QOpenGLContext::supportsThreadedOpenGL();
     if (!threadedOpenGL) {
@@ -212,12 +280,11 @@ int main(int argc, char *argv[])
     AppSupport::initXDGDesktop(isRenderer);
 #endif
 
-#ifdef Q_OS_WIN
-    splash.raise();
-    splash.setPixmap(QPixmap(":/icons/splash/splash-00002.png"));
-    splash.showMessage(QObject::tr("Initializing ..."),
-                       Qt::AlignRight | Qt::AlignBottom, Qt::white);
-#endif
+    if (showSplash) {
+        splash.raise();
+        splash.showMessage(QObject::tr("Initializing ..."),
+                           Qt::AlignRight | Qt::AlignBottom, Qt::white);
+    }
 
     // load settings
     try { settings.loadFromFile(); }
@@ -255,14 +322,14 @@ int main(int argc, char *argv[])
     //effectsLoader.iniCustomRasterEffects();
     //std::cout << "Custom raster effects initialized" << std::endl;
 
-#ifdef Q_OS_WIN
-    splash.raise();
-    splash.setPixmap(QPixmap(":/icons/splash/splash-00003.png"));
-    splash.showMessage(QObject::tr("Loading Shaders ..."),
-                       Qt::AlignRight | Qt::AlignBottom, Qt::white);
-#endif
+    if (showSplash) {
+        splash.raise();
+        splash.showMessage(QObject::tr("Loading Shaders ..."),
+                           Qt::AlignRight | Qt::AlignBottom, Qt::white);
+    }
 
     // init shaders
+#ifndef USE_GLES
     try {
         effectsLoader.iniShaderEffects();
     } catch(const std::exception& e) {
@@ -276,17 +343,17 @@ int main(int argc, char *argv[])
         }
         document.actionFinished();
     });
+#endif
 
     // disabled for now
     //effectsLoader.iniCustomBoxes();
     //std::cout << "Custom objects initialized" << std::endl;
 
-#ifdef Q_OS_WIN
-    splash.raise();
-    splash.setPixmap(QPixmap(":/icons/splash/splash-00004.png"));
-    splash.showMessage(QObject::tr("Loading Audio ..."),
-                       Qt::AlignRight | Qt::AlignBottom, Qt::white);
-#endif
+    if (showSplash) {
+        splash.raise();
+        splash.showMessage(QObject::tr("Loading Audio ..."),
+                           Qt::AlignRight | Qt::AlignBottom, Qt::white);
+    }
 
     // init audio
     eSoundSettings soundSettings;
@@ -303,12 +370,11 @@ int main(int argc, char *argv[])
     }
 
 
-#ifdef Q_OS_WIN
-    splash.raise();
-    splash.setPixmap(QPixmap(":/icons/splash/splash-00005.png"));
-    splash.showMessage(QObject::tr("Loading Encoder ..."),
-                       Qt::AlignRight | Qt::AlignBottom, Qt::white);
-#endif
+    if (showSplash) {
+        splash.raise();
+        splash.showMessage(QObject::tr("Loading Encoder ..."),
+                           Qt::AlignRight | Qt::AlignBottom, Qt::white);
+    }
 
     // init encoder
     const auto videoEncoder = enve::make_shared<VideoEncoder>();
@@ -318,12 +384,11 @@ int main(int argc, char *argv[])
     // check for ffmpeg version
     AppSupport::checkFFmpeg(isRenderer);
 
-#ifdef Q_OS_WIN
-    splash.raise();
-    splash.setPixmap(QPixmap(":/icons/splash/splash-00006.png"));
-    splash.showMessage(QObject::tr("Loading User Interface ..."),
-                       Qt::AlignRight | Qt::AlignBottom, Qt::white);
-#endif
+    if (showSplash) {
+        splash.raise();
+        splash.showMessage(QObject::tr("Loading User Interface ..."),
+                           Qt::AlignRight | Qt::AlignBottom, Qt::white);
+    }
 
     // load UI
     const QString openProject = argc > 1 ? argv[1] : QString();
@@ -334,9 +399,7 @@ int main(int argc, char *argv[])
                  openProject);
     w.show();
 
-#ifdef Q_OS_WIN
     splash.finish(&w);
-#endif
 
     try {
         return app.exec();

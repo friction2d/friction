@@ -28,6 +28,7 @@
 #include "fileshandler.h"
 #include "svgimporter.h"
 #include "Animators/gradient.h"
+#include "appsupport.h"
 
 SvgFileCacheHandler* svgFileHandlerGetter(const QString& path) {
     return FilesHandler::sInstance->getFileHandler<SvgFileCacheHandler>(path);
@@ -46,12 +47,13 @@ SvgLinkBox::SvgLinkBox() :
     mType = eBoxType::svgLink;
 }
 
-#include "GUI/edialogs.h"
-void SvgLinkBox::changeSourceFile() {
-    const QString path = eDialogs::openFile(
-                "Change Source", getFilePath(),
-                "SVG Files (*.svg)");
-    if(!path.isEmpty()) setFilePath(path);
+void SvgLinkBox::changeSourceFile()
+{
+    const QString path = AppSupport::getOpenFile(nullptr,
+                                                 tr("Change Source"),
+                                                 getFilePath(),
+                                                 tr("SVG Files (*.svg)"));
+    if (!path.isEmpty()) { setFilePath(path); }
 }
 
 void SvgLinkBox::updateContent() {

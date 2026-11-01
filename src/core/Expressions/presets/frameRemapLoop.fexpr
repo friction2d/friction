@@ -1,0 +1,13 @@
+[General]
+author=pgilfernandez
+bindings="frame = $frame;\n"
+categories=
+definitions=
+description="Loop a linked scene with FRAME REMAPPING activated:\n1) create a scene you want to loop\n2) link that scene into another one\n3) select the linked scene object and choose FRAME REMAPPING\n4) select FRAME parameter and apply this preset to it\n5) change the LOOP_FPS value to your original loop scene size"
+highlighters=
+id=graphics.friction.frameRemapLoop
+license=
+script="loop_fps =  120; // change with your loop frame count\ntime = frame % loop_fps;\nreturn time"
+title=Frame Remap Loop
+url=
+version=1

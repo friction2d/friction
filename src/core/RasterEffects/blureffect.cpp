@@ -22,7 +22,7 @@ private:
 BlurEffect::BlurEffect() :
     RasterEffect("blur",
                  AppSupport::getRasterEffectHardwareSupport("Blur",
-                                                            HardwareSupport::gpuPreffered),
+                                                            HardwareSupport::cpuOnly),
                  false,
                  RasterEffectType::BLUR)
 {
@@ -106,7 +106,8 @@ void BlurEffectCaller::processGpu(QGL33 * const gl,
 }
 
 void BlurEffectCaller::processCpu(CpuRenderTools &renderTools,
-                                  const CpuRenderData &data) {
+                                  const CpuRenderData &data)
+{
     Q_UNUSED(data)
 
     const float sigma = mRadius*0.3333333f;
@@ -122,11 +123,21 @@ void BlurEffectCaller::processCpu(CpuRenderTools &renderTools,
     const auto& srcBtmp = renderTools.fSrcBtmp;
     const auto& texTile = data.fTexTile;
     auto srcRect = texTile.makeOutset(radCeil, radCeil);
-    if(srcRect.intersect(srcRect, srcBtmp.bounds())) {
-        SkBitmap tileSrc;
-        srcBtmp.extractSubset(&tileSrc, srcRect);
+
+    if (srcRect.intersect(srcRect, srcBtmp.bounds())) {
+        SkBitmap packedTile;
+        packedTile.allocPixels(srcBtmp.info().makeWH(srcRect.width(),
+                                                     srcRect.height()));
+
+        srcBtmp.readPixels(packedTile.info(),
+                           packedTile.getPixels(),
+                           packedTile.rowBytes(),
+                           srcRect.left(),
+                           srcRect.top());
+
         const int drawX = srcRect.left() - texTile.left();
         const int drawY = srcRect.top() - texTile.top();
-        canvas.drawBitmap(tileSrc, drawX, drawY, &paint);
+
+        canvas.drawBitmap(packedTile, drawX, drawY, &paint);
     }
 }

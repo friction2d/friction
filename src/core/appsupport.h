@@ -24,6 +24,7 @@
 #ifndef APPSUPPORT_H
 #define APPSUPPORT_H
 
+#include "Private/memorystructs.h"
 #include "core_global.h"
 
 #include <QObject>
@@ -52,7 +53,9 @@ public:
                               const QString &group);
     static QVariant getSettings(const QString &group,
                                 const QString &key,
-                                const QVariant &fallback = QVariant());
+                                const QVariant &fallback = QVariant(),
+                                const QString &app = QString(),
+                                const QString &org = QString());
     static QVariant getSettings(QSettings *settings,
                                 const QString &group,
                                 const QString &key,
@@ -60,7 +63,9 @@ public:
     static void setSettings(const QString &group,
                             const QString &key,
                             const QVariant &value,
-                            bool append = false);
+                            bool append = false,
+                            const QString &app = QString(),
+                            const QString &org = QString());
     static void setSettings(QSettings *settings,
                             const QString &group,
                             const QString &key,
@@ -74,7 +79,7 @@ public:
     static const QString getAppVersion();
     static const QString getAppBuildInfo(bool html = false);
     static const QString getAppDesc();
-    static const QString getAppCompany();
+    static const QString getAppOrg();
     static const QString getAppContributorsUrl();
     static const QString getAppIssuesUrl();
     static const QString getAppLatestReleaseUrl();
@@ -82,7 +87,31 @@ public:
     static const QString getAppBranchUrl();
     static const QString getAppConfigPath();
     static const QString getAppPath();
-    static const QString getAppTempPath();
+    static const QString getAppCachePath();
+    static const QString getAppTempPath(const QString &filename);
+    static const QString getExistingDirectory(QWidget *parent,
+                                              const QString &caption,
+                                              const QString &path);
+    static const QString getSaveFile(QWidget *parent,
+                                     const QString &caption,
+                                     const QString &path,
+                                     const QString &filter,
+                                     const QString &suffix = QString());
+    static const QString getSaveSequence(QWidget *parent,
+                                         const QString &caption,
+                                         const QString &path);
+    static const QString getOpenFile(QWidget *parent,
+                                     const QString &caption,
+                                     const QString &path,
+                                     const QString &filter);
+    static const QStringList getOpenFiles(QWidget *parent,
+                                          const QString &caption,
+                                          const QString &path,
+                                          const QString &filter);
+    static const QString getOpenDirectory(QWidget *parent,
+                                          const QString &caption,
+                                          const QString &path);
+    static void openUrl(const QUrl &url);
     static const QString getAppOutputProfilesPath();
     static const QString getAppPathEffectsPath();
     static const QString getAppRasterEffectsPath();
@@ -114,6 +143,17 @@ public:
     static void saveResolutionPreset(const int w, const int h);
     static bool removeResolutionPreset(const int w, const int h);
     static QPair<bool, bool> getResolutionPresetStatus();
+
+    static void installPresets(const QString &sourcePath,
+                               const QString &destPath,
+                               const bool force = false,
+                               const QStringList &presets = QStringList());
+    static void installRenderPresets(const bool force = false,
+                                     const QStringList &customPresets = QStringList());
+    static void installExprPresets(const bool force = false,
+                                   const QStringList &customPresets = QStringList());
+
+    static QStringList getOpenGLInfo();
     static const QString filterTextAZW(const QString &text);
     static const QString filterFormatsName(const QString &text);
     static int getProjectVersion(const QString &fileName = QString());
@@ -142,9 +182,9 @@ public:
     static const QColor adjustColorVisibility(const QColor &color,
                                               const QColor &background);
     static void setFont(const QString &path);
-    static bool hasOfflineDocs();
     static QString getOfflineDocs();
     static QString getOnlineDocs();
+    static intKB getTotalRamBytes();
 };
 
 #endif // APPSUPPORT_H

@@ -27,16 +27,23 @@
 
 #include "widgets/colorsettingswidget.h"
 
+using namespace Friction;
+
 eWidgetsImpl::eWidgetsImpl() {}
 
 QWidget *eWidgetsImpl::colorWidget(QWidget * const parent,
                                    const QColor &iniColor,
                                    QObject * const receiver,
                                    const Func<void (const ColorSetting &)> &slot) {
-    const auto wid = new ColorSettingsWidget(parent);
+    const auto wid = new Ui::ColorSettingsWidget(parent,
+                                                 true,
+                                                 true,
+                                                 true,
+                                                 false,
+                                                 "widget");
     wid->setDisplayedColor(iniColor);
     if(slot) {
-        QObject::connect(wid, &ColorSettingsWidget::colorSettingSignal,
+        QObject::connect(wid, &Ui::ColorSettingsWidget::colorSettingSignal,
                          receiver, slot);
     }
     return wid;
@@ -44,7 +51,12 @@ QWidget *eWidgetsImpl::colorWidget(QWidget * const parent,
 
 QWidget *eWidgetsImpl::colorWidget(QWidget * const parent,
                                    ColorAnimator * const target) {
-    const auto wid = new ColorSettingsWidget(parent);
+    const auto wid = new Ui::ColorSettingsWidget(parent,
+                                                 true,
+                                                 true,
+                                                 true,
+                                                 false,
+                                                 "widget");
     wid->setTarget(target);
     return wid;
 }
@@ -53,7 +65,12 @@ QWidget *eWidgetsImpl::colorWidget(QWidget * const parent,
                                    ColorAnimator * const target,
                                    const bool showColorMode)
 {
-    const auto wid = new ColorSettingsWidget(parent);
+    const auto wid = new Ui::ColorSettingsWidget(parent,
+                                                 true,
+                                                 true,
+                                                 true,
+                                                 false,
+                                                 "widget");
     wid->setTarget(target);
     wid->setColorModeVisible(showColorMode);
     return wid;

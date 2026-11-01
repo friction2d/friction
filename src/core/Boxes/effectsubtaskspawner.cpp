@@ -31,6 +31,8 @@
 #include "RasterEffects/rastereffectcaller.h"
 #include "Private/Tasks/taskexecutor.h"
 
+#include <atomic>
+
 class EffectSubTaskSpawner_priv {
 public:
     EffectSubTaskSpawner_priv(const stdsptr<RasterEffectCaller>& effect,
@@ -47,7 +49,8 @@ private:
                     const int nSplits);
 
     const bool mUseDst;
-    int mRemaining = 0;
+    std::atomic<int> mRemaining{0};
+
     const stdsptr<RasterEffectCaller> mEffectCaller;
     const stdsptr<BoxRenderData> mData;
     SkBitmap mSrcBitmap;

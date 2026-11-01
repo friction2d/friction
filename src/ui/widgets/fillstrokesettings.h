@@ -59,7 +59,12 @@ public:
                                       QWidget * const parent = nullptr,
                                       const bool noScroll = false,
                                       const bool fillOnly = false,
-                                      const bool strokeOnly = false);
+                                      const bool strokeOnly = false,
+                                      bool loadState = true,
+                                      bool saveState = true,
+                                      bool defWheel = true,
+                                      bool defMap = false,
+                                      const QString &confPrefix = QString());
 
     void setCurrentBox(BoundingBox * const box);
     void clearAll();
@@ -182,7 +187,7 @@ private:
 
     QrealAnimatorValueSlider *mLineWidthSpin;
 
-    ColorSettingsWidget *mColorsSettingsWidget;
+    Friction::Ui::ColorSettingsWidget *mColorsSettingsWidget;
 
     GradientWidget *mGradientWidget;
 

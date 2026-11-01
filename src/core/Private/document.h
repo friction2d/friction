@@ -89,7 +89,7 @@ public:
                                                           true).toBool();
     bool fGizmoScaleVisibility = AppSupport::getSettings("gizmos",
                                                          "Scale",
-                                                         false).toBool();
+                                                         true).toBool();
     bool fGizmoShearVisibility = AppSupport::getSettings("gizmos",
                                                          "Shear",
                                                          false).toBool();
@@ -156,6 +156,8 @@ public:
     Canvas * createNewScene(const bool emitCreated = true);
     bool removeScene(const qsptr<Canvas>& scene);
     bool removeScene(const int id);
+
+    bool sceneIsLinked(const qsptr<Canvas> &scene);
 
     void addVisibleScene(Canvas * const scene);
     bool removeVisibleScene(Canvas * const scene);
@@ -256,6 +258,9 @@ signals:
     void openApplyExpressionDialog(QrealAnimator* const target);
     void newVideo(const VideoBox::VideoSpecs specs);
     void currentPixelColor(const QColor &color);
+
+    // https://github.com/friction2d/friction/pull/736
+    void fitCanvasToSize();
 };
 
 #endif // DOCUMENT_H

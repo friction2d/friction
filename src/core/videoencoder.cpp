@@ -580,12 +580,14 @@ void VideoEncoder::process()
             const auto cacheCont = _mContainers.at(_mCurrentContainerId);
             const auto contRange = cacheCont->getRange()*_mRenderRange;
             const int nFrames = contRange.span();
+            const sk_sp<SkImage> image = cacheCont->getImage();
             try {
                 FFmpegHelper::writeVideoFrame(mFormatContext,
                                               &mVideoStream,
                                               cacheCont->getImage(),
                                               &hasVideo);
-            } catch (...) {
+                avcodec_flush_buffers(mVideoStream.fCodec);
+            } catch(...) {
                 RuntimeThrow("Failed to write video frame");
             }
             if (++_mCurrentContainerFrame >= nFrames) {

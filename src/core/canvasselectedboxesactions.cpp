@@ -132,7 +132,9 @@ void Canvas::revertAllPoints() {
 void Canvas::flipSelectedBoxesHorizontally() {
     for(const auto &box : mSelectedBoxes) {
         box->startScaleTransform();
+        box->startRotTransform();
         box->scale(-1, 1);
+        box->setRotate(-box->getTransformAnimator()->rot());
         box->finishTransform();
     }
 }
@@ -140,19 +142,37 @@ void Canvas::flipSelectedBoxesHorizontally() {
 void Canvas::flipSelectedBoxesVertically() {
     for(const auto &box : mSelectedBoxes) {
         box->startScaleTransform();
+        box->startRotTransform();
         box->scale(1, -1);
+        box->setRotate(-box->getTransformAnimator()->rot());
         box->finishTransform();
     }
 }
 
-void Canvas::convertSelectedBoxesToPath() {
-    for(const auto &box : mSelectedBoxes)
-        box->objectToVectorPathBox();
+void Canvas::convertSelectedBoxesToPath()
+{
+    for (const auto &box : mSelectedBoxes) {
+        const auto name = box->prp_getName() + "Path";
+        const auto index = box->getZIndex();
+        const auto pbox = box->objectToVectorPathBox();
+        if (pbox) {
+            box->removeFromParent_k();
+            pbox->prp_setName(name);
+            pbox->moveTo(index);
+        }
+    }
 }
 
 void Canvas::convertSelectedPathStrokesToPath() {
     for(const auto &box : mSelectedBoxes) {
-        box->strokeToVectorPathBox();
+        const auto name = box->prp_getName() + "Path";
+        const auto index = box->getZIndex();
+        const auto pbox = box->strokeToVectorPathBox();
+        if (pbox) {
+            box->removeFromParent_k();
+            pbox->prp_setName(name);
+            pbox->moveTo(index);
+        }
     }
 }
 

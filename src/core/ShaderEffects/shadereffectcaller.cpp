@@ -48,6 +48,7 @@ ShaderEffectCaller::ShaderEffectCaller(std::unique_ptr<ShaderEffectJS>&& engine,
 
 ShaderEffectCaller::~ShaderEffectCaller()
 {
+    std::lock_guard<std::mutex> lock(mProgram.fEnginesMutex);
     mProgram.fEngines.push_back(std::move(mEngine));
 }
 

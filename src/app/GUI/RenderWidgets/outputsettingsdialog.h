@@ -143,6 +143,9 @@ protected:
     void addAudioCodec(const AVCodecID &codecId,
                        const AVOutputFormat *outputFormat,
                        const QString &currentCodecName);
+
+private:
+    bool isSupported(const OutputSettings &settings) const;
 };
 
 #endif // OUTPUTSETTINGSDIALOG_H

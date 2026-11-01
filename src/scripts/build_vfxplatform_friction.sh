@@ -33,6 +33,7 @@ TAG=${TAG:-""}
 CUSTOM=${CUSTOM:-""}
 TAR_VERSION=${TAR_VERSION:-""}
 HEAD_REPO_URL=${HEAD_REPO_URL:-""}
+GLX=${GLX:-0}
 
 export PATH="${SDK}/bin:${PATH}"
 export PKG_CONFIG_PATH="${SDK}/lib/pkgconfig"
@@ -89,14 +90,18 @@ CMAKE_EXTRA=""
 GIT_COMMIT=`git rev-parse --short=8 HEAD`
 GIT_BRANCH=`git rev-parse --abbrev-ref HEAD`
 
+USE_EGL=ON
+if [ "${GLX}" = 1 ]; then
+    USE_EGL=OFF
+    (cd ${SDK}/lib; mv -f ../glx/lib/libskia* . )
+fi
+
 cmake -G Ninja \
 -DCMAKE_INSTALL_PREFIX=${SDK} \
 -DCMAKE_PREFIX_PATH=${SDK} \
+-DCMAKE_INSTALL_LIBDIR=lib \
 -DCMAKE_BUILD_TYPE=Release \
 -DLINUX_DEPLOY=ON \
--DSKIA_USE_SYSTEM_LIBS=OFF \
--DSKIA_SYNC_EXTERNAL=ON \
--DUSE_EGL=ON \
 -DFRICTION_OFFICIAL_RELEASE=${REL_STATUS} \
 -DQSCINTILLA_INCLUDE_DIRS=${SDK}/include \
 -DQSCINTILLA_LIBRARIES_DIRS=${SDK}/lib \
@@ -106,7 +111,10 @@ cmake -G Ninja \
 -DGIT_COMMIT=${GIT_COMMIT} \
 -DGIT_BRANCH=${GIT_BRANCH} \
 -DCUSTOM_BUILD=${CUSTOM} \
--DSKIA_STATIC=ON \
+-DBUILD_SKIA=OFF \
+-DSKIA_USE_EGL=${USE_EGL} \
+-DSKIA_LIB_PATH=${SDK}/lib \
+-DSKIA_USE_SYSTEM_LIBS=OFF \
 ..
 
 VERSION=`cat version.txt`

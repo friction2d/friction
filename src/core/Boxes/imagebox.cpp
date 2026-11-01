@@ -30,11 +30,11 @@
 #include "FileCacheHandlers/imagecachehandler.h"
 #include "fileshandler.h"
 #include "filesourcescache.h"
-#include "GUI/edialogs.h"
 #include "typemenu.h"
 //#include "paintbox.h"
 #include "svgexporter.h"
 #include "svgexporthelpers.h"
+#include "appsupport.h"
 
 ImageFileHandler* imageFileHandlerGetter(const QString& path) {
     return FilesHandler::sInstance->getFileHandler<ImageFileHandler>(path);
@@ -125,11 +125,14 @@ void ImageBox::setupCanvasMenu(PropertyMenu * const menu)
     BoundingBox::setupCanvasMenu(menu);
 }
 
-void ImageBox::changeSourceFile() {
+void ImageBox::changeSourceFile()
+{
     const QString filters = FileExtensions::imageFilters();
-    QString importPath = eDialogs::openFile("Change Source", mFileHandler.path(),
-                                            "Image Files (" + filters + " *.ora)");
-    if(!importPath.isEmpty()) setFilePath(importPath);
+    QString importPath = AppSupport::getOpenFile(nullptr,
+                                                 tr("Change Source"),
+                                                 mFileHandler.path(),
+                                                 tr("Image Files (%1)").arg(filters));
+    if (!importPath.isEmpty()) { setFilePath(importPath); }
 }
 
 void ImageBox::setupRenderData(const qreal relFrame, const QMatrix& parentM,

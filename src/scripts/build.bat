@@ -24,7 +24,7 @@ if "%OPT%" == "debug" (
 set CWD=%cd%
 set SDK_DIR=%CWD%\sdk
 set SDK_VERSION=1.0.0
-set SDK_REV=r6
+set SDK_REV=r7
 set SDK_SUFFIX=windows-x64.7z
 
 set PATH=%SDK_DIR%\bin;%PATH%
@@ -81,6 +81,7 @@ copy "%SDK_DIR%\bin\Qt5Widgets.dll" "%OUTPUT_DIR%\"
 copy "%SDK_DIR%\bin\Qt5Xml.dll" "%OUTPUT_DIR%\"
 
 copy "%SDK_DIR%\plugins\audio\qtaudio_wasapi.dll" "%OUTPUT_DIR%\audio\"
+copy "%SDK_DIR%\plugins\audio\qtaudio_windows.dll" "%OUTPUT_DIR%\audio\"
 copy "%SDK_DIR%\plugins\platforms\qwindows.dll" "%OUTPUT_DIR%\platforms\"
 
 copy "%SDK_DIR%\bin\qscintilla2_qt5.dll" "%OUTPUT_DIR%\"

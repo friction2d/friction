@@ -30,6 +30,12 @@
 #include <QDesktopWidget>
 #include <QToolButton>
 
+const QString ThemeSupport::getAppIconName(const bool alt)
+{
+    const QString name = alt ? "application-x-graphics.friction.Friction" : "graphics.friction.Friction";
+    return name;
+}
+
 const QColor ThemeSupport::getQColor(int r,
                                      int g,
                                      int b,
@@ -323,4 +329,16 @@ const QColor ThemeSupport::getLightDarkColor(const QColor &color,
         return hslColor.toRgb();
     }
     return col;
+}
+
+ThemeIconProvider::ThemeIconProvider()
+{
+    mIcon = QIcon::fromTheme(ThemeSupport::getAppIconName(true));
+}
+
+QIcon ThemeIconProvider::icon(const QFileInfo &info) const
+{
+    const QString name = info.fileName().toLower();
+    if (name.endsWith(".friction")) { return mIcon; }
+    return QFileIconProvider::icon(info);
 }

@@ -203,5 +203,8 @@ CORE_EXPORT
 extern bool nearlyEqual(double lhs,
                         double rhs);
 
+CORE_EXPORT
+QPointF mapLinear(const QMatrix& m,
+                  const QPointF& p);
 
 #endif // SIMPLEMATH_H

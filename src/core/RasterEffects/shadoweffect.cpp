@@ -35,7 +35,7 @@ private:
 ShadowEffect::ShadowEffect() :
     RasterEffect("shadow",
                  AppSupport::getRasterEffectHardwareSupport("Shadow",
-                                                            HardwareSupport::gpuPreffered),
+                                                            HardwareSupport::cpuOnly),
                  false,
                  RasterEffectType::SHADOW)
 {
@@ -95,14 +95,27 @@ QDomElement ShadowEffect::saveShadowSVG(
 }
 
 stdsptr<RasterEffectCaller>
-ShadowEffect::getEffectCaller(
-        const qreal relFrame, const qreal resolution,
-        const qreal influence, BoxRenderData * const data) const {
+ShadowEffect::getEffectCaller(const qreal relFrame,
+                              const qreal resolution,
+                              const qreal influence,
+                              BoxRenderData * const data) const
+{
     Q_UNUSED(data)
-    const qreal blur = mBlurRadius->getEffectiveValue(relFrame)*resolution;
+
+    qreal blur = mBlurRadius->getEffectiveValue(relFrame)*resolution;
     const QColor color = mColor->getColor(relFrame);
-    const QPointF trans = mTranslation->getEffectiveValue(relFrame)*resolution;
+    QPointF trans = mTranslation->getEffectiveValue(relFrame)*resolution;
     const qreal opacity = mOpacity->getEffectiveValue(relFrame)*influence;
+
+    if (std::isnan(blur) || std::isinf(blur) ||
+        std::isnan(trans.x()) || std::isinf(trans.x()) ||
+        std::isnan(trans.y()) || std::isinf(trans.y())) {
+        return nullptr;
+    }
+
+    blur = qBound(0.0, blur, 2048.0);
+    trans.setX(qBound(-8192.0, trans.x(), 8192.0));
+    trans.setY(qBound(-8192.0, trans.y(), 8192.0));
 
     const int iL = qMax(0, qCeil(blur - trans.x()));
     const int iT = qMax(0, qCeil(blur - trans.y()));
@@ -115,21 +128,18 @@ ShadowEffect::getEffectCaller(
                 QMargins(iL, iT, iR, iB));
 }
 
-void ShadowEffectCaller::setupPaint(SkPaint &paint) const {
-    const float sigma = mRadius*0.3333333f;
-    const auto filter = SkImageFilters::Blur(sigma, sigma, nullptr);
-    paint.setImageFilter(filter);
-    const float r = SkColorGetR(mColor)/255.f;
-    const float g = SkColorGetG(mColor)/255.f;
-    const float b = SkColorGetB(mColor)/255.f;
-    const float a = SkColorGetA(mColor)/255.f;
-    const float opacityM[20] = {
-        0, 0, 0, r, 0,
-        0, 0, 0, g, 0,
-        0, 0, 0, b, 0,
-        0, 0, 0, mOpacity*a, 0
-    };
-    paint.setColorFilter(SkColorFilters::Matrix(opacityM));
+void ShadowEffectCaller::setupPaint(SkPaint &paint) const
+{
+    const float sigma = mRadius * 0.3333333f;
+    paint.setImageFilter(SkImageFilters::Blur(sigma, sigma, nullptr));
+
+    const uint8_t alpha = static_cast<uint8_t>(SkColorGetA(mColor) * mOpacity);
+    const SkColor shadowColor = SkColorSetARGB(alpha,
+                                               SkColorGetR(mColor),
+                                               SkColorGetG(mColor),
+                                               SkColorGetB(mColor));
+
+    paint.setColorFilter(SkColorFilters::Blend(shadowColor, SkBlendMode::kSrcIn));
 }
 
 void ShadowEffectCaller::processGpu(QGL33 * const gl,
@@ -152,30 +162,51 @@ void ShadowEffectCaller::processGpu(QGL33 * const gl,
 }
 
 void ShadowEffectCaller::processCpu(CpuRenderTools &renderTools,
-                                    const CpuRenderData &data) {
+                                    const CpuRenderData &data)
+{
     Q_UNUSED(data)
-    SkCanvas canvas(renderTools.fDstBtmp);
+
+    const auto& srcBtmp = renderTools.fSrcBtmp;
+    const auto& dstBtmp = renderTools.fDstBtmp;
+
+    if (srcBtmp.empty() || srcBtmp.getPixels() == nullptr ||
+        dstBtmp.empty() || dstBtmp.getPixels() == nullptr) {
+        return;
+    }
+
+    SkCanvas canvas(dstBtmp);
     canvas.clear(SK_ColorTRANSPARENT);
 
     const int radCeil = static_cast<int>(ceil(mRadius));
-    const auto& srcBtmp = renderTools.fSrcBtmp;
     const auto& texTile = data.fTexTile;
-    auto srcRect = texTile.makeOutset(radCeil, radCeil);
-    const SkScalar dx = mTranslation.x();
-    const SkScalar dy = mTranslation.y();
-    const int ceilDX = isZero4Dec(dx) ? 0 : (dx > 0 ? qCeil(dx) : qFloor(dx));
-    const int ceilDY = isZero4Dec(dy) ? 0 : (dy > 0 ? qCeil(dy) : qFloor(dy));
-    srcRect.adjust(-ceilDX, -ceilDY, 0, 0);
-    if(srcRect.intersect(srcRect, srcBtmp.bounds())) {
-        SkBitmap tileSrc;
-        srcBtmp.extractSubset(&tileSrc, srcRect);
-        const int drawX = srcRect.left() - texTile.left();
-        const int drawY = srcRect.top() - texTile.top();
 
-        SkPaint paint;
-        setupPaint(paint);
-        canvas.drawBitmap(tileSrc, mTranslation.x() + drawX,
-                          mTranslation.y() + drawY, &paint);
-        canvas.drawBitmap(tileSrc, drawX, drawY);
+    const int ceilDX = static_cast<int>(ceil(abs(mTranslation.x())));
+    const int ceilDY = static_cast<int>(ceil(abs(mTranslation.y())));
+    auto srcRect = texTile.makeOutset(radCeil + ceilDX, radCeil + ceilDY);
+
+    if (srcRect.intersect(srcRect, srcBtmp.bounds())) {
+
+        SkBitmap packedTile;
+        packedTile.allocPixels(srcBtmp.info().makeWH(srcRect.width(),
+                                                     srcRect.height()));
+
+        if (srcBtmp.readPixels(packedTile.info(),
+                               packedTile.getPixels(),
+                               packedTile.rowBytes(),
+                               srcRect.left(),
+                               srcRect.top())) {
+
+            const int drawX = srcRect.left() - texTile.left();
+            const int drawY = srcRect.top() - texTile.top();
+
+            SkPaint paint;
+            setupPaint(paint);
+
+            canvas.drawBitmap(packedTile,
+                              mTranslation.x() + drawX,
+                              mTranslation.y() + drawY,
+                              &paint);
+            canvas.drawBitmap(packedTile, drawX, drawY);
+        }
     }
 }

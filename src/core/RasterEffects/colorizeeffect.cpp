@@ -37,7 +37,7 @@
 ColorizeEffect::ColorizeEffect() :
     RasterEffect("colorize",
                  AppSupport::getRasterEffectHardwareSupport("Colorize",
-                                                            HardwareSupport::gpuPreffered),
+                                                            HardwareSupport::cpuOnly),
                  true,
                  RasterEffectType::COLORIZE)
 {
@@ -126,11 +126,23 @@ stdsptr<RasterEffectCaller> ColorizeEffect::getEffectCaller(
 }
 
 void ColorizeEffectCaller::processCpu(CpuRenderTools& renderTools,
-                                      const CpuRenderData& data) {
-    const int xMin = data.fTexTile.left();
-    const int xMax = data.fTexTile.right();
-    const int yMin = data.fTexTile.top();
-    const int yMax = data.fTexTile.bottom();
+                                      const CpuRenderData& data)
+{
+    const auto& srcBtmp = renderTools.fSrcBtmp;
+    const auto& dstBtmp = renderTools.fDstBtmp;
+
+    if (srcBtmp.empty() || srcBtmp.getPixels() == nullptr ||
+        dstBtmp.empty() || dstBtmp.getPixels() == nullptr) {
+        return;
+    }
+
+    const int imgWidth = srcBtmp.width();
+    const int imgHeight = srcBtmp.height();
+
+    const int xMin = std::max(0, data.fTexTile.left());
+    const int xMax = std::min((int)data.fTexTile.right(), imgWidth - 1);
+    const int yMin = std::max(0, data.fTexTile.top());
+    const int yMax = std::min((int)data.fTexTile.bottom(), imgHeight - 1);
 
     for(int yi = yMin; yi <= yMax; yi++) {
         auto dst = static_cast<uchar*>(renderTools.fDstBtmp.getAddr(0, yi - yMin));

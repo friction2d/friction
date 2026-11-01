@@ -20,6 +20,10 @@
 cmake_minimum_required(VERSION 3.12)
 project(frictionui LANGUAGES CXX)
 
+if(APPLE)
+    enable_language(OBJCXX)
+endif()
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
 
 include(friction-version)
@@ -27,11 +31,8 @@ include(friction-meta)
 include(friction-common)
 include(friction-ffmpeg)
 
-message("-- ffmpeg include: ${FFMPEG_INCLUDE_DIRS}")
-message("-- ffmpeg libraries: ${FFMPEG_LIBRARIES_DIRS} ${FFMPEG_LIBRARIES}")
-message("-- skia libraries: ${SKIA_LIBRARIES_DIRS} ${SKIA_LIBRARIES}")
-
 add_definitions(-DUI_LIBRARY)
+add_definitions(-DPROJECT_DONATE_URL="${PROJECT_DONATE_URL}")
 
 include_directories(
     ${FFMPEG_INCLUDE_DIRS}
@@ -44,13 +45,13 @@ set(
     SOURCES
     dialogs/adjustscenedialog.cpp
     dialogs/applyexpressiondialog.cpp
+    dialogs/askdialog.cpp
     dialogs/commandpalette.cpp
     dialogs/dialog.cpp
     dialogs/durationrectsettingsdialog.cpp
     dialogs/exportsvgdialog.cpp
     dialogs/markereditordialog.cpp
     dialogs/qrealpointvaluedialog.cpp
-    dialogs/renderoutputwidget.cpp
     dialogs/scenesettingsdialog.cpp
     gradientwidgets/currentgradientwidget.cpp
     gradientwidgets/displayedgradientswidget.cpp
@@ -64,6 +65,7 @@ set(
     optimalscrollarena/scrollwidget.cpp
     optimalscrollarena/scrollwidgetvisiblepart.cpp
     optimalscrollarena/singlewidget.cpp
+    system/svgclipboard.cpp
     widgets/aboutwidget.cpp
     widgets/actionbutton.cpp
     widgets/alignwidget.cpp
@@ -76,6 +78,7 @@ set(
     widgets/canvassettingswidget.cpp
     widgets/canvastoolbar.cpp
     widgets/changewidthwidget.cpp
+    widgets/checkboxes.cpp
     widgets/colortoolbar.cpp
     widgets/colortoolbutton.cpp
     widgets/colorlabel.cpp
@@ -113,20 +116,31 @@ set(
     widgets/widgetstack.cpp
     widgets/widgetwrappernode.cpp
     widgets/wrappernode.cpp
+    widgets/colorwheel.cpp
+    widgets/colormap.cpp
+    wizards/installpresets.cpp
+    wizards/wizardpage.cpp
+    wizards/quicksetup.cpp
+    wizards/quicksetupgeneral.cpp
+    wizards/quicksetuppresets.cpp
 )
+
+if(APPLE)
+    list(APPEND SOURCES system/svgclipboard.mm)
+endif()
 
 set(
     HEADERS
     ui_global.h
     dialogs/adjustscenedialog.h
     dialogs/applyexpressiondialog.h
+    dialogs/askdialog.h
     dialogs/commandpalette.h
     dialogs/dialog.h
     dialogs/durationrectsettingsdialog.h
     dialogs/exportsvgdialog.h
     dialogs/markereditordialog.h
     dialogs/qrealpointvaluedialog.h
-    dialogs/renderoutputwidget.h
     dialogs/scenesettingsdialog.h
     gradientwidgets/currentgradientwidget.h
     gradientwidgets/displayedgradientswidget.h
@@ -140,6 +154,7 @@ set(
     optimalscrollarena/scrollwidget.h
     optimalscrollarena/scrollwidgetvisiblepart.h
     optimalscrollarena/singlewidget.h
+    system/svgclipboard.h
     widgets/aboutwidget.h
     widgets/actionbutton.h
     widgets/alignwidget.h
@@ -153,6 +168,7 @@ set(
     widgets/canvassettingswidget.h
     widgets/canvastoolbar.h
     widgets/changewidthwidget.h
+    widgets/checkboxes.h
     widgets/colortoolbar.h
     widgets/colortoolbutton.h
     widgets/colorlabel.h
@@ -192,13 +208,16 @@ set(
     widgets/widgetstack.h
     widgets/widgetwrappernode.h
     widgets/wrappernode.h
+    widgets/colorwheel.h
+    widgets/colormap.h
+    wizards/installpresets.h
+    wizards/wizardpage.h
+    wizards/quicksetup.h
+    wizards/quicksetupgeneral.h
+    wizards/quicksetuppresets.h
 )
 
-if(NOT WIN32)
-    add_library(${PROJECT_NAME} STATIC ${HEADERS} ${SOURCES})
-else()
-    add_library(${PROJECT_NAME} SHARED ${HEADERS} ${SOURCES})
-endif()
+add_library(${PROJECT_NAME} SHARED ${HEADERS} ${SOURCES})
 
 set_target_properties(
     ${PROJECT_NAME}
@@ -221,6 +240,14 @@ target_link_directories(
     ${SKIA_LIBRARIES_DIRS}
 )
 
+if(APPLE)
+    target_link_libraries(
+        ${PROJECT_NAME}
+        PRIVATE
+        "-framework AppKit"
+    )
+endif()
+
 target_link_libraries(
     ${PROJECT_NAME}
     PRIVATE
@@ -229,3 +256,13 @@ target_link_libraries(
     ${SKIA_LIBRARIES}
     ${FFMPEG_LIBRARIES}
 )
+
+if(UNIX AND NOT APPLE)
+    include(GNUInstallDirs)
+    install(
+        TARGETS
+        ${PROJECT_NAME}
+        DESTINATION
+        ${CMAKE_INSTALL_LIBDIR}
+    )
+endif()

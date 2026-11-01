@@ -52,6 +52,8 @@ public:
     void disableFrameRemappingAction();
 
     bool clipToCanvas();
+    BoundingBox* getLinkTarget();
+
 private:
     qsptr<BoolProperty> mClipToCanvas =
             enve::make_shared<BoolProperty>("clip");

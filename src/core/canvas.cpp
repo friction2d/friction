@@ -99,6 +99,15 @@ Canvas::Canvas(Document &document,
     //anim_setAbsFrame(0);
 
     //setCanvasMode(MOVE_PATH);
+
+    // update fps for videos if new frame range
+    connect(this, &Canvas::newFrameRange, this, [this]() {
+        for (const auto &box : getContainedBoxes()) {
+            if (const auto &vbox = enve_cast<VideoBox*>(box)) {
+                vbox->setCorrectFps();
+            }
+        }
+    });
 }
 
 void Canvas::setWorldToScreen(const QTransform& transform,
@@ -125,9 +134,21 @@ qreal Canvas::getResolution() const
 
 void Canvas::setResolution(const qreal percent)
 {
+    if (isZero6Dec(mResolution - percent)) { return; }
     mResolution = percent;
+#ifdef Q_OS_MAC
+    invalidateSceneFramesCache();
+#endif
     prp_afterWholeInfluenceRangeChanged();
     updateAllBoxes(UpdateReason::userChange);
+}
+
+void Canvas::invalidateSceneFramesCache()
+{
+    mSceneFrame.reset();
+    mLoadingSceneFrame.reset();
+    mSceneFrameOutdated = true;
+    mSceneFramesHandler.clear();
 }
 
 void Canvas::setCurrentGroupParentAsCurrentGroup()
@@ -1182,8 +1203,31 @@ void Canvas::splitAction()
 
 void Canvas::duplicateAction()
 {
-    copyAction();
-    pasteAction();
+    if (mSelectedBoxes.isEmpty()) { return; }
+
+    const auto originals = mSelectedBoxes.getList();
+    clearBoxesSelection();
+
+    for (auto* box : originals) {
+        if (!box) continue;
+
+        ContainerBox* targetContainer = box->getParentGroup();
+        if (!targetContainer) { targetContainer = mCurrentContainer; }
+
+        const int originalZIndex = box->getZIndex();
+        const QString originalName = box->prp_getName();
+
+        QList<BoundingBox*> singleList;
+        singleList.append(box);
+
+        const auto tempClipboard = enve::make_shared<BoxesClipboard>(singleList);
+        tempClipboard->pasteTo(targetContainer);
+
+        if (mLastSelectedBox && mLastSelectedBox != box) {
+            mLastSelectedBox->moveTo(originalZIndex);
+            mLastSelectedBox->prp_setName(originalName + " Copy");
+        }
+    }
 }
 
 void Canvas::selectAllAction()

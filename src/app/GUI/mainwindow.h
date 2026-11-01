@@ -371,11 +371,10 @@ private:
     void openRenderQueueWindow();
     void closedRenderQueueWindow();
 
-    void initRenderPresets(const bool reinstall = false);
-    void askInstallRenderPresets();
-    void askInstallExpressionsPresets();
+    void askInstallDefaultPresets();
     void askRestoreFillStrokeDefault();
     void askRestoreDefaultUi();
+    void askRunQuickSetup();
 
     QAction *mToolBarMainAct;
     QAction *mToolBarColorAct;

@@ -52,11 +52,11 @@ void main(void) {
     }
     bool ii = mod(dir, 2 * PI) > PI;
 
-    float a = sqrt(x*x + y*y);
+    float a = max(sqrt(x*x + y*y), 1e-6);
     float b = dir - asin(y / a);
     float c = 0.25*PI - dir;
 
-    float f = a * cos(b) / (cos(c) * sqrt2);
+    float f = a * cos(b) / (cos(c) * sqrt2 + 1e-6);
 
     if(ii) f = 1 - f;
 
@@ -68,7 +68,7 @@ void main(void) {
     } else if(f > x1) {
         alpha = 1;
     } else {
-        alpha = 1 - 0.5*(cos(PI*(f - x0)/(1 - sharpness)) + 1);
+        alpha = 1.0 - 0.5*(cos(PI*(f - x0)/max(1.0 - sharpness, 1e-6)) + 1.0);
     }
     fragColor = texture(tex, texCoord) * alpha;
 }

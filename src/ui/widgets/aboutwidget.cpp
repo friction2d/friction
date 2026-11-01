@@ -53,18 +53,22 @@ AboutWidget::AboutWidget(QWidget *parent)
     QString osName = QString("%1 %2").arg(QSysInfo::prettyProductName(),
                                           QSysInfo::currentCpuArchitecture());
 #ifdef Q_OS_LINUX
-    osName.append(QString(" %1").arg(QApplication::platformName() == "xcb" ? "X11" : QApplication::platformName()));
+    QString xcbGL = qgetenv("QT_XCB_GL_INTEGRATION");
+    QString x11 = "X11";
+    if (xcbGL == "xcb_egl") { x11.append(" EGL"); }
+    else if (xcbGL == "xcb_glx") { x11.append(" GLX"); }
+    osName.append(QString(" %1").arg(QApplication::platformName() == "xcb" ? x11 : QApplication::platformName()));
 #endif
 
     QString label = QString::fromUtf8("<div style=\"margin: 0; padding: 0; text-align: center; font-weight: normal;\">"
-                                      "<img src=\":/icons/hicolor/%5x%5/apps/%4.png\" width=\"%2\" height=\"%2\">"
+                                      "<img src=\":/icons/hicolor/%5x%5/mimetypes/%4.png\" width=\"%2\" height=\"%2\">"
                                       "<h1 style=\"font-weight: normal; margin-top: 0; padding-top: 0;\">%3"
                                       "<br><span style=\"font-size: large;\">%1</span>"
                                       "<br><span style=\"font-size: medium;\">%6<br>%7<br>FFmpeg %8<br>Qt %9</span></h1>"
                                       "</div>").arg(AppSupport::getAppVersion(),
                                                     QString::number(ThemeSupport::getIconSize(logoSize).width()),
                                                     AppSupport::getAppDisplayName(),
-                                                    AppSupport::getAppID(),
+                                                    ThemeSupport::getAppIconName(true),
                                                     QString::number(ThemeSupport::getIconSize(qRound(logoSize * devicePixelRatioF())).width()),
                                                     osName,
                                                     HardwareInfo::sGpuRendererString(),

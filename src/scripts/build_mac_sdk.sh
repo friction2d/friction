@@ -21,7 +21,8 @@ set -e -x
 
 # keep in sync with other SDK's
 
-SKIA_V=c30d2c4f604a9b65a98e847ba008ac6e1a936eda
+SKIA_V=1.0.5
+SKIA_COMMIT=b551a388dfbe112f40b6f4fc710d25255c3969f5
 
 PYTHON_V=3.11.11
 NINJA_V=1.11.1
@@ -30,7 +31,7 @@ NASM_V=2.14.02
 YASM_V=1.3.0
 PKGCONF_V=1.1.0
 
-QT_V=5.15.18_20251101_d8220074
+QT_V=5.15.19_20260520_aa749695
 QSCINTILLA_V=2.14.1
 
 LAME_V=3.100
@@ -168,17 +169,17 @@ if [ ! -f "${SDK}/bin/yasm" ]; then
 fi # yasm
 
 # skia
-if [ ! -f "${SDK}/lib/libskia.a" ]; then
+if [ ! -f "${SDK}/lib/libskia-friction.${SKIA_V}.dylib" ]; then
     cd ${SRC}
     rm -rf skia || true
     git clone https://github.com/friction2d/skia
     cd skia
-    git checkout ${SKIA_V}
+    git checkout ${SKIA_COMMIT}
     git submodule update -i --recursive
     mkdir build && cd build
-    cmake -G Ninja -DCMAKE_OSX_DEPLOYMENT_TARGET=${OSX} -DMAC_DEPLOY=ON -DSKIA_STATIC=ON -DSKIA_USE_SYSTEM_LIBS=OFF -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang ..
+    cmake -G Ninja -DCMAKE_OSX_DEPLOYMENT_TARGET=${OSX} -DMAC_DEPLOY=ON -DSKIA_USE_SYSTEM_LIBS=OFF -DCMAKE_INSTALL_PREFIX=${SDK} -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang ..
     cmake --build .
-    cp -a libskia.a ${SDK}/lib/
+    cp -a skia-build/libskia* ${SDK}/lib/
 fi # skia
 
 # qt5

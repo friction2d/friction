@@ -69,8 +69,10 @@ void ShaderEffect::giveBackJSEngine(stduptr<ShaderEffectJS>&& engineUPtr) {
     mProgram->fEngines.push_back(std::move(engineUPtr));
 }
 
-void ShaderEffect::takeJSEngine(stduptr<ShaderEffectJS>& engineUPtr) const {
-    if(mProgram->fEngines.empty()) {
+void ShaderEffect::takeJSEngine(stduptr<ShaderEffectJS>& engineUPtr) const
+{
+    std::lock_guard<std::mutex> lock(mProgram->fEnginesMutex);
+    if (mProgram->fEngines.empty()) {
         engineUPtr = std::make_unique<ShaderEffectJS>(*mProgram->fJSBlueprint);
     } else {
         engineUPtr = std::move(mProgram->fEngines.back());

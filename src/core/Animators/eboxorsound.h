@@ -132,6 +132,7 @@ public:
 
     void moveUp();
     void moveDown();
+    void moveTo(const int index);
     void bringToFront();
     void bringToEnd();
     void setZListIndex(const int z) { mZListIndex = z; }

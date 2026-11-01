@@ -411,6 +411,10 @@ void ToolInteract::setupGridButton()
     }
 
     menu->addSeparator();
+    setupGridAction(button, Core::Grid::Option::StepRotCtl);
+    setupGridAction(button, Core::Grid::Option::StepRotShift);
+
+    menu->addSeparator();
     setupGridAction(button, Core::Grid::Option::Color);
     menu->addSeparator();
     setupGridAction(button, Core::Grid::Option::DrawOnTop);
@@ -456,6 +460,8 @@ void ToolInteract::setupGridButton()
             settings.color = fallback.color;
             settings.colorMajor = fallback.colorMajor;
             settings.drawOnTop = fallback.drawOnTop;
+            settings.stepRotCtrl = fallback.stepRotCtrl;
+            settings.stepRotShift = fallback.stepRotShift;
             grid->saveSettings(settings);
             eSettings::sInstance->fGrid = settings;
         });
@@ -481,6 +487,8 @@ void ToolInteract::setupGridButton()
             settings.color = fallback.color;
             settings.colorMajor = fallback.colorMajor;
             settings.drawOnTop = fallback.drawOnTop;
+            settings.stepRotCtrl = fallback.stepRotCtrl;
+            settings.stepRotShift = fallback.stepRotShift;
             grid->setSettings(settings);
         });
     }
@@ -503,6 +511,8 @@ void ToolInteract::setupGridButton()
             defaults.color = settings.color;
             defaults.colorMajor = settings.colorMajor;
             defaults.drawOnTop = settings.drawOnTop;
+            defaults.stepRotCtrl = settings.stepRotCtrl;
+            defaults.stepRotShift = settings.stepRotShift;
             grid->saveSettings(defaults);
             eSettings::sInstance->fGrid = defaults;
         });
@@ -543,14 +553,14 @@ void ToolInteract::setupGridAction(QToolButton *button,
         const auto act = new QWidgetAction(this);
         const auto wid = new QWidget(this);
         const auto lay = new QHBoxLayout(wid);
-        const auto label = new QLabel(tr("Colors"), wid);
+        //const auto label = new QLabel(tr("Colors"), wid);
         const auto color1 = new ColorAnimatorButton(settings.color, wid);
         const auto color2 = new ColorAnimatorButton(settings.colorMajor, wid);
 
         wid->setContentsMargins(0, 0, 0, 0);
         lay->setContentsMargins(5, 2, 10, 2);
 
-        lay->addWidget(label);
+        //lay->addWidget(label);
         lay->addWidget(color1);
         lay->addWidget(color2);
 
@@ -614,6 +624,14 @@ void ToolInteract::setupGridAction(QToolButton *button,
             spin->setValue(settings.majorEveryY);
             labelText = tr("Major Y");
             break;
+        case Core::Grid::Option::StepRotCtl:
+            spin->setValue(settings.stepRotCtrl);
+            labelText = tr("Step Rotate º (Ctrl)");
+            break;
+        case Core::Grid::Option::StepRotShift:
+            spin->setValue(settings.stepRotShift);
+            labelText = tr("Step Rotate º (Shift)");
+            break;
         default:
             qWarning() << "Unknown Grid Option!" << (int)option;
         }
@@ -630,8 +648,10 @@ void ToolInteract::setupGridAction(QToolButton *button,
         button->menu()->addAction(act);
 
         connect(spin, qOverload<int>(&QSpinBox::valueChanged),
-                this, [grid, option] (const int value){
-            grid->setOption(option, value, false);
+                this, [grid, option] (const int value) {
+            const bool isGlobal = (option == Core::Grid::Option::StepRotCtl ||
+                                   option == Core::Grid::Option::StepRotShift) ? true : false;
+            grid->setOption(option, value, isGlobal);
         });
         connect(grid, &Core::Grid::changed,
                 this, [spin, option] (const Core::Grid::Settings &settings) {
@@ -654,6 +674,12 @@ void ToolInteract::setupGridAction(QToolButton *button,
                 break;
             case Core::Grid::Option::MajorEveryY:
                 value = settings.majorEveryY;
+                break;
+            case Core::Grid::Option::StepRotCtl:
+                value = settings.stepRotCtrl;
+                break;
+            case Core::Grid::Option::StepRotShift:
+                value = settings.stepRotShift;
                 break;
             default: return;
             }

@@ -56,6 +56,13 @@
 
 #include <QMessageBox>
 
+#include "Boxes/circle.h"
+#include "Boxes/rectangle.h"
+#include "Boxes/nullobject.h"
+#include "Sound/evideosound.h"
+#include "Boxes/internallinkgroupbox.h"
+#include "Boxes/imagesequencebox.h"
+
 QPixmap* BoxSingleWidget::VISIBLE_ICON;
 QPixmap* BoxSingleWidget::INVISIBLE_ICON;
 QPixmap* BoxSingleWidget::BOX_CHILDREN_VISIBLE_ICON;
@@ -74,6 +81,18 @@ QPixmap* BoxSingleWidget::G_ICON;
 QPixmap* BoxSingleWidget::CG_ICON;
 QPixmap* BoxSingleWidget::GRAPH_PROPERTY_ICON;
 QPixmap* BoxSingleWidget::PROMOTE_TO_LAYER_ICON;
+
+QPixmap* BoxSingleWidget::BOX_PATH;
+QPixmap* BoxSingleWidget::BOX_CIRCLE;
+QPixmap* BoxSingleWidget::BOX_RECT;
+QPixmap* BoxSingleWidget::BOX_TEXT;
+QPixmap* BoxSingleWidget::BOX_NULL;
+QPixmap* BoxSingleWidget::BOX_IMAGE;
+QPixmap* BoxSingleWidget::BOX_VIDEO;
+QPixmap* BoxSingleWidget::BOX_SOUND;
+QPixmap* BoxSingleWidget::BOX_GROUP;
+QPixmap* BoxSingleWidget::BOX_LINK;
+QPixmap* BoxSingleWidget::BOX_SEQ;
 
 bool BoxSingleWidget::sStaticPixmapsLoaded = false;
 
@@ -111,6 +130,39 @@ BoxSingleWidget::BoxSingleWidget(BoxScroller * const parent)
     mMainLayout->setSpacing(0);
     mMainLayout->setContentsMargins(0, 0, 0, 0);
     mMainLayout->setAlignment(Qt::AlignLeft);
+
+    mBoxButton = new PixmapActionButton(this);
+    mBoxButton->setPixmapChooser([this]() {
+        if (!mTarget) { return static_cast<QPixmap*>(nullptr); }
+        const auto target = mTarget->getTarget();
+        if (enve_cast<Circle*>(target)) {
+            return BoxSingleWidget::BOX_CIRCLE;
+        } else if (enve_cast<RectangleBox*>(target)) {
+            return BoxSingleWidget::BOX_RECT;
+        } else if (enve_cast<TextBox*>(target)) {
+            return BoxSingleWidget::BOX_TEXT;
+        } else if (enve_cast<NullObject*>(target)) {
+            return BoxSingleWidget::BOX_NULL;
+        } else if (enve_cast<ImageBox*>(target)) {
+            return BoxSingleWidget::BOX_IMAGE;
+        } else if (enve_cast<VideoBox*>(target)) {
+            return BoxSingleWidget::BOX_VIDEO;
+        } else if (enve_cast<eVideoSound*>(target) ||
+                   enve_cast<eSound*>(target)) {
+            return BoxSingleWidget::BOX_SOUND;
+        } else if (enve_cast<InternalLinkGroupBox*>(target)) {
+            return BoxSingleWidget::BOX_LINK;
+        } else if (enve_cast<ImageSequenceBox*>(target)) {
+            return BoxSingleWidget::BOX_SEQ;
+        } else if (enve_cast<PathBox*>(target)) {
+            return BoxSingleWidget::BOX_PATH;
+        } else if (enve_cast<ContainerBox*>(target)) {
+            return BoxSingleWidget::BOX_GROUP;
+        }
+        return static_cast<QPixmap*>(nullptr);
+    });
+
+    mMainLayout->addWidget(mBoxButton);
 
     mRecordButton = new PixmapActionButton(this);
     mRecordButton->setPixmapChooser([this]() {
@@ -264,8 +316,8 @@ BoxSingleWidget::BoxSingleWidget(BoxScroller * const parent)
 
     mColorButton = new ColorAnimatorButton(nullptr, this);
     mMainLayout->addWidget(mColorButton, Qt::AlignRight);
-    mColorButton->setFixedHeight(mColorButton->height() - 6);
-    mColorButton->setContentsMargins(0, 3, 0, 3);
+    mColorButton->setFixedHeight(mColorButton->height() - 2);
+    mColorButton->setContentsMargins(0, 1, 0, 1);
 
     mPropertyComboBox = createCombo(this);
     mMainLayout->addWidget(mPropertyComboBox);
@@ -597,12 +649,10 @@ void BoxSingleWidget::loadStaticPixmaps(int iconSize)
     if (sStaticPixmapsLoaded) { return; }
     if (!ThemeSupport::hasIconSize(iconSize)) {
         QMessageBox::warning(nullptr,
-                             tr("Icon issues"),
+                             tr("Scaling issues"),
                              tr("<p>Requested icon size <b>%1</b> is not available,"
-                                " expect blurry icons.</p>"
-                                "<p>Note that this may happen if you change the display scaling"
-                                " in Windows without restarting."
-                                " If you still have issues after restarting please report this issue.</p>").arg(iconSize));
+                                " expect blurry icons and possible UI size issues. This is usually related to font scaling.</p>"
+                                "<p>Disable <b>'HiDPI PassThrough'</b> in preferences, then restart Friction.</p>").arg(iconSize));
     }
     const auto pixmapSize = ThemeSupport::getIconSize(iconSize);
     qDebug() << "pixmaps size" << pixmapSize;
@@ -624,6 +674,18 @@ void BoxSingleWidget::loadStaticPixmaps(int iconSize)
     CG_ICON = new QPixmap(QIcon::fromTheme("cpu-gpu").pixmap(pixmapSize));
     GRAPH_PROPERTY_ICON = new QPixmap(QIcon::fromTheme("graph_property_2").pixmap(pixmapSize));
     PROMOTE_TO_LAYER_ICON = new QPixmap(QIcon::fromTheme("layer").pixmap(pixmapSize));
+
+    BOX_PATH = new QPixmap(QIcon::fromTheme("pathCreate").pixmap(pixmapSize));
+    BOX_CIRCLE = new QPixmap(QIcon::fromTheme("circleCreate").pixmap(pixmapSize));
+    BOX_RECT = new QPixmap(QIcon::fromTheme("rectCreate").pixmap(pixmapSize));
+    BOX_TEXT = new QPixmap(QIcon::fromTheme("textCreate").pixmap(pixmapSize));
+    BOX_NULL = new QPixmap(QIcon::fromTheme("nullCreate").pixmap(pixmapSize));
+    BOX_IMAGE = new QPixmap(QIcon::fromTheme("image-x-generic").pixmap(pixmapSize));
+    BOX_VIDEO = new QPixmap(QIcon::fromTheme("file_movie").pixmap(pixmapSize));
+    BOX_SOUND = new QPixmap(QIcon::fromTheme("audio-x-generic").pixmap(pixmapSize));
+    BOX_GROUP = new QPixmap(QIcon::fromTheme("group").pixmap(pixmapSize));
+    BOX_LINK = new QPixmap(QIcon::fromTheme("linked").pixmap(pixmapSize));
+    BOX_SEQ = new QPixmap(QIcon::fromTheme("renderlayers").pixmap(pixmapSize));
 
     sStaticPixmapsLoaded = true;
 }
@@ -650,6 +712,18 @@ void BoxSingleWidget::clearStaticPixmaps()
     delete G_ICON;
     delete CG_ICON;
     delete GRAPH_PROPERTY_ICON;
+
+    delete BOX_PATH;
+    delete BOX_CIRCLE;
+    delete BOX_RECT;
+    delete BOX_TEXT;
+    delete BOX_NULL;
+    delete BOX_IMAGE;
+    delete BOX_VIDEO;
+    delete BOX_SOUND;
+    delete BOX_GROUP;
+    delete BOX_LINK;
+    delete BOX_SEQ;
 }
 
 void BoxSingleWidget::mousePressEvent(QMouseEvent *event) {

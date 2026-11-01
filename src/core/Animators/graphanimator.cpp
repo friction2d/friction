@@ -540,8 +540,8 @@ void GraphAnimator::graph_saveSVG(SvgExporter& exp,
     const auto relRange = prp_absRangeToRelRange(exp.fAbsRange);
     const auto idRange = prp_getIdenticalRelRange(visRange.fMin);
     const int span = exp.fAbsRange.span();
-    if (idRange.inRange(visRange) || span == 1) {
-        if (motion) { return; }
+    const bool constant = idRange.inRange(visRange) || span == 1;
+    if (constant && !motion) {
         auto value = valueGetter(visRange.fMin);
         if (transform) {
             value = parent.attribute(attrName) + " " + type + "(" + value + ")";
@@ -567,8 +567,20 @@ void GraphAnimator::graph_saveSVG(SvgExporter& exp,
         }
 
         const qreal div = span - 1;
-        const qreal dur = div/exp.fFps;
+        const qreal dur = qMax(qreal(1), div)/exp.fFps;
         anim.setAttribute("dur", QString::number(dur)  + 's');
+
+        if (constant) {
+            // A fixed progress value still needs animateMotion: the referenced
+            // path can change independently of this animator.
+            const auto value = valueGetter(visRange.fMin);
+            anim.setAttribute("calcMode", "linear");
+            anim.setAttribute("keyPoints", value + ";" + value);
+            anim.setAttribute("keyTimes", "0;1");
+            SvgExportHelpers::assignLoop(anim, exp.fLoop);
+            parent.appendChild(anim);
+            return;
+        }
 
         const auto& keys = anim_getKeys();
         GraphKey* nextKey = nullptr;

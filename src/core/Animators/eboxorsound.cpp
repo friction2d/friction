@@ -491,6 +491,13 @@ void eBoxOrSound::moveDown() {
     mParentGroup->increaseContainedZInList(this);
 }
 
+void eBoxOrSound::moveTo(const int index)
+{
+    mParentGroup->moveContainedInList(this,
+                                      getZIndex(),
+                                      index);
+}
+
 void eBoxOrSound::bringToFront() {
     mParentGroup->bringContainedToFrontList(this);
 }

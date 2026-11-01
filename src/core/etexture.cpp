@@ -59,10 +59,31 @@ SkBitmap eTexture::bitmapSnapshot(QGL33 * const gl) const {
     SkBitmap bitmap;
     const auto info = SkiaHelpers::getPremulRGBAInfo(fWidth, fHeight);
     bitmap.allocPixels(info);
+
+#ifdef USE_GLES
+    GLint currentTexture = 0;
+    gl->glGetIntegerv(GL_TEXTURE_BINDING_2D, &currentTexture);
+
+    GLint oldFbo = 0;
+    gl->glGetIntegerv(GL_FRAMEBUFFER_BINDING, &oldFbo);
+
+    GLuint tempFbo = 0;
+    gl->glGenFramebuffers(1, &tempFbo);
+    gl->glBindFramebuffer(GL_FRAMEBUFFER, tempFbo);
+
+    gl->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                               GL_TEXTURE_2D, currentTexture, 0);
+
+    gl->glReadPixels(0, 0, fWidth, fHeight, GL_RGBA,
+                     GL_UNSIGNED_BYTE, bitmap.getPixels());
+
+    gl->glBindFramebuffer(GL_FRAMEBUFFER, oldFbo);
+    gl->glDeleteFramebuffers(1, &tempFbo);
+#else
     gl->glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA,
                       GL_UNSIGNED_BYTE, bitmap.getPixels());
-//    glReadPixels(0, 0, fWidth, fHeight,
-//                 GL_RGBA, GL_UNSIGNED_BYTE, btmp.getPixels());
+#endif
+
     return bitmap;
 }
 

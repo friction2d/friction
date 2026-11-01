@@ -34,6 +34,7 @@ EditableComboBox::EditableComboBox(QWidget* const parent,
     setEditable(true);
     const auto lineEdit = new QLineEdit(parent);
     lineEdit->setObjectName("comboEdit");
+    lineEdit->setAlignment(Qt::AlignCenter);
     setLineEdit(lineEdit);
     if (clickFocus) {
         setFocusPolicy(Qt::ClickFocus);

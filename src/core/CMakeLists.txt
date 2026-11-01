@@ -28,22 +28,46 @@ include(friction-common)
 #include(friction-quazip)
 include(friction-ffmpeg)
 
-message("-- ffmpeg include: ${FFMPEG_INCLUDE_DIRS}")
-message("-- ffmpeg libraries: ${FFMPEG_LIBRARIES_DIRS} ${FFMPEG_LIBRARIES}")
-message("-- skia libraries: ${SKIA_LIBRARIES_DIRS} ${SKIA_LIBRARIES}")
+message(STATUS "ffmpeg include: ${FFMPEG_INCLUDE_DIRS}")
+message(STATUS "ffmpeg libraries: ${FFMPEG_LIBRARIES_DIRS} ${FFMPEG_LIBRARIES}")
+message(STATUS "skia libraries: ${SKIA_LIBRARIES_DIRS} ${SKIA_LIBRARIES}")
 
 add_definitions(-DPROJECT_VERSION="${PROJECT_VERSION}")
-add_definitions(-DPROJECT_COMMIT="${GIT_COMMIT}")
-add_definitions(-DPROJECT_BRANCH="${GIT_BRANCH}")
-
 add_definitions(-DCORE_LIBRARY)
 
-if(UNIX AND NOT APPLE)
-    option(USE_EGL "Use EGL" OFF)
-    if(${USE_EGL})
-        add_definitions(-DFRICTION_EGL)
+set(GIT_BRANCH "" CACHE STRING "Git branch")
+set(GIT_COMMIT "" CACHE STRING "Git commit")
+
+if(NOT GIT_COMMIT OR NOT GIT_BRANCH)
+    if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
+        find_package(Git QUIET)
+        if(GIT_FOUND)
+            if(NOT GIT_COMMIT)
+                execute_process(
+                    COMMAND ${GIT_EXECUTABLE} rev-parse --short=8 HEAD
+                    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+                    OUTPUT_VARIABLE GIT_COMMIT_AUTO
+                    OUTPUT_STRIP_TRAILING_WHITESPACE
+                    ERROR_QUIET
+                )
+                set(GIT_COMMIT ${GIT_COMMIT_AUTO})
+            endif()
+            if(NOT GIT_BRANCH)
+                execute_process(
+                    COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
+                    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+                    OUTPUT_VARIABLE GIT_BRANCH_AUTO
+                    OUTPUT_STRIP_TRAILING_WHITESPACE
+                    ERROR_QUIET
+                )
+                set(GIT_BRANCH ${GIT_BRANCH_AUTO})
+            endif()
+        endif()
     endif()
 endif()
+
+message(STATUS "git commit: ${GIT_COMMIT}")
+message(STATUS "git branch: ${GIT_BRANCH}")
 
 include_directories(
     #${QUAZIP_INCLUDE_DIRS}
@@ -154,7 +178,6 @@ set(
     GUI/boxeslistactionbutton.cpp
     GUI/coloranimatorbutton.cpp
     GUI/dialogsinterface.cpp
-    GUI/edialogs.cpp
     GUI/ewidgets.cpp
     GUI/global.cpp
     GUI/propertynamedialog.cpp
@@ -468,7 +491,6 @@ set(
     GUI/boxeslistactionbutton.h
     GUI/coloranimatorbutton.h
     GUI/dialogsinterface.h
-    GUI/edialogs.h
     GUI/ewidgets.h
     GUI/global.h
     GUI/propertynamedialog.h
@@ -705,11 +727,12 @@ set(
     utils/ffmpeghelper.h
 )
 
-if(NOT WIN32)
-    add_library(${PROJECT_NAME} STATIC ${HEADERS} ${SOURCES} coreresources.qrc)
-else()
-    add_library(${PROJECT_NAME} SHARED ${HEADERS} ${SOURCES} coreresources.qrc)
-endif()
+add_library(${PROJECT_NAME} SHARED ${HEADERS} ${SOURCES} coreresources.qrc)
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+    PROJECT_COMMIT="${GIT_COMMIT}"
+    PROJECT_BRANCH="${GIT_BRANCH}"
+)
 
 set_target_properties(
     ${PROJECT_NAME}
@@ -753,12 +776,12 @@ if(APPLE)
     )
 endif()
 
-#if(UNIX AND NOT APPLE)
-#    include(GNUInstallDirs)
-#    install(
-#        TARGETS
-#        ${PROJECT_NAME}
-#        DESTINATION
-#        ${CMAKE_INSTALL_LIBDIR}
-#    )
-#endif()
+if(UNIX AND NOT APPLE)
+    include(GNUInstallDirs)
+    install(
+        TARGETS
+        ${PROJECT_NAME}
+        DESTINATION
+        ${CMAKE_INSTALL_LIBDIR}
+    )
+endif()

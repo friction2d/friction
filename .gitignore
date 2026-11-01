@@ -36,3 +36,4 @@ src/scripts/flatpak/repo
 src/scripts/flatpak/remote
 *.app
 
+*.AppImage

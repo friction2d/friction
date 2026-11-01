@@ -28,7 +28,7 @@
 
 #include "closablecontainer.h"
 #include "renderinstancesettings.h"
-#include "GUI/BoxesList/boxsinglewidget.h"
+
 #include <QPushButton>
 #include <QMouseEvent>
 #include <QAction>
@@ -39,18 +39,22 @@ class OutputSettingsDisplayWidget;
 class RenderSettingsDisplayWidget;
 
 class RenderInstanceWidget;
-class OutputProfilesListButton : public QPushButton {
+class OutputProfilesListButton : public QPushButton
+{
     Q_OBJECT
 public:
     OutputProfilesListButton(RenderInstanceWidget *parent);
+
 signals:
     void profileSelected(OutputSettingsProfile *);
+
 protected:
     void mousePressEvent(QMouseEvent *e);
     RenderInstanceWidget *mParentWidget;
 };
 
-class RenderInstanceWidget : public ClosableContainer {
+class RenderInstanceWidget : public ClosableContainer
+{
     Q_OBJECT
 public:
     RenderInstanceWidget(Canvas *canvas, QWidget *parent = nullptr);
@@ -64,39 +68,33 @@ public:
 
 protected:
     void mousePressEvent(QMouseEvent* e);
-private:
-    void iniGUI();
 
+private:
     ClosableContainer *mOutputSettings;
     RenderSettingsDisplayWidget *mRenderSettingsDisplayWidget;
     OutputSettingsDisplayWidget *mOutputSettingsDisplayWidget;
-
-    QPushButton *mOutputDestinationButton;
     QLineEdit *mOutputDestinationLineEdit;
-
-    QPushButton* mRenderSettingsButton;
-
     OutputProfilesListButton *mOutputSettingsProfilesButton;
     QPushButton *mOutputSettingsButton;
     QLineEdit *mNameLabel;
-    QVBoxLayout *mContentLayout = new QVBoxLayout();
     RenderInstanceSettings mSettings;
-    QPushButton *mPlayButton;
 
-signals:
-    void duplicate(RenderInstanceSettings&);
-protected:
-    void updateOutputDestinationFromCurrentFormat();
-private:
+    void iniGUI();
+
     void updateFromSettings();
 
     void outputSettingsProfileSelected(OutputSettingsProfile *profile);
+
+    void clearOutputDestination();
 
     void openOutputSettingsDialog();
     void openOutputDestinationDialog();
     void openRenderSettingsDialog();
 
     const QPair<QString,QStringList> getExportImageExtensions(const OutputSettings &settings);
+
+signals:
+    void duplicate(RenderInstanceSettings&);
 };
 
 #endif // RENDERINSTANCEWIDGET_H

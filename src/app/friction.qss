@@ -340,6 +340,7 @@ QPushButton#WelcomeRecentButton:hover {
     border: 2px solid #ebebeb;
 }*/
 
+QPushButton#DonateButton,
 QPushButton#FlatButton,
 QPushButton#AboutButton,
 QToolButton#FlatButton,
@@ -356,6 +357,7 @@ QPushButton#NoButton {
     border-radius: 2%;
 }
 
+QPushButton#DonateButton:hover,
 QPushButton#FlatButton:hover,
 QToolButton#FlatButton:hover {
     background-color: rgb(19, 19, 21);
@@ -704,4 +706,9 @@ QToolButton#ToolBoxGizmo[popupMode="1"]::menu-arrow {
     image: url(:/icons/hicolor/%11x%11/actions/go-down.png);
     width: %10px;
     height: %10px;
+}
+
+QLabel#wizardHint {
+    color: lightgray;
+    font-size: small;
 }

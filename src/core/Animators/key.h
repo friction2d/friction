@@ -58,7 +58,6 @@ public:
     virtual void writeKey(eWriteStream &dst);
     virtual void readKey(eReadStream &src);
 
-
     virtual void scaleFrameAndUpdateParentAnimator(
             const int relativeToFrame,
             const qreal scaleFactor,
@@ -69,6 +68,7 @@ public:
     virtual void removeFromSelection(QList<Animator *> &toRemove);
     virtual bool isDescendantSelected() const { return isSelected(); }
 
+    void invalidateSceneFramesCache();
 
     int getAbsFrame() const;
 

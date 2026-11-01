@@ -144,16 +144,27 @@ void BoxRenderData::processGpu(QGL33 * const gl,
 //        mEffectsRenderer.processGpu(gl, context, this);
 //    }
 }
-#include "textboxrenderdata.h"
-void BoxRenderData::process() {
-    if(mStep == Step::EFFECTS) return;
+
+void BoxRenderData::process()
+{
+    if (mStep == Step::EFFECTS) { return; }
     updateGlobalRect();
-    if(isZero4Dec(fOpacity)) return;
-    if(fGlobalRect.width() <= 0 || fGlobalRect.height() <= 0) return;
+
+    if (isZero4Dec(fOpacity)) { return; }
+    if (fGlobalRect.width() <= 0 || fGlobalRect.height() <= 0) { return; }
+
+    const int tLimit = 32768;
+    if (fGlobalRect.width() > tLimit || fGlobalRect.height() > tLimit) {
+        return;
+    }
 
     const auto info = SkiaHelpers::getPremulRGBAInfo(fGlobalRect.width(),
                                                      fGlobalRect.height());
+
     mBitmap.allocPixels(info);
+
+    if (mBitmap.getPixels() == nullptr) { return; }
+
     mBitmap.eraseColor(eraseColor());
     SkCanvas canvas(mBitmap);
     transformRenderCanvas(canvas);
@@ -239,10 +250,18 @@ void BoxRenderData::updateGlobalRect() {
     setBaseGlobalRect(baseRectF);
 }
 
-void BoxRenderData::setBaseGlobalRect(const QRectF& baseRectF) {
+void BoxRenderData::setBaseGlobalRect(const QRectF& baseRectF)
+{
     const auto clampedBaseRect = baseRectF.intersected(fMaxBoundsRect);
     SkIRect currRect = toSkRect(clampedBaseRect).roundOut();
-    if(!mEffectsRenderer.isEmpty()) {
+
+    const int tLimit = 32768;
+    currRect.fLeft = qBound(-tLimit, currRect.fLeft, tLimit);
+    currRect.fTop = qBound(-tLimit, currRect.fTop, tLimit);
+    currRect.fRight = qBound(-tLimit, currRect.fRight, tLimit);
+    currRect.fBottom = qBound(-tLimit, currRect.fBottom, tLimit);
+
+    if (!mEffectsRenderer.isEmpty()) {
         const SkIRect skMaxBounds = toSkIRect(fMaxBoundsRect);
         mEffectsRenderer.setBaseGlobalRect(currRect, skMaxBounds);
     }

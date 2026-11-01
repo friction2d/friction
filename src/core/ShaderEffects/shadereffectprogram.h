@@ -28,6 +28,7 @@
 #include "uniformspecifiercreator.h"
 #include "shadervaluehandler.h"
 #include "shadereffectjs.h"
+#include <mutex>
 
 typedef QList<stdsptr<UniformSpecifierCreator>> UniformSpecifierCreators;
 struct CORE_EXPORT ShaderEffectProgram {
@@ -43,7 +44,10 @@ struct CORE_EXPORT ShaderEffectProgram {
     QList<stdsptr<ShaderValueHandler>> fValueHandlers;
     QList<GLint> fValueLocs;
     std::shared_ptr<ShaderEffectJS::Blueprint> fJSBlueprint;
+
+    mutable std::mutex fEnginesMutex;
     mutable std::vector<std::unique_ptr<ShaderEffectJS>> fEngines;
+
     const QList<stdsptr<ShaderPropertyCreator>> fProperties;
 
     void reloadFragmentShader(QGL33 * const gl, const QString &fragPath);

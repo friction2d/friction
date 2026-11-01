@@ -28,6 +28,7 @@
 
 #include "canvas.h"
 #include "widgets/colortoolbutton.h"
+#include "widgets/qdoubleslider.h"
 
 #include <QToolBar>
 #include <QSpinBox>
@@ -58,8 +59,8 @@ namespace Friction
                               Canvas * const target);
             void showContextMenu(const QPoint &pos);
 
-            QSpinBox *mSpinWidth;
-            QSpinBox *mSpinHeight;
+            QDoubleSlider *mSpinWidth;
+            QDoubleSlider *mSpinHeight;
             QComboBox *mComboResolution;
             QAction *mMemoryLabel;
 

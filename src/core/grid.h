@@ -66,7 +66,9 @@ namespace Friction
                 MajorEveryX,
                 MajorEveryY,
                 Color,
-                ColorMajor
+                ColorMajor,
+                StepRotCtl,
+                StepRotShift
             };
 
             struct Settings {
@@ -90,6 +92,8 @@ namespace Friction
                 int majorEveryY = 8;
                 QColor color = QColor(128, 127, 255, 75);
                 QColor colorMajor = QColor(255, 127, 234, 125);
+                double stepRotCtrl = 1.0;
+                double stepRotShift = 15.0;
             };
 
             explicit Grid(QObject *parent = nullptr);

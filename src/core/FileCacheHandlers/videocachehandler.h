@@ -92,6 +92,12 @@ public:
 
     VideoDataHandler* getDataHandler() const;
     const HddCachableCacheHandler& getCacheHandler() const;
+
+    void setVideoStreamFps(const qreal fps);
+    qreal videoStreamFps() const;
+    void setVideoStreamFrameCount(const int count);
+    int videoStreamFrameCount() const;
+
 protected:
     VideoFrameLoader * getFrameLoader(const int frame);
     VideoFrameLoader * addFrameLoader(const int frameId);

@@ -35,14 +35,18 @@ LayoutHandler::LayoutHandler(Document& document,
     mDocument(document), mAudioHandler(audioHandler) {
     const auto canvasComboLayout = new QHBoxLayout;
     canvasComboLayout->setSpacing(0);
+    canvasComboLayout->setMargin(0);
     canvasComboLayout->setContentsMargins(0, 0, 0, 0);
 
     mComboWidget = new QWidget(parent);
     mComboWidget->setContentsMargins(0, 0, 0, 0);
-    mComboWidget->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+    mComboWidget->setSizePolicy(QSizePolicy::Expanding,
+                                QSizePolicy::Expanding);
     mComboWidget->setLayout(canvasComboLayout);
 
     mComboBox = new EditableComboBox(mComboWidget, true);
+    mComboBox->setSizePolicy(QSizePolicy::Preferred,
+                             QSizePolicy::Expanding);
     mComboBox->setMinimumContentsLength(20);
 
     const auto newLayPush = new QPushButton(QIcon::fromTheme("plus"), QString(), mComboWidget);

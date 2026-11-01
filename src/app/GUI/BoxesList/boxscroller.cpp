@@ -220,6 +220,8 @@ void BoxScroller::dragLeaveEvent(QDragLeaveEvent *event) {
 
 void BoxScroller::dragMoveEvent(QDragMoveEvent *event) {
     event->acceptProposedAction();
+    mCurrentMimeData = event->mimeData();
+
     const int yPos = event->pos().y();
 
     if(yPos < 30) {

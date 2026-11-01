@@ -57,6 +57,7 @@ public:
     void setFilePath(const QString& path);
     QString getFilePath();
     const VideoSpecs getSpecs();
+    void setCorrectFps();
 private:
     void setFilePathNoRename(const QString &path);
 

@@ -25,6 +25,8 @@
 
 #include "soundcachehandler.h"
 #include "FileCacheHandlers/soundreader.h"
+#include "filesourcescache.h"
+#include "appsupport.h"
 
 SoundDataHandler::SoundDataHandler() {
     connect(eSoundSettings::sInstance, &eSoundSettings::settingsChanged,
@@ -56,10 +58,11 @@ SoundReaderForMerger *SoundHandler::addSecondReader(const int secondId) {
 
 void SoundDataHandler::afterSourceChanged() {}
 
-#include "GUI/edialogs.h"
-void SoundFileHandler::replace() {
-    const auto importPath = eDialogs::openFile(
-                "Change Source", path(),
-                "Audio Files (*.wav *.mp3)");
-    if(!importPath.isEmpty()) setPath(importPath);
+void SoundFileHandler::replace()
+{
+    const auto importPath = AppSupport::getOpenFile(nullptr,
+                                                    tr("Change Source"),
+                                                    path(),
+                                                    tr("Audio Files (%1)").arg(FileExtensions::soundFilters()));
+    if (!importPath.isEmpty()) { setPath(importPath); }
 }

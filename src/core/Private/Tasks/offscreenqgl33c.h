@@ -46,13 +46,24 @@ public:
     }
 
     void makeCurrent() {
-        if(!mContext->makeCurrent(mOffscreenSurface))
+        if (!mContext->makeCurrent(mOffscreenSurface)) {
+#ifdef USE_GLES
+            PrettyRuntimeThrow("Making OpenGL ES context current failed.\n"
+                               "Make sure your GPU drivers support OpenGL ES 3.0.");
+#else
             PrettyRuntimeThrow("Making OpenGL context current failed.\n"
                                "Make sure your GPU drivers support OpenGL 3.3 core.");
-        if(!mInitialized) {
-            if(!initializeOpenGLFunctions())
+#endif
+        }
+        if (!mInitialized) {
+#ifdef USE_GLES
+            initializeOpenGLFunctions();
+#else
+            if (!initializeOpenGLFunctions()) {
                 PrettyRuntimeThrow("Initializing OpenGL 3.3 core functions failed.\n"
                                    "Make sure your GPU drivers support OpenGL 3.3 core.");
+            }
+#endif
             mInitialized = true;
         }
     }

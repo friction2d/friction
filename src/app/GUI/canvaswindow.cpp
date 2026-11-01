@@ -33,7 +33,6 @@
 #include "mainwindow.h"
 #include "GUI/BoxesList/boxscroller.h"
 #include "swt_abstraction.h"
-#include "dialogs/renderoutputwidget.h"
 #include "Sound/soundcomposition.h"
 #include "GUI/global.h"
 #include "renderinstancesettings.h"

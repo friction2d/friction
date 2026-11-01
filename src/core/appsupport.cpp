@@ -22,9 +22,12 @@
 */
 
 #include "appsupport.h"
-#include "hardwareinfo.h"
+#include "Private/Tasks/offscreenqgl33c.h"
+#include "Private/memorystructs.h"
 #include "ReadWrite/evformat.h"
 #include "ReadWrite/filefooter.h"
+#include "themesupport.h"
+#include "Expressions/expressionpresets.h"
 
 #include <QApplication>
 #include <QDebug>
@@ -42,15 +45,29 @@
 #include <QRegularExpression>
 #include <QMessageBox>
 #include <QFontDatabase>
+#include <QDesktopServices>
+#include <QFileDialog>
+#include <QProcess>
+#include <QInputDialog>
 
 #include <iostream>
 #include <ostream>
+
+
+#if defined(Q_OS_WIN)
+#include "windowsincludes.h"
+#elif defined(Q_OS_MACOS)
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#endif
 
 extern "C" {
 #include <libavutil/log.h>
 #include <libavformat/avformat.h>
 #include <libavutil/avutil.h>
 }
+
+using namespace Friction::Core;
 
 AppSupport::AppSupport(QObject *parent)
     : QObject{parent}
@@ -80,11 +97,17 @@ void AppSupport::clearSettings(QSettings *settings,
 
 QVariant AppSupport::getSettings(const QString &group,
                                  const QString &key,
-                                 const QVariant &fallback)
+                                 const QVariant &fallback,
+                                 const QString &app,
+                                 const QString &org)
 {
     if (AppSupport::isAppPortable()) {
         QSettings settings(QString("%1/friction.conf").arg(getAppConfigPath()),
                            QSettings::IniFormat);
+        return getSettings(&settings, group, key, fallback);
+    }
+    if (!app.isEmpty() && !org.isEmpty()) {
+        QSettings settings(app, org);
         return getSettings(&settings, group, key, fallback);
     }
     QSettings settings;
@@ -107,7 +130,9 @@ QVariant AppSupport::getSettings(QSettings *settings,
 void AppSupport::setSettings(const QString &group,
                              const QString &key,
                              const QVariant &value,
-                             bool append)
+                             bool append,
+                             const QString &app,
+                             const QString &org)
 {
     if (AppSupport::isAppPortable()) {
         QSettings settings(QString("%1/friction.conf").arg(getAppConfigPath()),
@@ -115,8 +140,13 @@ void AppSupport::setSettings(const QString &group,
         setSettings(&settings, group, key, value, append);
         return;
     }
-    QSettings settings;
-    setSettings(&settings, group, key, value, append);
+    if (!app.isEmpty() && !org.isEmpty()) {
+        QSettings settings(app, org);
+        setSettings(&settings, group, key, value, append);
+    } else {
+        QSettings settings;
+        setSettings(&settings, group, key, value, append);
+    }
 }
 
 void AppSupport::setSettings(QSettings *settings,
@@ -224,7 +254,7 @@ const QString AppSupport::getAppDesc()
     return QString::fromUtf8("Motion Graphics");
 }
 
-const QString AppSupport::getAppCompany()
+const QString AppSupport::getAppOrg()
 {
     return getAppName();
 }
@@ -259,16 +289,15 @@ const QString AppSupport::getAppConfigPath()
     QString path = QString::fromUtf8("%1/%2")
                    .arg(QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation),
                         getAppName());
+
     if (isAppPortable()) {
         const QString appPath = getAppPath();
         if (QFileInfo(appPath).isWritable()) { path = QString("%1/config").arg(appPath); }
-/*#ifdef Q_OS_LINUX
-        const QString appimage = getAppImagePath();
-        if (!appimage.isEmpty() && QFileInfo(appimage).isWritable()) { path = QString("%1.config").arg(appimage); }
-#endif*/
     }
+
     QDir dir(path);
     if (!dir.exists()) { dir.mkpath(path); }
+
     return path;
 }
 
@@ -277,36 +306,209 @@ const QString AppSupport::getAppPath()
     return QApplication::applicationDirPath();
 }
 
-const QString AppSupport::getAppTempPath()
+const QString AppSupport::getAppCachePath()
 {
-#ifdef Q_OS_LINUX
-    if (isFlatpak()) {
-        // TODO: we should check on startup if we run as flatpak, if settings 'tempDir'
-        // is empty then popup a dialog with an option to set a shared temp folder
-        QString path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-        if (!path.isEmpty()) {
-            path.append("/friction-temp");
-            if (!QFile::exists(path)) {
-                QDir dir(path);
-                dir.mkpath(path);
-            }
-            if (QFile::exists(path)) { return path; }
+#if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
+    QString def = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+#else
+    QString def = QDir::tempPath();
+#endif
+    QString path;
+    if (isAppPortable()) { path = QString("%1/Cache").arg(getAppConfigPath()); }
+    else { path = getSettings("settings", "CustomCachePath", def).toString(); }
+    if (!path.isEmpty()) { QDir().mkpath(path); }
+    return path;
+}
+
+const QString AppSupport::getAppTempPath(const QString &filename)
+{
+    const QString cache = getAppCachePath();
+    if (cache.isEmpty() || filename.isEmpty()) { return QString(); }
+    return QString::fromUtf8("%1/%2").arg(cache, filename);
+}
+
+const QString AppSupport::getExistingDirectory(QWidget *parent,
+                                               const QString &caption,
+                                               const QString &path)
+{
+    return QFileDialog::getExistingDirectory(parent, caption, path,
+                                             QFileDialog::ShowDirsOnly |
+                                             QFileDialog::DontResolveSymlinks);
+}
+
+const QString AppSupport::getSaveFile(QWidget *parent,
+                                      const QString &caption,
+                                      const QString &path,
+                                      const QString &filter,
+                                      const QString &suffix)
+{
+    QString currentPath = path;
+    while (true) {
+        QFileDialog dialog(parent, caption, currentPath);
+        dialog.setAcceptMode(QFileDialog::AcceptSave);
+        if (!isFlatpak() &&
+            !suffix.isEmpty()) { dialog.setDefaultSuffix(suffix); }
+        dialog.setFileMode(QFileDialog::AnyFile);
+        dialog.setNameFilter(filter);
+
+        ThemeIconProvider iconProvider;
+        dialog.setIconProvider(&iconProvider);
+
+        if (!dialog.exec()) { return QString(); }
+
+        const QStringList paths = dialog.selectedFiles();
+        if (paths.isEmpty()) { return QString(); }
+
+        QString openPath = paths.first();
+        if (QUrl(openPath).isLocalFile()) {
+            openPath = QUrl(openPath).toLocalFile();
         }
-    } else {
-        // Allow users to set a custom folder to share temp files with sandboxed web browsers
-        // This is needed since Ubuntu snaps can't access /tmp, XDG_RUNTIME_DIR, or XDG dot folders
-        // "security" before users! ;)
-        QString path = getSettings("files", "tempDir").toString().trimmed();
-        if (!path.isEmpty()) {
-            if (!QFile::exists(path)) {
-                QDir dir(path);
-                dir.mkpath(path);
-            }
-            if (QFile::exists(path)) { return path; }
+
+        if (isFlatpak() &&
+            !suffix.isEmpty() &&
+            QFileInfo(openPath).suffix().toLower() != suffix.toLower()) {
+            QMessageBox::warning(parent,
+                                 tr("Missing file extension"),
+                                 tr("Please add missing file extension (<b>%1</b>)").arg(suffix));
+            continue;
+        }
+        return openPath;
+    }
+    return QString();
+}
+
+const QString AppSupport::getSaveSequence(QWidget *parent,
+                                          const QString &caption,
+                                          const QString &path)
+{
+    QFileInfo fileInfo(path);
+    QString defaultDir = fileInfo.absolutePath();
+    QString baseName = fileInfo.baseName();
+    QString suffix = fileInfo.suffix();
+
+    if (baseName.isEmpty() || suffix.isEmpty()) { return QString(); }
+
+    int percentIdx = baseName.indexOf('%');
+    if (percentIdx != -1) {
+        baseName = baseName.left(percentIdx);
+        if (baseName.endsWith('_') || baseName.endsWith('-')) {
+            baseName.chop(1);
         }
     }
-#endif
-    return QDir::tempPath();
+
+    QString selectedDir = getExistingDirectory(parent, caption, defaultDir);
+
+    if (selectedDir.isEmpty()) { return QString(); }
+
+    bool ok;
+    QString finalBaseName = QInputDialog::getText(parent,
+                                                  QObject::tr("Image Files"),
+                                                  QObject::tr("Enter basename for images:"),
+                                                  QLineEdit::Normal,
+                                                  baseName, &ok);
+
+    if (!ok || finalBaseName.isEmpty()) { return QString(); }
+    finalBaseName = finalBaseName.trimmed();
+
+    if (!finalBaseName.contains("%")) {
+        if (!finalBaseName.endsWith('_') &&
+            !finalBaseName.endsWith('-')) {
+            finalBaseName.append("_");
+        }
+        finalBaseName.append("%05d");
+    }
+
+    QString sequencePath = QString("%1/%2.%3").arg(selectedDir,
+                                                   finalBaseName,
+                                                   suffix);
+    return sequencePath;
+}
+
+const QString AppSupport::getOpenFile(QWidget *parent,
+                                      const QString &caption,
+                                      const QString &path,
+                                      const QString &filter)
+{
+    QFileDialog dialog(parent, caption, path);
+    dialog.setNameFilter(filter);
+
+    ThemeIconProvider iconProvider;
+    dialog.setIconProvider(&iconProvider);
+
+    if (dialog.exec()) {
+        const QStringList paths = dialog.selectedFiles();
+        if (paths.isEmpty()) { return QString(); }
+
+        QString openPath = paths.first();
+        if (QUrl(openPath).isLocalFile()) {
+            openPath = QUrl(openPath).toLocalFile();
+        }
+        return openPath;
+    }
+
+    return QString();
+}
+
+const QStringList AppSupport::getOpenFiles(QWidget *parent,
+                                       const QString &caption,
+                                       const QString &path,
+                                       const QString &filter)
+{
+    QFileDialog dialog(parent, caption, path);
+    dialog.setFileMode(QFileDialog::ExistingFiles);
+    dialog.setNameFilter(filter);
+
+    ThemeIconProvider iconProvider;
+    dialog.setIconProvider(&iconProvider);
+
+    if (dialog.exec()) {
+        return dialog.selectedFiles();
+    }
+
+    return QStringList();
+}
+
+const QString AppSupport::getOpenDirectory(QWidget *parent,
+                                           const QString &caption,
+                                           const QString &path)
+{
+    QFileDialog dialog(parent, caption, path);
+    dialog.setFileMode(QFileDialog::Directory);
+    dialog.setOption(QFileDialog::ShowDirsOnly);
+
+    ThemeIconProvider iconProvider;
+    dialog.setIconProvider(&iconProvider);
+
+    if (dialog.exec()) {
+        const QStringList paths = dialog.selectedFiles();
+        if (paths.isEmpty()) { return QString(); }
+
+        QString openPath = paths.first();
+        if (QUrl(openPath).isLocalFile()) {
+            openPath = QUrl(openPath).toLocalFile();
+        }
+        return openPath;
+    }
+
+    return QString();
+}
+
+void AppSupport::openUrl(const QUrl &url)
+{
+    if (url.isEmpty()) { return; }
+    if (!isFlatpak()) {
+        const QString browserPath = getSettings("settings",
+                                                "CustomBrowserPath").toString();
+        QStringList browserArgs = getSettings("settings",
+                                              "CustomBrowserArgs").toStringList();
+        browserArgs << url.toString();
+        if (!browserPath.trimmed().isEmpty()) {
+            if (QProcess::startDetached(browserPath, browserArgs)) {
+                return;
+            }
+        }
+    }
+    QDesktopServices::openUrl(url);
 }
 
 const QString AppSupport::getAppOutputProfilesPath()
@@ -340,7 +542,7 @@ const QString AppSupport::getAppShaderEffectsPath(bool restore)
                                                "CustomShaderPath",
                                                def).toString();
     QDir dir(path);
-    if (!dir.exists() && path.startsWith(getAppConfigPath())) { dir.mkpath(path); }
+    if (!dir.exists()) { dir.mkpath(path); }
     return path;
 }
 
@@ -643,6 +845,141 @@ QPair<bool, bool> AppSupport::getResolutionPresetStatus()
     return status;
 }
 
+void AppSupport::installPresets(const QString &sourcePath,
+                                const QString &destPath,
+                                const bool force,
+                                const QStringList &presets)
+{
+    if (sourcePath.trimmed().isEmpty() ||
+        destPath.trimmed().isEmpty() ||
+        presets.size() < 1 ||
+        !QFileInfo(destPath).isWritable()) {
+        qWarning() << "not able to install presets"
+                   << sourcePath
+                   << destPath
+                   << force
+                   << presets;
+        return;
+    }
+
+    for (const auto &preset : presets) {
+        const QString resPath(QString("%1/%2").arg(sourcePath,
+                                                   preset));
+        if (!QFile::exists(resPath)) {
+            qWarning() << "source preset does not exist" << resPath;
+            continue;
+        }
+
+        const QString filePath(QString("%1/%2").arg(destPath,
+                                                    preset));
+        if (QFile::exists(filePath) && !force) {
+            qWarning() << "dest preset already exists" << filePath;
+            continue;
+        }
+
+        QFile file(filePath);
+        if (file.open(QIODevice::WriteOnly |
+                      QIODevice::Text |
+                      QIODevice::Truncate)) {
+            qWarning() << "installing preset:" << resPath << filePath;
+            QFile res(resPath);
+            if (res.open(QIODevice::ReadOnly |
+                         QIODevice::Text)) {
+                file.write(res.readAll());
+                res.close();
+            }
+            file.close();
+        }
+    }
+}
+
+void AppSupport::installRenderPresets(const bool force,
+                                      const QStringList &customPresets)
+{
+    QStringList presets = customPresets;
+    QString sourcePath = ":/presets/render";
+    QString destPath = AppSupport::getAppOutputProfilesPath();
+
+    if (presets.isEmpty()) {
+        presets << "001-friction-preset-mp4-h264.conf"
+                << "002-friction-preset-mp4-h264-mp3.conf"
+                << "003-friction-preset-prores-444.conf"
+                << "004-friction-preset-prores-444-aac.conf"
+                << "005-friction-preset-png.conf"
+                << "006-friction-preset-tiff.conf"
+                << "007-friction-preset-webm.conf";
+                //<< "008-friction-preset-exr.conf"; // not supported in ffmpeg used in v1.0
+    }
+
+    qDebug() << "install render presets"
+             << sourcePath
+             << destPath
+             << force
+             << presets;
+
+    installPresets(sourcePath,
+                   destPath,
+                   force,
+                   presets);
+}
+
+void AppSupport::installExprPresets(const bool force,
+                                    const QStringList &customPresets)
+{
+    QStringList list;
+    QStringList presets = customPresets;
+    QString sourcePath = ":/expressions";
+    QString destPath = AppSupport::getAppUserExPresetsPath();
+
+    if (presets.isEmpty()) {
+        presets << "copyX.fexpr"
+                << "copyY.fexpr"
+                << "noise.fexpr"
+                << "orbitX.fexpr"
+                << "orbitY.fexpr"
+                << "oscillation.fexpr"
+                << "rotation.fexpr"
+                << "time.fexpr"
+                << "trackObject.fexpr"
+                << "wave.fexpr"
+                << "wiggle.fexpr"
+                << "frameRemapLoop.fexpr"
+                << "frameRemapLoopBounce.fexpr";
+    }
+
+    for (const auto &preset : presets) {
+        const auto expr = ExpressionPresets::readExpr(QString("%1/%2")
+                                                          .arg(sourcePath,
+                                                               preset));
+        if (expr.valid) { list << preset; }
+        else { qWarning() << "not a valid expr" << sourcePath << preset; }
+    }
+
+    qDebug() << "install expr presets"
+             << sourcePath
+             << destPath
+             << force
+             << list;
+
+    installPresets(sourcePath,
+                   destPath,
+                   force,
+                   list);
+}
+
+QStringList AppSupport::getOpenGLInfo()
+{
+    OffscreenQGL33c gl;
+    gl.initialize();
+    gl.makeCurrent();
+    const QString vendor(reinterpret_cast<const char*>(gl.glGetString(GL_VENDOR)));
+    const QString renderer(reinterpret_cast<const char*>(gl.glGetString(GL_RENDERER)));
+    const QString version(reinterpret_cast<const char*>(gl.glGetString(GL_VERSION)));
+    gl.doneCurrent();
+
+    return {vendor, renderer, version};
+}
+
 const QString AppSupport::filterTextAZW(const QString &text)
 {
     QRegularExpression regex("\\s|\\W");
@@ -652,10 +989,42 @@ const QString AppSupport::filterTextAZW(const QString &text)
 
 const QString AppSupport::filterFormatsName(const QString &text)
 {
-    QString output(text);
-    if (output == "image2") { output = "image"; }
-    else if (output == "image2 sequence") { output = "Image Sequence"; }
-    return output;
+    if (text.isEmpty()) { return text; }
+
+    if (text == "QuickTime / MOV") { return "MOV"; }
+    if (text == "MP4 (MPEG-4 Part 14)") { return "MP4"; }
+    if (text == "AVI (Audio Video Interleaved)") { return "AVI"; }
+    if (text == "image2") { return "image"; }
+    if (text == "image2 sequence") { return "Image Sequence"; }
+    if (text == "Matroska") { return "MKV"; }
+    if (text.contains("GIF")) { return "GIF"; }
+    if (text.contains("FLAC")) { return "FLAC"; }
+    if (text.contains("WAV")) { return "WAV"; }
+    if (text.contains("MP3")) { return "MP3"; }
+    if (text == "Ogg") { return "OGG"; }
+
+    if (text == "OpenEXR image") { return "EXR"; }
+    if (text == "PNG (Portable Network Graphics) image") { return "PNG"; }
+    if (text == "TIFF image") { return "TIFF"; }
+    if (text == "MJPEG (Motion JPEG)") { return "JPEG"; }
+
+    if (text == "QuickTime Animation (RLE) video") { return "RLE"; }
+    if (text.contains("iCodec Pro")) { return "ProRes"; }
+    if (text.contains("Apple ProRes")) { return "Legacy ProRes"; }
+    if (text.contains("libx264")) { return "H.264 AVC"; }
+    if (text.contains("libx265")) { return "H.265 HEVC"; }
+    if (text.contains("libaom")) { return "AV1"; }
+    if (text.contains("VP8")) { return "VP8"; }
+    if (text.contains("VP9")) { return "VP9"; }
+
+    if (text.contains("AAC")) { return "AAC"; }
+    if (text.contains("vorbis")) { return "Vorbis"; }
+    if (text.contains("libopus")) { return "Opus"; }
+    if (text.contains("PCM signed 16-bit")) { return "PCM 16-bit"; }
+    if (text.contains("PCM signed 24-bit")) { return "PCM 24-bit"; }
+    if (text.contains("PCM 32-bit floating point")) { return "PCM 32-bit"; }
+
+    return text;
 }
 
 int AppSupport::getProjectVersion(const QString &fileName)
@@ -700,29 +1069,39 @@ const QPair<QStringList, bool> AppSupport::hasWriteAccess()
 
 bool AppSupport::isAppPortable()
 {
+#ifdef Q_OS_WIN
     const QString path = getAppPath();
-/*#ifdef Q_OS_LINUX
-    const QString appimage = getAppImagePath();
-    if (!appimage.isEmpty()) {
-        return QFile::exists(appimage);// && QFileInfo(appimage).isWritable();
-    }
-#endif*/
     return QFile::exists(QString("%1/portable.txt").arg(path)) && QFileInfo(path).isWritable();
+#else
+    return false;
+#endif
 }
 
 bool AppSupport::isAppImage()
 {
+#ifdef Q_OS_LINUX
     return !getAppImagePath().simplified().isEmpty();
+#else
+    return false;
+#endif
 }
 
 bool AppSupport::isWayland()
 {
+#if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
     return QGuiApplication::platformName().startsWith("wayland");
+#else
+    return false;
+#endif
 }
 
 bool AppSupport::isFlatpak()
 {
-    return !QString(qgetenv("container")).isEmpty();
+#ifdef Q_OS_LINUX
+    return QFile::exists("/.flatpak-info");
+#else
+    return false;
+#endif
 }
 
 const QString AppSupport::getAppImagePath()
@@ -1030,9 +1409,13 @@ void AppSupport::initEnv(const bool &isRenderer)
                        QSettings::NativeFormat);
     if (registry.value("AppsUseLightTheme", 0).toInt() == 0) { qputenv("QT_QPA_PLATFORM", "windows:darkmode=1"); }
 #endif
-#elif defined(Q_OS_LINUX)
-#ifndef FRICTION_EGL
-    qputenv("QT_QPA_PLATFORM", "xcb");
+#endif
+
+#if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
+#ifdef USE_EGL
+    qputenv("QT_XCB_GL_INTEGRATION", "xcb_egl");
+#else
+    qputenv("QT_XCB_GL_INTEGRATION", "xcb_glx");
 #endif
 #endif
 }
@@ -1041,7 +1424,7 @@ QPair<bool, int> AppSupport::handleXDGArgs(const bool &isRenderer,
                                            const QStringList &args)
 {
     QPair<bool,int> status(false, 0);
-    if ((!isAppPortable() && !isAppImage()) || isRenderer) { return status; }
+    if ((!isAppPortable() && !isAppImage()) || isRenderer || isFlatpak()) { return status; }
     if (args.contains("--xdg-remove")) {
         const bool removedXDG = removeXDGDesktopIntegration();
         qWarning() << "Removed XDG Integration:" << removedXDG;
@@ -1124,20 +1507,57 @@ void AppSupport::setFont(const QString &path)
     QApplication::setFont(font);
 }
 
-bool AppSupport::hasOfflineDocs()
-{
-    const QString html = QString("%1/html/index.html").arg(getAppPath());
-    return QFile::exists(html);
-}
-
 QString AppSupport::getOfflineDocs()
 {
-    const QString html = QString("%1/html/index.html").arg(getAppPath());
-    if (QFile::exists(html)) { return html; }
+/*#ifdef Q_OS_LINUX
+    if (isFlatpak()) {
+        // we can't have offline docs in a flatpak
+        return QString();
+    }
+#endif
+    const QStringList paths{QString("%1/docs/index.html").arg(getAppPath()).trimmed(),
+                            QString("%1/../share/doc/friction/html/index.html").arg(getAppPath()).trimmed(),
+                            QString("%1/../Resources/docs/index.html").arg(getAppPath()).trimmed()};
+    for (const auto &path : paths) {
+        qDebug() << "Checking for docs ..." << path;
+        if (QFile::exists(path)) { return path; }
+    }*/
+    // offline docs are currently disabled
     return QString();
 }
 
 QString AppSupport::getOnlineDocs()
 {
     return QString("%1/documentation").arg(getAppUrl());
+}
+
+intKB AppSupport::getTotalRamBytes() {
+#if defined(Q_OS_WIN)
+    MEMORYSTATUSEX statex;
+    statex.dwLength = sizeof (statex);
+    GlobalMemoryStatusEx(&statex);
+    const longB totalBytes(statex.ullTotalPhys);
+    return intKB(totalBytes);
+#elif defined(Q_OS_LINUX)
+    intKB memTotal(0);
+    FILE * const meminfo = fopen("/proc/meminfo", "r");
+    if (meminfo) {
+        char line[256];
+        while(fgets(line, sizeof(line), meminfo)) {
+            if (sscanf(line, "MemTotal: %d kB", &memTotal.fValue) == 1) {
+                fclose(meminfo);
+                return memTotal;
+            }
+        }
+        fclose(meminfo);
+    }
+    return memTotal;
+#elif defined(Q_OS_MACOS)
+    int mib [] = { CTL_HW, HW_MEMSIZE };
+    int64_t bytes = 0;
+    size_t length = sizeof(bytes);
+    const int ret = sysctl(mib, 2, &bytes, &length, NULL, 0);
+    if(ret) RuntimeThrow("Failed to retrieve memory using sysctl");
+    return intKB(longB(bytes));
+#endif
 }

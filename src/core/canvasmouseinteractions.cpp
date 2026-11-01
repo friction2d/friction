@@ -851,6 +851,15 @@ void Canvas::rotateSelected(const eMouseEvent& e)
         rot = d_rot + mRotHalfCycles*180;
     }
 
+    if (!mValueInput.inputEnabled()) {
+        const auto grid = eSettings::instance().fGrid;
+        if (e.ctrlMod() || e.shiftMod()) {
+            const qreal step = e.ctrlMod() ? grid.stepRotCtrl : grid.stepRotShift;
+            qDebug() << step;
+            rot = qRound(rot / step) * step;
+        }
+    }
+
     if (mCurrentMode == CanvasMode::boxTransform) {
         rotateSelectedBy(rot, absPos, mStartTransform);
     } else {
