@@ -1614,6 +1614,8 @@ eTask* BoundingBox::saveSVGWithTransform(SvgExporter& exp,
     const auto expPtr = &exp;
     const auto parentPtr = &parent;
     taskPtr->addDependent({[ptr, taskPtr, expPtr, parentPtr, visRange, maskId]() {
+        const SvgExporter::FrameMappingScope mappingScope(*expPtr,
+                                                          taskPtr->frameMapping());
         auto& ele = taskPtr->element();
         if (ptr) {
             ele.setAttribute("id", AppSupport::filterId(ptr->prp_getName()));

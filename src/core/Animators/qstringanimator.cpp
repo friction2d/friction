@@ -53,8 +53,40 @@ QDomElement createTextElement(SvgExporter& exp, const QString& text) {
 void QStringAnimator::saveSVG(SvgExporter& exp, QDomElement& parent,
                               const PropSetter& propSetter) const {
     const auto relRange = prp_absRangeToRelRange(exp.fAbsRange);
-    const auto idRange = prp_getIdenticalRelRange(relRange.fMin);
     const int span = exp.fAbsRange.span();
+    if(exp.hasFrameMapping()) {
+        QString currentValue;
+        FrameRange currentRange{FrameRange::EMIN, FrameRange::EMIN};
+        for(int i = relRange.fMin; i <= relRange.fMax; i++) {
+            const qreal mapped = exp.mapRelFrame(i);
+            const auto value = getValueAtRelFrame(mapped);
+            if(i == relRange.fMin) {
+                currentValue = value;
+                currentRange = {i, i};
+            } else if(value == currentValue) {
+                currentRange.fMax = i;
+            } else {
+                auto ele = createTextElement(exp, currentValue);
+                propSetter(ele);
+                const auto absRange = prp_relRangeToAbsRange(currentRange);
+                SvgExportHelpers::assignVisibility(exp, ele, exp.fAbsRange*absRange);
+                parent.appendChild(ele);
+                currentValue = value;
+                currentRange = {i, i};
+            }
+        }
+
+        if(currentRange.fMin != FrameRange::EMIN) {
+            auto ele = createTextElement(exp, currentValue);
+            propSetter(ele);
+            const auto absRange = prp_relRangeToAbsRange(currentRange);
+            SvgExportHelpers::assignVisibility(exp, ele, exp.fAbsRange*absRange);
+            parent.appendChild(ele);
+        }
+        return;
+    }
+
+    const auto idRange = prp_getIdenticalRelRange(relRange.fMin);
     if(idRange.inRange(relRange) || span == 1) {
         auto ele = createTextElement(exp, getValueAtRelFrame(relRange.fMin));
         propSetter(ele);
