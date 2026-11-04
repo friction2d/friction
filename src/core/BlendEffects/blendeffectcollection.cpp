@@ -5,6 +5,7 @@
 
 #include "moveblendeffect.h"
 #include "targetedblendeffect.h"
+#include "stencilblendeffect.h"
 
 BlendEffectCollection::BlendEffectCollection() :
     BlendEffectCollectionBase("blend effects") {}
@@ -25,6 +26,13 @@ void BlendEffectCollection::prp_setupTreeViewMenu(PropertyMenu * const menu) {
             coll->addChild(enve::make_shared<TargetedBlendEffect>());
         };
         menu->addPlainAction(QIcon::fromTheme("effect"), tr("New Targeted Effect"), aOp);
+    }
+    {
+        const PropertyMenu::PlainSelectedOp<BlendEffectCollection> aOp =
+            [](BlendEffectCollection * coll) {
+            coll->addChild(enve::make_shared<StencilBlendEffect>());
+        };
+        menu->addPlainAction(QIcon::fromTheme("effect"), tr("New Stencil Effect"), aOp);
     }
     menu->addSeparator();
     BlendEffectCollectionBase::prp_setupTreeViewMenu(menu);
@@ -95,6 +103,8 @@ qsptr<BlendEffect> createBlendEffectForType(const BlendEffectType type) {
             return enve::make_shared<MoveBlendEffect>();
         case(BlendEffectType::targeted):
             return enve::make_shared<TargetedBlendEffect>();
+        case(BlendEffectType::stencil):
+            return enve::make_shared<StencilBlendEffect>();
         default: RuntimeThrow("Invalid blend effect type '" +
                               QString::number(int(type)) + "'");
     }

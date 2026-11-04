@@ -9,7 +9,7 @@ class PathBox;
 struct ChildRenderData;
 
 enum class BlendEffectType {
-    move, targeted
+    move, targeted, stencil
 };
 
 class CORE_EXPORT BlendEffect : public eEffect {
@@ -51,9 +51,11 @@ public:
 
     bool isPathValid() const;
     SkPath clipPath(const qreal relFrame) const;
-private:
+
+protected:
     PathBox* clipPathSource() const;
 
+private:
     ConnContextQPtr<BoundingBox> mClipBox;
     const BlendEffectType mType;
     qsptr<BoxTargetProperty> mClipPath;
