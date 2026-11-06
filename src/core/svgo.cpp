@@ -82,6 +82,20 @@ bool SVGO::recursiveOptimize(QDomElement &element)
         if (singleChild.tagName() != "g") { return changed; }
         if (element.hasAttribute("id")) { return changed; }
 
+        if (element.hasAttribute("mask") ||
+            element.hasAttribute("clip-path") ||
+            element.hasAttribute("filter") ||
+            element.hasAttribute("opacity")) {
+            return changed;
+        }
+
+        if (element.hasAttribute("transform") &&
+            (singleChild.hasAttribute("mask") ||
+             singleChild.hasAttribute("clip-path") ||
+             singleChild.hasAttribute("filter"))) {
+            return changed;
+        }
+
         QDomElement childGroup = singleChild;
 
         if (childGroup.elementsByTagName("animateTransform").count() > 0) {
