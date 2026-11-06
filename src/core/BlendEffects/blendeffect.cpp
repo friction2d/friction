@@ -12,17 +12,21 @@ BlendEffect::BlendEffect(const QString& name, const BlendEffectType type)
             this, [this](BoundingBox* const newClipBox) {
         if (mClipBox.get()) {
             mClipBox.get()->removeMaskUser(this);
+            mClipBox.get()->planUpdate(UpdateReason::userChange);
         }
 
         auto& conn = mClipBox.assign(newClipBox);
         if (newClipBox) {
             newClipBox->addMaskUser(this);
+            newClipBox->planUpdate(UpdateReason::userChange);
+
             conn << connect(newClipBox, &Property::prp_absFrameRangeChanged,
                             this, &Property::prp_afterChangedAbsRange);
             conn << connect(newClipBox, &eBoxOrSound::visibilityChanged,
                             [this, newClipBox](bool visible) {
                 if (visible) { newClipBox->addMaskUser(this); }
                 else { newClipBox->removeMaskUser(this); }
+                newClipBox->planUpdate(UpdateReason::userChange);
             });
         }
     });
@@ -34,6 +38,7 @@ BlendEffect::~BlendEffect()
 {
     if (mClipBox.get()) {
         mClipBox.get()->removeMaskUser(this);
+        mClipBox.get()->planUpdate(UpdateReason::userChange);
     }
 }
 
@@ -63,6 +68,7 @@ void BlendEffect::prp_setupTreeViewMenu(PropertyMenu * const menu)
         [this](BlendEffect* const prop) {
             if (mClipBox.get()) {
                 mClipBox.get()->removeMaskUser(this);
+                mClipBox.get()->planUpdate(UpdateReason::userChange);
             }
             const auto parent = prop->template getParent<
                     DynamicComplexAnimatorBase<BlendEffect>>();
