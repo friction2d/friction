@@ -25,6 +25,7 @@
 
 #include "BlendEffects/moveblendeffect.h"
 #include "BlendEffects/targetedblendeffect.h"
+#include "BlendEffects/stencilblendeffect.h"
 
 void BlendEffectMenuCreator::forEveryEffect(const EffectAdder &add)
 {
@@ -32,4 +33,6 @@ void BlendEffectMenuCreator::forEveryEffect(const EffectAdder &add)
         []() { return enve::make_shared<MoveBlendEffect>(); });
     add(QObject::tr("Targeted"),
         []() { return enve::make_shared<TargetedBlendEffect>(); });
+    add(QObject::tr("Stencil"),
+        []() { return enve::make_shared<StencilBlendEffect>(); });
 }

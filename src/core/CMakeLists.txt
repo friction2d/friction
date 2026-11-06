@@ -113,6 +113,7 @@ set(
     BlendEffects/blendeffectcollection.cpp
     BlendEffects/moveblendeffect.cpp
     BlendEffects/targetedblendeffect.cpp
+    BlendEffects/stencilblendeffect.cpp
     BlendEffects/blendeffectmenucreator.cpp
     Boxes/animationbox.cpp
     Boxes/boundingbox.cpp
@@ -421,6 +422,7 @@ set(
     BlendEffects/blendeffectcollection.h
     BlendEffects/moveblendeffect.h
     BlendEffects/targetedblendeffect.h
+    BlendEffects/stencilblendeffect.h
     BlendEffects/blendeffectmenucreator.h
     Boxes/animationbox.h
     Boxes/boundingbox.h

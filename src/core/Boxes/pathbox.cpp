@@ -382,8 +382,13 @@ void PathBox::saveStrokeSettingsSVG(SvgExporter& exp, QDomElement& ele,
 
 void PathBox::savePathBoxSVG(SvgExporter& exp, QDomElement& ele,
                              const FrameRange& visRange) const {
-    saveFillSettingsSVG(exp, ele, visRange);
-    saveStrokeSettingsSVG(exp, ele, visRange);
+    if (isUsedAsMask()) {
+        ele.setAttribute("fill", /*"#ffffff"*/"currentColor");
+        ele.setAttribute("stroke", "none");
+    } else {
+        saveFillSettingsSVG(exp, ele, visRange);
+        saveStrokeSettingsSVG(exp, ele, visRange);
+    }
 }
 
 SmartVectorPath *PathBox::objectToVectorPathBox() {
