@@ -50,6 +50,12 @@ public:
     void drawBlendSetup(const qreal relFrame,
                         SkCanvas * const canvas) const;
 
+    virtual void saveSVG(SvgExporter& exp,
+                         QDomElement& ele,
+                         const FrameRange& visRange,
+                         DomEleTask* task,
+                         const BoundingBox* targetBox) const;
+
     int zIndex(const qreal relFrame) const;
 private:
     int calcDIndex(const qreal relFrame) const;
