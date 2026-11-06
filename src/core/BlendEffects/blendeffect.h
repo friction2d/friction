@@ -5,20 +5,25 @@
 
 #include "Properties/boxtargetproperty.h"
 
+class SvgExporter;
+class DomEleTask;
 class PathBox;
 struct ChildRenderData;
 
-enum class BlendEffectType {
+enum class BlendEffectType
+{
     move, targeted, stencil
 };
 
-class CORE_EXPORT BlendEffect : public eEffect {
+class CORE_EXPORT BlendEffect : public eEffect
+{
     Q_OBJECT
     e_OBJECT
 protected:
     BlendEffect(const QString &name,
                 const BlendEffectType type);
 public:
+    virtual ~BlendEffect();
     virtual void blendSetup(ChildRenderData &data,
                             const int index,
                             const qreal relFrame,
@@ -43,6 +48,12 @@ public:
     virtual void drawBlendSetup(const qreal relFrame,
                                 SkCanvas * const canvas) const = 0;
 
+    virtual void saveSVG(SvgExporter& exp,
+                         QDomElement& ele,
+                         const FrameRange& visRange,
+                         DomEleTask* task,
+                         const BoundingBox* targetBox) const = 0;
+
     void prp_setupTreeViewMenu(PropertyMenu * const menu);
     void prp_readProperty_impl(eReadStream& src);
 
@@ -52,7 +63,7 @@ public:
     bool isPathValid() const;
     SkPath clipPath(const qreal relFrame) const;
 
-protected:
+    BoxTargetProperty* clipPathProperty() const;
     PathBox* clipPathSource() const;
 
 private:
