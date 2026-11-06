@@ -148,6 +148,7 @@ set(
     main.cpp
     GUI/BoxesList/boxscroller.cpp
     GUI/Dialogs/dialogsinterfaceimpl.cpp
+    GUI/Dialogs/svganimationimportdialog.cpp
     GUI/Expressions/expressiondialog.cpp
     GUI/Expressions/expressioneditor.cpp
     GUI/Expressions/expressionhighlighter.cpp
@@ -200,6 +201,7 @@ set(
     HEADERS
     GUI/BoxesList/boxscroller.h
     GUI/Dialogs/dialogsinterfaceimpl.h
+    GUI/Dialogs/svganimationimportdialog.h
     GUI/Expressions/expressiondialog.h
     GUI/Expressions/expressioneditor.h
     GUI/Expressions/expressionhighlighter.h

@@ -316,6 +316,7 @@ set(
     svgexporter.cpp
     svgexporthelpers.cpp
     svgimporter.cpp
+    svganimationimporter.cpp
     switchablecontext.cpp
     swt_abstraction.cpp
     swt_rulescollection.cpp
@@ -651,6 +652,7 @@ set(
     svgexporter.h
     svgexporthelpers.h
     svgimporter.h
+    svganimationimporter.h
     switchablecontext.h
     swt_abstraction.h
     swt_rulescollection.h
