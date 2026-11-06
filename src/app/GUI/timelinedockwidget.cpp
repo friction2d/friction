@@ -133,6 +133,7 @@ TimelineDockWidget::TimelineDockWidget(Document& document,
         if (!scene) { return; }
         scene->anim_setAbsFrame(scene->getFrameRange().fMin);
         renderPreview();*/
+        qDebug() << "play preview from start...";
         const auto state = RenderHandler::sInstance->currentPreviewState();
         setPreviewFromStart(state);
     });

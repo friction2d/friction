@@ -55,6 +55,7 @@
 #include "svgexporter.h"
 #include "svgexporthelpers.h"
 #include "internallinkcanvas.h"
+#include "BlendEffects/stencilblendeffect.h"
 
 #include <QInputDialog>
 #include <QMessageBox>
@@ -302,10 +303,9 @@ NormalSegment BoundingBox::getNormalSegment(const QPointF &absPos,
     return NormalSegment();
 }
 
-#include "efiltersettings.h"
-
 void BoundingBox::drawPixmapSk(SkCanvas * const canvas,
                                const SkFilterQuality filter) const {
+    if (isUsedAsMask()) { return; } // do not render if target for blend effects
     const qreal opacity = getOpacity(anim_getCurrentRelFrame());
     if(isZero4Dec(opacity) || !mVisibleInScene) return;
     mDrawRenderContainer.drawSk(canvas, filter);
@@ -403,6 +403,7 @@ void BoundingBox::drawPixmapSk(SkCanvas * const canvas,
                                QList<BlendEffect::Delayed> &delayed) const {
     Q_UNUSED(drawId)
     Q_UNUSED(delayed)
+    if (isUsedAsMask()) { return; } // do not render if target for blend effects
     canvas->save();
     if(blendEffectsEnabled()) {
         mBlendEffectCollection->drawBlendSetup(canvas);
@@ -1103,7 +1104,14 @@ void BoundingBox::setupWithoutRasterEffects(const qreal relFrame,
     data->fResolution = scene->getResolution();
     data->fResolutionScale.reset();
     data->fResolutionScale.scale(data->fResolution, data->fResolution);
-    data->fOpacity = getOpacity(relFrame);
+
+    if (isUsedAsMask()) {
+        // hide if target for blend effects
+        data->fOpacity = 0.0;
+    } else {
+        data->fOpacity = getOpacity(relFrame);
+    }
+
     data->fBaseMargin = QMargins() + 2;
     data->fBlendMode = getBlendMode();
 
@@ -1606,6 +1614,11 @@ eTask* BoundingBox::saveSVGWithTransform(SvgExporter& exp,
                                          const FrameRange& parentVisRange,
                                          const QString &maskId) const
 {
+    // do not include if target for (stencil) blend effects
+    if (isUsedAsMask() && maskId != prp_getName() && maskId != "FORCE_EXPORT") {
+        return nullptr;
+    }
+
     const auto visRange = parentVisRange*prp_absInfluenceRange();
     const auto task = enve::make_shared<DomEleTask>(exp, visRange);
     exp.addNextTask(task);
@@ -1613,7 +1626,13 @@ eTask* BoundingBox::saveSVGWithTransform(SvgExporter& exp,
     const QPointer<const BoundingBox> ptr = this;
     const auto expPtr = &exp;
     const auto parentPtr = &parent;
-    taskPtr->addDependent({[ptr, taskPtr, expPtr, parentPtr, visRange, maskId]() {
+    taskPtr->addDependent({[ptr,
+                            taskPtr,
+                            expPtr,
+                            parentPtr,
+                            visRange,
+                            maskId,
+                            this]() {
         auto& ele = taskPtr->element();
         if (ptr) {
             ele.setAttribute("id", AppSupport::filterId(ptr->prp_getName()));
@@ -1632,16 +1651,51 @@ eTask* BoundingBox::saveSVGWithTransform(SvgExporter& exp,
             const auto transform = ptr->mTransformAnimator.get();
             const auto transformed = transform->saveSVG(*expPtr, visRange, ele);
             const auto effects = ptr->mRasterEffectsAnimators.get();
-            const auto withEffects = hasTransformEffects ?
-                                         transformEffects->saveEffectsSVG(*expPtr,
-                                                                          visRange,
-                                                                          ele,
-                                                                          effects->saveEffectsSVG(*expPtr,
-                                                                                                  visRange,
-                                                                                                  transformed)) :
-                                         effects->saveEffectsSVG(*expPtr,
-                                                                 visRange,
-                                                                 transformed);
+            auto withEffects = hasTransformEffects ?
+                                    transformEffects->saveEffectsSVG(*expPtr,
+                                                                     visRange,
+                                                                     ele,
+                                                                     effects->saveEffectsSVG(*expPtr,
+                                                                                             visRange,
+                                                                                             transformed)) :
+                                    effects->saveEffectsSVG(*expPtr,
+                                                            visRange,
+                                                            transformed);
+
+            // apply and merge stencil blend effects
+            const auto blends = ptr->mBlendEffectCollection.get();
+            if (blends) {
+                QList<StencilBlendEffect*> stencils;
+                for (int i = 0; i < blends->ca_getNumberOfChildren(); ++i) {
+                    if (auto s = enve_cast<StencilBlendEffect*>(blends->ca_getChildAt(i))) {
+                        stencils.append(s);
+                    }
+                }
+
+                if (!stencils.isEmpty()) {
+                    const QString maskId = QString("stencilMask_%1_%2")
+                                               .arg(reinterpret_cast<quintptr>(this), 0, 16)
+                                               .arg(AppSupport::filterId(this->prp_getName()));
+
+                    QDomElement maskEle = expPtr->createElement("mask");
+                    maskEle.setAttribute("id", maskId);
+
+                    maskEle.setAttribute("maskUnits",
+                                         "userSpaceOnUse");
+                    expPtr->addToDefs(maskEle);
+
+                    withEffects.setAttribute("mask",
+                                             QString("url(#%1)").arg(maskId));
+
+                    for (auto stencil : stencils) {
+                        stencil->saveSVG(*expPtr,
+                                         maskEle,
+                                         visRange,
+                                         taskPtr,
+                                         ptr);
+                    }
+                }
+            }
 
             if (maskId == ptr->prp_getName()) { // move mask to defs
                 auto& eleMask = taskPtr->initialize("mask");
@@ -1663,4 +1717,28 @@ eTask* BoundingBox::saveSVGWithTransform(SvgExporter& exp,
     saveSVG(exp, taskPtr);
     taskPtr->queTask();
     return task.get();
+}
+
+void BoundingBox::addMaskUser(BlendEffect *effect)
+{
+    if (!mMaskUsers.contains(effect)) { mMaskUsers.append(effect); }
+    planUpdate(UpdateReason::userChange);
+}
+
+void BoundingBox::removeMaskUser(BlendEffect *effect)
+{
+    mMaskUsers.removeAll(effect);
+    planUpdate(UpdateReason::userChange);
+}
+
+bool BoundingBox::isUsedAsMask() const
+{
+    for (auto *effect : mMaskUsers) {
+        const bool disabled = (!effect || !effect->isVisible() || !effect->isPathValid());
+        //qDebug() << prp_getName() << "isUsedAsMask?" << !disabled;
+        if (disabled) { continue; }
+        return true;
+    }
+
+    return false;
 }
