@@ -50,6 +50,12 @@ public:
     void drawBlendSetup(const qreal relFrame,
                         SkCanvas * const canvas) const override;
 
+    virtual void saveSVG(SvgExporter& exp,
+                         QDomElement& ele,
+                         const FrameRange& visRange,
+                         DomEleTask* task,
+                         const BoundingBox* targetBox) const override;
+
 private:
     qsptr<BoolAnimator> mInvert;
 };

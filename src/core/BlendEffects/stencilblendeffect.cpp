@@ -24,6 +24,8 @@
 
 #include "Boxes/layerboxrenderdata.h"
 #include "Boxes/boundingbox.h"
+#include "Boxes/pathbox.h"
+#include "svgexporter.h"
 
 StencilBlendEffect::StencilBlendEffect()
     : BlendEffect("stencil mask", BlendEffectType::stencil)
@@ -32,6 +34,13 @@ StencilBlendEffect::StencilBlendEffect()
     mInvert->setCurrentBoolValue(false);
     ca_addChild(mInvert);
     ca_setGUIProperty(mInvert.get());
+
+    connect(this, &eEffect::effectVisibilityChanged,
+            this, [this](bool) {
+        if (auto box = clipPathSource()) {
+            box->planUpdate(UpdateReason::userChange);
+        }
+    });
 }
 
 void StencilBlendEffect::blendSetup(ChildRenderData &data,
@@ -42,12 +51,22 @@ void StencilBlendEffect::blendSetup(ChildRenderData &data,
     Q_UNUSED(index)
     Q_UNUSED(delayed)
 
-    if (!isPathValid()) { return; }
+    if (!isVisible() || !isPathValid()) { return; }
 
     const bool invert = mInvert->getEffectiveValue(relFrame);
     const auto maskPath = this->clipPath(relFrame);
-
     SkClipOp op = invert ? SkClipOp::kDifference : SkClipOp::kIntersect;
+
+    if (!data.fClip.fClipOps.isEmpty()) {
+        auto& lastClip = data.fClip.fClipOps.last();
+        if (lastClip.fClipPathOp == op) {
+            Op(lastClip.fClipPath,
+               maskPath,
+               kUnion_SkPathOp,
+               &lastClip.fClipPath);
+            return;
+        }
+    }
 
     data.fClip.fClipOps.append({maskPath, op, true});
 }
@@ -57,14 +76,13 @@ void StencilBlendEffect::detachedBlendUISetup(const qreal relFrame,
                                               QList<UIDelayed> &delayed)
 {
     Q_UNUSED(relFrame)
-    Q_UNUSED(drawId)
-    Q_UNUSED(delayed)
-    /*delayed << [this, drawId](const int currentDrawId,
-                                BoundingBox*,
-                                BoundingBox*) {
+
+    delayed << [this, drawId](const int currentDrawId,
+                              BoundingBox*,
+                              BoundingBox*) {
         if (currentDrawId < drawId) { return static_cast<BlendEffect*>(nullptr); }
         return static_cast<BlendEffect*>(this);
-    };*/
+    };
 }
 
 void StencilBlendEffect::detachedBlendSetup(const BoundingBox* const boxToDraw,
@@ -74,7 +92,6 @@ void StencilBlendEffect::detachedBlendSetup(const BoundingBox* const boxToDraw,
                                             const int drawId,
                                             QList<Delayed> &delayed) const
 {
-
     if (!isPathValid()) { return; }
 
     const bool invert = mInvert->getEffectiveValue(relFrame);
@@ -104,4 +121,50 @@ void StencilBlendEffect::drawBlendSetup(const qreal relFrame,
     SkClipOp op = invert ? SkClipOp::kDifference : SkClipOp::kIntersect;
 
     canvas->clipPath(maskPath, op, true);
+}
+
+void StencilBlendEffect::saveSVG(SvgExporter& exp,
+                                 QDomElement& ele,
+                                 const FrameRange& visRange,
+                                 DomEleTask* task,
+                                 const BoundingBox* targetBox) const
+{
+    Q_UNUSED(task)
+    Q_UNUSED(targetBox)
+
+    auto maskBox = clipPathSource();
+    if (!maskBox || !isVisible()) { return; }
+
+    const qreal relFrame = prp_absFrameToRelFrameF(visRange.fMin);
+    const bool invert = mInvert->getEffectiveValue(relFrame);
+
+    if (ele.childNodes().isEmpty()) {
+        if (invert) {
+            // Silhouette (Invert)
+            QDomElement bgRect = exp.createElement("rect");
+            bgRect.setAttribute("x", "-500%");
+            bgRect.setAttribute("y", "-500%");
+            bgRect.setAttribute("width", "1000%");
+            bgRect.setAttribute("height", "1000%");
+            bgRect.setAttribute("fill", "#ffffff");
+            ele.appendChild(bgRect);
+        }
+    }
+
+    auto groupTask = enve::make_shared<DomEleTask>(exp, visRange);
+    exp.addNextTask(groupTask);
+
+    QDomElement& stableGroup = groupTask->initialize("g");
+
+    stableGroup.setAttribute("color",
+                             invert ? "#000000" /* Silhouette */ : "#ffffff" /* Stencil */);
+
+    ele.appendChild(stableGroup);
+
+    maskBox->saveSVGWithTransform(exp,
+                                  stableGroup,
+                                  visRange,
+                                  "FORCE_EXPORT");
+
+    groupTask->queTask();
 }
