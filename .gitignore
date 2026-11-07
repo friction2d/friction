@@ -37,3 +37,4 @@ src/scripts/flatpak/remote
 *.app
 
 *.AppImage
+/src/plugins

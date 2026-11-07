@@ -172,7 +172,7 @@ private:
     NodeList mLastDetached;
 };
 
-eWriteStream& operator<<(eWriteStream& dst, const SmartPath& path);
-eReadStream& operator>>(eReadStream& src, SmartPath& path);
+CORE_EXPORT eWriteStream& operator<<(eWriteStream& dst, const SmartPath& path);
+CORE_EXPORT eReadStream& operator>>(eReadStream& src, SmartPath& path);
 
 #endif // SMARTPATH_H

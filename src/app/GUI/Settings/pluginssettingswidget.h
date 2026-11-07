@@ -43,7 +43,12 @@ private:
     QStringList mShadersDisabled;
     QTreeWidget *mShaderTree;
 
+    QLineEdit *mCorePath;
+    QStringList mCoreDisabled;
+    QTreeWidget *mCoreTree;
+
     void populateShaderTree();
+    void populateCoreTree();
 };
 
 #endif // PLUGINSSETTINGSWIDGET_H

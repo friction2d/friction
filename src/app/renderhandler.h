@@ -30,6 +30,7 @@
 #include "smartPointers/ememory.h"
 #include "CacheHandlers/usepointer.h"
 #include "CacheHandlers/cachecontainer.h"
+#include "Private/document.h"
 
 class Canvas;
 class RenderInstanceSettings;
@@ -37,10 +38,6 @@ class SoundComposition;
 class Document;
 class VideoEncoder;
 class MemoryHandler;
-
-enum class PreviewState {
-    stopped, rendering, playing, paused
-};
 
 class RenderHandler : public QObject {
     Q_OBJECT

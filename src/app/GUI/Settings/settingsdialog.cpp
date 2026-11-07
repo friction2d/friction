@@ -8,10 +8,7 @@
 
 #include "generalsettingswidget.h"
 #include "timelinesettingswidget.h"
-
-#ifndef USE_GLES
 #include "pluginssettingswidget.h"
-#endif
 
 #include "widgets/performancesettingswidget.h"
 #include "widgets/canvassettingswidget.h"
@@ -44,10 +41,8 @@ SettingsDialog::SettingsDialog(QWidget * const parent)
     const auto timeline = new TimelineSettingsWidget(this);
     addSettingsWidget(timeline, tr("Timeline"));
 
-#ifndef USE_GLES
     const auto plugins = new PluginsSettingsWidget(this);
-    addSettingsWidget(plugins, tr("Shaders"));
-#endif
+    addSettingsWidget(plugins, tr("Plugins"));
 
     const auto presets = new PresetSettingsWidget(this);
     addSettingsWidget(presets, tr("Presets"));
