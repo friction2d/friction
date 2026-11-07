@@ -49,6 +49,7 @@ set(
     dialogs/commandpalette.cpp
     dialogs/dialog.cpp
     dialogs/durationrectsettingsdialog.cpp
+    dialogs/exportlottiedialog.cpp
     dialogs/exportsvgdialog.cpp
     dialogs/markereditordialog.cpp
     dialogs/qrealpointvaluedialog.cpp
@@ -138,6 +139,7 @@ set(
     dialogs/commandpalette.h
     dialogs/dialog.h
     dialogs/durationrectsettingsdialog.h
+    dialogs/exportlottiedialog.h
     dialogs/exportsvgdialog.h
     dialogs/markereditordialog.h
     dialogs/qrealpointvaluedialog.h
