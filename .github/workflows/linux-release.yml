@@ -1,0 +1,39 @@
+name: Linux-release
+
+on: workflow_dispatch
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set Head Repo URL Environment Variable
+      if: github.event_name == 'pull_request' 
+      run: |
+        echo "HEAD_REPO_URL=${{ github.event.pull_request.head.repo.clone_url }}" >> $GITHUB_ENV
+        echo "COMMIT=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
+        echo "BRANCH=NONE" >> $GITHUB_ENV
+    - name: Build
+      run: REL=1 CUSTOM="" ./src/scripts/build.sh
+    - name: Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: friction-v1.0-release-linux-x86_64
+        path: distfiles/builds/*/*
+  release-glx:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set Head Repo URL Environment Variable
+      if: github.event_name == 'pull_request' 
+      run: |
+        echo "HEAD_REPO_URL=${{ github.event.pull_request.head.repo.clone_url }}" >> $GITHUB_ENV
+        echo "COMMIT=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
+        echo "BRANCH=NONE" >> $GITHUB_ENV
+    - name: Build
+      run: REL=1 CUSTOM="" GLX=1 ./src/scripts/build.sh
+    - name: Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: friction-v1.0-release-linux-x86_64-GLX
+        path: distfiles/builds/*/*
