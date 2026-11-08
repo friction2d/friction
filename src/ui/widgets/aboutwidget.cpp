@@ -34,6 +34,8 @@
 #include <QTextBrowser>
 #include <QFile>
 #include <QSysInfo>
+#include <QPushButton>
+#include <QDesktopServices>
 
 extern "C" {
 #include <libavutil/avutil.h>
@@ -174,4 +176,16 @@ AboutWidget::AboutWidget(QWidget *parent)
         mThirdParty->addTab(browser, title);
     }
     mTab->addTab(mThirdParty, tr("Licenses"));
+
+    const auto donateButton = new QPushButton(QIcon::fromTheme("fund"),
+                                              tr("Support Friction"),
+                                              this);
+    donateButton->setFocusPolicy(Qt::NoFocus);
+    donateButton->setObjectName("DonateButton");
+    donateButton->setSizePolicy(QSizePolicy::Preferred,
+                                QSizePolicy::Preferred);
+    connect(donateButton, &QPushButton::released, [](){
+        QDesktopServices::openUrl(QUrl::fromUserInput(PROJECT_DONATE_URL));
+    });
+    mLayout->addWidget(donateButton);
 }

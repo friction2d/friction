@@ -340,7 +340,6 @@ QPushButton#WelcomeRecentButton:hover {
     border: 2px solid #ebebeb;
 }*/
 
-QPushButton#DonateButton,
 QPushButton#FlatButton,
 QPushButton#AboutButton,
 QToolButton#FlatButton,

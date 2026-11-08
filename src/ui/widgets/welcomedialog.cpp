@@ -28,7 +28,6 @@
 #include <QVBoxLayout>
 #include <QPainter>
 #include <QLabel>
-#include <QDesktopServices>
 
 #include "appsupport.h"
 #include "themesupport.h"
@@ -101,23 +100,10 @@ WelcomeDialog::WelcomeDialog(QMenu *recentMenu,
     mRecentButton->setMenu(recentMenu);
     mRecentButton->setVisible(mRecentButton->menu()->children().count() > 1);
 
-    const auto donateButton = new QPushButton(QIcon::fromTheme("fund"),
-                                              tr("Support Us"),
-                                              this);
-    donateButton->setFocusPolicy(Qt::NoFocus);
-    donateButton->setObjectName("DonateButton");
-    donateButton->setSizePolicy(QSizePolicy::Preferred,
-                                QSizePolicy::Preferred);
-    connect(donateButton, &QPushButton::released, [donateButton](){
-        QDesktopServices::openUrl(QUrl::fromUserInput(PROJECT_DONATE_URL));
-        donateButton->hide();
-    });
-
     thisLay->addWidget(mainWid, 0, Qt::AlignHCenter | Qt::AlignVCenter);
     sceneLay->addWidget(logoLabel);
     sceneLay->addWidget(buttonWid);
     sceneLay->addWidget(mRecentButton);
-    sceneLay->addWidget(donateButton);
     buttonLay->addWidget(newButton);
     buttonLay->addWidget(openButton);
     mainLay->addWidget(sceneWid);
