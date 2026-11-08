@@ -1,0 +1,16 @@
+name: macOS-release
+
+on: workflow_dispatch
+
+jobs:
+  release:
+    runs-on: macos-15
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build
+      run: REL="ON" CUSTOM="" ./src/scripts/build_mac_ci.sh
+    - name: Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: friction-v1.0-release-macOS
+        path: build-release-universal/*.dmg
