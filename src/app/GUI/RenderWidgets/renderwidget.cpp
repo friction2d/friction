@@ -34,6 +34,7 @@
 #include "themesupport.h"
 #include "../mainwindow.h"
 #include "../timelinedockwidget.h"
+#include "Private/document.h"
 
 RenderWidget::RenderWidget(QWidget *parent)
     : QWidget(parent)
@@ -174,6 +175,11 @@ RenderWidget::RenderWidget(QWidget *parent)
             this, &RenderWidget::handleRenderFailed);
     connect(vidEmitter, &VideoEncoderEmitter::encodingStartFailed,
             this, &RenderWidget::sendNextForRender);
+
+    connect(this, &RenderWidget::progress,
+            this, [](int frame, int total) {
+        emit Document::sInstance->renderProgress(frame, total);
+    });
 }
 
 void RenderWidget::createNewRenderInstanceWidgetForCanvas(Canvas *canvas)

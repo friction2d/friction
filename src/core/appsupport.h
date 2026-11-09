@@ -89,6 +89,8 @@ public:
     static const QString getAppPath();
     static const QString getAppCachePath();
     static const QString getAppTempPath(const QString &filename);
+    static const QStringList getAppCorePluginsPath();
+    static bool isDirectory(const QString &path);
     static const QString getExistingDirectory(QWidget *parent,
                                               const QString &caption,
                                               const QString &path);
@@ -119,6 +121,7 @@ public:
     static const QString getAppShaderPresetsPath();
     static const QString getAppExPresetsPath();
     static const QString getAppUserExPresetsPath();
+    static const QString getAppUserCorePluginsPath(bool restore = false);
     static const QString getFileMimeType(const QString &path);
     static const QString getFileIcon(const QString &path);
     static const QPair<QString,QString> getShaderID(const QString &path);
