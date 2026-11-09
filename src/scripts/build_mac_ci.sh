@@ -24,7 +24,7 @@ CWD=`pwd`
 REL=${REL:-"OFF"}
 BRANCH=${BRANCH:-`git rev-parse --abbrev-ref HEAD`}
 COMMIT=${COMMIT:-`git rev-parse --short=8 HEAD`}
-CUSTOM=${CUSTOM:-"CI"}
+CUSTOM=${CUSTOM:-""}
 BUILD_ARM=${BUILD_ARM:-1}
 BUILD_INTEL=${BUILD_INTEL:-1}
 BUILD_UNIVERSAL=${BUILD_UNIVERSAL:-1}

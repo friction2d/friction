@@ -25,7 +25,7 @@ CWD=`pwd`
 MKJOBS=${MKJOBS:-2}
 COMMIT=${COMMIT:-`git rev-parse --short=8 HEAD`}
 BRANCH=${BRANCH:-`git rev-parse --abbrev-ref HEAD`}
-CUSTOM=${CUSTOM:-"CI"}
+CUSTOM=${CUSTOM:-""}
 HEAD_REPO_URL=${HEAD_REPO_URL:-""}
 REL=${REL:-0}
 DOWNLOAD_SDK=${DOWNLOAD_SDK:-1}
