@@ -187,9 +187,9 @@ done
 (cd ${BUILD}/${FRICTION_PKG}/opt/friction/lib;
     chmod +x libskia-friction.so.1
     rm -f libfrictioncore.so libfrictioncore.so.1
-    mv libfrictioncore.so.1.0.0 libfrictioncore.so.1
+    mv libfrictioncore.so.1.0.0 libfrictioncore.so.1 || mv libfrictioncore.so.1.1.0 libfrictioncore.so.1
     rm -f libfrictionui.so libfrictionui.so.1
-    mv libfrictionui.so.1.0.0 libfrictionui.so.1
+    mv libfrictionui.so.1.0.0 libfrictionui.so.1 || mv libfrictionui.so.1.1.0 libfrictionui.so.1
 )
 
 # RPM

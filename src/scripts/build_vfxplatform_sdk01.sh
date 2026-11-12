@@ -76,7 +76,7 @@ if [ ! -f "${CMAKE_BIN}" ]; then
     cd ${SRC}
     CMAKE_SRC=cmake-${CMAKE_V}
     rm -rf ${CMAKE_SRC} || true
-    tar xf ${DIST}/ffmpeg/${CMAKE_SRC}.tar.gz
+    tar xf ${DIST}/tools/${CMAKE_SRC}.tar.gz
     cd ${CMAKE_SRC}
     ./configure ${COMMON_CONFIGURE} --parallel=${MKJOBS} -- -DCMAKE_USE_OPENSSL=OFF
     make -j${MKJOBS}

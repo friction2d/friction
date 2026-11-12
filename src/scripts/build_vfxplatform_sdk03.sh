@@ -40,7 +40,13 @@ OPUS_V=1.3.1
 X264_V=20180806-2245
 X265_V=3.5
 AOM_V=3.6.1
-FFMPEG_V=4.2.11
+
+# friction v1.0
+FFMPEG4_V=4.2.11
+
+# friction v1.1+
+FFMPEG6_V=6.1.6
+FFMPEG8_V=8.1.3
 
 export PATH="${SDK}/bin:${PATH}"
 export PKG_CONFIG_PATH="${SDK}/lib/pkgconfig"
@@ -69,7 +75,7 @@ if [ ! -f "${SDK}/bin/nasm" ]; then
     cd ${SRC}
     NASM_SRC=nasm-${NASM_V}
     rm -rf ${NASM_SRC} || true
-    tar xf ${DIST}/ffmpeg/${NASM_SRC}.tar.xz
+    tar xf ${DIST}/tools/${NASM_SRC}.tar.xz
     cd ${NASM_SRC}
     ./configure ${COMMON_CONFIGURE}
     make -j${MKJOBS}
@@ -241,9 +247,12 @@ if [ ! -f "${SDK}/lib/libaom.so" ]; then
 fi # aom
 
 # ffmpeg
-if [ ! -f "${SDK}/lib/pkgconfig/libavcodec.pc" ]; then
+FFMPEG_CONF="--extra-version=friction --disable-network --disable-protocols --disable-devices --disable-hwaccels --disable-doc --disable-debug --disable-securetransport --disable-videotoolbox --disable-openssl --disable-gnutls --disable-sdl2 --disable-xlib --disable-libxcb --disable-libv4l2 --disable-alsa --disable-avisynth --disable-libass --disable-libbluray --disable-libbs2b --disable-libcaca --disable-libopencore-amrnb --disable-libopencore-amrwb --disable-libspeex --disable-libvidstab --disable-libvo-amrwbenc --disable-libtheora --disable-libxvid --disable-demuxers --disable-muxers --disable-decoders --disable-encoders --enable-gpl --enable-version3 --enable-avresample --enable-protocol=file --enable-libopus --enable-libx264 --enable-libx265 --enable-libvpx --enable-libaom --enable-libmp3lame --enable-libvorbis --enable-demuxer=aac,avi,flac,gif,image2,matroska,mov,mp3,mp4,ogg,wav,webm --enable-muxer=aac,flac,gif,image2,matroska,mov,mp3,mp4,ogg,wav,webm --enable-decoder=libaom_av1,gif,h264,hevc,mjpeg,mpeg4,png,prores,prores_ks,rawvideo,tiff,vp8,vp9 --enable-decoder=aac,flac,mp3,opus,vorbis --enable-decoder=pcm_f32le,pcm_s16le,pcm_s24le --enable-encoder=libaom_av1,gif,libx264,libx264rgb,libx265,mjpeg,png,mpeg4,prores,prores_ks,rawvideo,tiff,libvpx_vp8,libvpx_vp9 --enable-encoder=aac,flac,libmp3lame,libopus,libvorbis --enable-encoder=pcm_f32le,pcm_s16le,pcm_s24le"
+
+# ffmpeg4
+if [ ! -d "${SDK}/ffmpeg4" ]; then
     cd ${SRC}
-    FFMPEG_SRC=ffmpeg-${FFMPEG_V}
+    FFMPEG_SRC=ffmpeg-${FFMPEG4_V}
     rm -rf ${FFMPEG_SRC} || true
     tar xf ${DIST}/ffmpeg/${FFMPEG_SRC}.tar.xz
     cd ${FFMPEG_SRC}
@@ -252,59 +261,43 @@ if [ ! -f "${SDK}/lib/pkgconfig/libavcodec.pc" ]; then
     CXXFLAGS="${DEFAULT_CFLAGS}" \
     LDFLAGS="${DEFAULT_LDFLAGS}" \
     ./configure ${SHARED_CONFIGURE} \
-    --extra-version=friction \
-    --disable-network \
-    --disable-protocols \
-    --disable-devices \
-    --disable-hwaccels \
-    --disable-doc \
-    --disable-debug \
-    --disable-securetransport \
-    --disable-videotoolbox \
-    --disable-openssl \
-    --disable-gnutls \
-    --disable-sdl2 \
-    --disable-xlib \
-    --disable-libxcb \
-    --disable-libv4l2 \
-    --disable-alsa \
-    --disable-avisynth \
-    --disable-libass \
-    --disable-libbluray \
-    --disable-libbs2b \
-    --disable-libcaca \
-    --disable-libopencore-amrnb \
-    --disable-libopencore-amrwb \
-    --disable-libspeex \
-    --disable-libvidstab \
-    --disable-libvo-amrwbenc \
-    --disable-libtheora \
-    --disable-libxvid \
-    --disable-demuxers \
-    --disable-muxers \
-    --disable-decoders \
-    --disable-encoders \
-    --enable-gpl \
-    --enable-version3 \
-    --enable-avresample \
-    --enable-protocol=file \
-    --enable-libopus \
-    --enable-libx264 \
-    --enable-libx265 \
-    --enable-libvpx \
-    --enable-libaom \
-    --enable-libmp3lame \
-    --enable-libvorbis \
-    --enable-demuxer=aac,avi,flac,gif,image2,matroska,mov,mp3,mp4,ogg,wav,webm \
-    --enable-muxer=aac,flac,gif,image2,matroska,mov,mp3,mp4,ogg,wav,webm \
-    --enable-decoder=libaom_av1,gif,h264,hevc,mjpeg,mpeg4,png,prores,prores_ks,rawvideo,tiff,vp8,vp9 \
-    --enable-decoder=aac,flac,mp3,opus,vorbis \
-    --enable-decoder=pcm_f32le,pcm_s16le,pcm_s24le \
-    --enable-encoder=libaom_av1,gif,libx264,libx264rgb,libx265,mjpeg,png,mpeg4,prores,prores_ks,rawvideo,tiff,libvpx_vp8,libvpx_vp9 \
-    --enable-encoder=aac,flac,libmp3lame,libopus,libvorbis \
-    --enable-encoder=pcm_f32le,pcm_s16le,pcm_s24le
+    ${FFMPEG_CONF}
      make -j${MKJOBS}
-     make install
-fi # ffmpeg
+     make install DESTDIR=${SDK}/ffmpeg4
+fi # ffmpeg4
+
+# ffmpeg6
+if [ ! -d "${SDK}/ffmpeg6" ]; then
+    cd ${SRC}
+    FFMPEG_SRC=ffmpeg-${FFMPEG6_V}
+    rm -rf ${FFMPEG_SRC} || true
+    tar xf ${DIST}/ffmpeg/${FFMPEG_SRC}.tar.xz
+    cd ${FFMPEG_SRC}
+    patch -p0 < ${PATCHES}/ffmpeg-tiff-assocalpha.diff
+    CFLAGS="${DEFAULT_CFLAGS}" \
+    CXXFLAGS="${DEFAULT_CFLAGS}" \
+    LDFLAGS="${DEFAULT_LDFLAGS}" \
+    ./configure ${SHARED_CONFIGURE} \
+    ${FFMPEG_CONF}
+     make -j${MKJOBS}
+     make install DESTDIR=${SDK}/ffmpeg6
+fi # ffmpeg6
+
+# ffmpeg8
+#if [ ! -d "${SDK}/ffmpeg8" ]; then
+#    cd ${SRC}
+#    FFMPEG_SRC=ffmpeg-${FFMPEG8_V}
+#    rm -rf ${FFMPEG_SRC} || true
+#    tar xf ${DIST}/ffmpeg/${FFMPEG_SRC}.tar.xz
+#    cd ${FFMPEG_SRC}
+#    patch -p0 < ${PATCHES}/ffmpeg81-tiff-assocalpha.diff
+#    CFLAGS="${DEFAULT_CFLAGS}" \
+#    CXXFLAGS="${DEFAULT_CFLAGS}" \
+#    LDFLAGS="${DEFAULT_LDFLAGS}" \
+#    ./configure ${SHARED_CONFIGURE} \
+#    ${FFMPEG_CONF}
+#     make -j${MKJOBS}
+#     make install DESTDIR=${SDK}/ffmpeg8
+#fi # ffmpeg8
 
 echo "SDK PART 3 DONE"

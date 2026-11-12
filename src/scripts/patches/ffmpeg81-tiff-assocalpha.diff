@@ -1,0 +1,11 @@
+--- libavcodec/tiffenc.c.orig	2026-11-02 18:57:44.775860303 +0100
++++ libavcodec/tiffenc.c	2026-11-02 18:58:33.347072360 +0100
+@@ -502,7 +502,7 @@
+         ADD_ENTRY(s, TIFF_PAL, AV_TIFF_SHORT, 256 * 3, pal);
+     }
+     if (alpha)
+-        ADD_ENTRY1(s,TIFF_EXTRASAMPLES,      AV_TIFF_SHORT,            2);
++        ADD_ENTRY1(s,TIFF_EXTRASAMPLES,      AV_TIFF_SHORT,            1);
+     if (is_yuv) {
+         /** according to CCIR Recommendation 601.1 */
+         uint32_t refbw[12] = { 15, 1, 235, 1, 128, 1, 240, 1, 128, 1, 240, 1 };
