@@ -120,6 +120,19 @@ void MoveBlendEffect::drawBlendSetup(const qreal relFrame,
     }
 }
 
+void MoveBlendEffect::saveSVG(SvgExporter &exp,
+                              QDomElement &ele,
+                              const FrameRange &visRange,
+                              DomEleTask *task,
+                              const BoundingBox *targetBox) const
+{
+    Q_UNUSED(exp)
+    Q_UNUSED(ele)
+    Q_UNUSED(visRange)
+    Q_UNUSED(task)
+    Q_UNUSED(targetBox)
+}
+
 int MoveBlendEffect::zIndex(const qreal relFrame) const {
     return mZIndex->getEffectiveIntValue(relFrame);
 }

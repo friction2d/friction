@@ -130,6 +130,19 @@ void TargetedBlendEffect::drawBlendSetup(
     }
 }
 
+void TargetedBlendEffect::saveSVG(SvgExporter &exp,
+                                  QDomElement &ele,
+                                  const FrameRange &visRange,
+                                  DomEleTask *task,
+                                  const BoundingBox *targetBox) const
+{
+    Q_UNUSED(exp)
+    Q_UNUSED(ele)
+    Q_UNUSED(visRange)
+    Q_UNUSED(task)
+    Q_UNUSED(targetBox)
+}
+
 BoundingBox *TargetedBlendEffect::target() const {
     return mTarget->getTarget();
 }

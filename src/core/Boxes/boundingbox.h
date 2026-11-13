@@ -454,6 +454,11 @@ public:
     eTask* saveSVGWithTransform(SvgExporter& exp, QDomElement& parent,
                                 const FrameRange& parentVisRange,
                                 const QString &maskId = QString()) const;
+
+    void addMaskUser(BlendEffect *effect);
+    void removeMaskUser(BlendEffect *effect);
+    bool isUsedAsMask() const;
+
 private:
     void cancelWaitingTasks();
     void afterTotalTransformChanged(const UpdateReason reason);
@@ -515,6 +520,8 @@ private:
     QList<Property*> mCanvasProps;
 
     RenderContainer mDrawRenderContainer;
+
+    QList<BlendEffect*> mMaskUsers;
 };
 
 #include "clipboardcontainer.h"
