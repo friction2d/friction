@@ -110,8 +110,12 @@ void SvgExporter::finish()
             result.append("\n");
         }
 
+        QString appVersion = AppSupport::getAppVersion();
+        const QString gitVersion = AppSupport::getAppBuildInfo(false, true);
+        if (!gitVersion.isEmpty()) { appVersion.append(QString(" (%1)").arg(gitVersion)); }
+
         QString content = QString("<!-- Created with %1 %2 - %3 -->").arg(AppSupport::getAppDisplayName(),
-                                                                          AppSupport::getAppVersion(),
+                                                                          appVersion,
                                                                           AppSupport::getAppUrl());
         content.append("\n");
         content.append(mDoc.toString());
