@@ -36,6 +36,25 @@
 
 using namespace Friction;
 
+void MainWindow::updatePreviewLottieAction(const QString& format)
+{
+    if (!mPreviewLottieAct) { return; }
+
+    const QString currentFormat = format.isEmpty() ?
+                AppSupport::getSettings("exportLottie", "format", "json").toString() :
+                format;
+    const bool dotLottie = currentFormat == QStringLiteral("lottie");
+    const QString text = dotLottie ?
+                tr("Preview dotLottie", "MenuBar_File") :
+                tr("Preview Lottie", "MenuBar_File");
+    const QString toolTip = dotLottie ?
+                tr("Preview dotLottie Animation in Web Browser") :
+                tr("Preview Lottie Animation in Web Browser");
+    mPreviewLottieAct->setText(text);
+    mPreviewLottieAct->setToolTip(toolTip);
+    mPreviewLottieAct->setData(toolTip);
+}
+
 void MainWindow::setupMenuBar()
 {
     mMenuBar = new QMenuBar(nullptr);
@@ -143,6 +162,31 @@ void MainWindow::setupMenuBar()
     mExportSVGAct->setData(mExportSVGAct->toolTip());
     mExportSVGAct->setObjectName("ExportSVGAct");
     cmdAddAction(mExportSVGAct);
+
+    mPreviewLottieAct = mFileMenu->addAction(QIcon::fromTheme("seq_preview"),
+                                             tr("Preview Lottie", "MenuBar_File"),
+                                             this, [this]{ exportLottie(true); },
+                                             QKeySequence(AppSupport::getSettings("shortcuts",
+                                                                                  "previewLottie",
+                                                                                  "Alt+Ctrl+F12").toString()));
+    mPreviewLottieAct->setEnabled(false);
+    mPreviewLottieAct->setToolTip(tr("Preview Lottie Animation in Web Browser"));
+    mPreviewLottieAct->setData(mPreviewLottieAct->toolTip());
+    mPreviewLottieAct->setObjectName("PreviewLottieAct");
+    cmdAddAction(mPreviewLottieAct);
+    updatePreviewLottieAction();
+
+    mExportLottieAct = mFileMenu->addAction(QIcon::fromTheme("output"),
+                                            tr("Export Lottie", "MenuBar_File"),
+                                            this, &MainWindow::exportLottie,
+                                            QKeySequence(AppSupport::getSettings("shortcuts",
+                                                                                 "exportLottie",
+                                                                                 "Alt+Shift+F12").toString()));
+    mExportLottieAct->setEnabled(false);
+    mExportLottieAct->setToolTip(tr("Export Lottie Animation"));
+    mExportLottieAct->setData(mExportLottieAct->toolTip());
+    mExportLottieAct->setObjectName("ExportLottieAct");
+    cmdAddAction(mExportLottieAct);
 
     mFileMenu->addSeparator();
     mCloseProjectAct = mFileMenu->addAction(QIcon::fromTheme("dialog-cancel"),
@@ -844,6 +888,8 @@ void MainWindow::setupMenuBar()
 
     mToolbar->addAction(mPreviewSVGAct);
     mToolbar->addAction(mExportSVGAct);
+    mToolbar->addAction(mPreviewLottieAct);
+    mToolbar->addAction(mExportLottieAct);
     mToolbar->updateActions();
 
     setMenuBar(mMenuBar);

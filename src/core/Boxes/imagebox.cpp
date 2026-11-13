@@ -103,6 +103,21 @@ void ImageBox::setFilePath(const QString &path) {
     rename(QFileInfo(path).completeBaseName());
 }
 
+QString ImageBox::filePath() const
+{
+    return mFileHandler.path();
+}
+
+bool ImageBox::hasImage() const
+{
+    return mFileHandler && mFileHandler->hasImage();
+}
+
+sk_sp<SkImage> ImageBox::image() const
+{
+    return mFileHandler ? mFileHandler->getImage() : nullptr;
+}
+
 void ImageBox::reload() {
     if(mFileHandler) mFileHandler->reloadAction();
 }
