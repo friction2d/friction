@@ -110,8 +110,9 @@ void SvgExporter::finish()
             result.append("\n");
         }
 
-        QString content = QString("<!-- Created with %1 - %2 -->").arg(AppSupport::getAppDisplayName(),
-                                                                       AppSupport::getAppUrl());
+        QString content = QString("<!-- Created with %1 %2 - %3 -->").arg(AppSupport::getAppDisplayName(),
+                                                                          AppSupport::getAppVersion(),
+                                                                          AppSupport::getAppUrl());
         content.append("\n");
         content.append(mDoc.toString());
         result.append(fOptimize && !mHtml ? Core::SVGO::optimize(content) : content);
