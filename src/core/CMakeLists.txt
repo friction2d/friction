@@ -81,9 +81,11 @@ set(
     grid.cpp
     Boxes/nullobject.cpp
     Expressions/expression.cpp
+    Expressions/expressioncontext.cpp
     Expressions/expressionpresets.cpp
     Expressions/framebinding.cpp
     Expressions/scenebinding.cpp
+    Expressions/timebinding.cpp
     Expressions/propertybinding.cpp
     Animators/SmartPath/listofnodes.cpp
     Animators/SmartPath/smartpath.cpp

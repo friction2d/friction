@@ -27,6 +27,7 @@
 
 #include "exceptions.h"
 #include "framebinding.h"
+#include "timebinding.h"
 #include "valuebinding.h"
 #include "scenebinding.h"
 #include "appsupport.h"
@@ -103,6 +104,10 @@ bool parseFrame(const QString& exp, int& pos) {
     return parse(exp, pos, "$frame");
 }
 
+bool parseTime(const QString& exp, int& pos) {
+    return parse(exp, pos, "$time");
+}
+
 bool parseSceneFPS(const QString& exp, int& pos) {
     return parse(exp, pos, "$scene.fps");
 }
@@ -148,6 +153,8 @@ qsptr<PropertyBindingBase> PropertyBindingParser::parseBinding(
     skipSpaces(exp, pos);
     if(parseFrame(exp, pos)) {
         result = FrameBinding::sCreate(context);
+    } else if(parseTime(exp, pos)) {
+        result = TimeBinding::sCreate(context);
     } else if(parseSceneFPS(exp, pos)) {
         result = SceneBinding::sCreate(context,
                                        SceneBinding::SceneBindingFps);
