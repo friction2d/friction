@@ -77,7 +77,8 @@ public:
     static const QString getAppID();
     static const QString getAppUrl();
     static const QString getAppVersion();
-    static const QString getAppBuildInfo(bool html = false);
+    static const QString getAppBuildInfo(bool html = false,
+                                         bool simple = false);
     static const QString getAppDesc();
     static const QString getAppOrg();
     static const QString getAppContributorsUrl();

@@ -223,13 +223,17 @@ const QString AppSupport::getAppVersion()
     return version;
 }
 
-const QString AppSupport::getAppBuildInfo(bool html)
+const QString AppSupport::getAppBuildInfo(bool html,
+                                          bool simple)
 {
 #if defined(PROJECT_COMMIT) && defined(PROJECT_BRANCH)
     const auto commit = QString::fromUtf8(PROJECT_COMMIT);
     const auto branch = QString::fromUtf8(PROJECT_BRANCH);
     if (commit.isEmpty() || branch.isEmpty()) { return QString(); }
     if (!html) {
+        if (simple) {
+            return QString("%1/%2").arg(commit, branch);
+        }
         return QString("%1 %2 %3 %4.").arg(tr("Built from"),
                                            commit,
                                            tr("on"),
