@@ -330,6 +330,8 @@ public:
 
     void clearParent();
     void setParentTransform(BasicTransformAnimator *parent);
+    BasicTransformAnimator* getParentTransform() const
+    { return mParentTransform; }
 
     bool isContainedIn(const QRectF &absRect) const;
 
