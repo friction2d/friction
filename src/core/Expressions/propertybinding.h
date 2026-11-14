@@ -52,6 +52,7 @@ public:
 
     QJSValue getJSValue(QJSEngine& e);
     QJSValue getJSValue(QJSEngine& e, const qreal relFrame);
+    QJSValue getJSValueAtAbsFrame(QJSEngine& e, const qreal absFrame);
 
     FrameRange identicalRelRange(const int absFrame);
     FrameRange nextNonUnaryIdenticalRelRange(const int absFrame);

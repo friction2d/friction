@@ -307,6 +307,9 @@ void addBasicDefs(QsciAPIs* const target)
     target->add("Math.tanh(x)");
     target->add("Math.trunc(x)");
 
+    target->add("valueAtTime(time)");
+    target->add("valueAtTime(\"bindingName\", time)");
+
     // add expressions presets
     const auto expressions = eSettings::sInstance->fExpressions.getAll();
     for (const auto &expr : expressions) {
@@ -647,7 +650,7 @@ bool ExpressionDialog::apply(const bool action)
     QJSValue eEvaluate;
     try {
         Expression::sAddScriptTo(scriptStr, bindings, *engine, eEvaluate,
-                                 Expression::sQrealAnimatorTester);
+                                 Expression::sQrealAnimatorTester, mTarget);
     } catch (const std::exception& e) {
         mScriptError->setText(e.what());
         mBindingsButton->setIcon(mRedDotIcon);

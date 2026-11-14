@@ -40,8 +40,7 @@ QJSValue FrameBinding::getJSValue(QJSEngine& e) {
 
 QJSValue FrameBinding::getJSValue(QJSEngine& e, const qreal relFrame) {
     Q_UNUSED(e)
-    Q_UNUSED(relFrame)
-    return this->relFrame();
+    return relFrame;
 }
 
 FrameRange FrameBinding::identicalRelRange(const int absFrame) {
