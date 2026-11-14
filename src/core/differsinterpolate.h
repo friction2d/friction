@@ -25,6 +25,8 @@
 
 #ifndef DIFFERSINTERPOLATE_H
 #define DIFFERSINTERPOLATE_H
+
+#include "core_global.h"
 #include <QString>
 extern bool gDiffers(const QString& val1, const QString& val2);
 
@@ -42,10 +44,11 @@ extern void gInterpolate(const qCubicSegment1D& val1,
                          qCubicSegment1D& val);
 
 class SmartPath;
-extern bool gDiffers(const SmartPath& path1, const SmartPath& path2);
-extern void gInterpolate(const SmartPath& path1,
-                         const SmartPath& path2,
-                         const qreal path2Weight,
-                         SmartPath& target);
+extern CORE_EXPORT bool gDiffers(const SmartPath& path1,
+                                 const SmartPath& path2);
+extern CORE_EXPORT void gInterpolate(const SmartPath& path1,
+                                     const SmartPath& path2,
+                                     const qreal path2Weight,
+                                     SmartPath& target);
 
 #endif // DIFFERSINTERPOLATE_H
