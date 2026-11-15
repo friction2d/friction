@@ -102,6 +102,7 @@ public:
                            PathCallerList& list,
                            const qreal influence = 1) const;
 protected:
+    void onPivotChanged(const UpdateReason reason) override;
     void getMotionBlurProperties(QList<Property*> &list) const;
 
     qsptr<PathEffectCollection> mPathEffectsAnimators;
