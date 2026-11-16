@@ -25,33 +25,38 @@
 
 #include "dashpatheffect.h"
 #include "Animators/qrealanimator.h"
+#include "Animators/qpointfanimator.h"
 
 DashPathEffect::DashPathEffect() :
     PathEffect("dash effect", PathEffectType::DASH) {
-    mSize = enve::make_shared<QrealAnimator>("size");
-    mSize->setValueRange(0.1, 9999.999);
-    mSize->setCurrentBaseValue(5);
+    mDash = enve::make_shared<QPointFAnimator>("dash");
+    mDash->getXAnimator()->prp_setName("size");
+    mDash->getXAnimator()->setValueRange(0.1, 9999.999);
+    mDash->getYAnimator()->prp_setName("gap");
+    mDash->getYAnimator()->setValueRange(0, 9999.999);
+    mDash->setBaseValue(5, 5);
 
-    ca_addChild(mSize);
+    ca_addChild(mDash);
 
-    ca_setGUIProperty(mSize.get());
+    ca_setGUIProperty(mDash.get());
 }
 
 class DashEffectCaller : public PathEffectCaller {
 public:
-    DashEffectCaller(const qreal width) :
-        mWidth(toSkScalar(width)) {}
+    DashEffectCaller(const qreal size, const qreal gap) :
+        mSize(toSkScalar(size)), mGap(toSkScalar(gap)) {}
 
     void apply(SkPath& path);
 private:
-    const float mWidth;
+    const float mSize;
+    const float mGap;
 };
 
 void DashEffectCaller::apply(SkPath &path) {
     SkPath src;
     path.swap(src);
     path.setFillType(src.getFillType());
-    const float intervals[] = { mWidth, mWidth };
+    const float intervals[] = { mSize, mGap };
     SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
     SkRect cullRec = src.getBounds();
     SkDashPathEffect::Make(intervals, 2, 0.f)->filterPath(&path, src, &rec, &cullRec);
@@ -59,6 +64,6 @@ void DashEffectCaller::apply(SkPath &path) {
 
 stdsptr<PathEffectCaller> DashPathEffect::getEffectCaller(
         const qreal relFrame, const qreal influence) const {
-    const qreal width = mSize->getEffectiveValue(relFrame)*influence;
-    return enve::make_shared<DashEffectCaller>(width);
+    const QPointF dash = mDash->getEffectiveValue(relFrame)*influence;
+    return enve::make_shared<DashEffectCaller>(dash.x(), dash.y());
 }
