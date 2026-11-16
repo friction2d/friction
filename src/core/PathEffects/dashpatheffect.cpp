@@ -66,7 +66,7 @@ void DashEffectCaller::apply(SkPath &path) {
     const float intervals[] = { mSize, mGap };
     SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
     SkRect cullRec = src.getBounds();
-    SkDashPathEffect::Make(intervals, 2, mOffset)->filterPath(&path, src, &rec, &cullRec);
+    SkDashPathEffect::Make(intervals, 2, -mOffset)->filterPath(&path, src, &rec, &cullRec);
 }
 
 stdsptr<PathEffectCaller> DashPathEffect::getEffectCaller(
