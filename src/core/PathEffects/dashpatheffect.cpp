@@ -36,20 +36,27 @@ DashPathEffect::DashPathEffect() :
     mDash->getYAnimator()->setValueRange(0, 9999.999);
     mDash->setBaseValue(5, 5);
 
+    mOffset = enve::make_shared<QrealAnimator>("offset");
+    mOffset->setValueRange(-999999, 999999);
+    mOffset->setCurrentBaseValue(0);
+
+
     ca_addChild(mDash);
+    ca_addChild(mOffset);
 
     ca_setGUIProperty(mDash.get());
 }
 
 class DashEffectCaller : public PathEffectCaller {
 public:
-    DashEffectCaller(const qreal size, const qreal gap) :
-        mSize(toSkScalar(size)), mGap(toSkScalar(gap)) {}
+    DashEffectCaller(const qreal size, const qreal gap, const qreal offset) :
+        mSize(toSkScalar(size)), mGap(toSkScalar(gap)), mOffset(toSkScalar(offset)) {}
 
     void apply(SkPath& path);
 private:
     const float mSize;
     const float mGap;
+    const float mOffset;
 };
 
 void DashEffectCaller::apply(SkPath &path) {
@@ -59,11 +66,12 @@ void DashEffectCaller::apply(SkPath &path) {
     const float intervals[] = { mSize, mGap };
     SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
     SkRect cullRec = src.getBounds();
-    SkDashPathEffect::Make(intervals, 2, 0.f)->filterPath(&path, src, &rec, &cullRec);
+    SkDashPathEffect::Make(intervals, 2, mOffset)->filterPath(&path, src, &rec, &cullRec);
 }
 
 stdsptr<PathEffectCaller> DashPathEffect::getEffectCaller(
         const qreal relFrame, const qreal influence) const {
+    const qreal offset = mOffset->getEffectiveValue(relFrame)*influence;
     const QPointF dash = mDash->getEffectiveValue(relFrame)*influence;
-    return enve::make_shared<DashEffectCaller>(dash.x(), dash.y());
+    return enve::make_shared<DashEffectCaller>(dash.x(), dash.y(), offset);
 }

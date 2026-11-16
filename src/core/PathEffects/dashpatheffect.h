@@ -38,6 +38,7 @@ public:
             const qreal relFrame, const qreal influence) const;
 private:
     qsptr<QPointFAnimator> mDash;
+    qsptr<QrealAnimator> mOffset;
 };
 
 #endif // DASHPATHEFFECT_H
