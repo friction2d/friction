@@ -106,6 +106,8 @@ public:
 
     int childrenCount() const { return mChildren.count(); }
 
+    SWT_Abstraction* getChild(int index) const;
+
     void removeAlongWithAllChildren_k();
 protected:
     void setParent(SWT_Abstraction * const parent);

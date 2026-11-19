@@ -159,6 +159,11 @@ void SWT_Abstraction::afterContentVisibilityChanged() {
     mUpdateFuncs.fUpdateVisibleWidgetsContent();
 }
 
+SWT_Abstraction *SWT_Abstraction::getChild(int index) const
+{
+    return mChildren.value(index).get();
+}
+
 void SWT_Abstraction::removeAlongWithAllChildren_k() {
     for(const auto& child : mChildren) child->removeAlongWithAllChildren_k();
     mChildren.clear();
