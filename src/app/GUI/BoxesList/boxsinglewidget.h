@@ -152,6 +152,12 @@ private:
 
     void handlePropertySelectedChanged(const Property *prop);
 
+    void collectHiddenKeyframes(SWT_Abstraction* parentAbs,
+                                QSet<int>& outFrames);
+    void processHiddenAnimators(SWT_Abstraction* abs,
+                                const std::function<void(Animator*)>& func,
+                                bool isRoot = true);
+
     BoxScroller* const mParent;
 
     bool mDragPressPos = false;

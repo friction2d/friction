@@ -151,30 +151,18 @@ void KeysView::deleteSelectedKeys() {
 
 void KeysView::getKeysInRect(QRectF selectionRect,
                              const qreal pixelsPerFrame,
-                             QList<Key*>& listKeys) {
-    const auto mainAbs = mBoxesListWidget->getMainAbstration();
-    if(!mainAbs) return;
-    const auto rules = mBoxesListWidget->getRulesCollection();
-    QList<SWT_Abstraction*> abstractions;
-//    selectionRect.adjust(-0.5, -(BOX_HEIGHT/* + KEY_RECT_SIZE*/)*0.5,
-//                         0.5, (BOX_HEIGHT/* + KEY_RECT_SIZE*/)*0.5);
-    selectionRect.adjust(0.5, 0, 0.5, 0);
-    const int minX = qRound(selectionRect.top() - eSizesUI::widget*0.5);
-    const int minY = qRound(selectionRect.bottom() - eSizesUI::widget*0.5);
-    int currY = 0;
-    const SetAbsFunc setter = [&abstractions](SWT_Abstraction * abs, int) {
-        abstractions.append(abs);
-    };
-    mainAbs->setAbstractions(
-            minX, minY, currY, 0, eSizesUI::widget,
-            setter, rules, true, false);
-
-    for(const auto& abs : abstractions) {
-        const auto target = abs->getTarget();
-        if(const auto asAnim = enve_cast<Animator*>(target)) {
-            asAnim->anim_getKeysInRect(selectionRect, pixelsPerFrame,
-                                       listKeys, KEY_RECT_SIZE);
+                             QList<Key*>& listKeys)
+{
+    const auto& wids = mBoxesListWidget->visibleWidgets();
+    for (const auto& container : wids) {
+        const int containerTop = container->y();
+        const int containerBottom = containerTop + container->height();
+        if (containerTop > selectionRect.bottom() ||
+            containerBottom < selectionRect.top()) {
+            continue;
         }
+        const auto bsw = static_cast<BoxSingleWidget*>(container);
+        bsw->getKeysInRect(selectionRect, pixelsPerFrame, listKeys);
     }
 }
 
@@ -351,7 +339,14 @@ void KeysView::mousePressEvent(QMouseEvent *e) {
                     removeKeyFromSelection(mLastPressedKey);
                 } else {
                     clearHoveredKey();
-                    addKeyToSelection(mLastPressedKey);
+
+                    const qreal posUXFrame = xToFrame(posU.x());
+                    QRectF clickRect(posUXFrame - 0.5, posU.y() + mViewedTop - 2, 1.0, 4);
+                    QList<Key*> clickedKeys;
+                    getKeysInRect(clickRect, mPixelsPerFrame, clickedKeys);
+
+                    if (clickedKeys.isEmpty()) { addKeyToSelection(mLastPressedKey); }
+                    else { for (auto* k : clickedKeys) { addKeyToSelection(k); } }
 
                     mMovingKeys = true;
                     mValueInput.setupMove();

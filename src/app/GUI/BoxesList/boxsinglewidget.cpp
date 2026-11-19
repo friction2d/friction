@@ -452,6 +452,47 @@ void BoxSingleWidget::handlePropertySelectedChanged(const Property *prop)
     }
 }
 
+void BoxSingleWidget::collectHiddenKeyframes(SWT_Abstraction *parentAbs,
+                                             QSet<int> &outFrames)
+{
+    if (!parentAbs) { return; }
+
+    for (int i = 0; i < parentAbs->childrenCount(); ++i) {
+        SWT_Abstraction* child = parentAbs->getChild(i);
+        if (!child) { continue; }
+
+        const auto target = child->getTarget();
+        if (const auto asAnim = enve_cast<Animator*>(target)) {
+            Key* k = asAnim->anim_getKeyAtIndex(0);
+            while (k) {
+                outFrames.insert(k->getAbsFrame());
+                k = asAnim->anim_getNextKey(k);
+            }
+        }
+
+        if (child->childrenCount() > 0) {
+            collectHiddenKeyframes(child, outFrames);
+        }
+    }
+}
+
+void BoxSingleWidget::processHiddenAnimators(SWT_Abstraction* abs,
+                                             const std::function<void(Animator*)>& func,
+                                             bool isRoot)
+{
+    if (!abs) { return; }
+
+    if (const auto asAnim = enve_cast<Animator*>(abs->getTarget())) {
+        func(asAnim);
+    }
+
+    if ((isRoot && !abs->contentVisible()) || !isRoot) {
+        for (int i = 0; i < abs->childrenCount(); ++i) {
+            processHiddenAnimators(abs->getChild(i), func, false);
+        }
+    }
+}
+
 ColorAnimator *BoxSingleWidget::getColorTarget() const {
     const auto swt = mTarget->getTarget();
     ColorAnimator * color = nullptr;
@@ -843,50 +884,135 @@ void BoxSingleWidget::mouseDoubleClickEvent(QMouseEvent *e)
 }
 
 void BoxSingleWidget::prp_drawTimelineControls(QPainter * const p,
-                               const qreal pixelsPerFrame,
-                               const FrameRange &viewedFrames) {
-    if(isHidden() || !mTarget) return;
+                                               const qreal pixelsPerFrame,
+                                               const FrameRange &viewedFrames)
+{
+    if (isHidden() || !mTarget) { return; }
+
     const auto target = mTarget->getTarget();
-    if(const auto asAnim = enve_cast<Animator*>(target)) {
-        asAnim->prp_drawTimelineControls(
-                    p, pixelsPerFrame, viewedFrames, eSizesUI::widget);
+
+    if (const auto asAnim = enve_cast<Animator*>(target)) {
+        asAnim->prp_drawTimelineControls(p,
+                                         pixelsPerFrame,
+                                         viewedFrames,
+                                         eSizesUI::widget);
+    }
+
+    if (mTarget->childrenCount() > 0 && !mTarget->contentVisible()) {
+        QMap<int, bool> summaryFrames;
+
+        processHiddenAnimators(mTarget, [&](Animator* asAnim) {
+            if (asAnim == target) { return; }
+
+            Key* k = asAnim->anim_getKeyAtIndex(0);
+            while (k) {
+                int f = k->getAbsFrame();
+                if (f > viewedFrames.fMax) { break; }
+                if (f >= viewedFrames.fMin) {
+                    bool sel = k->isSelected();
+                    if (summaryFrames.contains(f)) {
+                        summaryFrames[f] = summaryFrames[f] || sel;
+                    } else { summaryFrames.insert(f, sel); }
+                }
+                k = asAnim->anim_getNextKey(k);
+            }
+        }, true);
+
+        if (!summaryFrames.isEmpty()) {
+            p->save();
+            p->setRenderHint(QPainter::Antialiasing, true);
+
+            const bool isObject = enve_cast<BoundingBox*>(target) != nullptr;
+            const bool isGroup = enve_cast<ComplexAnimator*>(target) != nullptr;
+
+            const auto& sett = *eSettings::sInstance;
+            QColor baseColor;
+            qreal radMult;
+
+            if (isObject) {
+                baseColor = sett.fObjectKeyframeColor;
+                radMult = 0.3;
+            } else if (isGroup) {
+                baseColor = sett.fPropertyGroupKeyframeColor;
+                radMult = 0.21;
+            } else {
+                baseColor = sett.fPropertyKeyframeColor;
+                radMult = 0.21;
+            }
+
+            const qreal keyRadius = eSizesUI::widget * radMult;
+            const qreal yPos = eSizesUI::widget / 2.0;
+
+            p->setPen(Qt::NoPen);
+
+            for (auto it = summaryFrames.constBegin(); it != summaryFrames.constEnd(); ++it) {
+                int frame = it.key();
+                bool isSelected = it.value();
+
+                if (frame >= viewedFrames.fMin && frame <= viewedFrames.fMax) {
+                    qreal x = (frame - viewedFrames.fMin) * pixelsPerFrame + (pixelsPerFrame / 2.0);
+
+                    QColor fillColor = isSelected ? sett.fSelectedKeyframeColor : baseColor;
+                    p->setBrush(fillColor);
+                    p->drawEllipse(QPointF(x, yPos), keyRadius, keyRadius);
+                }
+            }
+            p->restore();
+        }
     }
 }
 
 Key* BoxSingleWidget::getKeyAtPos(const int pressX,
                                   const qreal pixelsPerFrame,
-                                  const int minViewedFrame) {
-    if(isHidden() || !mTarget) return nullptr;
-    const auto target = mTarget->getTarget();
-    if(const auto asAnim = enve_cast<Animator*>(target)) {
-        return asAnim->anim_getKeyAtPos(pressX, minViewedFrame,
-                                        pixelsPerFrame, KEY_RECT_SIZE);
-    }
-    return nullptr;
+                                  const int minViewedFrame)
+{
+    if (isHidden() || !mTarget) { return nullptr; }
+
+    Key* foundKey = nullptr;
+    processHiddenAnimators(mTarget, [&](Animator* asAnim) {
+        if (!foundKey) {
+            if (Key* k = asAnim->anim_getKeyAtPos(pressX,
+                                                  minViewedFrame,
+                                                  pixelsPerFrame,
+                                                  KEY_RECT_SIZE)) {
+                foundKey = k;
+            }
+        }
+    });
+    return foundKey;
 }
 
-TimelineMovable* BoxSingleWidget::getRectangleMovableAtPos(
-                            const int pressX,
-                            const qreal pixelsPerFrame,
-                            const int minViewedFrame) {
-    if(isHidden() || !mTarget) return nullptr;
-    const auto target = mTarget->getTarget();
-    if(const auto asAnim = enve_cast<Animator*>(target)) {
-        return asAnim->anim_getTimelineMovable(
-                    pressX, minViewedFrame, pixelsPerFrame);
-    }
-    return nullptr;
+TimelineMovable* BoxSingleWidget::getRectangleMovableAtPos(const int pressX,
+                                                           const qreal pixelsPerFrame,
+                                                           const int minViewedFrame)
+{
+    if (isHidden() || !mTarget)  { return nullptr; }
+
+    TimelineMovable* foundMovable = nullptr;
+    processHiddenAnimators(mTarget, [&](Animator* asAnim) {
+        if (!foundMovable) {
+            if (TimelineMovable* m = asAnim->anim_getTimelineMovable(pressX,
+                                                                     minViewedFrame,
+                                                                     pixelsPerFrame)) {
+                foundMovable = m;
+            }
+        }
+    });
+    return foundMovable;
 }
 
 void BoxSingleWidget::getKeysInRect(const QRectF &selectionRect,
                                     const qreal pixelsPerFrame,
-                                    QList<Key*>& listKeys) {
-    if(isHidden() || !mTarget) return;
-    const auto target = mTarget->getTarget();
-    if(const auto asAnim = enve_cast<Animator*>(target)) {
-        asAnim->anim_getKeysInRect(selectionRect, pixelsPerFrame,
-                                   listKeys, KEY_RECT_SIZE);
-    }
+                                    QList<Key*>& listKeys)
+{
+    if (isHidden() || !mTarget) { return; }
+
+    processHiddenAnimators(mTarget, [&](Animator* asAnim) {
+        asAnim->anim_getKeysInRect(selectionRect,
+                                   pixelsPerFrame,
+                                   listKeys,
+                                   KEY_RECT_SIZE);
+    });
 }
 
 void BoxSingleWidget::paintEvent(QPaintEvent *) {
