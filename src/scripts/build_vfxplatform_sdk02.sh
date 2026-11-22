@@ -30,6 +30,7 @@ MKJOBS=${MKJOBS:-4}
 SRC_SUFFIX=tar.xz
 
 QT5_V=5.15.19_20260520_aa749695
+QT6_V=6.5.10
 
 QSCINTILLA_V=2.14.1
 
@@ -50,8 +51,8 @@ NINJA_BIN=${SDK}/bin/ninja
 CMAKE_BIN=${SDK}/bin/cmake
 PELF_BIN=${SDK}/bin/patchelf
 
-QT5_SDK=${SDK}/qt5${SDK}
-QMAKE5_BIN=${QT5_SDK}/bin/qmake
+QT_SDK=${SDK}
+QMAKE_BIN=${QT_SDK}/bin/qmake
 
 export PATH="${SDK}/bin:${PATH}"
 export PKG_CONFIG_PATH="${SDK}/lib/pkgconfig"
@@ -195,41 +196,19 @@ if [ ! -f "${SDK}/lib/pkgconfig/xkbcommon.pc" ]; then
     make install
 fi # libxkbcommon
 
-# qt
-#    -no-feature-bearermanagement \
-#    -no-feature-dnslookup \
-#    -no-feature-dtls \
-#    -no-feature-ftp \
-#    -no-feature-gssapi \
-#    -no-feature-http \
-#    -no-feature-localserver \
-#    -no-feature-netlistmgr \
-#    -no-feature-networkdiskcache \
-#    -no-feature-networkinterface \
-#    -no-feature-networkproxy \
-#    -no-feature-qml-network \
-#    -no-feature-qml-xml-http-request \
-#    -no-feature-qml-animation \
-#    -no-feature-socks5 \
-#    -no-feature-sspi \
-#    -no-feature-udpsocket \
-#    -no-feature-printdialog \
-#    -no-feature-printer \
-#    -no-feature-printpreviewdialog \
-#    -no-feature-printpreviewwidget \
-#    -no-feature-pdf \
-if [ ! -f "${QMAKE5_BIN}" ]; then
+# qt5
+if [ ! -f "${QMAKE_BIN}" ]; then
     cd ${SRC}
     QT_SRC="qt-everywhere-src-${QT5_V}"
     rm -rf ${QT_SRC} || true
     tar xf ${DIST}/qt/${QT_SRC}.${SRC_SUFFIX}
     cd ${QT_SRC}
-    patch -p1 < ${PATCHES}/qtbase-use-wayland-on-gnome.patch
+    patch -p0 < ${PATCHES}/qtbase-use-wayland-on-gnome.diff
     patch -p0 < ${PATCHES}/qtbase-qversion.diff
     patch -p0 < ${PATCHES}/qtwayland-xdg-shell-ssd.diff
     ./configure \
-    -prefix ${SDK} \
-    -c++std c++14 \
+    -prefix ${QT_SDK} \
+    -c++std c++17 \
     -qtlibinfix Friction \
     -opengl desktop \
     -release \
@@ -314,11 +293,11 @@ if [ ! -f "${QMAKE5_BIN}" ]; then
     -skip qtxmlpatterns \
     -skip qttools
     make -j${MKJOBS}
-    make install DESTDIR=${SDK}/qt5
-fi # qt
+    make install
+fi # qt5
 
 # qscintilla-qt5
-if [ ! -f "${QT5_SDK}/lib/libqscintilla2_friction_qt5.so" ]; then
+if [ ! -f "${QT_SDK}/lib/libqscintilla2_friction_qt5.so" ]; then
     cd ${SRC}
     QSC_SRC="QScintilla_src-${QSCINTILLA_V}"
     rm -rf ${QSC_SRC}
@@ -328,15 +307,10 @@ if [ ! -f "${QT5_SDK}/lib/libqscintilla2_friction_qt5.so" ]; then
     sed -i 's#!ios:QT += printsupport##' qscintilla.pro
     sed -i 's#!ios:HEADERS += ./Qsci/qsciprinter.h##' qscintilla.pro
     sed -i 's#!ios:SOURCES += qsciprinter.cpp##' qscintilla.pro
-    cat <<EOF > qt.conf
-[Paths]
-Prefix = ${SDK}
-Sysroot = ${SDK}/qt5
-EOF
-    ${QMAKE5_BIN} -qtconf qt.conf CONFIG+=release
+    ${QMAKE_BIN} CONFIG+=release
     make -j${MKJOBS}
-    cp -a libqscintilla2_friction_qt5* ${QT5_SDK}/lib/
-    cp -a Qsci ${QT5_SDK}/include/
+    cp -a libqscintilla2_friction_qt5* ${QT_SDK}/lib/
+    cp -a Qsci ${QT_SDK}/include/
 fi # qscintilla-qt5
 
 echo "SDK PART 2 DONE"

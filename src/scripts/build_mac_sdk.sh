@@ -22,7 +22,6 @@ set -e -x
 # keep in sync with other SDK's
 
 SKIA_V=1.0.5
-SKIA_COMMIT=b551a388dfbe112f40b6f4fc710d25255c3969f5
 
 PYTHON_V=3.11.11
 NINJA_V=1.11.1
@@ -40,11 +39,10 @@ OGG_V=1.3.5
 VORBIS_V=1.3.7
 THEORA_V=1.1.1
 XVID_V=1.3.4
-LSMASH_V=2.14.5
 X264_V=20180806-2245
 X265_V=3.5
 AOM_V=3.6.1
-FFMPEG_V=4.2.11
+FFMPEG_V=6.1.6
 OSX=11.0
 OSX_HOST=`sw_vers -productVersion`
 CPU=`arch`
@@ -171,13 +169,12 @@ fi # yasm
 # skia
 if [ ! -f "${SDK}/lib/libskia-friction.${SKIA_V}.dylib" ]; then
     cd ${SRC}
-    rm -rf skia || true
-    git clone https://github.com/friction2d/skia
-    cd skia
-    git checkout ${SKIA_COMMIT}
-    git submodule update -i --recursive
+    SKIA_SRC=skia-friction-${SKIA_V}
+    rm -rf ${SKIA_SRC} || true
+    tar xf ${DIST}/skia/${SKIA_SRC}.tar.xz
+    cd ${SKIA_SRC}
     mkdir build && cd build
-    cmake -G Ninja -DCMAKE_OSX_DEPLOYMENT_TARGET=${OSX} -DMAC_DEPLOY=ON -DSKIA_USE_SYSTEM_LIBS=OFF -DCMAKE_INSTALL_PREFIX=${SDK} -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang ..
+    cmake -G Ninja -DCMAKE_OSX_DEPLOYMENT_TARGET=${OSX} -DMAC_DEPLOY=ON -DSKIA_SYNC_EXTERNAL=OFF -DSKIA_USE_SYSTEM_LIBS=OFF -DCMAKE_INSTALL_PREFIX=${SDK} -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang ..
     cmake --build .
     cp -a skia-build/libskia* ${SDK}/lib/
 fi # skia
@@ -398,21 +395,6 @@ if [ ! -f "${SDK}/lib/libxvidcore.4.dylib" ]; then
     make install
 fi # xvidcore
 
-# liblsmash
-#if [ ! -f "${SDK}/lib/liblsmash.dylib" ]; then
-#    cd ${SRC}
-#    LSMASH_SRC=l-smash-${LSMASH_V}
-#    rm -rf ${LSMASH_SRC} || true
-#    tar xf ${DIST}/ffmpeg/liblsmash-v${LSMASH_V}.tar.gz
-#    cd ${LSMASH_SRC}
-#    CFLAGS="${DEFAULT_CFLAGS}" \
-#    CXXFLAGS="${DEFAULT_CPPFLAGS}" \
-#    LDFLAGS="${DEFAULT_LDFLAGS}" \
-#    ./configure ${DEFAULT_CONFIGURE}
-#    make -j${MKJOBS}
-#    make install
-#fi # liblsmash
-
 # x264
 if [ ! -f "${SDK}/lib/libx264.dylib" ]; then
     cd ${SRC}
@@ -504,7 +486,6 @@ if [ ! -f "${SDK}/lib/pkgconfig/libavcodec.pc" ]; then
     --disable-programs \
     --disable-debug \
     --disable-doc \
-    --enable-avresample \
     --enable-gpl \
     --enable-version3 \
     --extra-version=friction \
@@ -533,8 +514,8 @@ if [ ! -f "${SDK}/lib/pkgconfig/libavcodec.pc" ]; then
 fi # ffmpeg
 
 (cd ${SDK}/lib ;
-install_name_tool -change libvpx.8.dylib @rpath/libvpx.8.dylib libavformat.58.dylib
-install_name_tool -change libvpx.8.dylib @rpath/libvpx.8.dylib libavcodec.58.dylib
+#install_name_tool -change libvpx.8.dylib @rpath/libvpx.8.dylib libavformat.58.dylib
+#install_name_tool -change libvpx.8.dylib @rpath/libvpx.8.dylib libavcodec.58.dylib
 sh ${CWD}/src/scripts/macos_fix_dylib.sh
 for i in *.dylib; do
 otool -l $i | grep "minos"
