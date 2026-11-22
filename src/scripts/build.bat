@@ -86,12 +86,12 @@ copy "%SDK_DIR%\plugins\platforms\qwindows.dll" "%OUTPUT_DIR%\platforms\"
 
 copy "%SDK_DIR%\bin\qscintilla2_qt5.dll" "%OUTPUT_DIR%\"
 
-copy "%SDK_DIR%\bin\avcodec-58.dll" "%OUTPUT_DIR%\"
-copy "%SDK_DIR%\bin\avdevice-58.dll" "%OUTPUT_DIR%\"
-copy "%SDK_DIR%\bin\avformat-58.dll" "%OUTPUT_DIR%\"
-copy "%SDK_DIR%\bin\avutil-56.dll" "%OUTPUT_DIR%\"
-copy "%SDK_DIR%\bin\swresample-3.dll" "%OUTPUT_DIR%\"
-copy "%SDK_DIR%\bin\swscale-5.dll" "%OUTPUT_DIR%\"
+copy "%SDK_DIR%\bin\avcodec-60.dll" "%OUTPUT_DIR%\"
+copy "%SDK_DIR%\bin\avdevice-60.dll" "%OUTPUT_DIR%\"
+copy "%SDK_DIR%\bin\avformat-60.dll" "%OUTPUT_DIR%\"
+copy "%SDK_DIR%\bin\avutil-58.dll" "%OUTPUT_DIR%\"
+copy "%SDK_DIR%\bin\swresample-4.dll" "%OUTPUT_DIR%\"
+copy "%SDK_DIR%\bin\swscale-7.dll" "%OUTPUT_DIR%\"
 
 echo "Delete this file if you want to disable portable mode" > "%OUTPUT_DIR%\portable.txt"
 
