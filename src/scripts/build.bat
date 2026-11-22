@@ -23,8 +23,8 @@ if "%OPT%" == "debug" (
 
 set CWD=%cd%
 set SDK_DIR=%CWD%\sdk
-set SDK_VERSION=1.0.0
-set SDK_REV=r7
+set SDK_VERSION=20261121
+set SDK_REV=r1
 set SDK_SUFFIX=windows-x64.7z
 
 set PATH=%SDK_DIR%\bin;%PATH%
