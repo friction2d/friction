@@ -48,6 +48,7 @@ namespace EvFormat {
         avStretch = 33,
         grid = 34,
         v100 = 35,
+        dashParam = 36,
 
         nextVersion
     };
