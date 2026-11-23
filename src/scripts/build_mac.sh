@@ -24,7 +24,7 @@ REL=${REL:-"OFF"}
 BRANCH=${BRANCH:-`git rev-parse --abbrev-ref HEAD`}
 COMMIT=${COMMIT:-`git rev-parse --short=8 HEAD`}
 CUSTOM=${CUSTOM:-""}
-OSX=11.0
+OSX=12.0
 CPU=`arch`
 
 if [ "${CPU}" = "i386" ]; then
