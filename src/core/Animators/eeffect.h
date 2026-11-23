@@ -50,6 +50,8 @@ public:
     bool isVisible() const;
 signals:
     void effectVisibilityChanged(bool);
+protected:
+    void readEffectState(eReadStream& src);
 private:
     bool mVisible = true;
 };
