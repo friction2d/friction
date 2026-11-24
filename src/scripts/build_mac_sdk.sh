@@ -29,7 +29,7 @@ set -e
 
 # See other scripts on how to build and make a universal dmg
 
-SKIA_V=1.0.5
+SKIA_V=1.0.6
 PYTHON_V=3.11.18
 NINJA_V=1.13.2
 CMAKE_V=3.26.3
@@ -186,11 +186,19 @@ if [ ! -f "${SDK}/lib/libskia-friction.${SKIA_V}.dylib" ]; then
     rm -rf "${SKIA_SRC}" || true
     tar xf "${DIST}/skia/${SKIA_SRC}.tar.xz"
     cd "${SKIA_SRC}"
-    sed -i '' "s/-mmacosx-version-min=11.0/-mmacosx-version-min=${OSX}/g" CMakeLists.txt
     mkdir build && cd build
-    cmake -G Ninja -DCMAKE_OSX_DEPLOYMENT_TARGET=${OSX} -DMAC_DEPLOY=ON -DSKIA_SYNC_EXTERNAL=OFF -DSKIA_USE_SYSTEM_LIBS=OFF -DCMAKE_INSTALL_PREFIX=${SDK} -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang ..
+    cmake -G Ninja \
+    -DCMAKE_OSX_DEPLOYMENT_TARGET=${OSX} \
+    -DCMAKE_INSTALL_PREFIX=${SDK} \
+    -DMAC_DEPLOY=ON \
+    -DSKIA_SYNC_EXTERNAL=OFF \
+    -DSKIA_USE_SYSTEM_LIBS=OFF \
+    -DCMAKE_INSTALL_PREFIX=${SDK} \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DCMAKE_CXX_COMPILER=clang++ \
+    -DCMAKE_C_COMPILER=clang ..
     cmake --build .
-    cp -a skia-build/libskia* "${SDK}/lib/"
+    cmake --install .
 fi # skia
 
 # qt5
