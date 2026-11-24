@@ -26,6 +26,9 @@
 #include "dashpatheffect.h"
 #include "Animators/qrealanimator.h"
 #include "Animators/qpointfanimator.h"
+#include "ReadWrite/evformat.h"
+#include "XML/xmlexporthelpers.h"
+#include "clipboardcontainer.h"
 
 DashPathEffect::DashPathEffect() :
     PathEffect("dash effect", PathEffectType::DASH) {
@@ -45,6 +48,30 @@ DashPathEffect::DashPathEffect() :
     ca_addChild(mOffset);
 
     ca_setGUIProperty(mDash.get());
+}
+
+void DashPathEffect::prp_readProperty_impl(eReadStream& src)
+{
+    if (src.evFileVersion() >= EvFormat::dashParam) {
+        PathEffect::prp_readProperty_impl(src);
+        return;
+    }
+
+    const auto size = mDash->getXAnimator();
+    size->prp_readProperty(src);
+    PropertyClipboard::sCopyAndPaste(size, mDash->getYAnimator());
+    readEffectState(src);
+}
+
+void DashPathEffect::prp_readPropertyXEV_impl(const QDomElement& ele,
+                                              const XevImporter& imp)
+{
+    PathEffect::prp_readPropertyXEV_impl(ele, imp);
+    if (!ele.firstChildElement(mDash->prp_tagNameXEV()).isNull()) { return; }
+    const auto size = mDash->getXAnimator();
+    if (XevExportHelpers::readProperty(ele, imp, size->prp_tagNameXEV(), size)) {
+        PropertyClipboard::sCopyAndPaste(size, mDash->getYAnimator());
+    }
 }
 
 class DashEffectCaller : public PathEffectCaller {

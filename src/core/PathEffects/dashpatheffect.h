@@ -36,6 +36,10 @@ protected:
 public:
     stdsptr<PathEffectCaller> getEffectCaller(
             const qreal relFrame, const qreal influence) const;
+protected:
+    void prp_readProperty_impl(eReadStream& src);
+    void prp_readPropertyXEV_impl(const QDomElement& ele,
+                                  const XevImporter& imp);
 private:
     qsptr<QPointFAnimator> mDash;
     qsptr<QrealAnimator> mOffset;
