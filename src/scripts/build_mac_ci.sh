@@ -28,6 +28,7 @@ CUSTOM=${CUSTOM:-""}
 BUILD_ARM=${BUILD_ARM:-1}
 BUILD_INTEL=${BUILD_INTEL:-1}
 BUILD_UNIVERSAL=${BUILD_UNIVERSAL:-1}
+UPDATE_SUBMODULES=${UPDATE_SUBMODULES:-1}
 
 if [ "${BUILD_UNIVERSAL}" = 1 ]; then
     BUILD_ARM=1
@@ -58,7 +59,9 @@ if [ ! -d "${SDK_PATH}" ]; then
     fi
 fi
 
-git submodule update --init --recursive
+if [ "${UPDATE_SUBMODULES}" = 1 ]; then
+    git submodule update --init --recursive
+fi
 
 export CUSTOM=${CUSTOM}
 export REL=${REL}

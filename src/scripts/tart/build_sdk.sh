@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e -x
 
-BUILD_DIR="/tmp/friction_build"
+BUILD_DIR="/tmp/friction_sdk_build"
 rm -rf "${BUILD_DIR}" || true
 mkdir -p "${BUILD_DIR}"
 cd "${BUILD_DIR}"
