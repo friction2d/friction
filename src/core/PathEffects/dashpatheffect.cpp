@@ -25,40 +25,80 @@
 
 #include "dashpatheffect.h"
 #include "Animators/qrealanimator.h"
+#include "Animators/qpointfanimator.h"
+#include "ReadWrite/evformat.h"
+#include "XML/xmlexporthelpers.h"
+#include "clipboardcontainer.h"
 
 DashPathEffect::DashPathEffect() :
     PathEffect("dash effect", PathEffectType::DASH) {
-    mSize = enve::make_shared<QrealAnimator>("size");
-    mSize->setValueRange(0.1, 9999.999);
-    mSize->setCurrentBaseValue(5);
+    mDash = enve::make_shared<QPointFAnimator>("dash");
+    mDash->getXAnimator()->prp_setName("size");
+    mDash->getXAnimator()->setValueRange(0.1, 9999.999);
+    mDash->getYAnimator()->prp_setName("gap");
+    mDash->getYAnimator()->setValueRange(0, 9999.999);
+    mDash->setBaseValue(5, 5);
 
-    ca_addChild(mSize);
+    mOffset = enve::make_shared<QrealAnimator>("offset");
+    mOffset->setValueRange(-999999, 999999);
+    mOffset->setCurrentBaseValue(0);
 
-    ca_setGUIProperty(mSize.get());
+
+    ca_addChild(mDash);
+    ca_addChild(mOffset);
+
+    ca_setGUIProperty(mDash.get());
+}
+
+void DashPathEffect::prp_readProperty_impl(eReadStream& src)
+{
+    if (src.evFileVersion() >= EvFormat::dashParam) {
+        PathEffect::prp_readProperty_impl(src);
+        return;
+    }
+
+    const auto size = mDash->getXAnimator();
+    size->prp_readProperty(src);
+    PropertyClipboard::sCopyAndPaste(size, mDash->getYAnimator());
+    readEffectState(src);
+}
+
+void DashPathEffect::prp_readPropertyXEV_impl(const QDomElement& ele,
+                                              const XevImporter& imp)
+{
+    PathEffect::prp_readPropertyXEV_impl(ele, imp);
+    if (!ele.firstChildElement(mDash->prp_tagNameXEV()).isNull()) { return; }
+    const auto size = mDash->getXAnimator();
+    if (XevExportHelpers::readProperty(ele, imp, size->prp_tagNameXEV(), size)) {
+        PropertyClipboard::sCopyAndPaste(size, mDash->getYAnimator());
+    }
 }
 
 class DashEffectCaller : public PathEffectCaller {
 public:
-    DashEffectCaller(const qreal width) :
-        mWidth(toSkScalar(width)) {}
+    DashEffectCaller(const qreal size, const qreal gap, const qreal offset) :
+        mSize(toSkScalar(size)), mGap(toSkScalar(gap)), mOffset(toSkScalar(offset)) {}
 
     void apply(SkPath& path);
 private:
-    const float mWidth;
+    const float mSize;
+    const float mGap;
+    const float mOffset;
 };
 
 void DashEffectCaller::apply(SkPath &path) {
     SkPath src;
     path.swap(src);
     path.setFillType(src.getFillType());
-    const float intervals[] = { mWidth, mWidth };
+    const float intervals[] = { mSize, mGap };
     SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
     SkRect cullRec = src.getBounds();
-    SkDashPathEffect::Make(intervals, 2, 0.f)->filterPath(&path, src, &rec, &cullRec);
+    SkDashPathEffect::Make(intervals, 2, -mOffset)->filterPath(&path, src, &rec, &cullRec);
 }
 
 stdsptr<PathEffectCaller> DashPathEffect::getEffectCaller(
         const qreal relFrame, const qreal influence) const {
-    const qreal width = mSize->getEffectiveValue(relFrame)*influence;
-    return enve::make_shared<DashEffectCaller>(width);
+    const qreal offset = mOffset->getEffectiveValue(relFrame)*influence;
+    const QPointF dash = mDash->getEffectiveValue(relFrame)*influence;
+    return enve::make_shared<DashEffectCaller>(dash.x(), dash.y(), offset);
 }

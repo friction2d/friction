@@ -52,6 +52,11 @@ void eEffect::prp_writeProperty_impl(eWriteStream& dst) const
 void eEffect::prp_readProperty_impl(eReadStream& src)
 {
     StaticComplexAnimator::prp_readProperty_impl(src);
+    readEffectState(src);
+}
+
+void eEffect::readEffectState(eReadStream& src)
+{
     bool visible;
     src >> visible;
     setVisible(visible);

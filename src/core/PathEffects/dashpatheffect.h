@@ -27,6 +27,8 @@
 #define DASHPATHEFFECT_H
 #include "PathEffects/patheffect.h"
 
+class QPointFAnimator;
+
 class CORE_EXPORT DashPathEffect : public PathEffect {
     e_OBJECT
 protected:
@@ -34,8 +36,13 @@ protected:
 public:
     stdsptr<PathEffectCaller> getEffectCaller(
             const qreal relFrame, const qreal influence) const;
+protected:
+    void prp_readProperty_impl(eReadStream& src);
+    void prp_readPropertyXEV_impl(const QDomElement& ele,
+                                  const XevImporter& imp);
 private:
-    qsptr<QrealAnimator> mSize;
+    qsptr<QPointFAnimator> mDash;
+    qsptr<QrealAnimator> mOffset;
 };
 
 #endif // DASHPATHEFFECT_H
