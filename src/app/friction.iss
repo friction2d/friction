@@ -40,12 +40,12 @@ Source: "frictioncore.dll"; DestDir: "{app}"; Components: friction ; Flags: igno
 Source: "frictionui.dll"; DestDir: "{app}"; Components: friction ; Flags: ignoreversion
 Source: "skia.dll"; DestDir: "{app}"; Components: friction ; Flags: ignoreversion
 
-Source: "avcodec-58.dll"; DestDir: "{app}"; Components: ffmpeg ; Flags: ignoreversion
-Source: "avdevice-58.dll"; DestDir: "{app}"; Components: ffmpeg ; Flags: ignoreversion
-Source: "avformat-58.dll"; DestDir: "{app}"; Components: ffmpeg ; Flags: ignoreversion
-Source: "avutil-56.dll"; DestDir: "{app}"; Components: ffmpeg ; Flags: ignoreversion
-Source: "swresample-3.dll"; DestDir: "{app}"; Components: ffmpeg ; Flags: ignoreversion
-Source: "swscale-5.dll"; DestDir: "{app}"; Components: ffmpeg ; Flags: ignoreversion
+Source: "avcodec-60.dll"; DestDir: "{app}"; Components: ffmpeg ; Flags: ignoreversion
+Source: "avdevice-60.dll"; DestDir: "{app}"; Components: ffmpeg ; Flags: ignoreversion
+Source: "avformat-60.dll"; DestDir: "{app}"; Components: ffmpeg ; Flags: ignoreversion
+Source: "avutil-58.dll"; DestDir: "{app}"; Components: ffmpeg ; Flags: ignoreversion
+Source: "swresample-4.dll"; DestDir: "{app}"; Components: ffmpeg ; Flags: ignoreversion
+Source: "swscale-7.dll"; DestDir: "{app}"; Components: ffmpeg ; Flags: ignoreversion
 
 Source: "qscintilla2_qt5.dll"; DestDir: "{app}"; Components: qt ; Flags: ignoreversion
 Source: "Qt5Core.dll"; DestDir: "{app}"; Components: qt ; Flags: ignoreversion
@@ -85,9 +85,13 @@ Type: files; Name: {app}\friction.exe
 Type: files; Name: {app}\frictioncore.dll
 Type: files; Name: {app}\frictionui.dll
 Type: files; Name: {app}\avcodec-58.dll
+Type: files; Name: {app}\avcodec-60.dll
 Type: files; Name: {app}\avdevice-58.dll
+Type: files; Name: {app}\avdevice-60.dll
 Type: files; Name: {app}\avformat-58.dll
+Type: files; Name: {app}\avformat-60.dll
 Type: files; Name: {app}\avutil-56.dll
+Type: files; Name: {app}\avutil-58.dll
 Type: files; Name: {app}\qscintilla2_qt5.dll
 Type: files; Name: {app}\Qt5Concurrent.dll
 Type: files; Name: {app}\Qt5Core.dll
@@ -101,7 +105,9 @@ Type: files; Name: {app}\Qt5Svg.dll
 Type: files; Name: {app}\Qt5Widgets.dll
 Type: files; Name: {app}\Qt5Xml.dll
 Type: files; Name: {app}\swresample-3.dll
+Type: files; Name: {app}\swresample-4.dll
 Type: files; Name: {app}\swscale-5.dll
+Type: files; Name: {app}\swscale-7.dll
 Type: files; Name: {app}\audio\qtaudio_wasapi.dll
 Type: files; Name: {app}\audio\qtaudio_windows.dll
 Type: files; Name: {app}\imageformats\qgif.dll

@@ -184,12 +184,19 @@ for pdir in ${PLUGS}; do
     done
 done
 
+CMAKE_FILE="${BUILD}/friction/src/cmake/friction-version.cmake"
+MAJOR=$(grep -oE 'set\(PROJECT_VERSION_MAJOR [0-9]+\)' "$CMAKE_FILE" | grep -oE '[0-9]+')
+MINOR=$(grep -oE 'set\(PROJECT_VERSION_MINOR [0-9]+\)' "$CMAKE_FILE" | grep -oE '[0-9]+')
+PATCH=$(grep -oE 'set\(PROJECT_VERSION_PATCH [0-9]+\)' "$CMAKE_FILE" | grep -oE '[0-9]+')
+
+echo "SO version: ${MAJOR}.${MINOR}.${PATCH}"
+
 (cd ${BUILD}/${FRICTION_PKG}/opt/friction/lib;
     chmod +x libskia-friction.so.1
-    rm -f libfrictioncore.so libfrictioncore.so.1
-    mv libfrictioncore.so.1.0.0 libfrictioncore.so.1 || mv libfrictioncore.so.1.1.0 libfrictioncore.so.1
-    rm -f libfrictionui.so libfrictionui.so.1
-    mv libfrictionui.so.1.0.0 libfrictionui.so.1 || mv libfrictionui.so.1.1.0 libfrictionui.so.1
+    rm -f libfrictioncore.so libfrictioncore.so.${MAJOR} || true
+    mv libfrictioncore.so.${MAJOR}.${MINOR}.${PATCH} libfrictioncore.so.${MAJOR}
+    rm -f libfrictionui.so libfrictionui.so.${MAJOR} || true
+    mv libfrictionui.so.${MAJOR}.${MINOR}.${PATCH} libfrictionui.so.${MAJOR}
 )
 
 # RPM

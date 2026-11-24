@@ -28,6 +28,7 @@ CUSTOM=${CUSTOM:-""}
 BUILD_ARM=${BUILD_ARM:-1}
 BUILD_INTEL=${BUILD_INTEL:-1}
 BUILD_UNIVERSAL=${BUILD_UNIVERSAL:-1}
+UPDATE_SUBMODULES=${UPDATE_SUBMODULES:-1}
 
 if [ "${BUILD_UNIVERSAL}" = 1 ]; then
     BUILD_ARM=1
@@ -35,14 +36,14 @@ if [ "${BUILD_UNIVERSAL}" = 1 ]; then
 fi
 
 SDK_PATH=${CWD}/sdk
-SDK_VERSION=1.0.0
-SDK_REV=r7
+SDK_VERSION=20261121
+SDK_REV=r2
 SDK_URL=https://github.com/friction2d/friction-sdk/releases/download/v${SDK_VERSION}
 SDK_BASE=friction-sdk-${SDK_VERSION}${SDK_REV}-macOS
 SDK_ARM_TAR=${SDK_BASE}-arm64.tar.xz
 SDK_INTEL_TAR=${SDK_BASE}-x86_64.tar.xz
-SDK_ARM_SHA256=e904d59c7af517573f21e0b9e42cd2edadf0f1ec7271493a5095269beaad3bcd
-SDK_INTEL_SHA256=ad68c4440021647a0981ad32cc39f80217e82a98854d0704cbdebf5b065be7e7
+SDK_ARM_SHA256=7f4278c7e66e56049de5dfafac65c90197b95f902a29e8892f749953c6dbead4
+SDK_INTEL_SHA256=f19f6d43c500276eebf60c7b4fc787df3801c3b4ecafdd4b4e0186804b435abf
 
 if [ ! -d "${SDK_PATH}" ]; then
     mkdir -p "${SDK_PATH}"
@@ -58,7 +59,9 @@ if [ ! -d "${SDK_PATH}" ]; then
     fi
 fi
 
-git submodule update --init --recursive
+if [ "${UPDATE_SUBMODULES}" = 1 ]; then
+    git submodule update --init --recursive
+fi
 
 export CUSTOM=${CUSTOM}
 export REL=${REL}

@@ -380,6 +380,7 @@ set(
     renderinstancesettings.cpp
     videoencoder.cpp
     svgo.cpp
+    utils/ffmpeghelper.cpp
 )
 
 set(
@@ -723,6 +724,7 @@ set(
     videoencoder.h
     formatoptions.h
     svgo.h
+    utils/ffmpeghelper.h
 )
 
 add_library(${PROJECT_NAME} SHARED ${HEADERS} ${SOURCES} coreresources.qrc)

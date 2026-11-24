@@ -30,10 +30,7 @@ MKJOBS=${MKJOBS:-4}
 NINJA_V=1.11.1
 CMAKE_V=3.26.3
 UNWIND_V=1.4.0
-
-SKIA_V=1.0.5
-SKIA_COMMIT=b551a388dfbe112f40b6f4fc710d25255c3969f5
-SKIA_URL=https://github.com/friction2d/skia
+SKIA_V=1.0.6
 
 NINJA_BIN=${SDK}/bin/ninja
 CMAKE_BIN=${SDK}/bin/cmake
@@ -86,11 +83,10 @@ fi # cmake
 # skia
 if [ ! -f "${SDK}/lib/libskia-friction.so.${SKIA_V}" ] || [ ! -f "${SDK}/glx/lib/libskia-friction.so.${SKIA_V}" ]; then
     cd ${SRC}
-    rm -rf skia-${SKIA_V} || true
-    git clone ${SKIA_URL} skia-${SKIA_V}
-    cd skia-${SKIA_V}
-    git checkout ${SKIA_COMMIT}
-    git submodule update -i --recursive
+    SKIA_SRC=skia-friction-${SKIA_V}
+    rm -rf ${SKIA_SRC} || true
+    tar xf ${DIST}/skia/${SKIA_SRC}.tar.xz
+    cd ${SKIA_SRC}
     mkdir build
     cd build
     cmake -G Ninja \
@@ -99,7 +95,7 @@ if [ ! -f "${SDK}/lib/libskia-friction.so.${SKIA_V}" ] || [ ! -f "${SDK}/glx/lib
     -DCMAKE_CXX_COMPILER=clang++ \
     -DCMAKE_C_COMPILER=clang \
     -DSKIA_USE_SYSTEM_LIBS=OFF \
-    -DSKIA_SYNC_EXTERNAL=ON \
+    -DSKIA_SYNC_EXTERNAL=OFF \
     -DSKIA_USE_EGL=ON \
     -DLINUX_DEPLOY=ON \
     ..
@@ -115,7 +111,7 @@ if [ ! -f "${SDK}/lib/libskia-friction.so.${SKIA_V}" ] || [ ! -f "${SDK}/glx/lib
     -DCMAKE_CXX_COMPILER=clang++ \
     -DCMAKE_C_COMPILER=clang \
     -DSKIA_USE_SYSTEM_LIBS=OFF \
-    -DSKIA_SYNC_EXTERNAL=ON \
+    -DSKIA_SYNC_EXTERNAL=OFF \
     -DSKIA_USE_EGL=OFF \
     -DLINUX_DEPLOY=ON \
     ..

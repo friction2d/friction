@@ -30,12 +30,13 @@
 
 #include <QString>
 #include <QList>
-#include "skia/skiaincludes.h"
+
 #include "Tasks/updatable.h"
 #include "renderinstancesettings.h"
 #include "framerange.h"
 #include "CacheHandlers/samples.h"
 #include "Sound/esoundsettings.h"
+#include "utils/ffmpeghelper.h"
 
 extern "C" {
     #include <libavcodec/avcodec.h>
@@ -50,107 +51,19 @@ extern "C" {
 
 class SceneFrameContainer;
 
-class CORE_EXPORT SoundIterator {
+class CORE_EXPORT SoundIterator
+{
 public:
     SoundIterator() {}
+    bool hasValue() const;
+    bool hasSamples(const int samples) const;
+    void fillFrame(AVFrame* const frame);
+    bool next();
+    void add(const stdsptr<Samples>& sound);
+    void clear();
 
-    bool hasValue() const {
-        return !mSamples.isEmpty();
-    }
-
-    bool hasSamples(const int samples) const {
-        if(mSamples.isEmpty()) return false;
-        int rem = samples - (mEndSample - mCurrentSample);
-        if(rem <= 0) return true;
-        for(int i = 1 ; i < mSamples.count(); i++) {
-            rem -= mSamples.at(i)->fSampleRange.span();
-            if(rem <= 0) return true;
-        }
-        return false;
-    }
-
-    void fillFrame(AVFrame* const frame) {
-        Q_ASSERT(frame->channel_layout == mCurrentSamples->fChannelLayout);
-        Q_ASSERT(frame->format == mCurrentSamples->fFormat);
-        Q_ASSERT(frame->sample_rate == mCurrentSamples->fSampleRate);
-        const int nChannels = static_cast<int>(mCurrentSamples->fNChannels);
-        const int sampleSize = int(mCurrentSamples->fSampleSize);
-        int remaining = frame->nb_samples;
-        int frameSample = 0;
-        if(mCurrentSamples->fPlanar) {
-            while(remaining > 0) {
-                const int cpySamples = qMin(remaining,
-                                            mEndSample - mCurrentSample + 1);
-                const uint cpyBytes = static_cast<uint>(cpySamples*sampleSize);
-                for(int j = 0; j < nChannels; j++) {
-                    memcpy(frame->data[j] + frameSample*sampleSize,
-                           mCurrentData[j] + mCurrentSample*sampleSize, cpyBytes);
-                }
-
-                remaining -= cpySamples;
-                mCurrentSample += cpySamples;
-                frameSample += cpySamples;
-                if(mCurrentSample > mEndSample) {
-                    if(!next()) {
-                        frame->nb_samples = frameSample;
-                        return;
-                    }
-                }
-            }
-        } else {
-            while(remaining > 0) {
-                const int cpySamples = qMin(remaining,
-                                            mEndSample - mCurrentSample + 1)*nChannels;
-                const uint cpyBytes = static_cast<uint>(cpySamples*sampleSize);
-                memcpy(frame->data[0] + frameSample*sampleSize*nChannels,
-                        mCurrentData[0] + mCurrentSample*sampleSize*nChannels, cpyBytes);
-
-                remaining -= cpySamples;
-                mCurrentSample += cpySamples;
-                frameSample += cpySamples;
-                if(mCurrentSample > mEndSample) {
-                    if(!next()) {
-                        frame->nb_samples = frameSample;
-                        return;
-                    }
-                }
-            }
-        }
-    }
-
-    bool next() {
-        if(mSamples.isEmpty()) return false;
-        mSamples.removeFirst();
-        if(!updateCurrent()) return false;
-        return true;
-    }
-
-    void add(const stdsptr<Samples>& sound) {
-        mSamples << sound;
-        if(mSamples.count() == 1) updateCurrent();
-    }
-
-    void clear() {
-        mSamples.clear();
-        updateCurrent();
-    }
 private:
-    bool updateCurrent() {
-        if(mSamples.isEmpty()) {
-            mCurrentSamples = nullptr;
-            mCurrentData = nullptr;
-            mCurrentSample = 0;
-            mEndSample = 0;
-            return false;
-        }
-        mCurrentSamples = mSamples.first().get();
-        mCurrentData = mCurrentSamples->fData;
-        const auto samplesRange = mCurrentSamples->fSampleRange;
-        mCurrentSample = 0;
-        mEndSample = samplesRange.fMax - samplesRange.fMin;
-        return true;
-    }
-
+    bool updateCurrent();
     int mCurrentSample = 0;
     int mEndSample = 0;
     uchar** mCurrentData = nullptr;
@@ -158,64 +71,38 @@ private:
     QList<stdsptr<Samples>> mSamples;
 };
 
-typedef struct CORE_EXPORT OutputStream {
-    // pts of the next frame that will be generated
-    int64_t fNextPts;
-
-    AVStream *fStream = nullptr;
-    AVCodecContext *fCodec = nullptr;
-    AVFrame *fDstFrame = nullptr;
-    AVFrame *fSrcFrame = nullptr;
-    struct SwsContext *fSwsCtx = nullptr;
-    struct SwrContext *fSwrCtx = nullptr;
-    // Cached per-frame duration in stream time_base ticks
-    int64_t fFrameDuration = 0;
-} OutputStream;
-
-class CORE_EXPORT VideoEncoderEmitter : public QObject {
+class CORE_EXPORT VideoEncoderEmitter : public QObject
+{
     Q_OBJECT
 public:
     VideoEncoderEmitter() {}
+
 signals:
     void encodingStarted();
     void encodingFinished();
     void encodingInterrupted();
-
     void encodingStartFailed();
     void encodingFailed();
 };
 
-class CORE_EXPORT VideoEncoder : public eHddTask {
+class CORE_EXPORT VideoEncoder : public eHddTask
+{
     e_OBJECT
 protected:
     VideoEncoder();
+
 public:
     void process();
     void beforeProcessing(const Hardware);
     void afterProcessing();
-
-    bool startNewEncoding(RenderInstanceSettings * const settings) {
-        return startEncoding(settings);
-    }
-
-    void interruptCurrentEncoding() {
-        if(isActive()) mInterruptEncoding = true;
-        else interrupEncoding();
-    }
-
-    void finishCurrentEncoding() {
-        if(!mCurrentlyEncoding) return;
-        if(isActive()) mEncodingFinished = true;
-        else finishEncodingSuccess();
-    }
-
+    bool startNewEncoding(RenderInstanceSettings * const settings);
+    void interruptCurrentEncoding();
+    void finishCurrentEncoding();
     void addContainer(const stdsptr<SceneFrameContainer> &cont);
     void addContainer(const stdsptr<Samples> &cont);
     void allAudioProvided();
 
     static VideoEncoder *sInstance;
-
-    static bool isValidProfile(const AVCodec *codec, int profile);
 
     static void sInterruptEncoding();
     static bool sStartEncoding(RenderInstanceSettings *settings);
@@ -226,13 +113,10 @@ public:
     static bool sEncodingSuccessfulyStarted();
     static bool sEncodeAudio();
 
-    VideoEncoderEmitter *getEmitter() {
-        return &mEmitter;
-    }
+    VideoEncoderEmitter *getEmitter();
 
-    bool getCurrentlyEncoding() const {
-        return mCurrentlyEncoding;
-    }
+    bool getCurrentlyEncoding() const;
+
 protected:
     void clearContainers();
     VideoEncoderEmitter mEmitter;
@@ -247,8 +131,8 @@ protected:
     bool mInterruptEncoding = false;
 
     eSoundSettingsData mInSoundSettings;
-    OutputStream mVideoStream;
-    OutputStream mAudioStream;
+    Friction::Utils::FFmpegHelper::OutputStream mVideoStream;
+    Friction::Utils::FFmpegHelper::OutputStream mAudioStream;
     AVFormatContext *mFormatContext = nullptr;
     const AVOutputFormat *mOutputFormat = nullptr;
     bool mCurrentlyEncoding = false;
@@ -265,7 +149,7 @@ protected:
 
     bool _mAllAudioProvided = false;
     int _mCurrentContainerId = 0;
-    int _mCurrentContainerFrame = 0; // some containers will add multiple frames
+    int _mCurrentContainerFrame = 0;
     FrameRange _mRenderRange;
 
     QList<stdsptr<SceneFrameContainer>> _mContainers;

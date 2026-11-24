@@ -17,35 +17,41 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-set -e -x
+set -e
 
-# keep in sync with other SDK's
+# run two times, one for arm64 and one for x86_64
+# ./src/scripts/build_mac_sdk.sh
+# arch -x86_64 ./src/scripts/build_mac_sdk.sh
 
-SKIA_V=1.0.5
-SKIA_COMMIT=b551a388dfbe112f40b6f4fc710d25255c3969f5
+# then package each folder in sdk/
+# tar cvvf friction-sdk-VERSIONrREV-arm64-macOS.tar arm64
+# tar cvvf friction-sdk-VERSIONrREV-x86_64-macOS.tar x86_64
 
-PYTHON_V=3.11.11
-NINJA_V=1.11.1
+# See other scripts on how to build and make a universal dmg
+
+SKIA_V=1.0.6
+PYTHON_V=3.11.18
+NINJA_V=1.13.2
 CMAKE_V=3.26.3
 NASM_V=2.14.02
 YASM_V=1.3.0
 PKGCONF_V=1.1.0
-
-QT_V=5.15.19_20260520_aa749695
+QT_V=5.15.19_20260520_aa749695 # 6.8.5
 QSCINTILLA_V=2.14.1
-
 LAME_V=3.100
 VPX_V=1.13.0
-OGG_V=1.3.5
+OGG_V=1.3.6
 VORBIS_V=1.3.7
-THEORA_V=1.1.1
-XVID_V=1.3.4
-LSMASH_V=2.14.5
-X264_V=20180806-2245
-X265_V=3.5
+THEORA_V=1.2.0
+OPUS_V=1.6.1
+X264_V=b35605ace3ddf7c1a5d67a2eb553f034aef41d55
+X265_V=4.2
 AOM_V=3.6.1
-FFMPEG_V=4.2.11
-OSX=11.0
+FFMPEG_V=6.1.6
+
+# We will stay on 12.0 for as long as possible (Qt 6.8 is supported until 2029 + 1y OSS delay),
+# as that is our test platform for x86_64.
+OSX=12.0
 OSX_HOST=`sw_vers -productVersion`
 CPU=`arch`
 
@@ -53,7 +59,7 @@ if [ "${CPU}" = "i386" ]; then
     CPU=x86_64
 fi
 
-echo "Friction SDK on macOS ${OSX_HOST} for ${OSX} ${CPU}"
+echo "Building Friction SDK ${CPU} on macOS ${OSX_HOST} for minimum target ${OSX} ..."
 
 CWD=`pwd`
 SDK=${SDK:-"${CWD}/sdk/${CPU}"}
@@ -71,8 +77,13 @@ CMAKE_BIN=${SDK}/bin/cmake
 export PATH="${SDK}/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 export PKG_CONFIG_PATH="${SDK}/lib/pkgconfig"
 
-export CC="/usr/bin/clang -mmacosx-version-min=${OSX}"
-export CXX="/usr/bin/clang++ -mmacosx-version-min=${OSX}"
+export MACOSX_DEPLOYMENT_TARGET="${OSX}"
+
+SYSROOT=$(xcrun --show-sdk-path)
+export SDKROOT="${SYSROOT}"
+
+export CC="/usr/bin/clang -isysroot ${SYSROOT} -mmacosx-version-min=${OSX}"
+export CXX="/usr/bin/clang++ -isysroot ${SYSROOT} -mmacosx-version-min=${OSX}"
 
 STATIC_CFLAGS="-fPIC"
 DEFAULT_CFLAGS="-I${SDK}/include"
@@ -96,35 +107,35 @@ fi
 
 # python
 if [ ! -f "${PYTHON_BIN}" ]; then
-    cd ${SRC}
+    cd "${SRC}"
     PY_SRC=Python-${PYTHON_V}
-    rm -rf ${PY_SRC} || true
-    tar xf ${DIST}/tools/${PY_SRC}.tar.xz
-    cd ${PY_SRC}
-    ./configure ${COMMON_CONFIGURE}
+    rm -rf "${PY_SRC}" || true
+    tar xf "${DIST}/tools/${PY_SRC}.tar.xz"
+    cd "${PY_SRC}"
+    ./configure ${COMMON_CONFIGURE} --with-ensurepip=no
     make -j${MKJOBS}
     make install
-    (cd ${SDK}/bin ; ln -sf python3 python)
+    (cd "${SDK}/bin" ; ln -sf python3 python)
 fi # python
 
 # ninja
 if [ ! -f "${NINJA_BIN}" ]; then
-    cd ${SRC}
+    cd "${SRC}"
     NINJA_SRC=ninja-${NINJA_V}
-    rm -rf ${NINJA_SRC} || true
-    tar xf ${DIST}/tools/${NINJA_SRC}.tar.gz
-    cd ${NINJA_SRC}
+    rm -rf "${NINJA_SRC}" || true
+    tar xf "${DIST}/tools/${NINJA_SRC}.tar.gz"
+    cd "${NINJA_SRC}"
     ${PYTHON_BIN} configure.py --bootstrap
-    cp -a ninja ${NINJA_BIN}
+    cp -a ninja "${NINJA_BIN}"
 fi # ninja
 
 # cmake
 if [ ! -f "${CMAKE_BIN}" ]; then
-    cd ${SRC}
+    cd "${SRC}"
     CMAKE_SRC=cmake-${CMAKE_V}
-    rm -rf ${CMAKE_SRC} || true
-    tar xf ${DIST}/ffmpeg/${CMAKE_SRC}.tar.gz
-    cd ${CMAKE_SRC}
+    rm -rf "${CMAKE_SRC}" || true
+    tar xf "${DIST}/ffmpeg/${CMAKE_SRC}.tar.gz"
+    cd "${CMAKE_SRC}"
     patch -p0 < ${PATCHES}/cmake-zlib-macos154.diff
     ./configure ${COMMON_CONFIGURE} --no-system-libs --parallel=${MKJOBS} -- -DCMAKE_USE_OPENSSL=OFF
     make -j${MKJOBS}
@@ -133,24 +144,24 @@ fi # cmake
 
 # pkgconfig
 if [ ! -f "${SDK}/bin/pkg-config" ]; then
-    cd ${SRC}
+    cd "${SRC}"
     PKGCONF_SRC=pkgconf-${PKGCONF_V}
-    rm -rf ${PKGCONF_SRC} || true
-    tar xf ${DIST}/tools/${PKGCONF_SRC}.tar.xz
-    cd ${PKGCONF_SRC}
+    rm -rf "${PKGCONF_SRC}" || true
+    tar xf "${DIST}/tools/${PKGCONF_SRC}.tar.xz"
+    cd "${PKGCONF_SRC}"
     ./configure ${STATIC_CONFIGURE}
     make -j${MKJOBS}
     make install
-    (cd ${SDK}/bin ; ln -sf pkgconf pkg-config)
+    (cd "${SDK}/bin" ; ln -sf pkgconf pkg-config)
 fi # pkgconfig
 
 # nasm
 if [ ! -f "${SDK}/bin/nasm" ]; then
-    cd ${SRC}
+    cd "${SRC}"
     NASM_SRC=nasm-${NASM_V}
-    rm -rf ${NASM_SRC} || true
-    tar xf ${DIST}/ffmpeg/${NASM_SRC}.tar.xz
-    cd ${NASM_SRC}
+    rm -rf "${NASM_SRC}" || true
+    tar xf "${DIST}/ffmpeg/${NASM_SRC}.tar.xz"
+    cd "${NASM_SRC}"
     ./configure ${COMMON_CONFIGURE}
     make -j${MKJOBS}
     make install
@@ -158,11 +169,11 @@ fi # nasm
 
 # yasm
 if [ ! -f "${SDK}/bin/yasm" ]; then
-    cd ${SRC}
+    cd "${SRC}"
     YASM_SRC=yasm-${YASM_V}
-    rm -rf ${YASM_SRC} || true
-    tar xf ${DIST}/tools/${YASM_SRC}.tar.gz
-    cd ${YASM_SRC}
+    rm -rf "${YASM_SRC}" || true
+    tar xf "${DIST}/tools/${YASM_SRC}.tar.gz"
+    cd "${YASM_SRC}"
     ./configure ${COMMON_CONFIGURE}
     make -j${MKJOBS}
     make install
@@ -170,28 +181,46 @@ fi # yasm
 
 # skia
 if [ ! -f "${SDK}/lib/libskia-friction.${SKIA_V}.dylib" ]; then
-    cd ${SRC}
-    rm -rf skia || true
-    git clone https://github.com/friction2d/skia
-    cd skia
-    git checkout ${SKIA_COMMIT}
-    git submodule update -i --recursive
+    cd "${SRC}"
+    SKIA_SRC=skia-friction-${SKIA_V}
+    rm -rf "${SKIA_SRC}" || true
+    tar xf "${DIST}/skia/${SKIA_SRC}.tar.xz"
+    cd "${SKIA_SRC}"
     mkdir build && cd build
-    cmake -G Ninja -DCMAKE_OSX_DEPLOYMENT_TARGET=${OSX} -DMAC_DEPLOY=ON -DSKIA_USE_SYSTEM_LIBS=OFF -DCMAKE_INSTALL_PREFIX=${SDK} -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang ..
+    cmake -G Ninja \
+    -DCMAKE_OSX_DEPLOYMENT_TARGET=${OSX} \
+    -DCMAKE_INSTALL_PREFIX=${SDK} \
+    -DMAC_DEPLOY=ON \
+    -DSKIA_SYNC_EXTERNAL=OFF \
+    -DSKIA_USE_SYSTEM_LIBS=OFF \
+    -DCMAKE_INSTALL_PREFIX=${SDK} \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DCMAKE_CXX_COMPILER=clang++ \
+    -DCMAKE_C_COMPILER=clang ..
     cmake --build .
-    cp -a skia-build/libskia* ${SDK}/lib/
+    cmake --install .
 fi # skia
 
 # qt5
 if [ ! -f "${QMAKE_BIN}" ]; then
-    cd ${SRC}
+    cd "${SRC}"
     QT_SRC="qt-everywhere-src-${QT_V}"
     if [ ! -d "${QT_SRC}" ]; then
-        tar xf ${DIST}/qt/${QT_SRC}.${SRC_SUFFIX}
+        tar xf "${DIST}/qt/${QT_SRC}.${SRC_SUFFIX}"
     fi
-    cd ${QT_SRC}
+    cd "${QT_SRC}"
     patch -p0 < ${PATCHES}/qtbase-macos-versions.diff
     patch -p0 < ${PATCHES}/qtbase-qversion.diff
+
+    # macOS 26+
+    #echo 'QMAKE_LIBS_OPENGL = -framework OpenGL' >> qtbase/mkspecs/common/mac.conf
+    #echo 'QMAKE_INCDIR_OPENGL = /System/Library/Frameworks/OpenGL.framework/Headers' >> qtbase/mkspecs/common/mac.conf
+    #echo 'QMAKE_CFLAGS += -DGL_SILENCE_DEPRECATION -Wno-#warnings' >> qtbase/mkspecs/common/mac.conf
+    #echo 'QMAKE_CXXFLAGS += -DGL_SILENCE_DEPRECATION -Wno-#warnings' >> qtbase/mkspecs/common/mac.conf
+    #echo 'QMAKE_OBJECTIVE_CFLAGS += -DGL_SILENCE_DEPRECATION -Wno-#warnings' >> qtbase/mkspecs/common/mac.conf
+
+    echo "QMAKE_MACOSX_DEPLOYMENT_TARGET = ${OSX}" >> qtbase/mkspecs/common/macx.conf
+
     CXXFLAGS="${DEFAULT_CPPFLAGS}" CFLAGS="${DEFAULT_CFLAGS}" \
     ./configure \
     -prefix ${SDK} \
@@ -269,33 +298,37 @@ if [ ! -f "${QMAKE_BIN}" ]; then
     -skip qtwebsockets \
     -skip qtwebview \
     -skip qtxmlpatterns
+    # macOS 26+ #\
+    #QMAKE_CXXFLAGS+="-DGL_SILENCE_DEPRECATION" \
+    #QMAKE_CFLAGS+="-DGL_SILENCE_DEPRECATION" \
+    #QMAKE_OBJECTIVE_CFLAGS+="-DGL_SILENCE_DEPRECATION"
     make -j${MKJOBS}
     make install
 fi # qt5
 
 # qscintilla
 if [ ! -f "${SDK}/lib/libqscintilla2_qt5.dylib" ]; then
-    cd ${SRC}
+    cd "${SRC}"
     QSC_SRC="QScintilla_src-${QSCINTILLA_V}"
-    rm -rf ${QSC_SRC}
-    tar xf ${DIST}/qt/${QSC_SRC}.tar.gz
-    cd ${QSC_SRC}/src
+    rm -rf "${QSC_SRC}"
+    tar xf "${DIST}/qt/${QSC_SRC}.tar.gz"
+    cd "${QSC_SRC}/src"
     sed -i '' 's#!ios:QT += printsupport##' qscintilla.pro
     sed -i '' 's#!ios:HEADERS += ./Qsci/qsciprinter.h##' qscintilla.pro
     sed -i '' 's#!ios:SOURCES += qsciprinter.cpp##' qscintilla.pro
     CXXFLAGS="${DEFAULT_CPPFLAGS}" CFLAGS="${DEFAULT_CFLAGS}" \
     ${SDK}/bin/qmake CONFIG+=release
     make -j${MKJOBS}
-    cp -a libqscintilla2_qt5* ${SDK}/lib/
-    cp -a Qsci ${SDK}/include/
+    cp -a libqscintilla2_qt5* "${SDK}/lib/"
+    cp -a Qsci "${SDK}/include/"
 fi # qscintilla
 
 # lame
 if [ ! -f "${SDK}/lib/libmp3lame.dylib" ]; then
     cd ${SRC}
     LAME_SRC=lame-${LAME_V}
-    rm -rf ${LAME_SRC} || true
-    tar xf ${DIST}/ffmpeg/${LAME_SRC}.tar.gz
+    rm -rf "${LAME_SRC}" || true
+    tar xf "${DIST}/ffmpeg/${LAME_SRC}.tar.gz"
     cd ${LAME_SRC}
     patch -p0 < ${PATCHES}/lame-avoid_undefined_symbols_error.diff
     CFLAGS="${DEFAULT_CFLAGS}" \
@@ -308,11 +341,11 @@ fi # lame
 
 # libvpx
 if [ ! -f "${SDK}/lib/libvpx.a" ]; then
-    cd ${SRC}
+    cd "${SRC}"
     VPX_SRC=libvpx-${VPX_V}
-    rm -rf ${VPX_SRC} || true
-    tar xf ${DIST}/ffmpeg/libvpx-${VPX_V}.tar.gz
-    cd ${VPX_SRC}
+    rm -rf "${VPX_SRC}" || true
+    tar xf "${DIST}/ffmpeg/libvpx-${VPX_V}.tar.gz"
+    cd "${VPX_SRC}"
     patch -p0 < ${PATCHES}/vpx-Makefile.diff
     patch -p0 < ${PATCHES}/vpx-configure.diff
     CFLAGS="${DEFAULT_CFLAGS}" \
@@ -340,11 +373,11 @@ fi # libvpx
 
 # libogg
 if [ ! -f "${SDK}/lib/libogg.a" ]; then
-    cd ${SRC}
+    cd "${SRC}"
     OGG_SRC=libogg-${OGG_V}
-    rm -rf ${OGG_SRC} || true
-    tar xf ${DIST}/ffmpeg/${OGG_SRC}.tar.gz
-    cd ${OGG_SRC}
+    rm -rf "${OGG_SRC}" || true
+    tar xf "${DIST}/ffmpeg/${OGG_SRC}.tar.gz"
+    cd "${OGG_SRC}"
     CFLAGS="${DEFAULT_CFLAGS}" \
     CXXFLAGS="${DEFAULT_CPPFLAGS}" \
     LDFLAGS="${DEFAULT_LDFLAGS}" \
@@ -355,11 +388,11 @@ fi # libogg
 
 # libvorbis
 if [ ! -f "${SDK}/lib/libvorbis.dylib" ]; then
-    cd ${SRC}
+    cd "${SRC}"
     VORBIS_SRC=libvorbis-${VORBIS_V}
-    rm -rf ${VORBIS_SRC} || true
-    tar xf ${DIST}/ffmpeg/${VORBIS_SRC}.tar.gz
-    cd ${VORBIS_SRC}
+    rm -rf "${VORBIS_SRC}" || true
+    tar xf "${DIST}/ffmpeg/${VORBIS_SRC}.tar.gz"
+    cd "${VORBIS_SRC}"
     patch -p0 < ${PATCHES}/vorbis-configure.diff
     CFLAGS="${DEFAULT_CFLAGS}" \
     CXXFLAGS="${DEFAULT_CPPFLAGS}" \
@@ -371,11 +404,11 @@ fi # libvorbis
 
 # libtheora
 if [ ! -f "${SDK}/lib/libtheora.dylib" ]; then
-    cd ${SRC}
+    cd "${SRC}"
     THEORA_SRC=libtheora-${THEORA_V}
-    rm -rf ${THEORA_SRC} || true
-    tar xf ${DIST}/ffmpeg/${THEORA_SRC}.tar.gz
-    cd ${THEORA_SRC}
+    rm -rf "${THEORA_SRC}" || true
+    tar xf "${DIST}/ffmpeg/${THEORA_SRC}.tar.gz"
+    cd "${THEORA_SRC}"
     CFLAGS="${DEFAULT_CFLAGS}" \
     CXXFLAGS="${DEFAULT_CPPFLAGS}" \
     LDFLAGS="${DEFAULT_LDFLAGS}" \
@@ -384,42 +417,28 @@ if [ ! -f "${SDK}/lib/libtheora.dylib" ]; then
     make install
 fi # libtheora
 
-# xvidcore
-if [ ! -f "${SDK}/lib/libxvidcore.4.dylib" ]; then
+# opus
+if [ ! -f "${SDK}/lib/libopus.dylib" ]; then
     cd ${SRC}
-    rm -rf xvidcore || true
-    tar xf ${DIST}/ffmpeg/xvidcore-${XVID_V}.tar.gz
-    cd xvidcore/build/generic
+    OPUS_SRC=opus-${OPUS_V}
+    rm -rf ${OPUS_SRC} || true
+    tar xf ${DIST}/ffmpeg/${OPUS_SRC}.tar.gz
+    cd ${OPUS_SRC}
     CFLAGS="${DEFAULT_CFLAGS}" \
-    CXXFLAGS="${DEFAULT_CPPFLAGS}" \
+    CXXFLAGS="${DEFAULT_CFLAGS}" \
     LDFLAGS="${DEFAULT_LDFLAGS}" \
-    ./configure ${COMMON_CONFIGURE}
+    ./configure ${DEFAULT_CONFIGURE} --disable-docs --disable-extra-programs
     make -j${MKJOBS}
     make install
-fi # xvidcore
-
-# liblsmash
-#if [ ! -f "${SDK}/lib/liblsmash.dylib" ]; then
-#    cd ${SRC}
-#    LSMASH_SRC=l-smash-${LSMASH_V}
-#    rm -rf ${LSMASH_SRC} || true
-#    tar xf ${DIST}/ffmpeg/liblsmash-v${LSMASH_V}.tar.gz
-#    cd ${LSMASH_SRC}
-#    CFLAGS="${DEFAULT_CFLAGS}" \
-#    CXXFLAGS="${DEFAULT_CPPFLAGS}" \
-#    LDFLAGS="${DEFAULT_LDFLAGS}" \
-#    ./configure ${DEFAULT_CONFIGURE}
-#    make -j${MKJOBS}
-#    make install
-#fi # liblsmash
+fi # opus
 
 # x264
 if [ ! -f "${SDK}/lib/libx264.dylib" ]; then
-    cd ${SRC}
-    X264_SRC=x264-master #snapshot-${X264_V}
-    rm -rf ${X264_SRC} || true
-    tar xf ${DIST}/ffmpeg/${X264_SRC}.tar.bz2
-    cd ${X264_SRC}
+    cd "${SRC}"
+    X264_SRC=x264-${X264_V}
+    rm -rf "${X264_SRC}" || true
+    tar xf "${DIST}/ffmpeg/${X264_SRC}.tar.bz2"
+    cd "${X264_SRC}"
     CFLAGS="${DEFAULT_CFLAGS}" \
     CXXFLAGS="${DEFAULT_CPPFLAGS}" \
     LDFLAGS="${DEFAULT_LDFLAGS}" \
@@ -430,11 +449,11 @@ fi # x264
 
 # x265
 if [ ! -f "${SDK}/lib/libx265.dylib" ]; then
-    cd ${SRC}
+    cd "${SRC}"
     X265_SRC=x265_${X265_V}
-    rm -rf ${X265_SRC} || true
-    tar xf ${DIST}/ffmpeg/${X265_SRC}.tar.gz
-    cd ${X265_SRC}/source
+    rm -rf "${X265_SRC}" || true
+    tar xf "${DIST}/ffmpeg/${X265_SRC}.tar.gz"
+    cd "${X265_SRC}/source"
     mkdir build && cd build
     CFLAGS="${DEFAULT_CFLAGS}" \
     CXXFLAGS="${DEFAULT_CPPFLAGS}" \
@@ -451,11 +470,11 @@ fi # x265
 
 # aom
 if [ ! -f "${SDK}/lib/libaom.dylib" ]; then
-    cd ${SRC}
+    cd "${SRC}"
     AOM_SRC=libaom-${AOM_V}
-    rm -rf ${AOM_SRC} || true
-    tar xf ${DIST}/ffmpeg/${AOM_SRC}.tar.gz
-    cd ${AOM_SRC}
+    rm -rf "${AOM_SRC}" || true
+    tar xf "${DIST}/ffmpeg/${AOM_SRC}.tar.gz"
+    cd "${AOM_SRC}"
     mkdir build2 && cd build2
     CFLAGS="${DEFAULT_CFLAGS}" \
     CXXFLAGS="${DEFAULT_CPPFLAGS}" \
@@ -477,14 +496,14 @@ if [ ! -f "${SDK}/lib/libaom.dylib" ]; then
     make install
 fi # aom
 
+# ffmpeg
 if [ ! -f "${SDK}/lib/pkgconfig/libavcodec.pc" ]; then
-    cd ${SRC}
+    cd "${SRC}"
     FFMPEG_SRC=ffmpeg-${FFMPEG_V}
-    rm -rf ${FFMPEG_SRC} || true
-    tar xf ${DIST}/ffmpeg/${FFMPEG_SRC}.tar.xz
-    cd ${FFMPEG_SRC}
+    rm -rf "${FFMPEG_SRC}" || true
+    tar xf "${DIST}/ffmpeg/${FFMPEG_SRC}.tar.xz"
+    cd "${FFMPEG_SRC}"
     patch -p0 < ${PATCHES}/ffmpeg-tiff-assocalpha.diff
-    export MACOSX_DEPLOYMENT_TARGET=${OSX}
     CFLAGS="${DEFAULT_CFLAGS}" \
     CXXFLAGS="${DEFAULT_CPPFLAGS}" \
     LDFLAGS="${DEFAULT_LDFLAGS}" \
@@ -504,7 +523,6 @@ if [ ! -f "${SDK}/lib/pkgconfig/libavcodec.pc" ]; then
     --disable-programs \
     --disable-debug \
     --disable-doc \
-    --enable-avresample \
     --enable-gpl \
     --enable-version3 \
     --extra-version=friction \
@@ -517,7 +535,7 @@ if [ ! -f "${SDK}/lib/pkgconfig/libavcodec.pc" ]; then
     --enable-libmp3lame \
     --disable-libopencore-amrnb \
     --disable-libopencore-amrwb \
-    --disable-libopus \
+    --enable-libopus \
     --disable-libspeex \
     --enable-libtheora \
     --disable-libvidstab \
@@ -526,16 +544,13 @@ if [ ! -f "${SDK}/lib/pkgconfig/libavcodec.pc" ]; then
     --enable-libvpx \
     --enable-libx264 \
     --enable-libaom \
-    --enable-libx265 \
-    --enable-libxvid
+    --enable-libx265
      make -j${MKJOBS}
      make install
 fi # ffmpeg
 
-(cd ${SDK}/lib ;
-install_name_tool -change libvpx.8.dylib @rpath/libvpx.8.dylib libavformat.58.dylib
-install_name_tool -change libvpx.8.dylib @rpath/libvpx.8.dylib libavcodec.58.dylib
-sh ${CWD}/src/scripts/macos_fix_dylib.sh
+(cd "${SDK}/lib" ;
+sh "${CWD}/src/scripts/macos_fix_dylib.sh"
 for i in *.dylib; do
 otool -l $i | grep "minos"
 done

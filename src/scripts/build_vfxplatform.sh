@@ -35,8 +35,8 @@ TAR_VERSION=${TAR_VERSION:-""}
 HEAD_REPO_URL=${HEAD_REPO_URL:-""}
 GLX=${GLX:-0}
 
-SDK_VERSION=${SDK_VERSION:-"1.0.0"}
-SDK_REV=${SDK_REV:-"r15"}
+SDK_VERSION=${SDK_VERSION:-"20261121"}
+SDK_REV=${SDK_REV:-"r2"}
 SDK_URL=${SDK_URL:-"https://github.com/friction2d/friction-sdk/releases/download/v${SDK_VERSION}"}
 SDK_FILE=${SDK_FILE:-"friction-sdk-${SDK_VERSION}${SDK_REV}-linux-x86_64.tar"}
 SDK_PATH="${DISTFILES}/sdk/${SDK_FILE}"
@@ -64,13 +64,33 @@ if [ ! -d "${SDK}" ]; then
 fi
 
 if [ -f "${SDK_PATH}.xz" ] || [ "${DOWNLOAD_SDK}" = 1 ]; then
-    if [ ! -f "${SDK_PATH}.xz" ]; then
+    if [ ! -f "${SDK_PATH}.xz" ] && [ "${DOWNLOAD_SDK}" = 1 ]; then
         (cd ${DISTFILES}/sdk ; wget ${SDK_URL}/${SDK_FILE}.xz )
     fi
     (cd ${SDK}/.. ; tar xf ${SDK_PATH}.xz )
 else
-    SDK=${SDK} DISTFILES=${DISTFILES} MKJOBS=${MKJOBS} ${BUILD}/build_vfxplatform_sdk01.sh
-    SDK=${SDK} DISTFILES=${DISTFILES} MKJOBS=${MKJOBS} ${BUILD}/build_vfxplatform_sdk02.sh
+    if [ -f "${SDK_PATH}-part1.tar.xz" ]; then
+        (cd ${SDK}/.. ; tar xf ${SDK_PATH}-part1.tar.xz )
+    else
+        SDK=${SDK} DISTFILES=${DISTFILES} MKJOBS=${MKJOBS} ${BUILD}/build_vfxplatform_sdk01.sh
+        (cd ${SDK}/.. ;
+            rm -rf friction/src
+            tar cvvf ${SDK_PATH}-part1.tar friction
+            xz -9 ${SDK_PATH}-part1.tar
+        )
+    fi
+
+    if [ -f "${SDK_PATH}-part2.tar.xz" ]; then
+        (cd ${SDK}/.. ; tar xf ${SDK_PATH}-part2.tar.xz )
+    else
+        SDK=${SDK} DISTFILES=${DISTFILES} MKJOBS=${MKJOBS} ${BUILD}/build_vfxplatform_sdk02.sh
+        (cd ${SDK}/.. ;
+            rm -rf friction/src
+            tar cvvf ${SDK_PATH}-part2.tar friction
+            xz -9 ${SDK_PATH}-part2.tar
+        )
+    fi
+
     SDK=${SDK} DISTFILES=${DISTFILES} MKJOBS=${MKJOBS} ${BUILD}/build_vfxplatform_sdk03.sh
     (cd ${SDK}/.. ;
         rm -rf friction/src

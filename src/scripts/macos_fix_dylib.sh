@@ -20,18 +20,19 @@
 
 #set -e -x
 
-BASEPATH=`pwd`
+BASEPATH=$(pwd)
 
 for lib in *.dylib; do
+    [ -e "${lib}" ] || continue
+
     echo "Check (and fix) rpath for ${lib} ..."
-    DY=`otool -L ${lib} | grep ${BASEPATH}`
-    for dylib in $DY; do
+    otool -L "${lib}" | grep "${BASEPATH}" | sed -e 's/ (compatibility.*//' -e 's/^[[:space:]]*//' | while read -r dylib; do
         if [ -f "${dylib}" ]; then
-            BASE=`basename ${dylib}`
+            BASE=$(basename "${dylib}")
             if [ "${BASE}" = "${lib}" ]; then
-                install_name_tool -id @rpath/${BASE} ${lib}
+                install_name_tool -id "@rpath/${BASE}" "${lib}"
             else
-                install_name_tool -change ${dylib} @rpath/${BASE} ${lib}
+                install_name_tool -change "${dylib}" "@rpath/${BASE}" "${lib}"
             fi
         fi
     done
