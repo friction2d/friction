@@ -135,7 +135,7 @@ void Document::writeDoxumentXML(QDomDocument& doc) const
     }
     document.appendChild(bBrushes);*/
 
-    mGrid->writeXML(doc);
+    mGrid->writeXML(doc, document);
 
     auto scenes = doc.createElement("Scenes");
     for (const auto &s : fScenes) {
@@ -185,8 +185,27 @@ void Document::readDocumentXML(Core::ZipFileLoader& fileLoader,
                                QList<Canvas*>& scenes)
 {
     fileLoader.process("document.xml", [&](QIODevice* const src) {
+        const auto xml = src->readAll();
         QDomDocument document;
-        document.setContent(src);
+        QString error;
+        if (!document.setContent(xml, &error)) {
+            // Older saves placed Grid before Document as a second root element.
+            QDomDocument legacy;
+            if (!legacy.setContent("<Legacy>" + xml + "</Legacy>")) {
+                RuntimeThrow("Invalid document.xml: " + error);
+            }
+            const auto grid = legacy.documentElement().firstChildElement();
+            auto root = grid.nextSiblingElement();
+            if (grid.tagName() != "Grid" || root.tagName() != "Document"
+                || !root.nextSiblingElement().isNull()
+                || !root.firstChildElement("Grid").isNull()) {
+                RuntimeThrow("Invalid document.xml: " + error);
+            }
+
+            root.appendChild(grid);
+            document.clear();
+            document.appendChild(document.importNode(root, true));
+        }
         readDocumentXML(document, scenes);
     });
 }
@@ -198,6 +217,8 @@ void Document::readDocumentXML(const QDomDocument& doc,
     const QString versionStr = document.attribute("format-version", "");
     if (versionStr.isEmpty()) { RuntimeThrow("No format version specified"); }
 //    const int version = Core::XmlExportHelpers::stringToInt(versionStr);
+
+    mGrid->readXML(document.firstChildElement("Grid"));
 
     auto bColors = document.firstChildElement("ColorBookmarks");
     const auto colors = bColors.elementsByTagName("Color");

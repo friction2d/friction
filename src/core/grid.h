@@ -138,7 +138,7 @@ namespace Friction
             void writeDocument(eWriteStream &dst) const;
             void readDocument(eReadStream &src);
 
-            void writeXML(QDomDocument& doc) const;
+            void writeXML(QDomDocument& doc, QDomElement& parent) const;
             void readXML(const QDomElement& element);
 
         signals:
