@@ -757,7 +757,7 @@ void Grid::readDocument(eReadStream &src)
     emit changed(mSettings);
 }
 
-void Grid::writeXML(QDomDocument &doc) const
+void Grid::writeXML(QDomDocument &doc, QDomElement &parent) const
 {
     qDebug() << "write grid settings to document";
     debugSettings(mSettings);
@@ -783,7 +783,7 @@ void Grid::writeXML(QDomDocument &doc) const
     element.setAttribute("majorEveryY", QString::number(mSettings.majorEveryY));
     element.setAttribute("color", mSettings.color.name());
     element.setAttribute("colorMajor", mSettings.colorMajor.name());
-    doc.appendChild(element);
+    parent.appendChild(element);
 }
 
 void Grid::readXML(const QDomElement &element)
